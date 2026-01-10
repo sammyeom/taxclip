@@ -389,10 +389,10 @@ export default function SplitView({
                               <td className="px-3 py-2 text-gray-900">{item.name}</td>
                               <td className="px-3 py-2 text-center text-gray-600">{item.qty}</td>
                               <td className="px-3 py-2 text-right text-gray-600">
-                                {item.unitPrice !== 0 ? `$${item.unitPrice.toFixed(2)}` : '-'}
+                                ${item.unitPrice.toFixed(2)}
                               </td>
                               <td className="px-3 py-2 text-right font-medium text-gray-900">
-                                {item.amount !== 0 ? `$${item.amount.toFixed(2)}` : '-'}
+                                ${item.amount.toFixed(2)}
                               </td>
                             </tr>
                           ))}

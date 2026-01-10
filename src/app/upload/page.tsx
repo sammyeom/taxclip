@@ -1452,7 +1452,7 @@ export default function UploadPage() {
                                 />
                               </td>
                               <td className="px-3 py-2 text-right font-medium text-gray-900">
-                                {item.amount !== 0 ? `$${item.amount.toFixed(2)}` : '-'}
+                                ${item.amount.toFixed(2)}
                               </td>
                               <td className="px-3 py-2">
                                 <button

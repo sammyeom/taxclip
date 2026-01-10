@@ -1,0 +1,1234 @@
+'use client';
+
+import { useState, useEffect, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
+import { supabase, createReceipt, createExpense } from '@/lib/supabase';
+import { IRS_SCHEDULE_C_CATEGORIES } from '@/types/database';
+import { useAuth } from '@/hooks/useAuth';
+import Navigation from '@/components/Navigation';
+import {
+  UploadZone,
+  ImagePreview,
+  SplitView,
+  convertHeicToPreview,
+  generateFileId,
+} from '@/components/receipts';
+import type { FileWithPreview, FileStatus, ExtractedData } from '@/components/receipts';
+import { isPdfFile, convertPdfToImages, blobToFile } from '@/lib/pdf-to-image';
+import {
+  Loader2,
+  CheckCircle,
+  XCircle,
+  Sparkles,
+  Layers,
+  Images,
+  SplitSquareVertical,
+  FormInput,
+  Mail,
+  FileText,
+} from 'lucide-react';
+import { EvidenceType, EvidenceItem, ParsedEmailData } from '@/types/evidence';
+import { parseEmailText, validateParsedEmail } from '@/lib/email-parser';
+
+interface OCRData {
+  date: string;
+  vendor: string;
+  amount: number;
+  items: string[];
+  category: string;
+  paymentMethod?: string;
+  documentType?: 'receipt' | 'invoice' | 'payment_proof' | 'online_order' | 'other';
+  confidence?: number;
+}
+
+interface OCRResponse {
+  imageUrl: string;
+  imageUrls?: string[];  // Multi-image support
+  fileUrls?: string[];   // Alias for expenses table
+  documentTypes?: string[]; // Document types for each file
+  rawText?: string | null;  // Combined PDF raw text for audit
+  data: OCRData | null;
+  error?: string;
+}
+
+// Use IRS Schedule C categories from database types
+
+const PAYMENT_METHODS = [
+  { value: '', label: 'Select payment method' },
+  { value: 'credit', label: 'Credit Card' },
+  { value: 'debit', label: 'Debit Card' },
+  { value: 'cash', label: 'Cash' },
+  { value: 'check', label: 'Check' },
+];
+
+// Abort controller map for cancellation
+const abortControllers = new Map<string, AbortController>();
+
+export default function UploadPage() {
+  const { user, loading: authLoading } = useAuth();
+  const router = useRouter();
+
+  // File management states
+  const [files, setFiles] = useState<FileWithPreview[]>([]);
+  const [selectedFileId, setSelectedFileId] = useState<string | null>(null);
+
+  // Multi-image receipt mode
+  const [multiSelectMode, setMultiSelectMode] = useState(false);
+  const [selectedForGrouping, setSelectedForGrouping] = useState<string[]>([]);
+  const [processingGroup, setProcessingGroup] = useState(false);
+
+  // Email text input for IRS evidence
+  const [emailText, setEmailText] = useState('');
+  const [parsingEmail, setParsingEmail] = useState(false);
+  const [parsedEmailData, setParsedEmailData] = useState<ParsedEmailData | null>(null);
+
+  // Global states
+  const [error, setError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
+
+  // Form fields for selected file
+  const [formData, setFormData] = useState({
+    date: '',
+    merchant: '',
+    amount: '',
+    category: 'other',
+    businessPurpose: '',
+    paymentMethod: '',
+    notes: '',
+  });
+
+  // Extracted items from OCR
+  const [extractedItems, setExtractedItems] = useState<string[]>([]);
+
+  // Split view mode toggle
+  const [showSplitView, setShowSplitView] = useState(true);
+
+  // Image URLs from upload (supports single and multi-image)
+  const [uploadedImageUrl, setUploadedImageUrl] = useState<string | null>(null);
+  const [uploadedImageUrls, setUploadedImageUrls] = useState<string[]>([]);
+  const [uploadedDocumentTypes, setUploadedDocumentTypes] = useState<string[]>([]);
+  const [uploadedRawText, setUploadedRawText] = useState<string | null>(null);
+
+  // Redirect if not authenticated
+  useEffect(() => {
+    if (!authLoading && !user) {
+      router.push('/sign-in');
+    }
+  }, [user, authLoading, router]);
+
+  // Get selected file data
+  const selectedFile = files.find((f) => f.id === selectedFileId);
+
+  // Process a single file (upload + OCR)
+  const processFile = useCallback(async (fileId: string, file: File, preview: string | null) => {
+    // Create abort controller for this file
+    const controller = new AbortController();
+    abortControllers.set(fileId, controller);
+
+    try {
+      // Update status to uploading
+      setFiles((prev) =>
+        prev.map((f) =>
+          f.id === fileId ? { ...f, status: 'uploading' as FileStatus, progress: 0 } : f
+        )
+      );
+
+      // Get auth token
+      const { data: { session } } = await supabase.auth.getSession();
+      const token = session?.access_token;
+
+      if (!token) {
+        throw new Error('Not authenticated');
+      }
+
+      // Create form data
+      const formDataToSend = new FormData();
+      formDataToSend.append('file', file);
+
+      // Simulate progress updates
+      const progressInterval = setInterval(() => {
+        setFiles((prev) =>
+          prev.map((f) =>
+            f.id === fileId && f.status === 'uploading'
+              ? { ...f, progress: Math.min(f.progress + 10, 90) }
+              : f
+          )
+        );
+      }, 200);
+
+      // Upload file
+      const response = await fetch('/api/upload', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+        body: formDataToSend,
+        signal: controller.signal,
+      });
+
+      clearInterval(progressInterval);
+
+      // Update to 100% and change to analyzing
+      setFiles((prev) =>
+        prev.map((f) =>
+          f.id === fileId
+            ? { ...f, status: 'analyzing' as FileStatus, progress: 100 }
+            : f
+        )
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to process receipt');
+      }
+
+      const result: OCRResponse = await response.json();
+
+      // Check if OCR failed (API returned error)
+      if (result.error || !result.data) {
+        console.warn('OCR failed:', result.error);
+        // Update file status to show OCR failed but upload succeeded
+        setFiles((prev) =>
+          prev.map((f) =>
+            f.id === fileId
+              ? {
+                  ...f,
+                  status: 'complete' as FileStatus,
+                  progress: 100,
+                  error: result.error || 'OCR analysis failed - please fill in details manually',
+                }
+              : f
+          )
+        );
+        setUploadedImageUrl(result.imageUrl);
+        setUploadedImageUrls(result.imageUrls || [result.imageUrl]);
+        setSelectedFileId((currentId) => currentId || fileId);
+        // Show error message to user
+        setError('OCR analysis failed (API quota exceeded or service unavailable). Please fill in details manually.');
+        return;
+      }
+
+      // Always store the image URL (will be used when saving)
+      setUploadedImageUrl(result.imageUrl);
+      setUploadedImageUrls(result.imageUrls || [result.imageUrl]);
+
+      // Map OCR documentType to EvidenceType
+      const mapDocTypeToEvidenceType = (docType?: string): EvidenceType => {
+        switch (docType) {
+          case 'receipt': return EvidenceType.RECEIPT;
+          case 'invoice': return EvidenceType.INVOICE;
+          case 'payment_proof': return EvidenceType.PAYMENT_PROOF;
+          case 'online_order': return EvidenceType.ONLINE_ORDER;
+          default: return EvidenceType.RECEIPT;
+        }
+      };
+
+      const detectedEvidenceType = result.data?.documentType
+        ? mapDocTypeToEvidenceType(result.data.documentType)
+        : EvidenceType.RECEIPT;
+
+      // Update file with OCR data and auto-detected evidence type
+      setFiles((prev) =>
+        prev.map((f) => {
+          if (f.id !== fileId) return f;
+
+          return {
+            ...f,
+            status: 'complete' as FileStatus,
+            progress: 100,
+            evidenceType: detectedEvidenceType, // Auto-set from OCR
+            ocrData: result.data
+              ? {
+                  date: result.data.date,
+                  vendor: result.data.vendor,
+                  amount: result.data.amount,
+                  category: result.data.category,
+                  items: result.data.items || [],
+                  paymentMethod: result.data.paymentMethod,
+                }
+              : undefined,
+          };
+        })
+      );
+
+      // Always populate the form when OCR completes (for the first completed file or selected file)
+      if (result.data) {
+        setFormData({
+          date: result.data.date || '',
+          merchant: result.data.vendor || '',
+          amount: result.data.amount ? result.data.amount.toFixed(2) : '',
+          category: result.data.category || 'other',
+          businessPurpose: '',
+          paymentMethod: result.data.paymentMethod || '',
+          notes: '',
+        });
+        setExtractedItems(result.data.items || []);
+        setUploadedImageUrl(result.imageUrl);
+        setUploadedImageUrls(result.imageUrls || [result.imageUrl]);
+        setUploadedDocumentTypes(result.data.documentType ? [result.data.documentType] : []);
+        setUploadedRawText(result.rawText || null);
+
+        // Auto-select this file if no file is currently selected
+        setSelectedFileId((currentId) => currentId || fileId);
+      }
+    } catch (err) {
+      if (err instanceof Error && err.name === 'AbortError') {
+        // Upload was cancelled
+        setFiles((prev) => prev.filter((f) => f.id !== fileId));
+      } else {
+        // Update status to error
+        setFiles((prev) =>
+          prev.map((f) =>
+            f.id === fileId
+              ? {
+                  ...f,
+                  status: 'error' as FileStatus,
+                  error: err instanceof Error ? err.message : 'Upload failed',
+                }
+              : f
+          )
+        );
+      }
+    } finally {
+      abortControllers.delete(fileId);
+    }
+  }, [selectedFileId]);
+
+  // Handle new files selected
+  const handleFilesSelected = useCallback(async (newFiles: File[]) => {
+    setError(null);
+    setSuccessMessage(null);
+
+    // Process files - convert PDFs to images
+    const processedFiles: { file: File; preview: string | null; originalName: string }[] = [];
+
+    for (const file of newFiles) {
+      if (isPdfFile(file)) {
+        // Convert PDF to images
+        try {
+          setSuccessMessage(`Converting PDF "${file.name}" to images...`);
+          const { images, pageCount } = await convertPdfToImages(file, 2.0);
+
+          for (let i = 0; i < images.length; i++) {
+            const blob = images[i];
+            const imageName = pageCount > 1
+              ? `${file.name.replace('.pdf', '')}_page${i + 1}.png`
+              : `${file.name.replace('.pdf', '')}.png`;
+            const imageFile = blobToFile(blob, imageName);
+            const preview = URL.createObjectURL(blob);
+            processedFiles.push({
+              file: imageFile,
+              preview,
+              originalName: file.name,
+            });
+          }
+          setSuccessMessage(`PDF converted to ${images.length} image(s)`);
+          setTimeout(() => setSuccessMessage(null), 2000);
+        } catch (e) {
+          console.error('PDF conversion failed:', e);
+          setError(`Failed to convert PDF "${file.name}". Please try uploading an image file instead.`);
+          continue;
+        }
+      } else {
+        // Regular image file
+        let preview: string | null = null;
+        if (file.type.startsWith('image/') || file.name.match(/\.(heic|heif)$/i)) {
+          try {
+            preview = await convertHeicToPreview(file);
+          } catch (e) {
+            console.error('Preview generation failed:', e);
+          }
+        }
+        processedFiles.push({
+          file,
+          preview,
+          originalName: file.name,
+        });
+      }
+    }
+
+    // Create file entries with previews
+    const fileEntries: FileWithPreview[] = processedFiles.map(({ file, preview }) => ({
+      id: generateFileId(),
+      file,
+      preview,
+      status: 'pending' as FileStatus,
+      progress: 0,
+      evidenceType: EvidenceType.RECEIPT, // Default evidence type
+    }));
+
+    setFiles((prev) => [...prev, ...fileEntries]);
+
+    // Auto-select first file if none selected
+    const currentSelectedId = selectedFileId;
+    if (!currentSelectedId && fileEntries.length > 0) {
+      setSelectedFileId(fileEntries[0].id);
+    }
+
+    // Start processing files
+    fileEntries.forEach((entry) => {
+      processFile(entry.id, entry.file, entry.preview);
+    });
+  }, [selectedFileId, processFile]);
+
+  // Handle file removal
+  const handleRemoveFile = useCallback((fileId: string) => {
+    const file = files.find((f) => f.id === fileId);
+    if (file?.preview) {
+      URL.revokeObjectURL(file.preview);
+    }
+
+    setFiles((prev) => prev.filter((f) => f.id !== fileId));
+
+    // If removed file was selected, select another
+    if (selectedFileId === fileId) {
+      const remaining = files.filter((f) => f.id !== fileId);
+      setSelectedFileId(remaining.length > 0 ? remaining[0].id : null);
+    }
+  }, [files, selectedFileId]);
+
+  // Handle file cancellation
+  const handleCancelFile = useCallback((fileId: string) => {
+    const controller = abortControllers.get(fileId);
+    if (controller) {
+      controller.abort();
+    }
+    handleRemoveFile(fileId);
+  }, [handleRemoveFile]);
+
+  // Handle retry
+  const handleRetryFile = useCallback((fileId: string) => {
+    const fileEntry = files.find((f) => f.id === fileId);
+    if (!fileEntry) return;
+
+    setFiles((prev) =>
+      prev.map((f) =>
+        f.id === fileId
+          ? { ...f, status: 'pending' as FileStatus, progress: 0, error: undefined }
+          : f
+      )
+    );
+    processFile(fileId, fileEntry.file, fileEntry.preview);
+  }, [files, processFile]);
+
+  // Toggle file selection for multi-image grouping
+  const handleToggleGroupSelection = useCallback((fileId: string) => {
+    setSelectedForGrouping((prev) => {
+      if (prev.includes(fileId)) {
+        return prev.filter((id) => id !== fileId);
+      }
+      return [...prev, fileId];
+    });
+  }, []);
+
+  // Process selected files as a single multi-page receipt
+  const processGroupedImages = useCallback(async () => {
+    if (selectedForGrouping.length === 0) return;
+
+    setProcessingGroup(true);
+    setError(null);
+
+    try {
+      // Get auth token
+      const { data: { session } } = await supabase.auth.getSession();
+      const token = session?.access_token;
+
+      if (!token) {
+        throw new Error('Not authenticated');
+      }
+
+      // Mark all selected files as uploading
+      setFiles((prev) =>
+        prev.map((f) =>
+          selectedForGrouping.includes(f.id)
+            ? { ...f, status: 'uploading' as FileStatus, progress: 0 }
+            : f
+        )
+      );
+
+      // Create form data with all selected files
+      const formDataToSend = new FormData();
+      const selectedFiles = files.filter((f) => selectedForGrouping.includes(f.id));
+
+      selectedFiles.forEach((fileEntry) => {
+        formDataToSend.append('files', fileEntry.file);
+      });
+
+      // Simulate progress
+      const progressInterval = setInterval(() => {
+        setFiles((prev) =>
+          prev.map((f) =>
+            selectedForGrouping.includes(f.id) && f.status === 'uploading'
+              ? { ...f, progress: Math.min(f.progress + 10, 90) }
+              : f
+          )
+        );
+      }, 200);
+
+      // Upload all files
+      const response = await fetch('/api/upload', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+        body: formDataToSend,
+      });
+
+      clearInterval(progressInterval);
+
+      // Update to analyzing
+      setFiles((prev) =>
+        prev.map((f) =>
+          selectedForGrouping.includes(f.id)
+            ? { ...f, status: 'analyzing' as FileStatus, progress: 100 }
+            : f
+        )
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to process receipt');
+      }
+
+      const result: OCRResponse = await response.json();
+
+      // Update the first file with all OCR data, mark others as complete
+      const firstFileId = selectedForGrouping[0];
+      setFiles((prev) =>
+        prev.map((f) => {
+          if (!selectedForGrouping.includes(f.id)) return f;
+
+          if (f.id === firstFileId) {
+            return {
+              ...f,
+              status: 'complete' as FileStatus,
+              progress: 100,
+              ocrData: result.data
+                ? {
+                    date: result.data.date,
+                    vendor: result.data.vendor,
+                    amount: result.data.amount,
+                    category: result.data.category,
+                  }
+                : undefined,
+            };
+          }
+          return { ...f, status: 'complete' as FileStatus, progress: 100 };
+        })
+      );
+
+      // Set the grouped image URLs and document types
+      if (result.imageUrls) {
+        setUploadedImageUrls(result.imageUrls);
+        setUploadedImageUrl(result.imageUrls[0]);
+      } else if (result.imageUrl) {
+        setUploadedImageUrls([result.imageUrl]);
+        setUploadedImageUrl(result.imageUrl);
+      }
+      setUploadedDocumentTypes(result.documentTypes || []);
+      setUploadedRawText(result.rawText || null);
+
+      // Populate form with OCR data
+      if (result.data) {
+        setFormData({
+          date: result.data.date || '',
+          merchant: result.data.vendor || '',
+          amount: result.data.amount ? result.data.amount.toFixed(2) : '',
+          category: result.data.category || 'other',
+          businessPurpose: '',
+          paymentMethod: result.data.paymentMethod || '',
+          notes: '',
+        });
+        setExtractedItems(result.data.items || []);
+      }
+
+      // Select the first file for editing
+      setSelectedFileId(firstFileId);
+
+      // Exit multi-select mode
+      setMultiSelectMode(false);
+      setSelectedForGrouping([]);
+
+    } catch (err) {
+      console.error('Group processing error:', err);
+      setError(err instanceof Error ? err.message : 'Failed to process images');
+
+      // Mark selected files as error
+      setFiles((prev) =>
+        prev.map((f) =>
+          selectedForGrouping.includes(f.id)
+            ? {
+                ...f,
+                status: 'error' as FileStatus,
+                error: err instanceof Error ? err.message : 'Processing failed',
+              }
+            : f
+        )
+      );
+    } finally {
+      setProcessingGroup(false);
+    }
+  }, [files, selectedForGrouping]);
+
+  // Handle form field changes
+  const handleFormChange = (field: string, value: string) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
+  };
+
+  // Handle evidence type change for a file
+  const handleEvidenceTypeChange = useCallback((fileId: string, type: EvidenceType) => {
+    setFiles((prev) =>
+      prev.map((f) =>
+        f.id === fileId ? { ...f, evidenceType: type } : f
+      )
+    );
+  }, []);
+
+  // Parse email text and extract data
+  const handleParseEmail = useCallback(() => {
+    if (!emailText.trim()) return;
+
+    setParsingEmail(true);
+    setError(null);
+
+    try {
+      const parsed = parseEmailText(emailText);
+      const validation = validateParsedEmail(parsed);
+
+      setParsedEmailData(parsed);
+
+      // Auto-fill form fields from parsed email
+      if (parsed.vendor && !formData.merchant) {
+        setFormData((prev) => ({ ...prev, merchant: parsed.vendor || prev.merchant }));
+      }
+      if (parsed.date && !formData.date) {
+        setFormData((prev) => ({ ...prev, date: parsed.date || prev.date }));
+      }
+      if (parsed.total && !formData.amount) {
+        setFormData((prev) => ({ ...prev, amount: parsed.total?.toString() || prev.amount }));
+      }
+
+      if (!validation.isValid) {
+        setError(`Email parsed with ${validation.confidence}% confidence. Missing: ${validation.missingFields.join(', ')}`);
+      } else {
+        setSuccessMessage(`Email parsed successfully! Confidence: ${validation.confidence}%`);
+        setTimeout(() => setSuccessMessage(null), 3000);
+      }
+    } catch (err) {
+      setError('Failed to parse email text');
+    } finally {
+      setParsingEmail(false);
+    }
+  }, [emailText, formData.merchant, formData.date, formData.amount]);
+
+  // Calculate tax year from date
+  const calculateTaxYear = (dateString: string): number | null => {
+    if (!dateString) return null;
+    const date = new Date(dateString);
+    return date.getFullYear();
+  };
+
+  // Save receipt to database
+  const handleSaveReceipt = async () => {
+    if (!selectedFile) return;
+
+    // Validate required fields
+    if (!formData.date) {
+      setError('Date is required');
+      return;
+    }
+    if (!formData.merchant) {
+      setError('Vendor/Merchant is required');
+      return;
+    }
+    if (!formData.amount) {
+      setError('Amount is required');
+      return;
+    }
+
+    setSaving(true);
+    setError(null);
+
+    try {
+      const totalAmount = parseFloat(formData.amount);
+      if (isNaN(totalAmount)) {
+        throw new Error('Invalid amount');
+      }
+
+      const taxYear = calculateTaxYear(formData.date);
+
+      // Build evidence items from files
+      const evidenceItems: EvidenceItem[] = [];
+      const relevantFiles = uploadedImageUrls.length > 1
+        ? files.filter(f => selectedForGrouping.includes(f.id) || f.id === selectedFile.id)
+        : [selectedFile];
+
+      uploadedImageUrls.forEach((url, index) => {
+        const fileData = relevantFiles[index];
+        evidenceItems.push({
+          id: `evidence_${Date.now()}_${index}`,
+          file_url: url,
+          file_name: fileData?.file.name || `file_${index}`,
+          file_type: fileData?.file.type || 'image/jpeg',
+          file_size: fileData?.file.size || 0,
+          evidence_type: fileData?.evidenceType || EvidenceType.RECEIPT,
+          extracted_text: fileData?.extractedPdfText,
+          upload_date: new Date().toISOString(),
+          order: index,
+        });
+      });
+
+      // Save to receipts table (legacy/backward compatibility)
+      const receiptData = {
+        merchant: formData.merchant,
+        date: formData.date,
+        total: totalAmount,
+        category: formData.category,
+        items: [],
+        image_url: uploadedImageUrl, // Legacy single image
+        image_urls: uploadedImageUrls.length > 0 ? uploadedImageUrls : (uploadedImageUrl ? [uploadedImageUrl] : []),
+        evidence_items: evidenceItems, // IRS audit-ready evidence
+        email_text: emailText || null,
+        parsed_email_data: parsedEmailData,
+        business_purpose: formData.businessPurpose || null,
+        payment_method: formData.paymentMethod || null,
+        notes: formData.notes || null,
+        tax_year: taxYear,
+        description: formData.notes || formData.businessPurpose || null,
+      };
+
+      const { error: saveError } = await createReceipt(receiptData);
+
+      if (saveError) {
+        throw saveError;
+      }
+
+      // Also save to expenses table (new IRS audit-ready structure)
+      const expenseData = {
+        merchant: formData.merchant,
+        date: formData.date,
+        total: totalAmount,
+        irs_category: formData.category,
+        file_urls: uploadedImageUrls.length > 0 ? uploadedImageUrls : (uploadedImageUrl ? [uploadedImageUrl] : []),
+        document_types: uploadedDocumentTypes.length > 0 ? uploadedDocumentTypes : uploadedImageUrls.map(() => 'receipt'),
+        raw_text: uploadedRawText,
+        business_purpose: formData.businessPurpose || null,
+        payment_method: formData.paymentMethod || null,
+        notes: formData.notes || null,
+        tax_year: taxYear,
+        email_text: emailText || null,
+        parsed_email_data: parsedEmailData,
+      };
+
+      // Try to save to expenses table (optional - table may not exist yet)
+      try {
+        const { error: expenseError } = await createExpense(expenseData);
+        if (expenseError) {
+          // Use warn instead of error to avoid Next.js error overlay
+          console.warn('Expenses table not available (run migration-expenses-table.sql):', expenseError.message || 'Table may not exist');
+        }
+      } catch {
+        // Silently ignore if expenses table doesn't exist
+        console.warn('Expenses table not configured - skipping');
+      }
+
+      // Remove saved file from list (and any grouped files)
+      const savedFileId = selectedFile.id;
+
+      // If this was a multi-image receipt, also remove related grouped files
+      const groupedFileIds = uploadedImageUrls.length > 1
+        ? files
+            .filter(f => selectedForGrouping.includes(f.id) || f.id === savedFileId)
+            .map(f => f.id)
+        : [savedFileId];
+
+      groupedFileIds.forEach(id => handleRemoveFile(id));
+
+      // Reset image URLs, document types, and email data
+      setUploadedImageUrl(null);
+      setUploadedImageUrls([]);
+      setUploadedDocumentTypes([]);
+      setUploadedRawText(null);
+      setEmailText('');
+      setParsedEmailData(null);
+
+      // Check if there are more files to process
+      const remainingFiles = files.filter((f) => !groupedFileIds.includes(f.id));
+      if (remainingFiles.length > 0) {
+        setSuccessMessage('Receipt saved! Processing next file...');
+        const nextFile = remainingFiles[0];
+        setSelectedFileId(nextFile.id);
+
+        // Populate form with next file's OCR data if available
+        if (nextFile.ocrData) {
+          setFormData({
+            date: nextFile.ocrData.date || '',
+            merchant: nextFile.ocrData.vendor || '',
+            amount: nextFile.ocrData.amount ? nextFile.ocrData.amount.toFixed(2) : '',
+            category: nextFile.ocrData.category || 'other',
+            businessPurpose: '',
+            paymentMethod: '',
+            notes: '',
+          });
+        } else {
+          // Reset form
+          setFormData({
+            date: '',
+            merchant: '',
+            amount: '',
+            category: 'other',
+            businessPurpose: '',
+            paymentMethod: '',
+            notes: '',
+          });
+        }
+      } else {
+        setSuccessMessage('All receipts saved! Redirecting...');
+        setTimeout(() => {
+          router.push('/dashboard');
+        }, 1500);
+      }
+    } catch (err) {
+      console.error('Save error:', err);
+      setError(err instanceof Error ? err.message : 'Failed to save receipt');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  // When selected file changes, update form and extracted items
+  useEffect(() => {
+    if (selectedFile?.ocrData) {
+      setFormData({
+        date: selectedFile.ocrData.date || '',
+        merchant: selectedFile.ocrData.vendor || '',
+        amount: selectedFile.ocrData.amount
+          ? selectedFile.ocrData.amount.toFixed(2)
+          : '',
+        category: selectedFile.ocrData.category || 'other',
+        businessPurpose: '',
+        paymentMethod: selectedFile.ocrData.paymentMethod || '',
+        notes: '',
+      });
+      // Also update extracted items for Split View
+      setExtractedItems(selectedFile.ocrData.items || []);
+    }
+  }, [selectedFileId, selectedFile?.ocrData]);
+
+  // Loading state
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-cyan-50 via-blue-50 to-sky-50 flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="w-12 h-12 text-cyan-600 animate-spin mx-auto mb-4" />
+          <p className="text-slate-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return null;
+  }
+
+  const completedCount = files.filter((f) => f.status === 'complete').length;
+  const hasFilesToSave = files.some((f) => f.status === 'complete');
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-cyan-50 via-blue-50 to-sky-50">
+      <Navigation />
+
+      <div className="max-w-7xl mx-auto py-6 sm:py-8 px-4 sm:px-6 lg:px-8">
+        {/* Header */}
+        <div className="mb-6 sm:mb-8">
+          <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 mb-1 sm:mb-2">
+            Upload Receipts
+          </h1>
+          <p className="text-sm sm:text-base text-slate-600">
+            Upload multiple receipts and let AI extract the details automatically
+          </p>
+        </div>
+
+        {/* Error Alert */}
+        {error && (
+          <div className="mb-6 bg-red-50 border border-red-200 rounded-lg p-4 flex items-start gap-3">
+            <XCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
+            <div>
+              <h3 className="font-semibold text-red-900 mb-1">Error</h3>
+              <p className="text-red-700 text-sm">{error}</p>
+            </div>
+          </div>
+        )}
+
+        {/* Success Alert */}
+        {successMessage && (
+          <div className="mb-6 bg-green-50 border border-green-200 rounded-lg p-4 flex items-start gap-3">
+            <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
+            <div>
+              <h3 className="font-semibold text-green-900 mb-1">Success</h3>
+              <p className="text-green-700 text-sm">{successMessage}</p>
+            </div>
+          </div>
+        )}
+
+        {/* Upload Zone - Always visible */}
+        <div className="mb-6">
+          <UploadZone
+            onFilesSelected={handleFilesSelected}
+            disabled={false}
+            maxFiles={10}
+          />
+        </div>
+
+        {/* Multi-image mode toggle and controls */}
+        {files.length > 1 && (
+          <div className="mb-6 bg-white rounded-lg border border-gray-200 p-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => {
+                    setMultiSelectMode(!multiSelectMode);
+                    if (multiSelectMode) {
+                      setSelectedForGrouping([]);
+                    }
+                  }}
+                  className={`
+                    flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors
+                    ${multiSelectMode
+                      ? 'bg-cyan-100 text-cyan-700 border border-cyan-300'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-300'
+                    }
+                  `}
+                >
+                  <Layers className="w-4 h-4" />
+                  Multi-Page Receipt Mode
+                </button>
+                {multiSelectMode && (
+                  <p className="text-sm text-slate-600">
+                    Click images to select them as parts of one receipt
+                  </p>
+                )}
+              </div>
+
+              {multiSelectMode && selectedForGrouping.length > 0 && (
+                <button
+                  onClick={processGroupedImages}
+                  disabled={processingGroup}
+                  className="flex items-center gap-2 px-4 py-2 bg-cyan-500 hover:bg-cyan-600 text-white rounded-lg font-medium transition-colors disabled:opacity-50"
+                >
+                  {processingGroup ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      Processing...
+                    </>
+                  ) : (
+                    <>
+                      <Images className="w-4 h-4" />
+                      Process {selectedForGrouping.length} Images as One Receipt
+                    </>
+                  )}
+                </button>
+              )}
+            </div>
+
+            {multiSelectMode && (
+              <div className="mt-3 p-3 bg-amber-50 border border-amber-200 rounded-lg text-sm text-amber-800">
+                <strong>Tip:</strong> Select multiple images that belong to the same long receipt (e.g., top, middle, bottom parts).
+                The AI will analyze all images together to extract the complete total and item list.
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Email Text Input for IRS Evidence */}
+        {files.length > 0 && (
+          <div className="mb-6 bg-white rounded-lg border border-gray-200 p-4">
+            <div className="flex items-center gap-2 mb-3">
+              <Mail className="w-5 h-5 text-cyan-500" />
+              <h3 className="font-medium text-slate-900">Add Email Confirmation (Optional)</h3>
+            </div>
+            <p className="text-sm text-slate-600 mb-3">
+              Paste order confirmation email text to automatically extract vendor, date, and amount for IRS records.
+            </p>
+            <textarea
+              value={emailText}
+              onChange={(e) => setEmailText(e.target.value)}
+              placeholder="Paste your order confirmation email text here..."
+              className="w-full h-32 p-3 border border-gray-300 rounded-lg resize-y text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500"
+            />
+            <div className="flex items-center justify-between mt-3">
+              <button
+                onClick={handleParseEmail}
+                disabled={!emailText.trim() || parsingEmail}
+                className="flex items-center gap-2 px-4 py-2 bg-cyan-500 hover:bg-cyan-600 text-white rounded-lg font-medium text-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {parsingEmail ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Parsing...
+                  </>
+                ) : (
+                  <>
+                    <FileText className="w-4 h-4" />
+                    Extract Data from Email
+                  </>
+                )}
+              </button>
+              {parsedEmailData && (
+                <div className="flex items-center gap-4 text-sm">
+                  {parsedEmailData.vendor && (
+                    <span className="text-slate-600">
+                      <span className="text-slate-400">Vendor:</span> {parsedEmailData.vendor}
+                    </span>
+                  )}
+                  {parsedEmailData.total && (
+                    <span className="text-slate-600">
+                      <span className="text-slate-400">Total:</span> ${parsedEmailData.total.toFixed(2)}
+                    </span>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* File Preview Grid */}
+        {files.length > 0 && (
+          <div className="mb-6">
+            <ImagePreview
+              files={files}
+              onRemove={handleRemoveFile}
+              onCancel={handleCancelFile}
+              onRetry={handleRetryFile}
+              multiSelectMode={multiSelectMode}
+              selectedIds={selectedForGrouping}
+              onSelect={handleToggleGroupSelection}
+              onEvidenceTypeChange={handleEvidenceTypeChange}
+            />
+          </div>
+        )}
+
+        {/* Form for selected file */}
+        {selectedFile && selectedFile.status === 'complete' && (
+          <div className="space-y-6">
+            {/* View Mode Toggle */}
+            <div className="flex items-center justify-between bg-white rounded-lg border border-gray-200 p-3">
+              <div className="flex items-center gap-2">
+                <Sparkles className="w-5 h-5 text-green-500" />
+                <span className="font-medium text-slate-900">Review Extracted Data</span>
+                {extractedItems.length > 0 && (
+                  <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full">
+                    {extractedItems.length} items found
+                  </span>
+                )}
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setShowSplitView(true)}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                    showSplitView
+                      ? 'bg-cyan-100 text-cyan-700'
+                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  }`}
+                >
+                  <SplitSquareVertical className="w-4 h-4" />
+                  Split View
+                </button>
+                <button
+                  onClick={() => setShowSplitView(false)}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                    !showSplitView
+                      ? 'bg-cyan-100 text-cyan-700'
+                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  }`}
+                >
+                  <FormInput className="w-4 h-4" />
+                  Form Only
+                </button>
+              </div>
+            </div>
+
+            {/* Split View - Image and Extracted Data Comparison */}
+            {showSplitView && (uploadedImageUrls.length > 0 || selectedFile.preview) && (
+              <SplitView
+                images={uploadedImageUrls.length > 0 ? uploadedImageUrls : (selectedFile.preview ? [selectedFile.preview] : [])}
+                extractedData={{
+                  date: formData.date,
+                  vendor: formData.merchant,
+                  amount: parseFloat(formData.amount) || 0,
+                  items: extractedItems,
+                  category: formData.category,
+                  paymentMethod: formData.paymentMethod,
+                }}
+              />
+            )}
+
+            {/* Editable Form */}
+            <div className="bg-white rounded-xl shadow-lg p-4 sm:p-6">
+              <h2 className="text-lg sm:text-xl font-semibold text-slate-900 mb-4">
+                Edit Receipt Details
+              </h2>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Date */}
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">
+                    Date <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="date"
+                    value={formData.date}
+                    onChange={(e) => handleFormChange('date', e.target.value)}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                  />
+                </div>
+
+                {/* Vendor */}
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">
+                    Vendor/Merchant <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.merchant}
+                    onChange={(e) => handleFormChange('merchant', e.target.value)}
+                    placeholder="Enter store or vendor name"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                  />
+                </div>
+
+                {/* Amount */}
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">
+                    Amount <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    value={formData.amount}
+                    onChange={(e) => handleFormChange('amount', e.target.value)}
+                    placeholder="0.00"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                  />
+                </div>
+
+                {/* IRS Schedule C Category */}
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">
+                    IRS Schedule C Category <span className="text-red-500">*</span>
+                  </label>
+                  <select
+                    value={formData.category}
+                    onChange={(e) => handleFormChange('category', e.target.value)}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                  >
+                    {IRS_SCHEDULE_C_CATEGORIES.map((cat) => (
+                      <option key={cat.value} value={cat.value}>
+                        Line {cat.line}: {cat.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Business Purpose */}
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">
+                    Business Purpose
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.businessPurpose}
+                    onChange={(e) =>
+                      handleFormChange('businessPurpose', e.target.value)
+                    }
+                    placeholder="Enter business purpose (optional)"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                  />
+                </div>
+
+                {/* Payment Method */}
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">
+                    Payment Method
+                  </label>
+                  <select
+                    value={formData.paymentMethod}
+                    onChange={(e) =>
+                      handleFormChange('paymentMethod', e.target.value)
+                    }
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                  >
+                    {PAYMENT_METHODS.map((method) => (
+                      <option key={method.value} value={method.value}>
+                        {method.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Notes - Full width */}
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-slate-700 mb-1">
+                    Notes
+                  </label>
+                  <textarea
+                    value={formData.notes}
+                    onChange={(e) => handleFormChange('notes', e.target.value)}
+                    rows={2}
+                    placeholder="Add any additional notes (optional)"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 resize-none"
+                  />
+                </div>
+
+                {/* Save button - Full width */}
+                <div className="md:col-span-2">
+                  <button
+                    onClick={handleSaveReceipt}
+                    disabled={
+                      saving ||
+                      !formData.date ||
+                      !formData.merchant ||
+                      !formData.amount
+                    }
+                    className="w-full bg-cyan-500 hover:bg-cyan-600 text-white px-6 py-3 rounded-lg font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  >
+                    {saving ? (
+                      <>
+                        <Loader2 className="w-5 h-5 animate-spin" />
+                        Saving...
+                      </>
+                    ) : (
+                      <>
+                        <CheckCircle className="w-5 h-5" />
+                        Save Receipt
+                        {completedCount > 1 && (
+                          <span className="text-cyan-200 text-sm">
+                            ({completedCount - 1} more)
+                          </span>
+                        )}
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* No completed files message */}
+        {files.length > 0 && !hasFilesToSave && (
+          <div className="bg-white rounded-xl shadow-lg p-8 text-center">
+            <Loader2 className="w-12 h-12 text-cyan-500 animate-spin mx-auto mb-4" />
+            <h3 className="text-lg font-semibold text-slate-900 mb-2">
+              Processing your receipts...
+            </h3>
+            <p className="text-slate-600">
+              AI is analyzing your uploads. This may take a moment.
+            </p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}

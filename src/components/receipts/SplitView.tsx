@@ -1,0 +1,361 @@
+'use client';
+
+import { useState, useRef, useEffect } from 'react';
+import {
+  ChevronLeft,
+  ChevronRight,
+  ZoomIn,
+  ZoomOut,
+  Maximize2,
+  Image as ImageIcon,
+  List,
+  DollarSign,
+  Calendar,
+  Store,
+  Tag,
+  CreditCard,
+} from 'lucide-react';
+
+export interface ExtractedData {
+  date: string;
+  vendor: string;
+  amount: number;
+  items: string[];
+  category: string;
+  paymentMethod?: string;
+}
+
+interface SplitViewProps {
+  images: string[]; // Array of image URLs or base64
+  extractedData: ExtractedData;
+  onDataChange?: (field: keyof ExtractedData, value: string | number | string[]) => void;
+  editable?: boolean;
+}
+
+export default function SplitView({
+  images,
+  extractedData,
+  onDataChange,
+  editable = false,
+}: SplitViewProps) {
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [zoomLevel, setZoomLevel] = useState(1);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const imageContainerRef = useRef<HTMLDivElement>(null);
+
+  // Handle keyboard navigation
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'ArrowLeft' && currentImageIndex > 0) {
+        setCurrentImageIndex(currentImageIndex - 1);
+      } else if (e.key === 'ArrowRight' && currentImageIndex < images.length - 1) {
+        setCurrentImageIndex(currentImageIndex + 1);
+      } else if (e.key === 'Escape' && isFullscreen) {
+        setIsFullscreen(false);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [currentImageIndex, images.length, isFullscreen]);
+
+  const handleZoomIn = () => setZoomLevel((prev) => Math.min(prev + 0.25, 3));
+  const handleZoomOut = () => setZoomLevel((prev) => Math.max(prev - 0.25, 0.5));
+  const handleResetZoom = () => setZoomLevel(1);
+
+  const nextImage = () => {
+    if (currentImageIndex < images.length - 1) {
+      setCurrentImageIndex(currentImageIndex + 1);
+    }
+  };
+
+  const prevImage = () => {
+    if (currentImageIndex > 0) {
+      setCurrentImageIndex(currentImageIndex - 1);
+    }
+  };
+
+  // Format currency
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+    }).format(amount);
+  };
+
+  // Category label mapping
+  const categoryLabels: Record<string, string> = {
+    advertising: 'Advertising',
+    office_expense: 'Office Expense',
+    supplies: 'Supplies',
+    meals: 'Meals (50% deductible)',
+    travel: 'Travel',
+    utilities: 'Utilities',
+    car_truck: 'Car & Truck',
+    insurance: 'Insurance',
+    legal_professional: 'Legal & Professional',
+    rent_lease: 'Rent/Lease',
+    repairs_maintenance: 'Repairs & Maintenance',
+    other: 'Other',
+  };
+
+  return (
+    <div className={`${isFullscreen ? 'fixed inset-0 z-50 bg-white' : ''}`}>
+      <div className={`grid grid-cols-1 lg:grid-cols-2 gap-4 ${isFullscreen ? 'h-full p-4' : ''}`}>
+        {/* Left Panel - Image Viewer */}
+        <div className="bg-white rounded-xl border border-gray-200 overflow-hidden flex flex-col">
+          {/* Image Toolbar */}
+          <div className="flex items-center justify-between px-4 py-2 border-b border-gray-200 bg-gray-50">
+            <div className="flex items-center gap-2">
+              <ImageIcon className="w-4 h-4 text-gray-500" />
+              <span className="text-sm font-medium text-gray-700">
+                Receipt Image
+                {images.length > 1 && ` (${currentImageIndex + 1}/${images.length})`}
+              </span>
+            </div>
+            <div className="flex items-center gap-1">
+              <button
+                onClick={handleZoomOut}
+                className="p-1.5 hover:bg-gray-200 rounded transition-colors"
+                title="Zoom Out"
+              >
+                <ZoomOut className="w-4 h-4 text-gray-600" />
+              </button>
+              <button
+                onClick={handleResetZoom}
+                className="px-2 py-1 text-xs text-gray-600 hover:bg-gray-200 rounded transition-colors"
+              >
+                {Math.round(zoomLevel * 100)}%
+              </button>
+              <button
+                onClick={handleZoomIn}
+                className="p-1.5 hover:bg-gray-200 rounded transition-colors"
+                title="Zoom In"
+              >
+                <ZoomIn className="w-4 h-4 text-gray-600" />
+              </button>
+              <div className="w-px h-4 bg-gray-300 mx-1" />
+              <button
+                onClick={() => setIsFullscreen(!isFullscreen)}
+                className="p-1.5 hover:bg-gray-200 rounded transition-colors"
+                title={isFullscreen ? 'Exit Fullscreen' : 'Fullscreen'}
+              >
+                <Maximize2 className="w-4 h-4 text-gray-600" />
+              </button>
+            </div>
+          </div>
+
+          {/* Image Container */}
+          <div
+            ref={imageContainerRef}
+            className={`relative flex-1 overflow-auto bg-gray-100 ${isFullscreen ? 'h-[calc(100vh-120px)]' : 'h-[400px] lg:h-[500px]'}`}
+          >
+            {images.length > 0 ? (
+              <div
+                className="min-h-full flex items-start justify-center p-4"
+                style={{
+                  transform: `scale(${zoomLevel})`,
+                  transformOrigin: 'top center',
+                }}
+              >
+                <img
+                  src={images[currentImageIndex]}
+                  alt={`Receipt page ${currentImageIndex + 1}`}
+                  className="max-w-full h-auto shadow-lg rounded"
+                  draggable={false}
+                />
+              </div>
+            ) : (
+              <div className="h-full flex items-center justify-center text-gray-400">
+                <div className="text-center">
+                  <ImageIcon className="w-12 h-12 mx-auto mb-2" />
+                  <p>No image available</p>
+                </div>
+              </div>
+            )}
+
+            {/* Navigation Arrows */}
+            {images.length > 1 && (
+              <>
+                <button
+                  onClick={prevImage}
+                  disabled={currentImageIndex === 0}
+                  className={`absolute left-2 top-1/2 -translate-y-1/2 p-2 rounded-full bg-white/90 shadow-lg transition-all ${
+                    currentImageIndex === 0
+                      ? 'opacity-30 cursor-not-allowed'
+                      : 'hover:bg-white hover:scale-110'
+                  }`}
+                >
+                  <ChevronLeft className="w-5 h-5 text-gray-700" />
+                </button>
+                <button
+                  onClick={nextImage}
+                  disabled={currentImageIndex === images.length - 1}
+                  className={`absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-full bg-white/90 shadow-lg transition-all ${
+                    currentImageIndex === images.length - 1
+                      ? 'opacity-30 cursor-not-allowed'
+                      : 'hover:bg-white hover:scale-110'
+                  }`}
+                >
+                  <ChevronRight className="w-5 h-5 text-gray-700" />
+                </button>
+              </>
+            )}
+          </div>
+
+          {/* Image Thumbnails */}
+          {images.length > 1 && (
+            <div className="flex gap-2 p-3 border-t border-gray-200 bg-gray-50 overflow-x-auto">
+              {images.map((img, index) => (
+                <button
+                  key={index}
+                  onClick={() => setCurrentImageIndex(index)}
+                  className={`flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 transition-all ${
+                    index === currentImageIndex
+                      ? 'border-cyan-500 ring-2 ring-cyan-200'
+                      : 'border-gray-200 hover:border-gray-400'
+                  }`}
+                >
+                  <img
+                    src={img}
+                    alt={`Thumbnail ${index + 1}`}
+                    className="w-full h-full object-cover"
+                  />
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Right Panel - Extracted Data */}
+        <div className="bg-white rounded-xl border border-gray-200 overflow-hidden flex flex-col">
+          {/* Data Header */}
+          <div className="flex items-center gap-2 px-4 py-2 border-b border-gray-200 bg-gray-50">
+            <List className="w-4 h-4 text-gray-500" />
+            <span className="text-sm font-medium text-gray-700">Extracted Data</span>
+          </div>
+
+          {/* Data Content */}
+          <div className={`flex-1 overflow-auto p-4 ${isFullscreen ? 'h-[calc(100vh-120px)]' : ''}`}>
+            {/* Summary Cards */}
+            <div className="grid grid-cols-2 gap-3 mb-6">
+              {/* Vendor */}
+              <div className="col-span-2 bg-gradient-to-r from-cyan-50 to-blue-50 rounded-lg p-4 border border-cyan-100">
+                <div className="flex items-center gap-2 text-cyan-600 mb-1">
+                  <Store className="w-4 h-4" />
+                  <span className="text-xs font-medium uppercase tracking-wide">Vendor</span>
+                </div>
+                <p className="text-lg font-semibold text-gray-900 truncate">
+                  {extractedData.vendor || 'Unknown'}
+                </p>
+              </div>
+
+              {/* Amount */}
+              <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg p-4 border border-green-100">
+                <div className="flex items-center gap-2 text-green-600 mb-1">
+                  <DollarSign className="w-4 h-4" />
+                  <span className="text-xs font-medium uppercase tracking-wide">Total</span>
+                </div>
+                <p className="text-xl font-bold text-gray-900">
+                  {formatCurrency(extractedData.amount)}
+                </p>
+              </div>
+
+              {/* Date */}
+              <div className="bg-gradient-to-r from-purple-50 to-indigo-50 rounded-lg p-4 border border-purple-100">
+                <div className="flex items-center gap-2 text-purple-600 mb-1">
+                  <Calendar className="w-4 h-4" />
+                  <span className="text-xs font-medium uppercase tracking-wide">Date</span>
+                </div>
+                <p className="text-lg font-semibold text-gray-900">
+                  {extractedData.date || 'Unknown'}
+                </p>
+              </div>
+
+              {/* Category */}
+              <div className="bg-gradient-to-r from-amber-50 to-orange-50 rounded-lg p-4 border border-amber-100">
+                <div className="flex items-center gap-2 text-amber-600 mb-1">
+                  <Tag className="w-4 h-4" />
+                  <span className="text-xs font-medium uppercase tracking-wide">Category</span>
+                </div>
+                <p className="text-sm font-semibold text-gray-900">
+                  {categoryLabels[extractedData.category] || extractedData.category}
+                </p>
+              </div>
+
+              {/* Payment Method */}
+              {extractedData.paymentMethod && (
+                <div className="bg-gradient-to-r from-slate-50 to-gray-50 rounded-lg p-4 border border-slate-100">
+                  <div className="flex items-center gap-2 text-slate-600 mb-1">
+                    <CreditCard className="w-4 h-4" />
+                    <span className="text-xs font-medium uppercase tracking-wide">Payment</span>
+                  </div>
+                  <p className="text-sm font-semibold text-gray-900 capitalize">
+                    {extractedData.paymentMethod}
+                  </p>
+                </div>
+              )}
+            </div>
+
+            {/* Items Table */}
+            <div className="border border-gray-200 rounded-lg overflow-hidden">
+              <div className="bg-gray-50 px-4 py-3 border-b border-gray-200">
+                <h3 className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                  <List className="w-4 h-4" />
+                  Line Items ({extractedData.items.length})
+                </h3>
+              </div>
+
+              {extractedData.items.length > 0 ? (
+                <div className="max-h-[300px] overflow-auto">
+                  <table className="w-full">
+                    <thead className="bg-gray-50 sticky top-0">
+                      <tr>
+                        <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          #
+                        </th>
+                        <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Item Description
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-100">
+                      {extractedData.items.map((item, index) => (
+                        <tr
+                          key={index}
+                          className="hover:bg-cyan-50 transition-colors"
+                        >
+                          <td className="px-4 py-3 text-sm text-gray-400 w-12">
+                            {index + 1}
+                          </td>
+                          <td className="px-4 py-3 text-sm text-gray-900">
+                            {item}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              ) : (
+                <div className="px-4 py-8 text-center text-gray-400">
+                  <List className="w-8 h-8 mx-auto mb-2 opacity-50" />
+                  <p className="text-sm">No line items extracted</p>
+                </div>
+              )}
+            </div>
+
+            {/* Multi-image notice */}
+            {images.length > 1 && (
+              <div className="mt-4 p-3 bg-cyan-50 border border-cyan-200 rounded-lg text-sm text-cyan-700">
+                <p className="font-medium">Multi-Page Receipt</p>
+                <p className="text-xs mt-1 text-cyan-600">
+                  Data extracted from {images.length} images. Use arrow keys or thumbnails to navigate.
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

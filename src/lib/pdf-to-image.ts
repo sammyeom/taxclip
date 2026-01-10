@@ -96,6 +96,7 @@ export async function convertPdfToImages(
     await page.render({
       canvasContext: context,
       viewport: viewport,
+      canvas: canvas,
     }).promise;
 
     // Convert canvas to Blob
@@ -155,6 +156,7 @@ export async function convertPdfFirstPageToImage(
   await page.render({
     canvasContext: context,
     viewport: viewport,
+    canvas: canvas,
   }).promise;
 
   return new Promise<Blob>((resolve, reject) => {

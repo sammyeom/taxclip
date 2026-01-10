@@ -29,6 +29,14 @@ export type FileStatus =
   | 'complete'
   | 'error';
 
+// OCR item can be either a string (legacy) or an object with qty, unitPrice, amount
+interface OCRItem {
+  name: string;
+  qty?: number;
+  unitPrice?: number;
+  amount?: number;
+}
+
 export interface FileWithPreview {
   id: string;
   file: File;
@@ -41,7 +49,7 @@ export interface FileWithPreview {
     vendor: string;
     amount: number;
     category: string;
-    items?: string[];
+    items?: (string | OCRItem)[];
     paymentMethod?: string;
   };
   evidenceType: EvidenceType; // Tag for IRS audit: receipt, invoice, payment_proof, etc.

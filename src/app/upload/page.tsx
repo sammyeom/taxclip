@@ -36,11 +36,19 @@ import { parseEmailText, validateParsedEmail } from '@/lib/email-parser';
 import { parseEmlFile, isEmlFile, getImageAttachments, getPdfAttachments, attachmentToFile } from '@/lib/eml-parser';
 import { useReceiptStore } from '@/store';
 
+// OCR item can be either a string (legacy) or an object with qty, unitPrice, amount
+interface OCRItem {
+  name: string;
+  qty?: number;
+  unitPrice?: number;
+  amount?: number;
+}
+
 interface OCRData {
   date: string;
   vendor: string;
   amount: number;
-  items: string[];
+  items: (string | OCRItem)[];
   category: string;
   paymentMethod?: string;
   documentType?: 'receipt' | 'invoice' | 'payment_proof' | 'online_order' | 'other';
@@ -81,6 +89,22 @@ const CURRENCY_OPTIONS = [
   { value: 'SGD', label: 'SGD (S$)', symbol: 'S$' },
   { value: 'HKD', label: 'HKD (HK$)', symbol: 'HK$' },
 ];
+
+// Convert OCR items to LineItem format
+function convertOcrItemsToLineItems(items: (string | OCRItem)[]): LineItem[] {
+  return items.map((item) => {
+    if (typeof item === 'string') {
+      // Legacy string format
+      return createLineItem(item, 1, 0);
+    }
+    // New object format with qty, unitPrice, amount
+    return createLineItem(
+      item.name,
+      item.qty || 1,
+      item.unitPrice || 0
+    );
+  });
+}
 
 // Abort controller map for cancellation
 const abortControllers = new Map<string, AbortController>();
@@ -331,7 +355,7 @@ export default function UploadPage() {
           paymentMethod: result.data.paymentMethod || '',
           notes: '',
         });
-        setExtractedItems(result.data.items || []);
+        setExtractedItems(convertOcrItemsToLineItems(result.data.items || []));
         setUploadedImageUrl(result.imageUrl);
         setUploadedImageUrls(result.imageUrls || [result.imageUrl]);
         setUploadedDocumentTypes(result.data.documentType ? [result.data.documentType] : []);
@@ -679,7 +703,7 @@ export default function UploadPage() {
           paymentMethod: result.data.paymentMethod || '',
           notes: '',
         });
-        setExtractedItems(result.data.items || []);
+        setExtractedItems(convertOcrItemsToLineItems(result.data.items || []));
       }
 
       // Select the first file for editing
@@ -844,12 +868,19 @@ export default function UploadPage() {
 
       // Save to receipts table (legacy/backward compatibility)
       // Save all items (checkbox state preserved for later selection)
+      // Convert LineItem[] to ReceiptItem[] for database storage
+      const receiptItems = extractedItems.map(item => ({
+        name: item.name,
+        price: item.unitPrice,
+        quantity: item.qty,
+      }));
+
       const receiptData = {
         merchant: formData.merchant,
         date: formData.date,
         total: totalAmount,
         category: formData.category,
-        items: extractedItems,
+        items: receiptItems,
         image_url: uploadedImageUrl, // Legacy single image
         image_urls: uploadedImageUrls.length > 0 ? uploadedImageUrls : (uploadedImageUrl ? [uploadedImageUrl] : []),
         evidence_items: evidenceItems, // IRS audit-ready evidence
@@ -986,7 +1017,7 @@ export default function UploadPage() {
         notes: '',
       });
       // Also update extracted items for Split View
-      setExtractedItems(selectedFile.ocrData.items || []);
+      setExtractedItems(convertOcrItemsToLineItems(selectedFile.ocrData.items || []));
     }
   }, [selectedFileId, selectedFile?.ocrData]);
 

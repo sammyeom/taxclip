@@ -257,6 +257,13 @@ export default function ReceiptEditPage() {
       // Only save selected items
       const selectedItems = formData.items.filter((item) => item.selected);
 
+      // Convert LineItem[] to ReceiptItem[] for database storage
+      const receiptItems = selectedItems.map(item => ({
+        name: item.name,
+        price: item.unitPrice,
+        quantity: item.qty,
+      }));
+
       const updatedData = {
         date: formData.date,
         merchant: formData.merchant,
@@ -265,7 +272,7 @@ export default function ReceiptEditPage() {
         business_purpose: formData.business_purpose || null,
         payment_method: formData.payment_method || null,
         notes: formData.notes || null,
-        items: selectedItems,
+        items: receiptItems,
         tax_year: taxYear,
       };
 

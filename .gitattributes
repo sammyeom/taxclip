@@ -1,0 +1,14 @@
+# TypeScript project configuration
+*.mjs linguist-language=TypeScript
+*.cjs linguist-language=TypeScript
+
+# Exclude generated files from language statistics
+.next/** linguist-generated
+out/** linguist-generated
+build/** linguist-generated
+
+# Exclude vendored files
+node_modules/** linguist-vendored
+
+# Documentation
+*.md linguist-documentation

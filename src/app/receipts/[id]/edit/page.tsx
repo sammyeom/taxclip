@@ -185,15 +185,18 @@ export default function ReceiptEditPage() {
               selected: true,
             });
           } else if (typeof item === 'object' && item !== null) {
-            // Already LineItem format or similar object
-            const lineItem = item as Partial<LineItem>;
+            // Handle both LineItem format and ReceiptItem format (from database)
+            const lineItem = item as Record<string, unknown>;
+            // ReceiptItem uses 'price' and 'quantity', LineItem uses 'unitPrice' and 'qty'
+            const qty = (lineItem.qty as number) || (lineItem.quantity as number) || 1;
+            const unitPrice = (lineItem.unitPrice as number) || (lineItem.price as number) || 0;
             parsedItems.push({
-              id: lineItem.id || `item_${Date.now()}_${index}`,
-              name: lineItem.name || '',
-              qty: lineItem.qty || 1,
-              unitPrice: lineItem.unitPrice || 0,
-              amount: lineItem.amount || 0,
-              selected: lineItem.selected !== false, // Default to true
+              id: (lineItem.id as string) || `item_${Date.now()}_${index}`,
+              name: (lineItem.name as string) || '',
+              qty,
+              unitPrice,
+              amount: qty * unitPrice,
+              selected: lineItem.selected !== false, // Default to true, preserve saved state
             });
           }
         });
@@ -254,14 +257,13 @@ export default function ReceiptEditPage() {
       // Calculate tax year
       const taxYear = new Date(formData.date).getFullYear();
 
-      // Only save selected items
-      const selectedItems = formData.items.filter((item) => item.selected);
-
+      // Save ALL items with their selection state preserved
       // Convert LineItem[] to ReceiptItem[] for database storage
-      const receiptItems = selectedItems.map(item => ({
+      const receiptItems = formData.items.map(item => ({
         name: item.name,
         price: item.unitPrice,
         quantity: item.qty,
+        selected: item.selected,
       }));
 
       const updatedData = {

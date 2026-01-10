@@ -118,6 +118,7 @@ export type ReceiptItem = {
   name: string;
   price: number;
   quantity: number;
+  selected?: boolean;  // Preserve checkbox state
 };
 
 export type InsertReceipt = Omit<Receipt, 'id' | 'user_id' | 'created_at' | 'updated_at'>;

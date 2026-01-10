@@ -3,13 +3,14 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase, createReceipt, createExpense } from '@/lib/supabase';
-import { IRS_SCHEDULE_C_CATEGORIES } from '@/types/database';
+import { IRS_SCHEDULE_C_CATEGORIES, LineItem, createLineItem } from '@/types/database';
 import { useAuth } from '@/hooks/useAuth';
 import Navigation from '@/components/Navigation';
 import {
   UploadZone,
   ImagePreview,
   SplitView,
+  EmailPasteInput,
   convertHeicToPreview,
   generateFileId,
 } from '@/components/receipts';
@@ -26,9 +27,14 @@ import {
   FormInput,
   Mail,
   FileText,
+  Plus,
+  X,
+  List,
 } from 'lucide-react';
 import { EvidenceType, EvidenceItem, ParsedEmailData } from '@/types/evidence';
 import { parseEmailText, validateParsedEmail } from '@/lib/email-parser';
+import { parseEmlFile, isEmlFile, getImageAttachments, getPdfAttachments, attachmentToFile } from '@/lib/eml-parser';
+import { useReceiptStore } from '@/store';
 
 interface OCRData {
   date: string;
@@ -61,12 +67,28 @@ const PAYMENT_METHODS = [
   { value: 'check', label: 'Check' },
 ];
 
+const CURRENCY_OPTIONS = [
+  { value: 'USD', label: 'USD ($)', symbol: '$' },
+  { value: 'EUR', label: 'EUR (€)', symbol: '€' },
+  { value: 'GBP', label: 'GBP (£)', symbol: '£' },
+  { value: 'JPY', label: 'JPY (¥)', symbol: '¥' },
+  { value: 'KRW', label: 'KRW (₩)', symbol: '₩' },
+  { value: 'CNY', label: 'CNY (¥)', symbol: '¥' },
+  { value: 'CAD', label: 'CAD (C$)', symbol: 'C$' },
+  { value: 'AUD', label: 'AUD (A$)', symbol: 'A$' },
+  { value: 'CHF', label: 'CHF', symbol: 'CHF' },
+  { value: 'INR', label: 'INR (₹)', symbol: '₹' },
+  { value: 'SGD', label: 'SGD (S$)', symbol: 'S$' },
+  { value: 'HKD', label: 'HKD (HK$)', symbol: 'HK$' },
+];
+
 // Abort controller map for cancellation
 const abortControllers = new Map<string, AbortController>();
 
 export default function UploadPage() {
   const { user, loading: authLoading } = useAuth();
   const router = useRouter();
+  const { addReceipt } = useReceiptStore();
 
   // File management states
   const [files, setFiles] = useState<FileWithPreview[]>([]);
@@ -92,6 +114,7 @@ export default function UploadPage() {
     date: '',
     merchant: '',
     amount: '',
+    currency: 'USD',
     category: 'other',
     businessPurpose: '',
     paymentMethod: '',
@@ -99,7 +122,51 @@ export default function UploadPage() {
   });
 
   // Extracted items from OCR
-  const [extractedItems, setExtractedItems] = useState<string[]>([]);
+  const [extractedItems, setExtractedItems] = useState<LineItem[]>([]);
+  const [newItemName, setNewItemName] = useState('');
+
+  // Item management functions
+  const handleAddItem = () => {
+    if (newItemName.trim()) {
+      setExtractedItems((prev) => [...prev, createLineItem(newItemName.trim(), 1, 0)]);
+      setNewItemName('');
+    }
+  };
+
+  const handleRemoveItem = (id: string) => {
+    setExtractedItems((prev) => prev.filter((item) => item.id !== id));
+  };
+
+  const handleUpdateItem = (id: string, field: keyof LineItem, value: string | number | boolean) => {
+    setExtractedItems((prev) =>
+      prev.map((item) => {
+        if (item.id !== id) return item;
+        const updated = { ...item, [field]: value };
+        // Recalculate amount when qty or unitPrice changes
+        if (field === 'qty' || field === 'unitPrice') {
+          updated.amount = updated.qty * updated.unitPrice;
+        }
+        return updated;
+      })
+    );
+  };
+
+  const handleToggleItemSelection = (id: string) => {
+    setExtractedItems((prev) =>
+      prev.map((item) =>
+        item.id === id ? { ...item, selected: !item.selected } : item
+      )
+    );
+  };
+
+  const handleSelectAllItems = (selected: boolean) => {
+    setExtractedItems((prev) => prev.map((item) => ({ ...item, selected })));
+  };
+
+  // Calculate total of selected items
+  const selectedItemsTotal = extractedItems
+    .filter((item) => item.selected)
+    .reduce((sum, item) => sum + item.amount, 0);
 
   // Split view mode toggle
   const [showSplitView, setShowSplitView] = useState(true);
@@ -258,6 +325,7 @@ export default function UploadPage() {
           date: result.data.date || '',
           merchant: result.data.vendor || '',
           amount: result.data.amount ? result.data.amount.toFixed(2) : '',
+          currency: 'USD',
           category: result.data.category || 'other',
           businessPurpose: '',
           paymentMethod: result.data.paymentMethod || '',
@@ -295,15 +363,85 @@ export default function UploadPage() {
     }
   }, [selectedFileId]);
 
+  // Handle EML file upload
+  const handleEmlFile = useCallback(async (file: File) => {
+    setSuccessMessage(`Parsing email file "${file.name}"...`);
+
+    try {
+      const { emlData, parsedData } = await parseEmlFile(file);
+
+      // Set the email text from the parsed EML
+      const emailBody = emlData.html || emlData.body;
+      setEmailText(emailBody);
+      setParsedEmailData(parsedData);
+
+      // Auto-fill form fields
+      if (parsedData.vendor) {
+        setFormData((prev) => ({ ...prev, merchant: parsedData.vendor || prev.merchant }));
+      }
+      if (parsedData.date) {
+        setFormData((prev) => ({ ...prev, date: parsedData.date || prev.date }));
+      }
+      if (parsedData.total) {
+        setFormData((prev) => ({ ...prev, amount: parsedData.total?.toString() || prev.amount }));
+      }
+
+      // Get attachments to process
+      const imageAttachments = getImageAttachments(emlData);
+      const pdfAttachments = getPdfAttachments(emlData);
+      const attachmentFiles: File[] = [];
+
+      // Convert attachments to File objects
+      for (const att of [...imageAttachments, ...pdfAttachments]) {
+        try {
+          const attachmentFile = attachmentToFile(att);
+          attachmentFiles.push(attachmentFile);
+        } catch (e) {
+          console.error('Failed to convert attachment:', att.filename, e);
+        }
+      }
+
+      const validation = validateParsedEmail(parsedData);
+      if (validation.isValid) {
+        setSuccessMessage(`Email parsed successfully! Confidence: ${validation.confidence}%${attachmentFiles.length > 0 ? ` (${attachmentFiles.length} attachment(s) found)` : ''}`);
+      } else {
+        setError(`Email parsed with ${validation.confidence}% confidence. Missing: ${validation.missingFields.join(', ')}`);
+      }
+      setTimeout(() => setSuccessMessage(null), 3000);
+
+      return attachmentFiles;
+    } catch (e) {
+      console.error('EML parsing failed:', e);
+      setError(`Failed to parse email file "${file.name}"`);
+      return [];
+    }
+  }, []);
+
   // Handle new files selected
   const handleFilesSelected = useCallback(async (newFiles: File[]) => {
     setError(null);
     setSuccessMessage(null);
 
+    // Separate EML files from other files
+    const emlFiles = newFiles.filter(f => isEmlFile(f));
+    let regularFiles = newFiles.filter(f => !isEmlFile(f));
+
+    // Process EML files first and extract attachments
+    for (const emlFile of emlFiles) {
+      const attachmentFiles = await handleEmlFile(emlFile);
+      regularFiles = [...regularFiles, ...attachmentFiles];
+    }
+
+    // If only EML files were uploaded with no attachments and no existing files, show message
+    if (emlFiles.length > 0 && regularFiles.length === 0 && files.length === 0) {
+      setSuccessMessage('Email parsed! You can now upload receipt images or the email data will be saved with the next receipt.');
+      return;
+    }
+
     // Process files - convert PDFs to images
     const processedFiles: { file: File; preview: string | null; originalName: string }[] = [];
 
-    for (const file of newFiles) {
+    for (const file of regularFiles) {
       if (isPdfFile(file)) {
         // Convert PDF to images
         try {
@@ -535,6 +673,7 @@ export default function UploadPage() {
           date: result.data.date || '',
           merchant: result.data.vendor || '',
           amount: result.data.amount ? result.data.amount.toFixed(2) : '',
+          currency: 'USD',
           category: result.data.category || 'other',
           businessPurpose: '',
           paymentMethod: result.data.paymentMethod || '',
@@ -608,6 +747,9 @@ export default function UploadPage() {
       if (parsed.total && !formData.amount) {
         setFormData((prev) => ({ ...prev, amount: parsed.total?.toString() || prev.amount }));
       }
+      if (parsed.currency) {
+        setFormData((prev) => ({ ...prev, currency: parsed.currency || prev.currency }));
+      }
 
       if (!validation.isValid) {
         setError(`Email parsed with ${validation.confidence}% confidence. Missing: ${validation.missingFields.join(', ')}`);
@@ -622,6 +764,26 @@ export default function UploadPage() {
     }
   }, [emailText, formData.merchant, formData.date, formData.amount]);
 
+  // Handle data extracted from EmailPasteInput component
+  const handleEmailDataExtracted = useCallback((
+    extractedFormData: { date: string; merchant: string; amount: string; currency: string },
+    parsed: ParsedEmailData
+  ) => {
+    setParsedEmailData(parsed);
+
+    // Auto-fill form fields (only fill if currently empty)
+    setFormData((prev) => ({
+      ...prev,
+      date: prev.date || extractedFormData.date,
+      merchant: prev.merchant || extractedFormData.merchant,
+      amount: prev.amount || extractedFormData.amount,
+      currency: extractedFormData.currency || prev.currency,
+    }));
+
+    setSuccessMessage('Data extracted from email!');
+    setTimeout(() => setSuccessMessage(null), 3000);
+  }, []);
+
   // Calculate tax year from date
   const calculateTaxYear = (dateString: string): number | null => {
     if (!dateString) return null;
@@ -631,7 +793,8 @@ export default function UploadPage() {
 
   // Save receipt to database
   const handleSaveReceipt = async () => {
-    if (!selectedFile) return;
+    // Allow saving with just email data (no file required)
+    if (!selectedFile && !parsedEmailData) return;
 
     // Validate required fields
     if (!formData.date) {
@@ -661,8 +824,8 @@ export default function UploadPage() {
       // Build evidence items from files
       const evidenceItems: EvidenceItem[] = [];
       const relevantFiles = uploadedImageUrls.length > 1
-        ? files.filter(f => selectedForGrouping.includes(f.id) || f.id === selectedFile.id)
-        : [selectedFile];
+        ? files.filter(f => selectedForGrouping.includes(f.id) || (selectedFile && f.id === selectedFile.id))
+        : selectedFile ? [selectedFile] : [];
 
       uploadedImageUrls.forEach((url, index) => {
         const fileData = relevantFiles[index];
@@ -680,12 +843,13 @@ export default function UploadPage() {
       });
 
       // Save to receipts table (legacy/backward compatibility)
+      // Save all items (checkbox state preserved for later selection)
       const receiptData = {
         merchant: formData.merchant,
         date: formData.date,
         total: totalAmount,
         category: formData.category,
-        items: [],
+        items: extractedItems,
         image_url: uploadedImageUrl, // Legacy single image
         image_urls: uploadedImageUrls.length > 0 ? uploadedImageUrls : (uploadedImageUrl ? [uploadedImageUrl] : []),
         evidence_items: evidenceItems, // IRS audit-ready evidence
@@ -698,10 +862,15 @@ export default function UploadPage() {
         description: formData.notes || formData.businessPurpose || null,
       };
 
-      const { error: saveError } = await createReceipt(receiptData);
+      const { data: savedReceipt, error: saveError } = await createReceipt(receiptData);
 
       if (saveError) {
         throw saveError;
+      }
+
+      // Add to Zustand store for immediate UI update
+      if (savedReceipt) {
+        addReceipt(savedReceipt);
       }
 
       // Also save to expenses table (new IRS audit-ready structure)
@@ -734,16 +903,18 @@ export default function UploadPage() {
       }
 
       // Remove saved file from list (and any grouped files)
-      const savedFileId = selectedFile.id;
+      if (selectedFile) {
+        const savedFileId = selectedFile.id;
 
-      // If this was a multi-image receipt, also remove related grouped files
-      const groupedFileIds = uploadedImageUrls.length > 1
-        ? files
-            .filter(f => selectedForGrouping.includes(f.id) || f.id === savedFileId)
-            .map(f => f.id)
-        : [savedFileId];
+        // If this was a multi-image receipt, also remove related grouped files
+        const groupedFileIds = uploadedImageUrls.length > 1
+          ? files
+              .filter(f => selectedForGrouping.includes(f.id) || f.id === savedFileId)
+              .map(f => f.id)
+          : [savedFileId];
 
-      groupedFileIds.forEach(id => handleRemoveFile(id));
+        groupedFileIds.forEach(id => handleRemoveFile(id));
+      }
 
       // Reset image URLs, document types, and email data
       setUploadedImageUrl(null);
@@ -753,8 +924,20 @@ export default function UploadPage() {
       setEmailText('');
       setParsedEmailData(null);
 
+      // Reset form
+      setFormData({
+        date: '',
+        merchant: '',
+        amount: '',
+        currency: 'USD',
+        category: 'other',
+        businessPurpose: '',
+        paymentMethod: '',
+        notes: '',
+      });
+
       // Check if there are more files to process
-      const remainingFiles = files.filter((f) => !groupedFileIds.includes(f.id));
+      const remainingFiles = files.filter((f) => f.status === 'complete' && f.id !== selectedFile?.id);
       if (remainingFiles.length > 0) {
         setSuccessMessage('Receipt saved! Processing next file...');
         const nextFile = remainingFiles[0];
@@ -766,25 +949,15 @@ export default function UploadPage() {
             date: nextFile.ocrData.date || '',
             merchant: nextFile.ocrData.vendor || '',
             amount: nextFile.ocrData.amount ? nextFile.ocrData.amount.toFixed(2) : '',
+            currency: 'USD',
             category: nextFile.ocrData.category || 'other',
-            businessPurpose: '',
-            paymentMethod: '',
-            notes: '',
-          });
-        } else {
-          // Reset form
-          setFormData({
-            date: '',
-            merchant: '',
-            amount: '',
-            category: 'other',
             businessPurpose: '',
             paymentMethod: '',
             notes: '',
           });
         }
       } else {
-        setSuccessMessage('All receipts saved! Redirecting...');
+        setSuccessMessage('Receipt saved! Redirecting...');
         setTimeout(() => {
           router.push('/dashboard');
         }, 1500);
@@ -806,6 +979,7 @@ export default function UploadPage() {
         amount: selectedFile.ocrData.amount
           ? selectedFile.ocrData.amount.toFixed(2)
           : '',
+        currency: 'USD',
         category: selectedFile.ocrData.category || 'other',
         businessPurpose: '',
         paymentMethod: selectedFile.ocrData.paymentMethod || '',
@@ -941,57 +1115,15 @@ export default function UploadPage() {
           </div>
         )}
 
-        {/* Email Text Input for IRS Evidence */}
-        {files.length > 0 && (
-          <div className="mb-6 bg-white rounded-lg border border-gray-200 p-4">
-            <div className="flex items-center gap-2 mb-3">
-              <Mail className="w-5 h-5 text-cyan-500" />
-              <h3 className="font-medium text-slate-900">Add Email Confirmation (Optional)</h3>
-            </div>
-            <p className="text-sm text-slate-600 mb-3">
-              Paste order confirmation email text to automatically extract vendor, date, and amount for IRS records.
-            </p>
-            <textarea
-              value={emailText}
-              onChange={(e) => setEmailText(e.target.value)}
-              placeholder="Paste your order confirmation email text here..."
-              className="w-full h-32 p-3 border border-gray-300 rounded-lg resize-y text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500"
-            />
-            <div className="flex items-center justify-between mt-3">
-              <button
-                onClick={handleParseEmail}
-                disabled={!emailText.trim() || parsingEmail}
-                className="flex items-center gap-2 px-4 py-2 bg-cyan-500 hover:bg-cyan-600 text-white rounded-lg font-medium text-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {parsingEmail ? (
-                  <>
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    Parsing...
-                  </>
-                ) : (
-                  <>
-                    <FileText className="w-4 h-4" />
-                    Extract Data from Email
-                  </>
-                )}
-              </button>
-              {parsedEmailData && (
-                <div className="flex items-center gap-4 text-sm">
-                  {parsedEmailData.vendor && (
-                    <span className="text-slate-600">
-                      <span className="text-slate-400">Vendor:</span> {parsedEmailData.vendor}
-                    </span>
-                  )}
-                  {parsedEmailData.total && (
-                    <span className="text-slate-600">
-                      <span className="text-slate-400">Total:</span> ${parsedEmailData.total.toFixed(2)}
-                    </span>
-                  )}
-                </div>
-              )}
-            </div>
-          </div>
-        )}
+        {/* Email Text Input for IRS Evidence - Enhanced with EmailPasteInput */}
+        <div className="mb-6">
+          <EmailPasteInput
+            onDataExtracted={handleEmailDataExtracted}
+            onEmailTextChange={setEmailText}
+            initialEmailText={emailText}
+            showAlways={files.length === 0}
+          />
+        </div>
 
         {/* File Preview Grid */}
         {files.length > 0 && (
@@ -1009,55 +1141,58 @@ export default function UploadPage() {
           </div>
         )}
 
-        {/* Form for selected file */}
-        {selectedFile && selectedFile.status === 'complete' && (
+        {/* Form for selected file or email data */}
+        {((selectedFile && selectedFile.status === 'complete') || parsedEmailData) && (
           <div className="space-y-6">
-            {/* View Mode Toggle */}
-            <div className="flex items-center justify-between bg-white rounded-lg border border-gray-200 p-3">
-              <div className="flex items-center gap-2">
-                <Sparkles className="w-5 h-5 text-green-500" />
-                <span className="font-medium text-slate-900">Review Extracted Data</span>
-                {extractedItems.length > 0 && (
-                  <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full">
-                    {extractedItems.length} items found
-                  </span>
-                )}
+            {/* View Mode Toggle - Show when there are images or email text */}
+            {(uploadedImageUrls.length > 0 || selectedFile?.preview || emailText) && (
+              <div className="flex items-center justify-between bg-white rounded-lg border border-gray-200 p-3">
+                <div className="flex items-center gap-2">
+                  <Sparkles className="w-5 h-5 text-green-500" />
+                  <span className="font-medium text-slate-900">Review Extracted Data</span>
+                  {extractedItems.length > 0 && (
+                    <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full">
+                      {extractedItems.length} items found
+                    </span>
+                  )}
+                </div>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => setShowSplitView(true)}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                      showSplitView
+                        ? 'bg-cyan-100 text-cyan-700'
+                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    }`}
+                  >
+                    <SplitSquareVertical className="w-4 h-4" />
+                    Split View
+                  </button>
+                  <button
+                    onClick={() => setShowSplitView(false)}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                      !showSplitView
+                        ? 'bg-cyan-100 text-cyan-700'
+                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    }`}
+                  >
+                    <FormInput className="w-4 h-4" />
+                    Form Only
+                  </button>
+                </div>
               </div>
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => setShowSplitView(true)}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
-                    showSplitView
-                      ? 'bg-cyan-100 text-cyan-700'
-                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                  }`}
-                >
-                  <SplitSquareVertical className="w-4 h-4" />
-                  Split View
-                </button>
-                <button
-                  onClick={() => setShowSplitView(false)}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
-                    !showSplitView
-                      ? 'bg-cyan-100 text-cyan-700'
-                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                  }`}
-                >
-                  <FormInput className="w-4 h-4" />
-                  Form Only
-                </button>
-              </div>
-            </div>
+            )}
 
-            {/* Split View - Image and Extracted Data Comparison */}
-            {showSplitView && (uploadedImageUrls.length > 0 || selectedFile.preview) && (
+            {/* Split View - Image/Email Text and Extracted Data Comparison */}
+            {showSplitView && (uploadedImageUrls.length > 0 || selectedFile?.preview || emailText) && (
               <SplitView
-                images={uploadedImageUrls.length > 0 ? uploadedImageUrls : (selectedFile.preview ? [selectedFile.preview] : [])}
+                images={uploadedImageUrls.length > 0 ? uploadedImageUrls : (selectedFile?.preview ? [selectedFile.preview] : [])}
+                emailText={emailText}
                 extractedData={{
                   date: formData.date,
                   vendor: formData.merchant,
                   amount: parseFloat(formData.amount) || 0,
-                  items: extractedItems,
+                  items: extractedItems.filter((item) => item.selected),
                   category: formData.category,
                   paymentMethod: formData.paymentMethod,
                 }}
@@ -1131,6 +1266,24 @@ export default function UploadPage() {
                   </select>
                 </div>
 
+                {/* Currency */}
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">
+                    Currency
+                  </label>
+                  <select
+                    value={formData.currency}
+                    onChange={(e) => handleFormChange('currency', e.target.value)}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                  >
+                    {CURRENCY_OPTIONS.map((curr) => (
+                      <option key={curr.value} value={curr.value}>
+                        {curr.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
                 {/* Business Purpose */}
                 <div>
                   <label className="block text-sm font-medium text-slate-700 mb-1">
@@ -1179,6 +1332,139 @@ export default function UploadPage() {
                     placeholder="Add any additional notes (optional)"
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 resize-none"
                   />
+                </div>
+
+                {/* Line Items - Full width */}
+                <div className="md:col-span-2">
+                  <div className="flex items-center justify-between mb-2">
+                    <label className="block text-sm font-medium text-slate-700">
+                      <span className="flex items-center gap-2">
+                        <List className="w-4 h-4" />
+                        Line Items ({extractedItems.length})
+                      </span>
+                    </label>
+                    {extractedItems.length > 0 && (
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm text-cyan-600 font-medium">
+                          Selected Total: ${selectedItemsTotal.toFixed(2)}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => handleFormChange('amount', selectedItemsTotal.toFixed(2))}
+                          className="px-2 py-1 text-xs bg-cyan-100 hover:bg-cyan-200 text-cyan-700 rounded transition-colors"
+                          title="Apply to Amount field"
+                        >
+                          Apply to Amount
+                        </button>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Items Table */}
+                  {extractedItems.length > 0 && (
+                    <div className="border border-gray-200 rounded-lg overflow-hidden mb-3">
+                      <table className="w-full text-sm">
+                        <thead className="bg-gray-50">
+                          <tr>
+                            <th className="px-3 py-2 text-left w-10">
+                              <input
+                                type="checkbox"
+                                checked={extractedItems.length > 0 && extractedItems.every((item) => item.selected)}
+                                onChange={(e) => handleSelectAllItems(e.target.checked)}
+                                className="rounded border-gray-300 text-cyan-500 focus:ring-cyan-500"
+                              />
+                            </th>
+                            <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Item Name</th>
+                            <th className="px-3 py-2 text-center text-xs font-medium text-gray-500 uppercase w-20">Qty</th>
+                            <th className="px-3 py-2 text-right text-xs font-medium text-gray-500 uppercase w-28">Unit Price</th>
+                            <th className="px-3 py-2 text-right text-xs font-medium text-gray-500 uppercase w-28">Amount</th>
+                            <th className="px-3 py-2 w-10"></th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-gray-100">
+                          {extractedItems.map((item) => (
+                            <tr key={item.id} className={`${item.selected ? 'bg-white' : 'bg-gray-50 opacity-60'}`}>
+                              <td className="px-3 py-2">
+                                <input
+                                  type="checkbox"
+                                  checked={item.selected}
+                                  onChange={() => handleToggleItemSelection(item.id)}
+                                  className="rounded border-gray-300 text-cyan-500 focus:ring-cyan-500"
+                                />
+                              </td>
+                              <td className="px-3 py-2">
+                                <input
+                                  type="text"
+                                  value={item.name}
+                                  onChange={(e) => handleUpdateItem(item.id, 'name', e.target.value)}
+                                  className="w-full px-2 py-1 border border-gray-200 rounded focus:outline-none focus:ring-1 focus:ring-cyan-500 text-sm"
+                                  placeholder="Item name"
+                                />
+                              </td>
+                              <td className="px-3 py-2">
+                                <input
+                                  type="number"
+                                  min="1"
+                                  value={item.qty}
+                                  onChange={(e) => handleUpdateItem(item.id, 'qty', parseInt(e.target.value) || 1)}
+                                  className="w-full px-2 py-1 border border-gray-200 rounded focus:outline-none focus:ring-1 focus:ring-cyan-500 text-sm text-center"
+                                />
+                              </td>
+                              <td className="px-3 py-2">
+                                <input
+                                  type="number"
+                                  step="0.01"
+                                  value={item.unitPrice.toFixed(2)}
+                                  onChange={(e) => handleUpdateItem(item.id, 'unitPrice', parseFloat(e.target.value) || 0)}
+                                  className="w-full px-2 py-1 border border-gray-200 rounded focus:outline-none focus:ring-1 focus:ring-cyan-500 text-sm text-right"
+                                  placeholder="0.00"
+                                />
+                              </td>
+                              <td className="px-3 py-2 text-right font-medium text-gray-900">
+                                {item.amount !== 0 ? `$${item.amount.toFixed(2)}` : '-'}
+                              </td>
+                              <td className="px-3 py-2">
+                                <button
+                                  type="button"
+                                  onClick={() => handleRemoveItem(item.id)}
+                                  className="p-1 text-red-500 hover:bg-red-50 rounded transition-colors"
+                                  title="Remove item"
+                                >
+                                  <X className="w-4 h-4" />
+                                </button>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+
+                  {/* Add new item */}
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="text"
+                      value={newItemName}
+                      onChange={(e) => setNewItemName(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                          handleAddItem();
+                        }
+                      }}
+                      placeholder="Add new item..."
+                      className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 text-sm"
+                    />
+                    <button
+                      type="button"
+                      onClick={handleAddItem}
+                      disabled={!newItemName.trim()}
+                      className="p-2 bg-cyan-500 hover:bg-cyan-600 text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      title="Add item"
+                    >
+                      <Plus className="w-4 h-4" />
+                    </button>
+                  </div>
                 </div>
 
                 {/* Save button - Full width */}

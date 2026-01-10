@@ -14,20 +14,43 @@ import {
   Store,
   Tag,
   CreditCard,
+  Mail,
+  Check,
 } from 'lucide-react';
+import { LineItem } from '@/types/database';
 
 export interface ExtractedData {
   date: string;
   vendor: string;
   amount: number;
-  items: string[];
+  items: LineItem[] | string[];
   category: string;
   paymentMethod?: string;
 }
 
+// Helper to normalize items to LineItem format
+const normalizeItems = (items: LineItem[] | string[]): LineItem[] => {
+  if (!items || items.length === 0) return [];
+
+  // Check if first item is a string (legacy format)
+  if (typeof items[0] === 'string') {
+    return (items as string[]).map((name, index) => ({
+      id: `legacy_${index}`,
+      name,
+      qty: 1,
+      unitPrice: 0,
+      amount: 0,
+      selected: true,
+    }));
+  }
+
+  return items as LineItem[];
+};
+
 interface SplitViewProps {
   images: string[]; // Array of image URLs or base64
   extractedData: ExtractedData;
+  emailText?: string; // Email text to display when no images
   onDataChange?: (field: keyof ExtractedData, value: string | number | string[]) => void;
   editable?: boolean;
 }
@@ -35,6 +58,7 @@ interface SplitViewProps {
 export default function SplitView({
   images,
   extractedData,
+  emailText,
   onDataChange,
   editable = false,
 }: SplitViewProps) {
@@ -102,50 +126,63 @@ export default function SplitView({
   return (
     <div className={`${isFullscreen ? 'fixed inset-0 z-50 bg-white' : ''}`}>
       <div className={`grid grid-cols-1 lg:grid-cols-2 gap-4 ${isFullscreen ? 'h-full p-4' : ''}`}>
-        {/* Left Panel - Image Viewer */}
+        {/* Left Panel - Image Viewer or Email Text */}
         <div className="bg-white rounded-xl border border-gray-200 overflow-hidden flex flex-col">
-          {/* Image Toolbar */}
+          {/* Toolbar */}
           <div className="flex items-center justify-between px-4 py-2 border-b border-gray-200 bg-gray-50">
             <div className="flex items-center gap-2">
-              <ImageIcon className="w-4 h-4 text-gray-500" />
-              <span className="text-sm font-medium text-gray-700">
-                Receipt Image
-                {images.length > 1 && ` (${currentImageIndex + 1}/${images.length})`}
-              </span>
+              {images.length > 0 ? (
+                <>
+                  <ImageIcon className="w-4 h-4 text-gray-500" />
+                  <span className="text-sm font-medium text-gray-700">
+                    Receipt Image
+                    {images.length > 1 && ` (${currentImageIndex + 1}/${images.length})`}
+                  </span>
+                </>
+              ) : (
+                <>
+                  <Mail className="w-4 h-4 text-cyan-500" />
+                  <span className="text-sm font-medium text-gray-700">
+                    Email Text
+                  </span>
+                </>
+              )}
             </div>
-            <div className="flex items-center gap-1">
-              <button
-                onClick={handleZoomOut}
-                className="p-1.5 hover:bg-gray-200 rounded transition-colors"
-                title="Zoom Out"
-              >
-                <ZoomOut className="w-4 h-4 text-gray-600" />
-              </button>
-              <button
-                onClick={handleResetZoom}
-                className="px-2 py-1 text-xs text-gray-600 hover:bg-gray-200 rounded transition-colors"
-              >
-                {Math.round(zoomLevel * 100)}%
-              </button>
-              <button
-                onClick={handleZoomIn}
-                className="p-1.5 hover:bg-gray-200 rounded transition-colors"
-                title="Zoom In"
-              >
-                <ZoomIn className="w-4 h-4 text-gray-600" />
-              </button>
-              <div className="w-px h-4 bg-gray-300 mx-1" />
-              <button
-                onClick={() => setIsFullscreen(!isFullscreen)}
-                className="p-1.5 hover:bg-gray-200 rounded transition-colors"
-                title={isFullscreen ? 'Exit Fullscreen' : 'Fullscreen'}
-              >
-                <Maximize2 className="w-4 h-4 text-gray-600" />
-              </button>
-            </div>
+            {images.length > 0 && (
+              <div className="flex items-center gap-1">
+                <button
+                  onClick={handleZoomOut}
+                  className="p-1.5 hover:bg-gray-200 rounded transition-colors"
+                  title="Zoom Out"
+                >
+                  <ZoomOut className="w-4 h-4 text-gray-600" />
+                </button>
+                <button
+                  onClick={handleResetZoom}
+                  className="px-2 py-1 text-xs text-gray-600 hover:bg-gray-200 rounded transition-colors"
+                >
+                  {Math.round(zoomLevel * 100)}%
+                </button>
+                <button
+                  onClick={handleZoomIn}
+                  className="p-1.5 hover:bg-gray-200 rounded transition-colors"
+                  title="Zoom In"
+                >
+                  <ZoomIn className="w-4 h-4 text-gray-600" />
+                </button>
+                <div className="w-px h-4 bg-gray-300 mx-1" />
+                <button
+                  onClick={() => setIsFullscreen(!isFullscreen)}
+                  className="p-1.5 hover:bg-gray-200 rounded transition-colors"
+                  title={isFullscreen ? 'Exit Fullscreen' : 'Fullscreen'}
+                >
+                  <Maximize2 className="w-4 h-4 text-gray-600" />
+                </button>
+              </div>
+            )}
           </div>
 
-          {/* Image Container */}
+          {/* Content Container */}
           <div
             ref={imageContainerRef}
             className={`relative flex-1 overflow-auto bg-gray-100 ${isFullscreen ? 'h-[calc(100vh-120px)]' : 'h-[400px] lg:h-[500px]'}`}
@@ -164,6 +201,12 @@ export default function SplitView({
                   className="max-w-full h-auto shadow-lg rounded"
                   draggable={false}
                 />
+              </div>
+            ) : emailText ? (
+              <div className="h-full p-4 overflow-auto">
+                <pre className="whitespace-pre-wrap text-sm text-gray-700 font-mono bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
+                  {emailText}
+                </pre>
               </div>
             ) : (
               <div className="h-full flex items-center justify-center text-gray-400">
@@ -298,51 +341,73 @@ export default function SplitView({
             </div>
 
             {/* Items Table */}
-            <div className="border border-gray-200 rounded-lg overflow-hidden">
-              <div className="bg-gray-50 px-4 py-3 border-b border-gray-200">
-                <h3 className="text-sm font-semibold text-gray-700 flex items-center gap-2">
-                  <List className="w-4 h-4" />
-                  Line Items ({extractedData.items.length})
-                </h3>
-              </div>
+            {(() => {
+              const normalizedItems = normalizeItems(extractedData.items);
+              const selectedTotal = normalizedItems
+                .filter((item) => item.selected)
+                .reduce((sum, item) => sum + item.amount, 0);
 
-              {extractedData.items.length > 0 ? (
-                <div className="max-h-[300px] overflow-auto">
-                  <table className="w-full">
-                    <thead className="bg-gray-50 sticky top-0">
-                      <tr>
-                        <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          #
-                        </th>
-                        <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Item Description
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-100">
-                      {extractedData.items.map((item, index) => (
-                        <tr
-                          key={index}
-                          className="hover:bg-cyan-50 transition-colors"
-                        >
-                          <td className="px-4 py-3 text-sm text-gray-400 w-12">
-                            {index + 1}
-                          </td>
-                          <td className="px-4 py-3 text-sm text-gray-900">
-                            {item}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+              return (
+                <div className="border border-gray-200 rounded-lg overflow-hidden">
+                  <div className="bg-gray-50 px-4 py-3 border-b border-gray-200 flex items-center justify-between">
+                    <h3 className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                      <List className="w-4 h-4" />
+                      Line Items ({normalizedItems.length})
+                    </h3>
+                    {normalizedItems.length > 0 && selectedTotal > 0 && (
+                      <span className="text-sm text-cyan-600 font-medium">
+                        Selected: ${selectedTotal.toFixed(2)}
+                      </span>
+                    )}
+                  </div>
+
+                  {normalizedItems.length > 0 ? (
+                    <div className="max-h-[300px] overflow-auto">
+                      <table className="w-full text-sm">
+                        <thead className="bg-gray-50 sticky top-0">
+                          <tr>
+                            <th className="px-3 py-2 text-center text-xs font-medium text-gray-500 uppercase w-10"></th>
+                            <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Item</th>
+                            <th className="px-3 py-2 text-center text-xs font-medium text-gray-500 uppercase w-16">Qty</th>
+                            <th className="px-3 py-2 text-right text-xs font-medium text-gray-500 uppercase w-24">Unit Price</th>
+                            <th className="px-3 py-2 text-right text-xs font-medium text-gray-500 uppercase w-24">Amount</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-gray-100">
+                          {normalizedItems.map((item, index) => (
+                            <tr
+                              key={item.id || index}
+                              className={`transition-colors ${item.selected ? 'hover:bg-cyan-50' : 'bg-gray-50 opacity-60'}`}
+                            >
+                              <td className="px-3 py-2 text-center">
+                                {item.selected ? (
+                                  <Check className="w-4 h-4 text-green-500 mx-auto" />
+                                ) : (
+                                  <span className="text-gray-300">-</span>
+                                )}
+                              </td>
+                              <td className="px-3 py-2 text-gray-900">{item.name}</td>
+                              <td className="px-3 py-2 text-center text-gray-600">{item.qty}</td>
+                              <td className="px-3 py-2 text-right text-gray-600">
+                                {item.unitPrice !== 0 ? `$${item.unitPrice.toFixed(2)}` : '-'}
+                              </td>
+                              <td className="px-3 py-2 text-right font-medium text-gray-900">
+                                {item.amount !== 0 ? `$${item.amount.toFixed(2)}` : '-'}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  ) : (
+                    <div className="px-4 py-8 text-center text-gray-400">
+                      <List className="w-8 h-8 mx-auto mb-2 opacity-50" />
+                      <p className="text-sm">No line items extracted</p>
+                    </div>
+                  )}
                 </div>
-              ) : (
-                <div className="px-4 py-8 text-center text-gray-400">
-                  <List className="w-8 h-8 mx-auto mb-2 opacity-50" />
-                  <p className="text-sm">No line items extracted</p>
-                </div>
-              )}
-            </div>
+              );
+            })()}
 
             {/* Multi-image notice */}
             {images.length > 1 && (

@@ -6,6 +6,33 @@
 
 import { ParsedEmailData } from '@/types/evidence';
 
+// Currency symbols and codes mapping
+export const CURRENCY_SYMBOLS: Record<string, string> = {
+  '$': 'USD',
+  '€': 'EUR',
+  '£': 'GBP',
+  '¥': 'JPY',
+  '₩': 'KRW',
+  '₹': 'INR',
+  '₽': 'RUB',
+  '฿': 'THB',
+  '₫': 'VND',
+  'C$': 'CAD',
+  'A$': 'AUD',
+  'HK$': 'HKD',
+  'S$': 'SGD',
+  'NT$': 'TWD',
+  'R$': 'BRL',
+  'MX$': 'MXN',
+  'CHF': 'CHF',
+};
+
+export const CURRENCY_CODES = [
+  'USD', 'EUR', 'GBP', 'JPY', 'KRW', 'CNY', 'INR', 'CAD', 'AUD',
+  'HKD', 'SGD', 'TWD', 'THB', 'VND', 'RUB', 'BRL', 'MXN', 'CHF',
+  'NZD', 'SEK', 'NOK', 'DKK', 'PLN', 'ZAR', 'PHP', 'IDR', 'MYR',
+];
+
 /**
  * Parse email confirmation text to extract transaction data
  * Works with both plain text and HTML (strips tags)
@@ -27,8 +54,10 @@ export function parseEmailText(emailText: string): ParsedEmailData {
   // Extract date
   result.date = extractDate(text, normalizedText);
 
-  // Extract total amount
-  result.total = extractTotal(text, normalizedText);
+  // Extract total amount and currency
+  const { amount, currency } = extractTotalWithCurrency(text, normalizedText);
+  result.total = amount;
+  result.currency = currency;
 
   // Extract order number
   result.order_number = extractOrderNumber(normalizedText);
@@ -125,40 +154,126 @@ function extractDate(text: string, normalizedText: string): string | undefined {
 }
 
 /**
- * Extract total amount from email
+ * Extract total amount and currency from email
  */
-function extractTotal(text: string, normalizedText: string): number | undefined {
-  const patterns = [
-    // Order total patterns
-    /(?:order\s*total|grand\s*total|total\s*amount|total\s*charged|amount\s*charged|you\s*paid|total)[:\s]*\$?([\d,]+\.?\d*)/gi,
-    // Transaction amount
-    /(?:transaction|payment|charged)[:\s]*\$?([\d,]+\.\d{2})/gi,
-    // Dollar amount with context
-    /(?:total|amount|charged|paid)[:\s]*\$([\d,]+\.\d{2})/gi,
-    // Standalone currency amounts (last resort)
-    /\$([\d,]+\.\d{2})/g,
+function extractTotalWithCurrency(_text: string, normalizedText: string): { amount?: number; currency?: string } {
+  // Currency detection patterns
+  const currencyPatterns = [
+    // Multi-character currency symbols first
+    { regex: /(?:HK|S|A|C|NT|R|MX)\$\s*([\d,]+\.?\d*)/gi, currency: (m: string) => {
+      if (m.startsWith('HK')) return 'HKD';
+      if (m.startsWith('S')) return 'SGD';
+      if (m.startsWith('A')) return 'AUD';
+      if (m.startsWith('C')) return 'CAD';
+      if (m.startsWith('NT')) return 'TWD';
+      if (m.startsWith('R')) return 'BRL';
+      if (m.startsWith('MX')) return 'MXN';
+      return 'USD';
+    }},
+    // Standard currency symbols
+    { regex: /\$\s*([\d,]+\.?\d*)/gi, currency: 'USD' },
+    { regex: /€\s*([\d,]+\.?\d*)/gi, currency: 'EUR' },
+    { regex: /£\s*([\d,]+\.?\d*)/gi, currency: 'GBP' },
+    { regex: /¥\s*([\d,]+\.?\d*)/gi, currency: 'JPY' },
+    { regex: /₩\s*([\d,]+\.?\d*)/gi, currency: 'KRW' },
+    { regex: /₹\s*([\d,]+\.?\d*)/gi, currency: 'INR' },
+    { regex: /₽\s*([\d,]+\.?\d*)/gi, currency: 'RUB' },
+    { regex: /฿\s*([\d,]+\.?\d*)/gi, currency: 'THB' },
+    { regex: /₫\s*([\d,]+\.?\d*)/gi, currency: 'VND' },
+    // Currency codes after amount
+    { regex: /([\d,]+\.?\d*)\s*(USD|EUR|GBP|JPY|KRW|CNY|CAD|AUD|CHF|INR|SGD|HKD|TWD|THB)/gi, currency: 'CODE' },
+    // Currency codes before amount
+    { regex: /(USD|EUR|GBP|JPY|KRW|CNY|CAD|AUD|CHF|INR|SGD|HKD|TWD|THB)\s*([\d,]+\.?\d*)/gi, currency: 'CODE_BEFORE' },
+  ];
+
+  // Total-specific patterns with currency context
+  const totalPatterns = [
+    /(?:order\s*total|grand\s*total|total\s*amount|total\s*charged|amount\s*charged|you\s*paid|total)[:\s]*([€£¥₩₹₽฿₫]|(?:HK|S|A|C|NT|R|MX)?\$)?\s*([\d,]+\.?\d*)/gi,
+    /(?:transaction|payment|charged)[:\s]*([€£¥₩₹₽฿₫]|(?:HK|S|A|C|NT|R|MX)?\$)?\s*([\d,]+\.?\d*)/gi,
   ];
 
   let maxAmount = 0;
+  let detectedCurrency: string | undefined;
   let foundAmount = false;
 
-  for (const pattern of patterns) {
+  // First, try total-specific patterns
+  for (const pattern of totalPatterns) {
     const matches = [...normalizedText.matchAll(pattern)];
     for (const match of matches) {
-      const amount = parseFloat(match[1].replace(/,/g, ''));
+      const symbol = match[1] || '$';
+      const amountStr = match[2];
+      const amount = parseFloat(amountStr.replace(/,/g, ''));
+
       if (!isNaN(amount) && amount > 0 && amount < 1000000) {
-        // Take the largest amount (usually the total)
         if (amount > maxAmount) {
           maxAmount = amount;
           foundAmount = true;
+          // Detect currency from symbol
+          if (symbol) {
+            detectedCurrency = CURRENCY_SYMBOLS[symbol] || 'USD';
+          }
         }
       }
     }
-    // If we found amounts with a specific pattern, don't fall through to generic patterns
-    if (foundAmount && pattern.source.includes('total')) break;
+    if (foundAmount) break;
   }
 
-  return foundAmount ? maxAmount : undefined;
+  // If no total found, try general currency patterns
+  if (!foundAmount) {
+    for (const { regex, currency } of currencyPatterns) {
+      const matches = [...normalizedText.matchAll(regex)];
+      for (const match of matches) {
+        let amountStr: string;
+        let currencyCode: string;
+
+        if (currency === 'CODE') {
+          amountStr = match[1];
+          currencyCode = match[2].toUpperCase();
+        } else if (currency === 'CODE_BEFORE') {
+          currencyCode = match[1].toUpperCase();
+          amountStr = match[2];
+        } else {
+          amountStr = match[1];
+          currencyCode = typeof currency === 'function' ? currency(match[0]) : currency;
+        }
+
+        const amount = parseFloat(amountStr.replace(/,/g, ''));
+        if (!isNaN(amount) && amount > 0 && amount < 1000000) {
+          if (amount > maxAmount) {
+            maxAmount = amount;
+            detectedCurrency = currencyCode;
+            foundAmount = true;
+          }
+        }
+      }
+    }
+  }
+
+  // Also scan for currency codes in the text if not detected
+  if (foundAmount && !detectedCurrency) {
+    for (const code of CURRENCY_CODES) {
+      if (normalizedText.toUpperCase().includes(code)) {
+        detectedCurrency = code;
+        break;
+      }
+    }
+    // Default to USD if amount found but no currency detected
+    if (!detectedCurrency) {
+      detectedCurrency = 'USD';
+    }
+  }
+
+  return {
+    amount: foundAmount ? maxAmount : undefined,
+    currency: detectedCurrency,
+  };
+}
+
+/**
+ * Extract total amount from email (legacy - uses extractTotalWithCurrency)
+ */
+export function extractTotal(text: string, normalizedText: string): number | undefined {
+  return extractTotalWithCurrency(text, normalizedText).amount;
 }
 
 /**

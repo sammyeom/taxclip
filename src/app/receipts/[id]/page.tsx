@@ -24,6 +24,7 @@ import {
   Clock,
   Receipt as ReceiptIcon,
   AlertCircle,
+  Mail,
 } from 'lucide-react';
 
 // Category colors and labels (same as receipts page)
@@ -435,9 +436,26 @@ export default function ReceiptDetailPage() {
 
         {/* Two-column layout */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Left column - Image */}
+          {/* Left column - Image or Email Text */}
           <div className="bg-white rounded-xl shadow-lg p-6">
-            <h2 className="text-xl font-semibold text-slate-900 mb-4">Receipt Image</h2>
+            <h2 className="text-xl font-semibold text-slate-900 mb-4 flex items-center gap-2">
+              {receipt.image_url ? (
+                <>
+                  <ReceiptIcon className="w-5 h-5 text-cyan-500" />
+                  Receipt Image
+                </>
+              ) : receipt.email_text ? (
+                <>
+                  <Mail className="w-5 h-5 text-cyan-500" />
+                  Email Text
+                </>
+              ) : (
+                <>
+                  <ReceiptIcon className="w-5 h-5 text-gray-400" />
+                  Receipt Source
+                </>
+              )}
+            </h2>
 
             {receipt.image_url ? (
               <div className="space-y-4">
@@ -474,10 +492,16 @@ export default function ReceiptDetailPage() {
                   </button>
                 </div>
               </div>
+            ) : receipt.email_text ? (
+              <div className="bg-gray-50 rounded-lg p-4 max-h-[600px] overflow-auto">
+                <pre className="whitespace-pre-wrap text-sm text-gray-700 font-mono">
+                  {receipt.email_text}
+                </pre>
+              </div>
             ) : (
               <div className="bg-gray-100 rounded-lg p-12 text-center">
                 <ReceiptIcon className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                <p className="text-slate-500">No image available</p>
+                <p className="text-slate-500">No image or email text available</p>
               </div>
             )}
           </div>

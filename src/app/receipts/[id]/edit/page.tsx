@@ -5,7 +5,7 @@ import { useRouter, useParams } from 'next/navigation';
 import { getReceiptById, updateReceipt, deleteReceipt } from '@/lib/supabase';
 import { useAuth } from '@/hooks/useAuth';
 import { Receipt } from '@/types/database';
-import { IRS_SCHEDULE_C_CATEGORIES } from '@/types/database';
+import { IRS_SCHEDULE_C_CATEGORIES, LineItem, createLineItem } from '@/types/database';
 import Navigation from '@/components/Navigation';
 import { SplitView } from '@/components/receipts';
 import {
@@ -16,6 +16,9 @@ import {
   CheckCircle,
   XCircle,
   AlertCircle,
+  Plus,
+  X,
+  List,
 } from 'lucide-react';
 
 const PAYMENT_METHODS = [
@@ -24,6 +27,21 @@ const PAYMENT_METHODS = [
   { value: 'debit', label: 'Debit Card' },
   { value: 'cash', label: 'Cash' },
   { value: 'check', label: 'Check' },
+];
+
+const CURRENCY_OPTIONS = [
+  { value: 'USD', label: 'USD ($)', symbol: '$' },
+  { value: 'EUR', label: 'EUR (€)', symbol: '€' },
+  { value: 'GBP', label: 'GBP (£)', symbol: '£' },
+  { value: 'JPY', label: 'JPY (¥)', symbol: '¥' },
+  { value: 'KRW', label: 'KRW (₩)', symbol: '₩' },
+  { value: 'CNY', label: 'CNY (¥)', symbol: '¥' },
+  { value: 'CAD', label: 'CAD (C$)', symbol: 'C$' },
+  { value: 'AUD', label: 'AUD (A$)', symbol: 'A$' },
+  { value: 'CHF', label: 'CHF', symbol: 'CHF' },
+  { value: 'INR', label: 'INR (₹)', symbol: '₹' },
+  { value: 'SGD', label: 'SGD (S$)', symbol: 'S$' },
+  { value: 'HKD', label: 'HKD (HK$)', symbol: 'HK$' },
 ];
 
 export default function ReceiptEditPage() {
@@ -45,10 +63,69 @@ export default function ReceiptEditPage() {
     merchant: '',
     total: '',
     category: 'other',
+    currency: 'USD',
     business_purpose: '',
     payment_method: '',
     notes: '',
+    items: [] as LineItem[],
   });
+
+  // New item input state
+  const [newItemName, setNewItemName] = useState('');
+
+  // Item management functions
+  const handleAddItem = () => {
+    if (newItemName.trim()) {
+      setFormData((prev) => ({
+        ...prev,
+        items: [...prev.items, createLineItem(newItemName.trim(), 1, 0)],
+      }));
+      setNewItemName('');
+    }
+  };
+
+  const handleRemoveItem = (id: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      items: prev.items.filter((item) => item.id !== id),
+    }));
+  };
+
+  const handleUpdateItem = (id: string, field: keyof LineItem, value: string | number | boolean) => {
+    setFormData((prev) => ({
+      ...prev,
+      items: prev.items.map((item) => {
+        if (item.id !== id) return item;
+        const updated = { ...item, [field]: value };
+        // Recalculate amount when qty or unitPrice changes
+        if (field === 'qty' || field === 'unitPrice') {
+          updated.amount = updated.qty * updated.unitPrice;
+        }
+        return updated;
+      }),
+    }));
+  };
+
+  const handleToggleItemSelection = (id: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      items: prev.items.map((item) =>
+        item.id === id ? { ...item, selected: !item.selected } : item
+      ),
+    }));
+  };
+
+  const handleSelectAllItems = (selected: boolean) => {
+    setFormData((prev) => ({
+      ...prev,
+      items: prev.items.map((item) => ({ ...item, selected })),
+    }));
+  };
+
+  // Calculate total of selected items
+  const selectedItemsTotal = formData.items
+    .filter((item) => item.selected)
+    .reduce((sum, item) => sum + item.amount, 0);
 
   // Action states
   const [saving, setSaving] = useState(false);
@@ -93,14 +170,45 @@ export default function ReceiptEditPage() {
 
       setReceipt(data);
       // Initialize form with current data
+      // Parse items from receipt into LineItem format
+      const parsedItems: LineItem[] = [];
+      if (data.items && Array.isArray(data.items)) {
+        data.items.forEach((item, index) => {
+          if (typeof item === 'string') {
+            // Legacy string format - convert to LineItem
+            parsedItems.push({
+              id: `item_${Date.now()}_${index}`,
+              name: item,
+              qty: 1,
+              unitPrice: 0,
+              amount: 0,
+              selected: true,
+            });
+          } else if (typeof item === 'object' && item !== null) {
+            // Already LineItem format or similar object
+            const lineItem = item as Partial<LineItem>;
+            parsedItems.push({
+              id: lineItem.id || `item_${Date.now()}_${index}`,
+              name: lineItem.name || '',
+              qty: lineItem.qty || 1,
+              unitPrice: lineItem.unitPrice || 0,
+              amount: lineItem.amount || 0,
+              selected: lineItem.selected !== false, // Default to true
+            });
+          }
+        });
+      }
+
       setFormData({
         date: data.date || '',
         merchant: data.merchant || '',
         total: data.total?.toString() || '',
         category: data.category || 'other',
+        currency: 'USD',
         business_purpose: data.business_purpose || '',
         payment_method: data.payment_method || '',
         notes: data.notes || '',
+        items: parsedItems,
       });
     } catch (err) {
       console.error('Error fetching receipt:', err);
@@ -146,6 +254,9 @@ export default function ReceiptEditPage() {
       // Calculate tax year
       const taxYear = new Date(formData.date).getFullYear();
 
+      // Only save selected items
+      const selectedItems = formData.items.filter((item) => item.selected);
+
       const updatedData = {
         date: formData.date,
         merchant: formData.merchant,
@@ -154,6 +265,7 @@ export default function ReceiptEditPage() {
         business_purpose: formData.business_purpose || null,
         payment_method: formData.payment_method || null,
         notes: formData.notes || null,
+        items: selectedItems,
         tax_year: taxYear,
       };
 
@@ -214,24 +326,6 @@ export default function ReceiptEditPage() {
     return [];
   };
 
-  // Get items from receipt
-  const getItems = (): string[] => {
-    if (!receipt?.items) return [];
-
-    // Handle different item formats
-    if (Array.isArray(receipt.items)) {
-      return receipt.items.map((item) => {
-        if (typeof item === 'string') return item;
-        if (typeof item === 'object' && item !== null) {
-          return item.name || JSON.stringify(item);
-        }
-        return String(item);
-      });
-    }
-
-    return [];
-  };
-
   // Loading state
   if (authLoading || loading) {
     return (
@@ -273,7 +367,6 @@ export default function ReceiptEditPage() {
   if (!receipt) return null;
 
   const imageUrls = getImageUrls();
-  const items = getItems();
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-cyan-50 via-blue-50 to-sky-50">
@@ -318,8 +411,8 @@ export default function ReceiptEditPage() {
           </div>
         )}
 
-        {/* Split View - Image and Data */}
-        {imageUrls.length > 0 && (
+        {/* Split View - Image and Data (or Email Text) */}
+        {(imageUrls.length > 0 || receipt.email_text) && (
           <div className="mb-6">
             <SplitView
               images={imageUrls}
@@ -327,10 +420,11 @@ export default function ReceiptEditPage() {
                 date: formData.date,
                 vendor: formData.merchant,
                 amount: parseFloat(formData.total) || 0,
-                items: items,
+                items: formData.items.filter((item) => item.selected),
                 category: formData.category,
                 paymentMethod: formData.payment_method,
               }}
+              emailText={receipt.email_text || undefined}
             />
           </div>
         )}
@@ -402,6 +496,24 @@ export default function ReceiptEditPage() {
               </select>
             </div>
 
+            {/* Currency */}
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-1">
+                Currency
+              </label>
+              <select
+                value={formData.currency}
+                onChange={(e) => handleFormChange('currency', e.target.value)}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
+              >
+                {CURRENCY_OPTIONS.map((curr) => (
+                  <option key={curr.value} value={curr.value}>
+                    {curr.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+
             {/* Business Purpose */}
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">
@@ -444,6 +556,139 @@ export default function ReceiptEditPage() {
                 placeholder="Add any additional notes (optional)"
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 resize-none"
               />
+            </div>
+
+            {/* Line Items - Full width */}
+            <div className="md:col-span-2">
+              <div className="flex items-center justify-between mb-2">
+                <label className="block text-sm font-medium text-slate-700">
+                  <span className="flex items-center gap-2">
+                    <List className="w-4 h-4" />
+                    Line Items ({formData.items.length})
+                  </span>
+                </label>
+                {formData.items.length > 0 && (
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm text-cyan-600 font-medium">
+                      Selected Total: ${selectedItemsTotal.toFixed(2)}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => handleFormChange('total', selectedItemsTotal.toFixed(2))}
+                      className="px-2 py-1 text-xs bg-cyan-100 hover:bg-cyan-200 text-cyan-700 rounded transition-colors"
+                      title="Apply to Amount field"
+                    >
+                      Apply to Amount
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {/* Items Table */}
+              {formData.items.length > 0 && (
+                <div className="border border-gray-200 rounded-lg overflow-hidden mb-3">
+                  <table className="w-full text-sm">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th className="px-3 py-2 text-left w-10">
+                          <input
+                            type="checkbox"
+                            checked={formData.items.length > 0 && formData.items.every((item) => item.selected)}
+                            onChange={(e) => handleSelectAllItems(e.target.checked)}
+                            className="rounded border-gray-300 text-cyan-500 focus:ring-cyan-500"
+                          />
+                        </th>
+                        <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Item Name</th>
+                        <th className="px-3 py-2 text-center text-xs font-medium text-gray-500 uppercase w-20">Qty</th>
+                        <th className="px-3 py-2 text-right text-xs font-medium text-gray-500 uppercase w-28">Unit Price</th>
+                        <th className="px-3 py-2 text-right text-xs font-medium text-gray-500 uppercase w-28">Amount</th>
+                        <th className="px-3 py-2 w-10"></th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-100">
+                      {formData.items.map((item) => (
+                        <tr key={item.id} className={`${item.selected ? 'bg-white' : 'bg-gray-50 opacity-60'}`}>
+                          <td className="px-3 py-2">
+                            <input
+                              type="checkbox"
+                              checked={item.selected}
+                              onChange={() => handleToggleItemSelection(item.id)}
+                              className="rounded border-gray-300 text-cyan-500 focus:ring-cyan-500"
+                            />
+                          </td>
+                          <td className="px-3 py-2">
+                            <input
+                              type="text"
+                              value={item.name}
+                              onChange={(e) => handleUpdateItem(item.id, 'name', e.target.value)}
+                              className="w-full px-2 py-1 border border-gray-200 rounded focus:outline-none focus:ring-1 focus:ring-cyan-500 text-sm"
+                              placeholder="Item name"
+                            />
+                          </td>
+                          <td className="px-3 py-2">
+                            <input
+                              type="number"
+                              min="1"
+                              value={item.qty}
+                              onChange={(e) => handleUpdateItem(item.id, 'qty', parseInt(e.target.value) || 1)}
+                              className="w-full px-2 py-1 border border-gray-200 rounded focus:outline-none focus:ring-1 focus:ring-cyan-500 text-sm text-center"
+                            />
+                          </td>
+                          <td className="px-3 py-2">
+                            <input
+                              type="number"
+                              step="0.01"
+                              value={item.unitPrice.toFixed(2)}
+                              onChange={(e) => handleUpdateItem(item.id, 'unitPrice', parseFloat(e.target.value) || 0)}
+                              className="w-full px-2 py-1 border border-gray-200 rounded focus:outline-none focus:ring-1 focus:ring-cyan-500 text-sm text-right"
+                              placeholder="0.00"
+                            />
+                          </td>
+                          <td className="px-3 py-2 text-right font-medium text-gray-900">
+                            {item.amount !== 0 ? `$${item.amount.toFixed(2)}` : '-'}
+                          </td>
+                          <td className="px-3 py-2">
+                            <button
+                              type="button"
+                              onClick={() => handleRemoveItem(item.id)}
+                              className="p-1 text-red-500 hover:bg-red-50 rounded transition-colors"
+                              title="Remove item"
+                            >
+                              <X className="w-4 h-4" />
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+
+              {/* Add new item */}
+              <div className="flex items-center gap-2">
+                <input
+                  type="text"
+                  value={newItemName}
+                  onChange={(e) => setNewItemName(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      handleAddItem();
+                    }
+                  }}
+                  placeholder="Add new item..."
+                  className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 text-sm"
+                />
+                <button
+                  type="button"
+                  onClick={handleAddItem}
+                  disabled={!newItemName.trim()}
+                  className="p-2 bg-cyan-500 hover:bg-cyan-600 text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  title="Add item"
+                >
+                  <Plus className="w-4 h-4" />
+                </button>
+              </div>
             </div>
 
             {/* Action Buttons */}

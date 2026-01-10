@@ -48,6 +48,7 @@ export interface ParsedEmailData {
   vendor?: string;
   date?: string;
   total?: number;
+  currency?: string;
   order_number?: string;
   items?: string[];
   raw_text: string;

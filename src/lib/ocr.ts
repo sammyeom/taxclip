@@ -1,4 +1,5 @@
 import OpenAI from 'openai';
+import { LineItem } from '@/types/database';
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -7,11 +8,19 @@ const openai = new OpenAI({
 // Document types for IRS audit purposes
 export type DocumentType = 'receipt' | 'invoice' | 'payment_proof' | 'online_order' | 'other';
 
+// Item structure from OCR extraction
+export interface ExtractedItem {
+  name: string;
+  qty: number;
+  unitPrice: number;
+  amount: number;
+}
+
 export interface ReceiptData {
   date: string;
   vendor: string;
   amount: number;
-  items: string[];
+  items: LineItem[];
   category: string;
   paymentMethod?: string;
   documentType: DocumentType;  // Auto-classified document type
@@ -211,6 +220,16 @@ Classification hints:
 - Payment proofs have bank logos, transaction IDs, "Payment Successful"
 - Online orders have "Order #", "Ship To", confirmation emails, website headers`;
 
+    const itemsFormatInstruction = `
+ITEMS FORMAT - Extract each item with quantity and price:
+{
+  "name": "item name/description",
+  "qty": quantity as number (default 1 if not specified),
+  "unitPrice": price per unit as number,
+  "amount": total for this item (qty * unitPrice)
+}
+If only total price is shown (not unit price), set unitPrice = amount and qty = 1.`;
+
     const promptText = isMultiImage
       ? `You are analyzing ${imageUrls.length} images that together make up a SINGLE receipt/transaction.
 These images may show different parts of the same long receipt (top, middle, bottom sections).
@@ -225,12 +244,17 @@ ${documentTypeInstructions}
 
 ${IRS_CATEGORY_GUIDE}
 
+${itemsFormatInstruction}
+
 Extract and return this JSON format:
 {
   "date": "YYYY-MM-DD format",
   "vendor": "merchant/store name",
   "amount": final total amount as number (NOT subtotal),
-  "items": ["item1", "item2", ...] (ALL items from ALL images),
+  "items": [
+    {"name": "item1", "qty": 1, "unitPrice": 10.00, "amount": 10.00},
+    {"name": "item2", "qty": 2, "unitPrice": 5.00, "amount": 10.00}
+  ],
   "category": "one of: ${IRS_CATEGORIES.join(', ')}",
   "paymentMethod": "credit card, cash, debit, check, etc.",
   "documentType": "one of: receipt, invoice, payment_proof, online_order, other",
@@ -238,7 +262,7 @@ Extract and return this JSON format:
 }
 
 Make sure to:
-1. Extract ALL line items from every image
+1. Extract ALL line items from every image with their quantities and prices
 2. Use the FINAL TOTAL (including tax) as the amount
 3. CAREFULLY categorize using the IRS Schedule C guide above - DO NOT default to "other" unless nothing else fits
 4. Classify the document type accurately for IRS audit purposes`
@@ -248,12 +272,17 @@ ${documentTypeInstructions}
 
 ${IRS_CATEGORY_GUIDE}
 
+${itemsFormatInstruction}
+
 Return this JSON format:
 {
   "date": "YYYY-MM-DD format",
   "vendor": "merchant/store name",
   "amount": total amount as number,
-  "items": ["item1", "item2", ...],
+  "items": [
+    {"name": "item1", "qty": 1, "unitPrice": 10.00, "amount": 10.00},
+    {"name": "item2", "qty": 2, "unitPrice": 5.00, "amount": 10.00}
+  ],
   "category": "one of: ${IRS_CATEGORIES.join(', ')}",
   "paymentMethod": "credit card, cash, debit, check, etc.",
   "documentType": "one of: receipt, invoice, payment_proof, online_order, other",
@@ -264,7 +293,8 @@ IMPORTANT RULES:
 1. CAREFULLY read the IRS Schedule C category guide above
 2. Choose the MOST SPECIFIC category - DO NOT default to "other" unless absolutely nothing else fits
 3. Look at the vendor name and items to determine category (e.g., OpenAI = "utilities", Restaurant = "meals")
-4. Classify the document type accurately for IRS audit purposes`;
+4. Extract each item with its quantity and unit price
+5. Classify the document type accurately for IRS audit purposes`;
 
     const response = await openai.chat.completions.create({
       model: "gpt-4o",  // Use full gpt-4o for better multi-image handling
@@ -299,11 +329,43 @@ IMPORTANT RULES:
       ? data.documentType
       : 'receipt'; // Default to receipt if not specified
 
+    // Convert items to LineItem format
+    const lineItems: LineItem[] = [];
+    if (Array.isArray(data.items)) {
+      data.items.forEach((item: string | ExtractedItem, index: number) => {
+        if (typeof item === 'string') {
+          // Legacy string format - convert to LineItem
+          lineItems.push({
+            id: `item_${Date.now()}_${index}`,
+            name: item,
+            qty: 1,
+            unitPrice: 0,
+            amount: 0,
+            selected: true,
+          });
+        } else if (typeof item === 'object' && item !== null) {
+          // Object format with qty, unitPrice, amount
+          const qty = typeof item.qty === 'number' ? item.qty : 1;
+          const unitPrice = typeof item.unitPrice === 'number' ? item.unitPrice : 0;
+          const amount = typeof item.amount === 'number' ? item.amount : qty * unitPrice;
+
+          lineItems.push({
+            id: `item_${Date.now()}_${index}`,
+            name: item.name || '',
+            qty,
+            unitPrice,
+            amount,
+            selected: true,
+          });
+        }
+      });
+    }
+
     return {
       date: data.date || new Date().toISOString().split('T')[0],
       vendor: data.vendor || 'Unknown Vendor',
       amount: parseFloat(data.amount) || 0,
-      items: Array.isArray(data.items) ? data.items : [],
+      items: lineItems,
       category,
       paymentMethod: data.paymentMethod,
       documentType,

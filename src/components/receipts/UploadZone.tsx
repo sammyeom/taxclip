@@ -2,7 +2,7 @@
 
 import { useCallback } from 'react';
 import { useDropzone, FileRejection } from 'react-dropzone';
-import { Upload, Camera, FileImage, FileText, AlertCircle } from 'lucide-react';
+import { Upload, Camera, FileImage, FileText, AlertCircle, Mail } from 'lucide-react';
 
 // Accepted file types
 const ACCEPTED_TYPES = {
@@ -11,6 +11,7 @@ const ACCEPTED_TYPES = {
   'image/heic': ['.heic'],
   'image/heif': ['.heif'],
   'application/pdf': ['.pdf'],
+  'message/rfc822': ['.eml'],
 };
 
 // Max file size: 10MB
@@ -112,7 +113,7 @@ export default function UploadZone({
               Invalid file type or size
             </p>
             <p className="text-red-500 text-xs sm:text-sm">
-              Only JPG, PNG, PDF, HEIC files up to 10MB are allowed
+              Only JPG, PNG, PDF, HEIC, EML files up to 10MB are allowed
             </p>
           </>
         ) : isDragActive ? (
@@ -168,6 +169,7 @@ export default function UploadZone({
             { icon: FileImage, label: 'PNG' },
             { icon: FileImage, label: 'HEIC' },
             { icon: FileText, label: 'PDF' },
+            { icon: Mail, label: 'EML' },
           ].map((format) => (
             <div
               key={format.label}

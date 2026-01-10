@@ -1,6 +1,28 @@
 import { EvidenceItem, ParsedEmailData } from './evidence';
 
 // ============================================================================
+// Line Item Types
+// ============================================================================
+
+export interface LineItem {
+  id: string;
+  name: string;
+  qty: number;
+  unitPrice: number;
+  amount: number;
+  selected: boolean;
+}
+
+export const createLineItem = (name: string = '', qty: number = 1, unitPrice: number = 0): LineItem => ({
+  id: `item_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`,
+  name,
+  qty,
+  unitPrice,
+  amount: qty * unitPrice,
+  selected: true,
+});
+
+// ============================================================================
 // Expense Types (New IRS Audit-Ready Structure)
 // ============================================================================
 

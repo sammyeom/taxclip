@@ -651,7 +651,7 @@ export default function Home() {
               <div className="text-center mb-8">
                 <h3 className="text-2xl font-bold text-slate-900 mb-4">PRO ⭐</h3>
                 <div className="flex items-baseline justify-center gap-2">
-                  <span className="text-5xl font-bold text-slate-900">$15</span>
+                  <span className="text-5xl font-bold text-slate-900">$9.99</span>
                   <span className="text-slate-600">/month</span>
                 </div>
               </div>

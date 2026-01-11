@@ -595,8 +595,8 @@ export default function ReceiptEditPage() {
 
               {/* Items Table */}
               {formData.items.length > 0 && (
-                <div className="border border-gray-200 rounded-lg overflow-hidden mb-3">
-                  <table className="w-full text-sm">
+                <div className="border border-gray-200 rounded-lg overflow-x-auto mb-3">
+                  <table className="w-full text-sm min-w-[500px]">
                     <thead className="bg-gray-50">
                       <tr>
                         <th className="px-3 py-2 text-left w-10">

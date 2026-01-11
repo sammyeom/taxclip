@@ -74,12 +74,8 @@ export default function SignInPage() {
         {/* Header */}
         <div className="text-center mb-8">
           <Link href="/" className="inline-flex items-center gap-2 mb-6">
-            <div className="bg-cyan-500 rounded-lg p-2">
-              <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-              </svg>
-            </div>
-            <span className="text-2xl font-bold text-slate-900">TaxClip</span>
+            <img src="/logo.svg" alt="TaxClip" width={48} height={48} />
+            <span className="text-2xl font-bold"><span className="text-slate-900">Tax</span><span className="text-cyan-500">Clip</span></span>
           </Link>
           <h1 className="text-3xl sm:text-4xl font-bold text-slate-900 mb-2">
             Welcome back

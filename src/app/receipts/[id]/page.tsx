@@ -377,8 +377,8 @@ export default function ReceiptDetailPage() {
             Back to Receipts
           </button>
 
-          <div className="flex items-center justify-between">
-            <h1 className="text-3xl font-bold text-slate-900">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <h1 className="text-2xl sm:text-3xl font-bold text-slate-900">
               {isEditMode ? 'Edit Receipt' : 'Receipt Details'}
             </h1>
 
@@ -386,14 +386,14 @@ export default function ReceiptDetailPage() {
               <div className="flex gap-2">
                 <button
                   onClick={handleEditClick}
-                  className="bg-cyan-500 hover:bg-cyan-600 text-white px-4 py-2 rounded-lg font-semibold transition-colors inline-flex items-center gap-2"
+                  className="flex-1 sm:flex-none bg-cyan-500 hover:bg-cyan-600 text-white px-3 sm:px-4 py-2 rounded-lg font-semibold text-sm sm:text-base transition-colors inline-flex items-center justify-center gap-2"
                 >
                   <Edit2 className="w-4 h-4" />
                   Edit
                 </button>
                 <button
                   onClick={() => setShowDeleteConfirm(true)}
-                  className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg font-semibold transition-colors inline-flex items-center gap-2"
+                  className="flex-1 sm:flex-none bg-red-500 hover:bg-red-600 text-white px-3 sm:px-4 py-2 rounded-lg font-semibold text-sm sm:text-base transition-colors inline-flex items-center justify-center gap-2"
                 >
                   <Trash2 className="w-4 h-4" />
                   Delete

@@ -6,7 +6,6 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import { signOut } from '@/lib/supabase';
 import {
-  Receipt,
   LayoutDashboard,
   Upload,
   FileText,
@@ -86,10 +85,8 @@ export default function Navigation() {
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
             <Link href="/dashboard" className="flex items-center gap-2 flex-shrink-0">
-              <div className="bg-cyan-500 rounded-lg p-2">
-                <Receipt className="w-6 h-6 text-white" />
-              </div>
-              <span className="text-xl font-bold text-slate-900">TaxClip</span>
+              <img src="/logo.svg" alt="TaxClip" width={40} height={40} />
+              <span className="text-xl font-bold"><span className="text-slate-900">Tax</span><span className="text-cyan-500">Clip</span></span>
             </Link>
 
             {/* Desktop Navigation Links (Center) */}

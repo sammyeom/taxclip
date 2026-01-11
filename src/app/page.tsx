@@ -2,7 +2,6 @@
 
 import { motion } from 'framer-motion';
 import {
-  Receipt,
   Camera,
   Tags,
   Download,
@@ -34,10 +33,8 @@ export default function Home() {
           <div className="flex justify-between items-center h-16">
             {/* Logo */}
             <div className="flex items-center gap-2">
-              <div className="bg-cyan-500 rounded-lg p-1.5">
-                <Receipt className="w-5 h-5 text-white" />
-              </div>
-              <span className="text-xl font-bold text-slate-900">TaxClip</span>
+              <img src="/logo.svg" alt="TaxClip" width={36} height={36} />
+              <span className="text-xl font-bold"><span className="text-slate-900">Tax</span><span className="text-cyan-500">Clip</span></span>
             </div>
 
             {/* Desktop Navigation */}
@@ -808,10 +805,8 @@ export default function Home() {
             {/* Brand */}
             <div>
               <div className="flex items-center gap-2 mb-4">
-                <div className="gradient-btn rounded-lg p-1.5">
-                  <Receipt className="w-5 h-5 text-white" />
-                </div>
-                <span className="text-xl font-bold text-white">TaxClip</span>
+                <img src="/logo.svg" alt="TaxClip" width={36} height={36} />
+                <span className="text-xl font-bold"><span className="text-white">Tax</span><span className="text-cyan-500">Clip</span></span>
               </div>
               <p className="text-sm text-slate-400 italic">
                 AI-Powered Receipt Management

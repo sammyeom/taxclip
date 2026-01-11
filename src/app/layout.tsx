@@ -15,6 +15,9 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "TaxClip - Manage your receipts in 3 seconds",
   description: "Snap a photo, and AI automatically extracts, categorizes, and prepares your receipts for export to QuickBooks and other tools.",
+  icons: {
+    icon: "/favicon.svg",
+  },
 };
 
 export default function RootLayout({

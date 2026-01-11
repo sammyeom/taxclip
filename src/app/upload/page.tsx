@@ -102,6 +102,25 @@ const formatAmount = (amount: number, currencyCode: string = 'USD') => {
   return `${symbol}${formattedNumber}`;
 };
 
+// Format number with commas and 2 decimal places (e.g., "1,234.56")
+const formatNumberWithCommas = (value: string | number): string => {
+  const num = typeof value === 'string' ? parseFloat(value) : value;
+  if (isNaN(num)) return '';
+  return new Intl.NumberFormat('en-US', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(num);
+};
+
+// Parse formatted number string to raw number string (e.g., "1,234.56" -> "1234.56")
+const parseFormattedNumber = (value: string): string => {
+  // Remove commas and keep only digits and decimal point
+  const cleaned = value.replace(/,/g, '');
+  // Validate it's a valid number
+  if (cleaned === '' || isNaN(parseFloat(cleaned))) return '';
+  return cleaned;
+};
+
 // Convert OCR items to LineItem format
 function convertOcrItemsToLineItems(items: (string | OCRItem)[]): LineItem[] {
   return items.map((item) => {
@@ -1304,10 +1323,15 @@ export default function UploadPage() {
                       ))}
                     </select>
                     <input
-                      type="number"
-                      step="0.01"
-                      value={formData.amount}
-                      onChange={(e) => handleFormChange('amount', e.target.value)}
+                      type="text"
+                      inputMode="decimal"
+                      value={formatNumberWithCommas(formData.amount)}
+                      onChange={(e) => handleFormChange('amount', parseFormattedNumber(e.target.value))}
+                      onBlur={(e) => {
+                        // Re-format on blur to ensure proper formatting
+                        const parsed = parseFormattedNumber(e.target.value);
+                        if (parsed) handleFormChange('amount', parsed);
+                      }}
                       placeholder="0.00"
                       className="flex-1 px-4 py-2 border border-gray-300 rounded-r-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
                     />

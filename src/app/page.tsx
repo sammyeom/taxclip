@@ -703,20 +703,20 @@ export default function Home() {
                 <h3 className="text-2xl font-bold text-slate-900 mb-4">ANNUAL</h3>
                 <div className="mb-3">
                   <div className="flex items-baseline justify-center gap-2 mb-1">
-                    <span className="text-2xl text-slate-400 line-through">$180</span>
+                    <span className="text-2xl text-slate-400 line-through">$119.88</span>
                     <span className="text-sm text-slate-500">/year</span>
                   </div>
                   <div className="flex items-baseline justify-center gap-2">
-                    <span className="text-5xl font-bold text-slate-900">$144</span>
+                    <span className="text-5xl font-bold text-slate-900">$99</span>
                     <span className="text-slate-600">/year</span>
                   </div>
                 </div>
                 <div className="flex flex-col gap-2 items-center">
                   <p className="text-lg font-semibold text-cyan-600">
-                    = $12/month
+                    = $8.25/month
                   </p>
                   <div className="bg-green-100 text-green-700 px-4 py-2 rounded-lg">
-                    <p className="text-lg font-bold">Save $36/year</p>
+                    <p className="text-lg font-bold">Save $20/year</p>
                     <p className="text-xs">12 months for the price of 10</p>
                   </div>
                 </div>

@@ -45,6 +45,35 @@ export const signUpWithEmail = async (email: string, password: string) => {
     return { error };
   }
 
+  // Create default user_settings for new user
+  if (data.user) {
+    const { data: existingSettings } = await supabase
+      .from('user_settings')
+      .select('id')
+      .eq('user_id', data.user.id)
+      .single();
+
+    if (!existingSettings) {
+      await supabase.from('user_settings').insert({
+        user_id: data.user.id,
+        currency: 'USD',
+        date_format: 'MM/DD/YYYY',
+        default_category: 'other',
+        auto_categorize: false,
+        email_notifications: true,
+        monthly_summary: true,
+        receipt_reminders: false,
+        tax_deadline_reminders: true,
+        business_type: 'sole_proprietor',
+        tax_year_type: 'calendar',
+        meals_deduction_rate: 0.50,
+        mileage_tracking: false,
+        mileage_rate: 0.67,
+        data_retention_years: 7,
+      });
+    }
+  }
+
   return { data };
 };
 
@@ -58,6 +87,35 @@ export const signInWithEmail = async (email: string, password: string) => {
   if (error) {
     console.error('Error signing in:', error.message);
     return { error };
+  }
+
+  // Create default user_settings if not exists (for users who signed up before this feature)
+  if (data.user) {
+    const { data: existingSettings } = await supabase
+      .from('user_settings')
+      .select('id')
+      .eq('user_id', data.user.id)
+      .single();
+
+    if (!existingSettings) {
+      await supabase.from('user_settings').insert({
+        user_id: data.user.id,
+        currency: 'USD',
+        date_format: 'MM/DD/YYYY',
+        default_category: 'other',
+        auto_categorize: false,
+        email_notifications: true,
+        monthly_summary: true,
+        receipt_reminders: false,
+        tax_deadline_reminders: true,
+        business_type: 'sole_proprietor',
+        tax_year_type: 'calendar',
+        meals_deduction_rate: 0.50,
+        mileage_tracking: false,
+        mileage_rate: 0.67,
+        data_retention_years: 7,
+      });
+    }
   }
 
   return { data };

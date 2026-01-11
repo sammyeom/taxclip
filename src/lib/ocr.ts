@@ -20,6 +20,7 @@ export interface ReceiptData {
   date: string;
   vendor: string;
   amount: number;
+  currency: string;            // Currency code (USD, KRW, EUR, etc.)
   items: LineItem[];
   category: string;
   paymentMethod?: string;
@@ -251,6 +252,7 @@ Extract and return this JSON format:
   "date": "YYYY-MM-DD format",
   "vendor": "merchant/store name",
   "amount": final total amount as number (NOT subtotal),
+  "currency": "3-letter currency code (USD, KRW, EUR, GBP, JPY, CNY, CAD, AUD, etc.) - detect from currency symbol ($=USD, ₩=KRW, €=EUR, £=GBP, ¥=JPY or CNY, etc.)",
   "items": [
     {"name": "item1", "qty": 1, "unitPrice": 10.00, "amount": 10.00},
     {"name": "item2", "qty": 2, "unitPrice": 5.00, "amount": 10.00}
@@ -279,6 +281,7 @@ Return this JSON format:
   "date": "YYYY-MM-DD format",
   "vendor": "merchant/store name",
   "amount": total amount as number,
+  "currency": "3-letter currency code (USD, KRW, EUR, GBP, JPY, CNY, CAD, AUD, etc.) - detect from currency symbol ($=USD, ₩=KRW, €=EUR, £=GBP, ¥=JPY or CNY, etc.)",
   "items": [
     {"name": "item1", "qty": 1, "unitPrice": 10.00, "amount": 10.00},
     {"name": "item2", "qty": 2, "unitPrice": 5.00, "amount": 10.00}
@@ -365,6 +368,7 @@ IMPORTANT RULES:
       date: data.date || new Date().toISOString().split('T')[0],
       vendor: data.vendor || 'Unknown Vendor',
       amount: parseFloat(data.amount) || 0,
+      currency: data.currency || 'USD',
       items: lineItems,
       category,
       paymentMethod: data.paymentMethod,

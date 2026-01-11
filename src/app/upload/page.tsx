@@ -48,6 +48,7 @@ interface OCRData {
   date: string;
   vendor: string;
   amount: number;
+  currency?: string;
   items: (string | OCRItem)[];
   category: string;
   paymentMethod?: string;
@@ -349,7 +350,7 @@ export default function UploadPage() {
           date: result.data.date || '',
           merchant: result.data.vendor || '',
           amount: result.data.amount ? result.data.amount.toFixed(2) : '',
-          currency: 'USD',
+          currency: result.data.currency || 'USD',
           category: result.data.category || 'other',
           businessPurpose: '',
           paymentMethod: result.data.paymentMethod || '',
@@ -697,7 +698,7 @@ export default function UploadPage() {
           date: result.data.date || '',
           merchant: result.data.vendor || '',
           amount: result.data.amount ? result.data.amount.toFixed(2) : '',
-          currency: 'USD',
+          currency: result.data.currency || 'USD',
           category: result.data.category || 'other',
           businessPurpose: '',
           paymentMethod: result.data.paymentMethod || '',

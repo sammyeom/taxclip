@@ -62,6 +62,9 @@ export function parseEmailText(emailText: string): ParsedEmailData {
   // Extract order number
   result.order_number = extractOrderNumber(normalizedText);
 
+  // Extract payment method
+  result.payment_method = extractPaymentMethod(normalizedText);
+
   // Extract items
   result.items = extractItems(text);
 
@@ -90,34 +93,64 @@ function stripHtmlTags(html: string): string {
  * Extract vendor/seller name from email
  */
 function extractVendor(text: string, normalizedText: string): string | undefined {
+  // Check for well-known vendors first
+  const knownVendors: Array<{ pattern: RegExp; name: string }> = [
+    { pattern: /amazon/i, name: 'Amazon' },
+    { pattern: /ebay/i, name: 'eBay' },
+    { pattern: /paypal/i, name: 'PayPal' },
+    { pattern: /walmart/i, name: 'Walmart' },
+    { pattern: /target/i, name: 'Target' },
+    { pattern: /costco/i, name: 'Costco' },
+    { pattern: /best\s*buy/i, name: 'Best Buy' },
+    { pattern: /apple\.com|apple\s+store/i, name: 'Apple' },
+    { pattern: /google\s*(play|store)/i, name: 'Google' },
+    { pattern: /microsoft/i, name: 'Microsoft' },
+    { pattern: /netflix/i, name: 'Netflix' },
+    { pattern: /spotify/i, name: 'Spotify' },
+    { pattern: /uber\s*(eats)?/i, name: 'Uber' },
+    { pattern: /doordash/i, name: 'DoorDash' },
+    { pattern: /grubhub/i, name: 'Grubhub' },
+    { pattern: /instacart/i, name: 'Instacart' },
+    { pattern: /shopify/i, name: 'Shopify' },
+    { pattern: /etsy/i, name: 'Etsy' },
+    { pattern: /aliexpress/i, name: 'AliExpress' },
+    { pattern: /wish\.com/i, name: 'Wish' },
+    { pattern: /home\s*depot/i, name: 'Home Depot' },
+    { pattern: /lowes|lowe's/i, name: "Lowe's" },
+    { pattern: /staples/i, name: 'Staples' },
+    { pattern: /office\s*depot/i, name: 'Office Depot' },
+  ];
+
+  for (const { pattern, name } of knownVendors) {
+    if (pattern.test(normalizedText)) {
+      return name;
+    }
+  }
+
   const patterns = [
-    // Explicit seller mentions
-    /(?:from|seller|sold\s*by|shipped\s*by|merchant|store|shop)[:\s]+([^\n\r,]+)/i,
-    // Email "from" line
-    /^from[:\s]+([^\n<]+)/im,
-    // Common store patterns in subject/header
+    // Explicit seller/merchant mentions
+    /(?:seller|sold\s*by|shipped\s*by|merchant|store|shop|retailer)[:\s]+([^\n\r,]+)/i,
+    // "From:" line in email header
+    /^from[:\s]+([^\n<@]+)/im,
+    // "Thank you for your purchase at/from"
+    /(?:thank\s*you\s*for\s*(?:your\s*)?(?:purchase|order|shopping)\s*(?:at|from|with))[:\s]*([^\n\r,.]+)/i,
+    // "Your order at/from"
+    /(?:your\s*order\s*(?:at|from|with))[:\s]*([^\n\r,.]+)/i,
+    // Order/receipt confirmation from
     /(?:order|confirmation|receipt)\s+(?:from|at)\s+([^\n\r,]+)/i,
-    // Amazon specific
-    /amazon\.com/i,
-    // eBay specific
-    /ebay/i,
-    // PayPal specific
-    /paypal/i,
+    // "purchased from"
+    /purchased\s+(?:from|at)\s+([^\n\r,]+)/i,
   ];
 
   for (const pattern of patterns) {
     const match = normalizedText.match(pattern) || text.match(pattern);
     if (match) {
-      // Handle special cases
-      if (/amazon/i.test(match[0])) return 'Amazon';
-      if (/ebay/i.test(match[0])) return 'eBay';
-      if (/paypal/i.test(match[0])) return 'PayPal';
-
       const vendor = match[1]?.trim();
       if (vendor && vendor.length > 1 && vendor.length < 100) {
-        // Clean up common suffixes
+        // Clean up common suffixes and email addresses
         return vendor
-          .replace(/\s*(Inc\.?|LLC|Ltd\.?|Corp\.?|Co\.?)$/i, '')
+          .replace(/\s*(Inc\.?|LLC|Ltd\.?|Corp\.?|Co\.?|Company)$/i, '')
+          .replace(/<.*>$/, '')
           .trim();
       }
     }
@@ -131,14 +164,17 @@ function extractVendor(text: string, normalizedText: string): string | undefined
  */
 function extractDate(text: string, normalizedText: string): string | undefined {
   const patterns = [
-    // Explicit date labels
-    /(?:order\s*date|date|placed\s*on|purchased|transaction\s*date|invoice\s*date)[:\s]*(\w+\s+\d{1,2},?\s*\d{4})/i,
-    /(?:order\s*date|date|placed\s*on|purchased)[:\s]*(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})/i,
+    // Explicit date labels with numeric format (highest priority)
+    /(?:transaction\s*date|order\s*date|date|placed\s*on|purchased|invoice\s*date)[:\s]*(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})/i,
+    // Explicit date labels with text format
+    /(?:transaction\s*date|order\s*date|date|placed\s*on|purchased|invoice\s*date)[:\s]*(\w+\s+\d{1,2},?\s*\d{4})/i,
     // ISO format
     /(\d{4}-\d{2}-\d{2})/,
     // Month Day, Year format
     /((?:January|February|March|April|May|June|July|August|September|October|November|December)\s+\d{1,2},?\s*\d{4})/i,
-    // MM/DD/YYYY or MM-DD-YYYY
+    // Abbreviated month format: Oct 6, 2025 or Oct. 6, 2025
+    /((?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\.?\s+\d{1,2},?\s*\d{4})/i,
+    // MM/DD/YYYY or MM-DD-YYYY (standalone)
     /(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})/,
   ];
 
@@ -188,8 +224,8 @@ function extractTotalWithCurrency(_text: string, normalizedText: string): { amou
 
   // Total-specific patterns with currency context
   const totalPatterns = [
-    /(?:order\s*total|grand\s*total|total\s*amount|total\s*charged|amount\s*charged|you\s*paid|total)[:\s]*([€£¥₩₹₽฿₫]|(?:HK|S|A|C|NT|R|MX)?\$)?\s*([\d,]+\.?\d*)/gi,
-    /(?:transaction|payment|charged)[:\s]*([€£¥₩₹₽฿₫]|(?:HK|S|A|C|NT|R|MX)?\$)?\s*([\d,]+\.?\d*)/gi,
+    /(?:order\s*total|grand\s*total|total\s*amount|total\s*charged|amount\s*charged|you\s*paid|transaction\s*total|transaction\s*amount|total)[:\s]*([€£¥₩₹₽฿₫]|(?:HK|S|A|C|NT|R|MX)?\$)?\s*([\d,]+\.?\d*)/gi,
+    /(?:transaction|payment|charged|amount)[:\s]*([€£¥₩₹₽฿₫]|(?:HK|S|A|C|NT|R|MX)?\$)?\s*([\d,]+\.?\d*)/gi,
   ];
 
   let maxAmount = 0;
@@ -297,6 +333,59 @@ function extractOrderNumber(normalizedText: string): string | undefined {
 }
 
 /**
+ * Extract payment method from email
+ */
+function extractPaymentMethod(normalizedText: string): string | undefined {
+  const textLower = normalizedText.toLowerCase();
+
+  // Check for explicit payment method mentions
+  const paymentPatterns = [
+    // Credit card patterns
+    { pattern: /(?:paid\s*(?:with|by|using)|payment\s*method|charged\s*to)[:\s]*(?:credit\s*card|visa|mastercard|amex|american\s*express|discover)/i, method: 'credit' },
+    { pattern: /visa\s*(?:ending|xxxx|\*{4}|\d{4})/i, method: 'credit' },
+    { pattern: /mastercard\s*(?:ending|xxxx|\*{4}|\d{4})/i, method: 'credit' },
+    { pattern: /amex|american\s*express/i, method: 'credit' },
+    { pattern: /discover\s*(?:ending|xxxx|\*{4}|\d{4})/i, method: 'credit' },
+    { pattern: /credit\s*card\s*(?:ending|xxxx|\*{4}|\d{4})/i, method: 'credit' },
+    { pattern: /card\s*ending\s*(?:in\s*)?\d{4}/i, method: 'credit' },
+
+    // Debit card patterns
+    { pattern: /(?:paid\s*(?:with|by|using)|payment\s*method)[:\s]*debit/i, method: 'debit' },
+    { pattern: /debit\s*card/i, method: 'debit' },
+    { pattern: /bank\s*card/i, method: 'debit' },
+
+    // Cash patterns
+    { pattern: /(?:paid\s*(?:with|by|using)|payment\s*method)[:\s]*cash/i, method: 'cash' },
+    { pattern: /cash\s*(?:payment|transaction)/i, method: 'cash' },
+
+    // Check patterns
+    { pattern: /(?:paid\s*(?:with|by|using)|payment\s*method)[:\s]*check/i, method: 'check' },
+    { pattern: /check\s*(?:number|#|no\.?)/i, method: 'check' },
+
+    // Digital payment methods (map to credit for now)
+    { pattern: /apple\s*pay/i, method: 'credit' },
+    { pattern: /google\s*pay/i, method: 'credit' },
+    { pattern: /samsung\s*pay/i, method: 'credit' },
+    { pattern: /paypal/i, method: 'credit' },
+    { pattern: /venmo/i, method: 'debit' },
+    { pattern: /zelle/i, method: 'debit' },
+  ];
+
+  for (const { pattern, method } of paymentPatterns) {
+    if (pattern.test(normalizedText)) {
+      return method;
+    }
+  }
+
+  // Look for card last 4 digits pattern (likely credit card)
+  if (/\*{4}\s*\d{4}|xxxx\s*\d{4}|ending\s*(?:in\s*)?\d{4}/i.test(textLower)) {
+    return 'credit';
+  }
+
+  return undefined;
+}
+
+/**
  * Extract line items from email
  */
 function extractItems(text: string): string[] | undefined {
@@ -344,18 +433,13 @@ function isCommonWord(text: string): boolean {
 
 /**
  * Normalize various date formats to YYYY-MM-DD
+ * Avoids using Date.toISOString() to prevent timezone shift issues
  */
 function normalizeDate(dateStr: string): string | undefined {
   if (!dateStr) return undefined;
 
   try {
-    // Try parsing with Date constructor
-    const date = new Date(dateStr);
-    if (!isNaN(date.getTime()) && date.getFullYear() > 2000) {
-      return date.toISOString().split('T')[0];
-    }
-
-    // Try MM/DD/YYYY or MM-DD-YYYY format
+    // Try MM/DD/YYYY or MM-DD-YYYY format first (most common in US emails)
     const mdyMatch = dateStr.match(/(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})/);
     if (mdyMatch) {
       const month = parseInt(mdyMatch[1]);
@@ -364,10 +448,51 @@ function normalizeDate(dateStr: string): string | undefined {
       if (year < 100) year += 2000;
 
       if (month >= 1 && month <= 12 && day >= 1 && day <= 31 && year >= 2000) {
-        const parsed = new Date(year, month - 1, day);
-        if (!isNaN(parsed.getTime())) {
-          return parsed.toISOString().split('T')[0];
-        }
+        // Format directly without Date object to avoid timezone issues
+        const monthStr = month.toString().padStart(2, '0');
+        const dayStr = day.toString().padStart(2, '0');
+        return `${year}-${monthStr}-${dayStr}`;
+      }
+    }
+
+    // Try ISO format YYYY-MM-DD (already in correct format)
+    const isoMatch = dateStr.match(/(\d{4})-(\d{2})-(\d{2})/);
+    if (isoMatch) {
+      const year = parseInt(isoMatch[1]);
+      const month = parseInt(isoMatch[2]);
+      const day = parseInt(isoMatch[3]);
+      if (year >= 2000 && month >= 1 && month <= 12 && day >= 1 && day <= 31) {
+        return `${year}-${isoMatch[2]}-${isoMatch[3]}`;
+      }
+    }
+
+    // Try text-based dates like "October 6, 2025" or "Oct 6, 2025"
+    const monthNames: Record<string, number> = {
+      'january': 1, 'jan': 1,
+      'february': 2, 'feb': 2,
+      'march': 3, 'mar': 3,
+      'april': 4, 'apr': 4,
+      'may': 5,
+      'june': 6, 'jun': 6,
+      'july': 7, 'jul': 7,
+      'august': 8, 'aug': 8,
+      'september': 9, 'sep': 9,
+      'october': 10, 'oct': 10,
+      'november': 11, 'nov': 11,
+      'december': 12, 'dec': 12
+    };
+
+    const textMatch = dateStr.match(/(\w+)\.?\s+(\d{1,2}),?\s*(\d{4})/);
+    if (textMatch) {
+      const monthName = textMatch[1].toLowerCase();
+      const month = monthNames[monthName];
+      const day = parseInt(textMatch[2]);
+      const year = parseInt(textMatch[3]);
+
+      if (month && day >= 1 && day <= 31 && year >= 2000) {
+        const monthStr = month.toString().padStart(2, '0');
+        const dayStr = day.toString().padStart(2, '0');
+        return `${year}-${monthStr}-${dayStr}`;
       }
     }
   } catch {

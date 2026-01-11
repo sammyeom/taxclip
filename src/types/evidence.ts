@@ -50,6 +50,7 @@ export interface ParsedEmailData {
   total?: number;
   currency?: string;
   order_number?: string;
+  payment_method?: string;
   items?: string[];
   raw_text: string;
 }

@@ -48,7 +48,7 @@ interface OCRData {
   date: string;
   vendor: string;
   amount: number;
-  currency?: string;
+  currency: string;
   items: (string | OCRItem)[];
   category: string;
   paymentMethod?: string;
@@ -335,6 +335,7 @@ export default function UploadPage() {
                   date: result.data.date,
                   vendor: result.data.vendor,
                   amount: result.data.amount,
+                  currency: result.data.currency || 'USD',
                   category: result.data.category,
                   items: result.data.items || [],
                   paymentMethod: result.data.paymentMethod,
@@ -672,7 +673,10 @@ export default function UploadPage() {
                     date: result.data.date,
                     vendor: result.data.vendor,
                     amount: result.data.amount,
+                    currency: result.data.currency || 'USD',
                     category: result.data.category,
+                    items: result.data.items || [],
+                    paymentMethod: result.data.paymentMethod,
                   }
                 : undefined,
             };
@@ -775,6 +779,9 @@ export default function UploadPage() {
       if (parsed.currency) {
         setFormData((prev) => ({ ...prev, currency: parsed.currency || prev.currency }));
       }
+      if (parsed.payment_method && !formData.paymentMethod) {
+        setFormData((prev) => ({ ...prev, paymentMethod: parsed.payment_method || prev.paymentMethod }));
+      }
 
       if (!validation.isValid) {
         setError(`Email parsed with ${validation.confidence}% confidence. Missing: ${validation.missingFields.join(', ')}`);
@@ -787,11 +794,11 @@ export default function UploadPage() {
     } finally {
       setParsingEmail(false);
     }
-  }, [emailText, formData.merchant, formData.date, formData.amount]);
+  }, [emailText, formData.merchant, formData.date, formData.amount, formData.paymentMethod]);
 
   // Handle data extracted from EmailPasteInput component
   const handleEmailDataExtracted = useCallback((
-    extractedFormData: { date: string; merchant: string; amount: string; currency: string },
+    extractedFormData: { date: string; merchant: string; amount: string; currency: string; paymentMethod?: string },
     parsed: ParsedEmailData
   ) => {
     setParsedEmailData(parsed);
@@ -803,6 +810,7 @@ export default function UploadPage() {
       merchant: prev.merchant || extractedFormData.merchant,
       amount: prev.amount || extractedFormData.amount,
       currency: extractedFormData.currency || prev.currency,
+      paymentMethod: prev.paymentMethod || extractedFormData.paymentMethod || parsed.payment_method || '',
     }));
 
     setSuccessMessage('Data extracted from email!');
@@ -981,12 +989,13 @@ export default function UploadPage() {
             date: nextFile.ocrData.date || '',
             merchant: nextFile.ocrData.vendor || '',
             amount: nextFile.ocrData.amount ? nextFile.ocrData.amount.toFixed(2) : '',
-            currency: 'USD',
+            currency: nextFile.ocrData.currency || 'USD',
             category: nextFile.ocrData.category || 'other',
             businessPurpose: '',
-            paymentMethod: '',
+            paymentMethod: nextFile.ocrData.paymentMethod || '',
             notes: '',
           });
+          setExtractedItems(convertOcrItemsToLineItems(nextFile.ocrData.items || []));
         }
       } else {
         setSuccessMessage('Receipt saved! Redirecting...');
@@ -1011,7 +1020,7 @@ export default function UploadPage() {
         amount: selectedFile.ocrData.amount
           ? selectedFile.ocrData.amount.toFixed(2)
           : '',
-        currency: 'USD',
+        currency: selectedFile.ocrData.currency || 'USD',
         category: selectedFile.ocrData.category || 'other',
         businessPurpose: '',
         paymentMethod: selectedFile.ocrData.paymentMethod || '',
@@ -1265,19 +1274,32 @@ export default function UploadPage() {
                   />
                 </div>
 
-                {/* Amount */}
+                {/* Total (Amount + Currency) */}
                 <div>
                   <label className="block text-sm font-medium text-slate-700 mb-1">
-                    Amount <span className="text-red-500">*</span>
+                    Total <span className="text-red-500">*</span>
                   </label>
-                  <input
-                    type="number"
-                    step="0.01"
-                    value={formData.amount}
-                    onChange={(e) => handleFormChange('amount', e.target.value)}
-                    placeholder="0.00"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
-                  />
+                  <div className="flex">
+                    <select
+                      value={formData.currency}
+                      onChange={(e) => handleFormChange('currency', e.target.value)}
+                      className="px-3 py-2 border border-r-0 border-gray-300 rounded-l-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-cyan-500 text-sm font-medium"
+                    >
+                      {CURRENCY_OPTIONS.map((curr) => (
+                        <option key={curr.value} value={curr.value}>
+                          {curr.symbol}
+                        </option>
+                      ))}
+                    </select>
+                    <input
+                      type="number"
+                      step="0.01"
+                      value={formData.amount}
+                      onChange={(e) => handleFormChange('amount', e.target.value)}
+                      placeholder="0.00"
+                      className="flex-1 px-4 py-2 border border-gray-300 rounded-r-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                    />
+                  </div>
                 </div>
 
                 {/* IRS Schedule C Category */}
@@ -1293,24 +1315,6 @@ export default function UploadPage() {
                     {IRS_SCHEDULE_C_CATEGORIES.map((cat) => (
                       <option key={cat.value} value={cat.value}>
                         Line {cat.line}: {cat.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                {/* Currency */}
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">
-                    Currency
-                  </label>
-                  <select
-                    value={formData.currency}
-                    onChange={(e) => handleFormChange('currency', e.target.value)}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
-                  >
-                    {CURRENCY_OPTIONS.map((curr) => (
-                      <option key={curr.value} value={curr.value}>
-                        {curr.label}
                       </option>
                     ))}
                   </select>

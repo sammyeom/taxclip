@@ -472,19 +472,32 @@ export default function ReceiptEditPage() {
               />
             </div>
 
-            {/* Amount */}
+            {/* Total (Amount + Currency) */}
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">
-                Amount <span className="text-red-500">*</span>
+                Total <span className="text-red-500">*</span>
               </label>
-              <input
-                type="number"
-                step="0.01"
-                value={formData.total}
-                onChange={(e) => handleFormChange('total', e.target.value)}
-                placeholder="0.00"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
-              />
+              <div className="flex">
+                <select
+                  value={formData.currency}
+                  onChange={(e) => handleFormChange('currency', e.target.value)}
+                  className="px-3 py-2 border border-r-0 border-gray-300 rounded-l-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-cyan-500 text-sm font-medium"
+                >
+                  {CURRENCY_OPTIONS.map((curr) => (
+                    <option key={curr.value} value={curr.value}>
+                      {curr.symbol}
+                    </option>
+                  ))}
+                </select>
+                <input
+                  type="number"
+                  step="0.01"
+                  value={formData.total}
+                  onChange={(e) => handleFormChange('total', e.target.value)}
+                  placeholder="0.00"
+                  className="flex-1 px-4 py-2 border border-gray-300 rounded-r-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                />
+              </div>
             </div>
 
             {/* IRS Schedule C Category */}
@@ -505,19 +518,19 @@ export default function ReceiptEditPage() {
               </select>
             </div>
 
-            {/* Currency */}
+            {/* Payment Method */}
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">
-                Currency
+                Payment Method
               </label>
               <select
-                value={formData.currency}
-                onChange={(e) => handleFormChange('currency', e.target.value)}
+                value={formData.payment_method}
+                onChange={(e) => handleFormChange('payment_method', e.target.value)}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
               >
-                {CURRENCY_OPTIONS.map((curr) => (
-                  <option key={curr.value} value={curr.value}>
-                    {curr.label}
+                {PAYMENT_METHODS.map((method) => (
+                  <option key={method.value} value={method.value}>
+                    {method.label}
                   </option>
                 ))}
               </select>
@@ -535,24 +548,6 @@ export default function ReceiptEditPage() {
                 placeholder="Enter business purpose (optional)"
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
               />
-            </div>
-
-            {/* Payment Method */}
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">
-                Payment Method
-              </label>
-              <select
-                value={formData.payment_method}
-                onChange={(e) => handleFormChange('payment_method', e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
-              >
-                {PAYMENT_METHODS.map((method) => (
-                  <option key={method.value} value={method.value}>
-                    {method.label}
-                  </option>
-                ))}
-              </select>
             </div>
 
             {/* Notes - Full width */}

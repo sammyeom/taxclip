@@ -48,6 +48,7 @@ export interface FileWithPreview {
     date: string;
     vendor: string;
     amount: number;
+    currency: string;
     category: string;
     items?: (string | OCRItem)[];
     paymentMethod?: string;

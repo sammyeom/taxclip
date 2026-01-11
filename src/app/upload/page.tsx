@@ -91,6 +91,17 @@ const CURRENCY_OPTIONS = [
   { value: 'HKD', label: 'HKD (HK$)', symbol: 'HK$' },
 ];
 
+// Format amount with currency symbol and commas (e.g., "$1,234.56")
+const formatAmount = (amount: number, currencyCode: string = 'USD') => {
+  const currency = CURRENCY_OPTIONS.find((c) => c.value === currencyCode);
+  const symbol = currency?.symbol || '$';
+  const formattedNumber = new Intl.NumberFormat('en-US', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(amount);
+  return `${symbol}${formattedNumber}`;
+};
+
 // Convert OCR items to LineItem format
 function convertOcrItemsToLineItems(items: (string | OCRItem)[]): LineItem[] {
   return items.map((item) => {
@@ -1233,6 +1244,7 @@ export default function UploadPage() {
                   date: formData.date,
                   vendor: formData.merchant,
                   amount: parseFloat(formData.amount) || 0,
+                  currency: formData.currency,
                   items: extractedItems.filter((item) => item.selected),
                   category: formData.category,
                   paymentMethod: formData.paymentMethod,
@@ -1382,7 +1394,7 @@ export default function UploadPage() {
                     {extractedItems.length > 0 && (
                       <div className="flex items-center gap-2">
                         <span className="text-sm text-cyan-600 font-medium">
-                          Selected Total: ${selectedItemsTotal.toFixed(2)}
+                          Selected Total: {formatAmount(selectedItemsTotal, formData.currency)}
                         </span>
                         <button
                           type="button"
@@ -1457,7 +1469,7 @@ export default function UploadPage() {
                                 />
                               </td>
                               <td className="px-3 py-2 text-right font-medium text-gray-900">
-                                ${item.amount.toFixed(2)}
+                                {formatAmount(item.amount, formData.currency)}
                               </td>
                               <td className="px-3 py-2">
                                 <button

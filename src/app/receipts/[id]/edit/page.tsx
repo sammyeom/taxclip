@@ -44,6 +44,17 @@ const CURRENCY_OPTIONS = [
   { value: 'HKD', label: 'HKD (HK$)', symbol: 'HK$' },
 ];
 
+// Format amount with currency symbol and commas (e.g., "$1,234.56")
+const formatAmount = (amount: number, currencyCode: string = 'USD') => {
+  const currency = CURRENCY_OPTIONS.find((c) => c.value === currencyCode);
+  const symbol = currency?.symbol || '$';
+  const formattedNumber = new Intl.NumberFormat('en-US', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(amount);
+  return `${symbol}${formattedNumber}`;
+};
+
 export default function ReceiptEditPage() {
   const { user, loading: authLoading } = useAuth();
   const router = useRouter();
@@ -429,6 +440,7 @@ export default function ReceiptEditPage() {
                 date: formData.date,
                 vendor: formData.merchant,
                 amount: parseFloat(formData.total) || 0,
+                currency: formData.currency,
                 items: formData.items.filter((item) => item.selected),
                 category: formData.category,
                 paymentMethod: formData.payment_method,
@@ -574,7 +586,7 @@ export default function ReceiptEditPage() {
                 {formData.items.length > 0 && (
                   <div className="flex items-center gap-2">
                     <span className="text-sm text-cyan-600 font-medium">
-                      Selected Total: ${selectedItemsTotal.toFixed(2)}
+                      Selected Total: {formatAmount(selectedItemsTotal, formData.currency)}
                     </span>
                     <button
                       type="button"
@@ -649,7 +661,7 @@ export default function ReceiptEditPage() {
                             />
                           </td>
                           <td className="px-3 py-2 text-right font-medium text-gray-900">
-                            ${item.amount.toFixed(2)}
+                            {formatAmount(item.amount, formData.currency)}
                           </td>
                           <td className="px-3 py-2">
                             <button

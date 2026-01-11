@@ -23,10 +23,31 @@ export interface ExtractedData {
   date: string;
   vendor: string;
   amount: number;
+  currency?: string;
   items: LineItem[] | string[];
   category: string;
   paymentMethod?: string;
 }
+
+// Currency symbol mapping
+const CURRENCY_INFO: Record<string, { symbol: string; name: string }> = {
+  USD: { symbol: '$', name: 'USD' },
+  EUR: { symbol: '€', name: 'EUR' },
+  GBP: { symbol: '£', name: 'GBP' },
+  JPY: { symbol: '¥', name: 'JPY' },
+  KRW: { symbol: '₩', name: 'KRW' },
+  CNY: { symbol: '¥', name: 'CNY' },
+  CAD: { symbol: 'C$', name: 'CAD' },
+  AUD: { symbol: 'A$', name: 'AUD' },
+  CHF: { symbol: 'CHF', name: 'CHF' },
+  INR: { symbol: '₹', name: 'INR' },
+  SGD: { symbol: 'S$', name: 'SGD' },
+  HKD: { symbol: 'HK$', name: 'HKD' },
+  TWD: { symbol: 'NT$', name: 'TWD' },
+  THB: { symbol: '฿', name: 'THB' },
+  MXN: { symbol: 'MX$', name: 'MXN' },
+  BRL: { symbol: 'R$', name: 'BRL' },
+};
 
 // Helper to normalize items to LineItem format
 const normalizeItems = (items: LineItem[] | string[]): LineItem[] => {
@@ -99,12 +120,31 @@ export default function SplitView({
     }
   };
 
-  // Format currency
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
+  // Format currency with symbol and code (e.g., "$1,234.56 USD")
+  const formatCurrency = (amount: number, currencyCode?: string) => {
+    const code = currencyCode || 'USD';
+    const info = CURRENCY_INFO[code] || { symbol: '$', name: code };
+
+    // Format number with commas and 2 decimal places
+    const formattedNumber = new Intl.NumberFormat('en-US', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
     }).format(amount);
+
+    return `${info.symbol}${formattedNumber} ${info.name}`;
+  };
+
+  // Format amount for line items (symbol + number only)
+  const formatAmount = (amount: number, currencyCode?: string) => {
+    const code = currencyCode || 'USD';
+    const info = CURRENCY_INFO[code] || { symbol: '$', name: code };
+
+    const formattedNumber = new Intl.NumberFormat('en-US', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(amount);
+
+    return `${info.symbol}${formattedNumber}`;
   };
 
   // Category label mapping
@@ -300,7 +340,7 @@ export default function SplitView({
                   <span className="text-xs font-medium uppercase tracking-wide">Total</span>
                 </div>
                 <p className="text-xl font-bold text-gray-900">
-                  {formatCurrency(extractedData.amount)}
+                  {formatCurrency(extractedData.amount, extractedData.currency)}
                 </p>
               </div>
 
@@ -356,7 +396,7 @@ export default function SplitView({
                     </h3>
                     {normalizedItems.length > 0 && selectedTotal > 0 && (
                       <span className="text-sm text-cyan-600 font-medium">
-                        Selected: ${selectedTotal.toFixed(2)}
+                        Selected: {formatAmount(selectedTotal, extractedData.currency)}
                       </span>
                     )}
                   </div>
@@ -389,10 +429,10 @@ export default function SplitView({
                               <td className="px-3 py-2 text-gray-900">{item.name}</td>
                               <td className="px-3 py-2 text-center text-gray-600">{item.qty}</td>
                               <td className="px-3 py-2 text-right text-gray-600">
-                                ${item.unitPrice.toFixed(2)}
+                                {formatAmount(item.unitPrice, extractedData.currency)}
                               </td>
                               <td className="px-3 py-2 text-right font-medium text-gray-900">
-                                ${item.amount.toFixed(2)}
+                                {formatAmount(item.amount, extractedData.currency)}
                               </td>
                             </tr>
                           ))}

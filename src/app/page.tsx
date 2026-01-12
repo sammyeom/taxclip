@@ -18,7 +18,7 @@ import {
   FileText,
   Loader2
 } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import SignInButton from '@/components/SignInButton';
@@ -36,8 +36,9 @@ export default function Home() {
 
   const handleCheckout = async (plan: 'monthly' | 'yearly') => {
     if (!user) {
-      // Redirect to sign-up if not logged in
-      router.push('/sign-up');
+      // Store intended plan and redirect to sign-up
+      localStorage.setItem('checkout_plan', plan);
+      router.push('/sign-up?redirect=checkout');
       return;
     }
 
@@ -51,6 +52,15 @@ export default function Home() {
       setCheckoutLoading(null);
     }
   };
+
+  // Check for pending checkout after login
+  useEffect(() => {
+    const pendingPlan = localStorage.getItem('checkout_plan');
+    if (user && pendingPlan) {
+      localStorage.removeItem('checkout_plan');
+      handleCheckout(pendingPlan as 'monthly' | 'yearly');
+    }
+  }, [user]);
 
   return (
     <div className="min-h-screen bg-white">

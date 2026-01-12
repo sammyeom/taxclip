@@ -10,6 +10,7 @@
 
 -- Drop existing policies
 DROP POLICY IF EXISTS "Users can upload their own receipts" ON storage.objects;
+DROP POLICY IF EXISTS "Users can update their own receipts" ON storage.objects;
 DROP POLICY IF EXISTS "Users can view their own receipts" ON storage.objects;
 DROP POLICY IF EXISTS "Users can delete their own receipts" ON storage.objects;
 DROP POLICY IF EXISTS "Public can view receipts" ON storage.objects;

@@ -1,26 +1,33 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Mail, Lock, Loader2, AlertCircle } from 'lucide-react';
 import { signInWithEmail, signInWithGoogle } from '@/lib/supabase';
 import { useAuth } from '@/hooks/useAuth';
 
-export default function SignInPage() {
+function SignInForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { user, loading: authLoading } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const redirectTo = searchParams.get('redirect');
+
   // Redirect if already logged in
   useEffect(() => {
     if (!authLoading && user) {
-      router.push('/dashboard');
+      if (redirectTo === 'checkout') {
+        router.push('/#pricing');
+      } else {
+        router.push('/dashboard');
+      }
     }
-  }, [user, authLoading, router]);
+  }, [user, authLoading, router, redirectTo]);
 
   const handleEmailSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -35,12 +42,21 @@ export default function SignInPage() {
       return;
     }
 
-    router.push('/dashboard');
+    if (redirectTo === 'checkout') {
+      router.push('/#pricing');
+    } else {
+      router.push('/dashboard');
+    }
   };
 
   const handleGoogleSignIn = async () => {
     setLoading(true);
     setError(null);
+
+    // Store redirect info for Google OAuth callback
+    if (redirectTo) {
+      localStorage.setItem('auth_redirect', redirectTo);
+    }
 
     const { error: signInError } = await signInWithGoogle();
 
@@ -48,7 +64,6 @@ export default function SignInPage() {
       setError(signInError.message);
       setLoading(false);
     }
-    // If successful, user will be redirected to Google, then back to /auth/callback, then to /dashboard
   };
 
   // Show loading while checking auth state
@@ -181,7 +196,7 @@ export default function SignInPage() {
           <div className="mt-6 text-center">
             <p className="text-sm text-slate-600">
               Don't have an account?{' '}
-              <Link href="/sign-up" className="text-cyan-600 hover:text-cyan-700 font-semibold">
+              <Link href={redirectTo ? `/sign-up?redirect=${redirectTo}` : '/sign-up'} className="text-cyan-600 hover:text-cyan-700 font-semibold">
                 Sign up
               </Link>
             </p>
@@ -197,5 +212,17 @@ export default function SignInPage() {
         </p>
       </div>
     </div>
+  );
+}
+
+export default function SignInPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gradient-to-br from-cyan-50 via-blue-50 to-sky-50 flex items-center justify-center">
+        <Loader2 className="w-12 h-12 text-cyan-600 animate-spin" />
+      </div>
+    }>
+      <SignInForm />
+    </Suspense>
   );
 }

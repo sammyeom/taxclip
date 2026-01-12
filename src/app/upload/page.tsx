@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { supabase, createReceipt, createExpense } from '@/lib/supabase';
 import { IRS_SCHEDULE_C_CATEGORIES, LineItem, createLineItem } from '@/types/database';
 import { useAuth } from '@/hooks/useAuth';
+import { useUsageLimit } from '@/hooks/useUsageLimit';
 import Navigation from '@/components/Navigation';
 import {
   UploadZone,
@@ -30,6 +31,8 @@ import {
   Plus,
   X,
   List,
+  AlertTriangle,
+  Crown,
 } from 'lucide-react';
 import { EvidenceType, EvidenceItem, ParsedEmailData } from '@/types/evidence';
 import { parseEmailText, validateParsedEmail } from '@/lib/email-parser';
@@ -144,6 +147,17 @@ export default function UploadPage() {
   const { user, loading: authLoading } = useAuth();
   const router = useRouter();
   const { addReceipt } = useReceiptStore();
+  const {
+    monthlyCount,
+    monthlyLimit,
+    canUpload,
+    remainingUploads,
+    isPro,
+    isTrialing,
+    trialDaysRemaining,
+    loading: usageLimitLoading,
+    refetch: refetchUsage,
+  } = useUsageLimit();
 
   // File management states
   const [files, setFiles] = useState<FileWithPreview[]>([]);
@@ -1006,6 +1020,9 @@ export default function UploadPage() {
         notes: '',
       });
 
+      // Refetch usage count after saving
+      refetchUsage();
+
       // Check if there are more files to process
       const remainingFiles = files.filter((f) => f.status === 'complete' && f.id !== selectedFile?.id);
       if (remainingFiles.length > 0) {
@@ -1095,6 +1112,65 @@ export default function UploadPage() {
           </p>
         </div>
 
+        {/* Usage Limit Banner */}
+        {!usageLimitLoading && !isPro && (
+          <div className={`mb-6 rounded-lg p-4 flex items-center justify-between ${
+            canUpload
+              ? 'bg-blue-50 border border-blue-200'
+              : 'bg-amber-50 border border-amber-200'
+          }`}>
+            <div className="flex items-center gap-3">
+              {canUpload ? (
+                <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                  <FileText className="w-5 h-5 text-blue-600" />
+                </div>
+              ) : (
+                <div className="w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center">
+                  <AlertTriangle className="w-5 h-5 text-amber-600" />
+                </div>
+              )}
+              <div>
+                <p className={`font-medium ${canUpload ? 'text-blue-900' : 'text-amber-900'}`}>
+                  {canUpload
+                    ? `${remainingUploads} of 10 free uploads remaining this month`
+                    : 'Monthly upload limit reached'
+                  }
+                </p>
+                <p className={`text-sm ${canUpload ? 'text-blue-700' : 'text-amber-700'}`}>
+                  {canUpload
+                    ? 'Upgrade to Pro for unlimited uploads'
+                    : 'Upgrade to Pro to continue uploading receipts'
+                  }
+                </p>
+              </div>
+            </div>
+            <button
+              onClick={() => router.push('/#pricing')}
+              className="flex items-center gap-2 bg-gradient-to-r from-cyan-500 to-blue-500 text-white px-4 py-2 rounded-lg font-medium hover:from-cyan-600 hover:to-blue-600 transition-colors"
+            >
+              <Crown className="w-4 h-4" />
+              Upgrade
+            </button>
+          </div>
+        )}
+
+        {/* Trial Banner */}
+        {isTrialing && trialDaysRemaining !== null && (
+          <div className="mb-6 bg-green-50 border border-green-200 rounded-lg p-4 flex items-center gap-3">
+            <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+              <Crown className="w-5 h-5 text-green-600" />
+            </div>
+            <div>
+              <p className="font-medium text-green-900">
+                Pro Trial Active
+              </p>
+              <p className="text-sm text-green-700">
+                {trialDaysRemaining} days remaining in your free trial
+              </p>
+            </div>
+          </div>
+        )}
+
         {/* Error Alert */}
         {error && (
           <div className="mb-6 bg-red-50 border border-red-200 rounded-lg p-4 flex items-start gap-3">
@@ -1121,8 +1197,8 @@ export default function UploadPage() {
         <div className="mb-6">
           <UploadZone
             onFilesSelected={handleFilesSelected}
-            disabled={false}
-            maxFiles={10}
+            disabled={!canUpload}
+            maxFiles={isPro ? 10 : remainingUploads}
           />
         </div>
 

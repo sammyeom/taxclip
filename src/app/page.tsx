@@ -15,15 +15,42 @@ import {
   Menu,
   X,
   Sparkles,
-  FileText
+  FileText,
+  Loader2
 } from 'lucide-react';
 import { useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import SignInButton from '@/components/SignInButton';
+import { useAuth } from '@/hooks/useAuth';
+import { useSubscription } from '@/hooks/useSubscription';
 
 export default function Home() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [demoModalOpen, setDemoModalOpen] = useState(false);
+  const [checkoutLoading, setCheckoutLoading] = useState<'monthly' | 'yearly' | null>(null);
+
+  const router = useRouter();
+  const { user } = useAuth();
+  const { createCheckout } = useSubscription();
+
+  const handleCheckout = async (plan: 'monthly' | 'yearly') => {
+    if (!user) {
+      // Redirect to sign-up if not logged in
+      router.push('/sign-up');
+      return;
+    }
+
+    setCheckoutLoading(plan);
+    try {
+      const checkoutUrl = await createCheckout(plan);
+      if (checkoutUrl) {
+        window.location.href = checkoutUrl;
+      }
+    } finally {
+      setCheckoutLoading(null);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-white">
@@ -672,15 +699,22 @@ export default function Home() {
                 ))}
               </ul>
 
-              <Link href="/sign-up">
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="w-full gradient-btn text-white px-6 py-4 rounded-lg font-bold text-lg shadow-lg"
-                >
-                  Start 7-Day Trial
-                </motion.button>
-              </Link>
+              <motion.button
+                onClick={() => handleCheckout('monthly')}
+                disabled={checkoutLoading !== null}
+                whileHover={{ scale: checkoutLoading ? 1 : 1.05 }}
+                whileTap={{ scale: checkoutLoading ? 1 : 0.95 }}
+                className="w-full gradient-btn text-white px-6 py-4 rounded-lg font-bold text-lg shadow-lg disabled:opacity-70 flex items-center justify-center gap-2"
+              >
+                {checkoutLoading === 'monthly' ? (
+                  <>
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                    Processing...
+                  </>
+                ) : (
+                  'Start 7-Day Trial'
+                )}
+              </motion.button>
             </motion.div>
 
             {/* ANNUAL PLAN */}
@@ -741,15 +775,22 @@ export default function Home() {
                 ))}
               </ul>
 
-              <Link href="/sign-up">
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="w-full border-2 border-cyan-500 text-cyan-600 hover:bg-cyan-50 px-6 py-3 rounded-lg font-semibold transition-colors"
-                >
-                  Start Annual Trial
-                </motion.button>
-              </Link>
+              <motion.button
+                onClick={() => handleCheckout('yearly')}
+                disabled={checkoutLoading !== null}
+                whileHover={{ scale: checkoutLoading ? 1 : 1.05 }}
+                whileTap={{ scale: checkoutLoading ? 1 : 0.95 }}
+                className="w-full border-2 border-cyan-500 text-cyan-600 hover:bg-cyan-50 px-6 py-3 rounded-lg font-semibold transition-colors disabled:opacity-70 flex items-center justify-center gap-2"
+              >
+                {checkoutLoading === 'yearly' ? (
+                  <>
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                    Processing...
+                  </>
+                ) : (
+                  'Start Annual Trial'
+                )}
+              </motion.button>
             </motion.div>
           </div>
         </div>

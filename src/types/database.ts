@@ -29,6 +29,7 @@ export const createLineItem = (name: string = '', qty: number = 1, unitPrice: nu
 export type Expense = {
   id: string;
   user_id: string;
+  user_email: string | null;
   merchant: string;
   date: string;
   total: number;
@@ -46,7 +47,7 @@ export type Expense = {
   updated_at: string;
 };
 
-export type InsertExpense = Omit<Expense, 'id' | 'user_id' | 'created_at' | 'updated_at'>;
+export type InsertExpense = Omit<Expense, 'id' | 'user_id' | 'user_email' | 'created_at' | 'updated_at'>;
 export type UpdateExpense = Partial<InsertExpense>;
 
 // IRS Schedule C Categories
@@ -84,6 +85,7 @@ export type IRSCategory = typeof IRS_SCHEDULE_C_CATEGORIES[number]['value'];
 export type Receipt = {
   id: string;
   user_id: string;
+  user_email: string | null;
   merchant: string;
   date: string;
   total: number;
@@ -121,8 +123,8 @@ export type ReceiptItem = {
   selected?: boolean;  // Preserve checkbox state
 };
 
-export type InsertReceipt = Omit<Receipt, 'id' | 'user_id' | 'created_at' | 'updated_at'>;
-export type UpdateReceipt = Partial<Omit<Receipt, 'id' | 'user_id' | 'created_at' | 'updated_at'>>;
+export type InsertReceipt = Omit<Receipt, 'id' | 'user_id' | 'user_email' | 'created_at' | 'updated_at'>;
+export type UpdateReceipt = Partial<Omit<Receipt, 'id' | 'user_id' | 'user_email' | 'created_at' | 'updated_at'>>;
 
 // Alternative Receipt Interface (vendor/amount aliases)
 export interface ReceiptInterface {

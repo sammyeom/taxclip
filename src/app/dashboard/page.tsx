@@ -1,7 +1,7 @@
 'use client';
 
-import { useEffect, useState, useMemo, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
+import { useEffect, useState, useMemo, useCallback, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/hooks/useAuth';
 import { getReceipts, getReceiptStats, getReceiptsByYear } from '@/lib/supabase';
@@ -19,6 +19,8 @@ import {
   BarChart3,
   ChevronRight,
   Download,
+  CheckCircle2,
+  X,
 } from 'lucide-react';
 import {
   StatCard,
@@ -95,6 +97,44 @@ const formatDate = (dateString: string) => {
     day: 'numeric',
   });
 };
+
+// Separate component for checkout success banner (uses useSearchParams)
+function CheckoutSuccessBanner() {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const [show, setShow] = useState(false);
+
+  useEffect(() => {
+    if (searchParams.get('checkout') === 'success') {
+      setShow(true);
+      router.replace('/dashboard');
+      setTimeout(() => setShow(false), 5000);
+    }
+  }, [searchParams, router]);
+
+  if (!show) return null;
+
+  return (
+    <div className="bg-green-50 border-b border-green-200">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <CheckCircle2 className="w-5 h-5 text-green-600" />
+            <span className="text-green-800 font-medium">
+              Welcome to TaxClip Pro! Your subscription is now active.
+            </span>
+          </div>
+          <button
+            onClick={() => setShow(false)}
+            className="text-green-600 hover:text-green-800"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function DashboardPage() {
   const { user, loading: authLoading } = useAuth();
@@ -294,6 +334,11 @@ export default function DashboardPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-cyan-50 via-blue-50 to-sky-50">
       <Navigation />
+
+      {/* Checkout Success Banner */}
+      <Suspense fallback={null}>
+        <CheckoutSuccessBanner />
+      </Suspense>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
         {/* Welcome */}

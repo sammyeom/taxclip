@@ -224,6 +224,26 @@ export const getReceiptsByCategory = async (category: string) => {
   return { data: data as Receipt[], error: null };
 };
 
+// 이번 달 영수증 개수 가져오기
+export const getMonthlyReceiptCount = async () => {
+  const now = new Date();
+  const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+  const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
+
+  const { count, error } = await supabase
+    .from('receipts')
+    .select('*', { count: 'exact', head: true })
+    .gte('created_at', startOfMonth.toISOString())
+    .lte('created_at', endOfMonth.toISOString());
+
+  if (error) {
+    console.error('Error counting monthly receipts:', error.message);
+    return { count: 0, error };
+  }
+
+  return { count: count || 0, error: null };
+};
+
 // 영수증 검색 (vendor 이름으로)
 export const searchReceipts = async (query: string) => {
   const { data, error } = await supabase
@@ -331,14 +351,18 @@ export const exportReceiptsToCSV = async (year: number) => {
 // 영수증 생성
 export const createReceipt = async (receipt: InsertReceipt) => {
   const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-  
+
   if (sessionError || !session?.user) {
     return { data: null, error: new Error('Not authenticated') };
   }
 
   const { data, error } = await supabase
     .from('receipts')
-    .insert([{ ...receipt, user_id: session.user.id }])
+    .insert([{
+      ...receipt,
+      user_id: session.user.id,
+      user_email: session.user.email,
+    }])
     .select()
     .single();
 
@@ -457,7 +481,11 @@ export const createExpense = async (expense: InsertExpense) => {
 
   const { data, error } = await supabase
     .from('expenses')
-    .insert([{ ...expense, user_id: session.user.id }])
+    .insert([{
+      ...expense,
+      user_id: session.user.id,
+      user_email: session.user.email,
+    }])
     .select()
     .single();
 

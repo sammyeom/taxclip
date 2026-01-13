@@ -539,42 +539,50 @@ export default function Home() {
           </motion.div>
 
           <div className="grid md:grid-cols-3 gap-8">
-            {[
-              {
-                icon: <Zap className="w-6 h-6" />,
-                title: 'Solo Founders & Indie Hackers',
-                desc: 'Keep SaaS, ads, and travel receipts organized without spreadsheets.',
-              },
-              {
-                icon: <Users className="w-6 h-6" />,
-                title: 'Agencies & Freelancers',
-                desc: 'Group receipts by client or project and stay ready for invoicing.',
-              },
-              {
-                icon: <Shield className="w-6 h-6" />,
-                title: 'Accountants & Bookkeepers',
-                desc: 'Receive clean, structured data instead of folders full of PDFs.',
-              },
-            ].map((useCase, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: i * 0.1 }}
-                className="bg-white rounded-xl shadow-md border-t-4 border-t-cyan-500 border-slate-100 p-8"
-              >
-                <div className="inline-flex p-3 rounded-lg bg-gradient-to-br from-cyan-100 to-sky-100 text-cyan-600 mb-4">
-                  {useCase.icon}
-                </div>
-                <h3 className="text-xl font-semibold text-slate-900 mb-3">
-                  {useCase.title}
-                </h3>
-                <p className="text-slate-600">
-                  {useCase.desc}
-                </p>
-              </motion.div>
-            ))}
+            {/* Use Case 1: Solo Founders */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, delay: 0 }}
+              className="bg-white rounded-xl shadow-md border-t-4 border-t-cyan-500 border-slate-100 p-8"
+            >
+              <div className="inline-flex p-3 rounded-lg bg-gradient-to-br from-cyan-100 to-sky-100 text-cyan-600 mb-4">
+                <Zap className="w-6 h-6" />
+              </div>
+              <h3 className="text-xl font-semibold text-slate-900 mb-3">Solo Founders & Indie Hackers</h3>
+              <p className="text-slate-600">Keep SaaS, ads, and travel receipts organized without spreadsheets.</p>
+            </motion.div>
+
+            {/* Use Case 2: Agencies & Freelancers */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, delay: 0.1 }}
+              className="bg-white rounded-xl shadow-md border-t-4 border-t-cyan-500 border-slate-100 p-8"
+            >
+              <div className="inline-flex p-3 rounded-lg bg-gradient-to-br from-cyan-100 to-sky-100 text-cyan-600 mb-4">
+                <Users className="w-6 h-6" />
+              </div>
+              <h3 className="text-xl font-semibold text-slate-900 mb-3">Agencies & Freelancers</h3>
+              <p className="text-slate-600">Group receipts by client or project and stay ready for invoicing.</p>
+            </motion.div>
+
+            {/* Use Case 3: Accountants & Bookkeepers */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+              className="bg-white rounded-xl shadow-md border-t-4 border-t-cyan-500 border-slate-100 p-8"
+            >
+              <div className="inline-flex p-3 rounded-lg bg-gradient-to-br from-cyan-100 to-sky-100 text-cyan-600 mb-4">
+                <Shield className="w-6 h-6" />
+              </div>
+              <h3 className="text-xl font-semibold text-slate-900 mb-3">Accountants & Bookkeepers</h3>
+              <p className="text-slate-600">Receive clean, structured data instead of folders full of PDFs.</p>
+            </motion.div>
           </div>
         </div>
       </section>

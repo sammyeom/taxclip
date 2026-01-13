@@ -31,7 +31,7 @@ export default function TermsPage() {
             <h1 className="text-3xl sm:text-4xl font-bold text-slate-900 mb-2">
               TaxClip Terms of Service
             </h1>
-            <p className="text-slate-500">Last updated: 01. 13. 2026</p>
+            <p className="text-slate-500">Last updated: January 13, 2026</p>
           </div>
 
           {/* Intro */}

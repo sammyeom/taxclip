@@ -45,7 +45,7 @@ export async function POST(request: NextRequest) {
 
     // Send confirmation email to the user
     await resend.emails.send({
-      from: 'TaxClip <noreply@taxclip.co>',
+      from: 'TaxClip <support@taxclip.co>',
       to: email,
       subject: 'We received your message - TaxClip',
       html: `

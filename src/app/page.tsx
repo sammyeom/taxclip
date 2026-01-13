@@ -899,7 +899,7 @@ export default function Home() {
               <nav className="flex flex-col gap-3 text-sm">
                 <Link href="/terms" className="hover:text-white transition-colors">Terms</Link>
                 <Link href="/privacy" className="hover:text-white transition-colors">Privacy</Link>
-                <a href="#" className="hover:text-white transition-colors">Security</a>
+                <Link href="/security" className="hover:text-white transition-colors">Security</Link>
               </nav>
             </div>
           </div>

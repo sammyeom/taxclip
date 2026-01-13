@@ -13,15 +13,34 @@ export default function ContactPage() {
     message: '',
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+  const [error, setError] = useState('');
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsSubmitting(true);
+    setError('');
 
-    const { name, email, subject, message } = formData;
-    const mailtoSubject = `[TaxClip Contact] ${subject} - from ${name}`;
-    const mailtoBody = `Name: ${name}\nEmail: ${email}\nSubject: ${subject}\n\nMessage:\n${message}`;
+    try {
+      const response = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
+      });
 
-    // Open user's email client
-    window.location.href = `mailto:support@taxclip.co?subject=${encodeURIComponent(mailtoSubject)}&body=${encodeURIComponent(mailtoBody)}`;
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || 'Failed to send message');
+      }
+
+      setSubmitted(true);
+      setFormData({ name: '', email: '', subject: '', message: '' });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to send message');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -111,7 +130,28 @@ export default function ContactPage() {
 
             {/* Contact Form */}
             <div>
-              <form onSubmit={handleSubmit} className="space-y-6">
+              {submitted ? (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="bg-green-50 border border-green-200 rounded-xl p-8 text-center"
+                >
+                  <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Send className="w-8 h-8 text-green-600" />
+                  </div>
+                  <h3 className="text-xl font-bold text-green-800 mb-2">Message Sent!</h3>
+                  <p className="text-green-700 mb-4">
+                    Thank you for reaching out. We'll get back to you within 24 hours.
+                  </p>
+                  <button
+                    onClick={() => setSubmitted(false)}
+                    className="text-green-600 hover:text-green-700 font-medium transition-colors"
+                  >
+                    Send another message
+                  </button>
+                </motion.div>
+              ) : (
+                <form onSubmit={handleSubmit} className="space-y-6">
                   <div>
                     <label htmlFor="name" className="block text-sm font-medium text-slate-700 mb-2">
                       Name
@@ -178,16 +218,33 @@ export default function ContactPage() {
                     />
                   </div>
 
+                  {error && (
+                    <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-red-700 text-sm">
+                      {error}
+                    </div>
+                  )}
+
                   <motion.button
                     type="submit"
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    className="w-full bg-gradient-to-r from-cyan-500 to-sky-500 text-white px-6 py-4 rounded-lg font-semibold shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2"
+                    disabled={isSubmitting}
+                    whileHover={{ scale: isSubmitting ? 1 : 1.02 }}
+                    whileTap={{ scale: isSubmitting ? 1 : 0.98 }}
+                    className="w-full bg-gradient-to-r from-cyan-500 to-sky-500 text-white px-6 py-4 rounded-lg font-semibold shadow-lg hover:shadow-xl transition-all disabled:opacity-70 flex items-center justify-center gap-2"
                   >
-                    <Send className="w-5 h-5" />
-                    Send Message
+                    {isSubmitting ? (
+                      <>
+                        <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                        Sending...
+                      </>
+                    ) : (
+                      <>
+                        <Send className="w-5 h-5" />
+                        Send Message
+                      </>
+                    )}
                   </motion.button>
-              </form>
+                </form>
+              )}
             </div>
           </div>
         </div>

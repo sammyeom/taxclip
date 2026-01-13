@@ -206,7 +206,7 @@ function SignInForm() {
         {/* Footer */}
         <p className="mt-8 text-center text-sm text-slate-500">
           By continuing, you agree to TaxClip's{' '}
-          <a href="#" className="text-cyan-600 hover:text-cyan-700">Terms</a>
+          <Link href="/terms" className="text-cyan-600 hover:text-cyan-700">Terms</Link>
           {' '}and{' '}
           <a href="#" className="text-cyan-600 hover:text-cyan-700">Privacy Policy</a>
         </p>

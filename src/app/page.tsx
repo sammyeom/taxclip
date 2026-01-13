@@ -18,7 +18,7 @@ import {
   FileText,
   Loader2
 } from 'lucide-react';
-import { useState, useEffect, ReactNode } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import SignInButton from '@/components/SignInButton';
@@ -145,17 +145,18 @@ export default function Home() {
                 {/* AI-Powered badge */}
                 <div className="inline-flex items-center gap-2 bg-gradient-to-r from-cyan-100 to-sky-100 text-cyan-700 px-4 py-2 rounded-full text-sm font-semibold mb-4 border border-cyan-200">
                   <Sparkles className="w-4 h-4" />
-                  <span>AI-Powered Receipt Management</span>
+                  <span>Digital Receipt Scanner & Organizer</span>
                 </div>
 
                 {/* Main headline */}
                 <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-slate-900 mb-6 leading-tight">
-                  Stop Overpaying Taxes from Receipts, Save Thousands
+                  Never Lose a Receipt Again. Stay Organized, Save Time.
                 </h1>
 
                 {/* Subheadline */}
                 <p className="text-lg sm:text-xl text-slate-600 mb-8 leading-relaxed">
-                  Snap a photo, and AI automatically extracts, categorizes, and prepares your receipts for export to QuickBooks and other tools. Works with receipts, invoices, screenshots, and any proof of payment.
+                  AI scans, sorts, and syncs your receipts to your accounting tools automatically.
+                  No more shoebox chaos. No more missing deductions. Built for founders who hate bookkeeping.
                 </p>
 
                 {/* CTA Buttons */}
@@ -166,7 +167,7 @@ export default function Home() {
                       whileTap={{ scale: 0.95 }}
                       className="gradient-btn text-white px-8 py-4 rounded-lg font-semibold text-lg shadow-lg w-full"
                     >
-                      Start for free
+                      Start Organizing Free
                     </motion.button>
                   </Link>
                   <motion.button
@@ -281,7 +282,7 @@ export default function Home() {
             className="text-center mb-16"
           >
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-slate-900 mb-6">
-              Tax Season Shouldn't Take Late Nights
+              Bookkeeping Shouldn't Take Weekends
             </h2>
             <p className="text-xl text-slate-600 max-w-3xl mx-auto">
               Manual receipt tracking is broken. Here's why:
@@ -292,7 +293,7 @@ export default function Home() {
             {[
               { icon: '📄', title: 'Receipts pile up in wallets and inboxes', desc: 'Paper fades, emails get buried, and digital clutter becomes overwhelming' },
               { icon: '⏰', title: 'You waste hours typing data into spreadsheets', desc: 'Manual data entry is tedious, error-prone, and takes away from actual work' },
-              { icon: '😰', title: 'Tax season becomes a stressful scramble', desc: 'Last-minute searches through months of documents create unnecessary anxiety' },
+              { icon: '😰', title: 'Year-end reporting becomes a stressful scramble', desc: 'Last-minute searches through months of documents create unnecessary anxiety' },
               { icon: '💸', title: 'Important expenses slip through the cracks', desc: 'Missing receipts mean thousands in unclaimed deductions and lost money' },
             ].map((item, i) => (
               <motion.div
@@ -331,97 +332,60 @@ export default function Home() {
           </motion.div>
 
           <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
-            {/* Feature 1: Instant Receipt Capture */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: 0 }}
-              whileHover={{ y: -8, boxShadow: '0 20px 40px -10px rgba(6, 182, 212, 0.2)' }}
-              className="bg-white rounded-xl shadow-md border border-slate-100 p-8 hover:shadow-xl transition-all relative overflow-hidden group"
-            >
-              <div className="absolute inset-0 bg-gradient-to-br from-cyan-100 via-transparent to-sky-100 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
-              <div className="relative">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="inline-flex p-3 rounded-lg bg-gradient-to-br from-cyan-100 to-sky-100 text-cyan-600">
-                    <Camera className="w-8 h-8" />
-                  </div>
-                  <span className="text-3xl">📸</span>
-                </div>
-                <h3 className="text-xl font-bold text-slate-900 mb-2">Instant Receipt Capture</h3>
-                <p className="text-sm font-semibold text-cyan-600 mb-3">Snap a photo, AI does the rest</p>
-                <p className="text-slate-600 leading-relaxed">Upload any receipt, invoice, or screenshot. Advanced AI OCR reads vendor, date, total, tax, and currency in seconds.</p>
-              </div>
-            </motion.div>
+            {[
+              {emoji: '📸',
+                title: 'Instant Receipt Capture',
+                subtitle: 'Snap a photo, AI does the rest',
+                desc: 'Upload receipts, invoices, or screenshots. Advanced OCR extracts vendor, date, amount, tax, and currency instantly—no typing required.',
+              },
+              {emoji: '🤖',
+                title: 'AI Smart Categorization',
+                subtitle: 'Smart AI learns your spending patterns',
+                desc: 'Automatically sorts expenses into meals, transport, software, and more. Gets smarter with every transaction you review.',
+              },
+              {emoji: '📄',
+                title: 'Export-Ready Reports',
+                subtitle: 'Export-Ready Reports',
+                desc: 'Organized expense reports ready for your accountant or tax software. Export to PDF, CSV, or sync with QuickBooks. No manual entry needed.',
+              },
+              {emoji: '📊',
+                title: 'Export to Your Tools',
+                subtitle: 'One-click export to accounting tools',
+                desc: 'Download clean CSVs or sync directly with QuickBooks. Your accountant gets structured data, not messy image files.',
+              },
+            ].map((feature, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6, delay: i * 0.1 }}
+                whileHover={{ y: -8, boxShadow: '0 20px 40px -10px rgba(6, 182, 212, 0.2)' }}
+                className="bg-white rounded-xl shadow-md border border-slate-100 p-8 hover:shadow-xl transition-all relative overflow-hidden group"
+              >
+                {/* Gradient border effect */}
+                <div className="absolute inset-0 bg-gradient-to-br from-cyan-100 via-transparent to-sky-100 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
 
-            {/* Feature 2: AI Smart Categorization */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: 0.1 }}
-              whileHover={{ y: -8, boxShadow: '0 20px 40px -10px rgba(6, 182, 212, 0.2)' }}
-              className="bg-white rounded-xl shadow-md border border-slate-100 p-8 hover:shadow-xl transition-all relative overflow-hidden group"
-            >
-              <div className="absolute inset-0 bg-gradient-to-br from-cyan-100 via-transparent to-sky-100 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
-              <div className="relative">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="inline-flex p-3 rounded-lg bg-gradient-to-br from-cyan-100 to-sky-100 text-cyan-600">
-                    <Sparkles className="w-8 h-8" />
+                <div className="relative">
+                  <div className="flex items-center gap-3 mb-4">
+                    <span className="text-3xl inline-flex p-3 rounded-lg bg-gradient-to-br from-cyan-100 to-sky-100">
+                      {feature.emoji}
+                    </span>
                   </div>
-                  <span className="text-3xl">🤖</span>
+                  
+                  <h3 className="text-xl font-bold text-slate-900 mb-2">
+                    {feature.title}
+                  </h3>
+                  <p className="text-sm font-semibold text-cyan-600 mb-3">
+                    {feature.subtitle}
+                  </p>
+                  <p className="text-slate-600 leading-relaxed">
+                    {feature.desc}
+                    
+                  </p>
                 </div>
-                <h3 className="text-xl font-bold text-slate-900 mb-2">AI Smart Categorization</h3>
-                <p className="text-sm font-semibold text-cyan-600 mb-3">Intelligent AI learns your patterns</p>
-                <p className="text-slate-600 leading-relaxed">AI auto-categorizes expenses into meals, transport, software, and more. Learns from your adjustments to get smarter over time.</p>
-              </div>
-            </motion.div>
-
-            {/* Feature 3: IRS-Ready Reports */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: 0.2 }}
-              whileHover={{ y: -8, boxShadow: '0 20px 40px -10px rgba(6, 182, 212, 0.2)' }}
-              className="bg-white rounded-xl shadow-md border border-slate-100 p-8 hover:shadow-xl transition-all relative overflow-hidden group"
-            >
-              <div className="absolute inset-0 bg-gradient-to-br from-cyan-100 via-transparent to-sky-100 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
-              <div className="relative">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="inline-flex p-3 rounded-lg bg-gradient-to-br from-cyan-100 to-sky-100 text-cyan-600">
-                    <FileText className="w-8 h-8" />
-                  </div>
-                  <span className="text-3xl">📄</span>
-                </div>
-                <h3 className="text-xl font-bold text-slate-900 mb-2">IRS-Ready Reports</h3>
-                <p className="text-sm font-semibold text-cyan-600 mb-3">Schedule C automatically generated</p>
-                <p className="text-slate-600 leading-relaxed">Schedule C automatically generated from your receipts. Export to PDF, CSV, or share with your accountant instantly. No manual calculations needed.</p>
-              </div>
-            </motion.div>
-
-            {/* Feature 4: Export to Your Tools */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: 0.3 }}
-              whileHover={{ y: -8, boxShadow: '0 20px 40px -10px rgba(6, 182, 212, 0.2)' }}
-              className="bg-white rounded-xl shadow-md border border-slate-100 p-8 hover:shadow-xl transition-all relative overflow-hidden group"
-            >
-              <div className="absolute inset-0 bg-gradient-to-br from-cyan-100 via-transparent to-sky-100 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
-              <div className="relative">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="inline-flex p-3 rounded-lg bg-gradient-to-br from-cyan-100 to-sky-100 text-cyan-600">
-                    <Download className="w-8 h-8" />
-                  </div>
-                  <span className="text-3xl">📊</span>
-                </div>
-                <h3 className="text-xl font-bold text-slate-900 mb-2">Export to Your Tools</h3>
-                <p className="text-sm font-semibold text-cyan-600 mb-3">One-click export to accounting tools</p>
-                <p className="text-slate-600 leading-relaxed">Download clean CSVs or sync directly with QuickBooks. Your accountant gets structured data, not messy image files.</p>
-              </div>
-            </motion.div>
+              </motion.div>
+            ))}
           </div>
         </div>
       </section>
@@ -539,50 +503,42 @@ export default function Home() {
           </motion.div>
 
           <div className="grid md:grid-cols-3 gap-8">
-            {/* Use Case 1: Solo Founders */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: 0 }}
-              className="bg-white rounded-xl shadow-md border-t-4 border-t-cyan-500 border-slate-100 p-8"
-            >
-              <div className="inline-flex p-3 rounded-lg bg-gradient-to-br from-cyan-100 to-sky-100 text-cyan-600 mb-4">
-                <Zap className="w-6 h-6" />
-              </div>
-              <h3 className="text-xl font-semibold text-slate-900 mb-3">Solo Founders & Indie Hackers</h3>
-              <p className="text-slate-600">Keep SaaS, ads, and travel receipts organized without spreadsheets.</p>
-            </motion.div>
-
-            {/* Use Case 2: Agencies & Freelancers */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: 0.1 }}
-              className="bg-white rounded-xl shadow-md border-t-4 border-t-cyan-500 border-slate-100 p-8"
-            >
-              <div className="inline-flex p-3 rounded-lg bg-gradient-to-br from-cyan-100 to-sky-100 text-cyan-600 mb-4">
-                <Users className="w-6 h-6" />
-              </div>
-              <h3 className="text-xl font-semibold text-slate-900 mb-3">Agencies & Freelancers</h3>
-              <p className="text-slate-600">Group receipts by client or project and stay ready for invoicing.</p>
-            </motion.div>
-
-            {/* Use Case 3: Accountants & Bookkeepers */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: 0.2 }}
-              className="bg-white rounded-xl shadow-md border-t-4 border-t-cyan-500 border-slate-100 p-8"
-            >
-              <div className="inline-flex p-3 rounded-lg bg-gradient-to-br from-cyan-100 to-sky-100 text-cyan-600 mb-4">
-                <Shield className="w-6 h-6" />
-              </div>
-              <h3 className="text-xl font-semibold text-slate-900 mb-3">Accountants & Bookkeepers</h3>
-              <p className="text-slate-600">Receive clean, structured data instead of folders full of PDFs.</p>
-            </motion.div>
+            {[
+              {
+                icon: <Zap className="w-6 h-6" />,
+                title: 'Solo Founders & Indie Hackers',
+                desc: 'Keep SaaS, ads, and travel receipts organized without spreadsheets.',
+              },
+              {
+                icon: <Users className="w-6 h-6" />,
+                title: 'Agencies & Freelancers',
+                desc: 'Group receipts by client or project and stay ready for invoicing.',
+              },
+              {
+                icon: <Shield className="w-6 h-6" />,
+                title: 'Accountants & Bookkeepers',
+                desc: 'Receive clean, structured data instead of folders full of PDFs.',
+              },
+            ].map((useCase, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6, delay: i * 0.1 }}
+                className="bg-white rounded-xl shadow-md border-t-4 border-t-cyan-500 border-slate-100 p-8"
+              >
+                <div className="inline-flex p-3 rounded-lg bg-gradient-to-br from-cyan-100 to-sky-100 text-cyan-600 mb-4">
+                  {useCase.icon}
+                </div>
+                <h3 className="text-xl font-semibold text-slate-900 mb-3">
+                  {useCase.title}
+                </h3>
+                <p className="text-slate-600">
+                  {useCase.desc}
+                </p>
+              </motion.div>
+            ))}
           </div>
         </div>
       </section>
@@ -608,11 +564,13 @@ export default function Home() {
                 quote: "I used to spend an entire weekend on receipts. With TaxClip I'm done in under an hour.",
                 name: 'Alex',
                 role: 'SaaS Founder',
+                avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face',
               },
               {
                 quote: 'My clients finally send me data I can import, not blurry photos.',
                 name: 'Mia',
                 role: 'Accountant',
+                avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop&crop=face',
               },
             ].map((testimonial, i) => (
               <motion.div
@@ -623,14 +581,19 @@ export default function Home() {
                 transition={{ duration: 0.6, delay: i * 0.1 }}
                 className="bg-gradient-to-br from-cyan-50 to-sky-50 rounded-xl border border-cyan-100 p-8"
               >
-                <div className="text-4xl text-cyan-600 mb-4">"</div>
+                <div className="flex items-center justify-between mb-4">
+                  <div className="text-4xl text-cyan-600">"</div>
+                  <div className="text-yellow-400 text-lg">⭐⭐⭐⭐⭐</div>
+                </div>
                 <p className="text-slate-700 mb-6 leading-relaxed text-lg">
                   {testimonial.quote}
                 </p>
                 <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-full gradient-btn flex items-center justify-center text-white font-bold text-lg shadow-md">
-                    {testimonial.name[0]}
-                  </div>
+                  <img
+                    src={testimonial.avatar}
+                    alt={testimonial.name}
+                    className="w-12 h-12 rounded-full object-cover shadow-md"
+                  />
                   <div>
                     <div className="font-semibold text-slate-900">{testimonial.name}</div>
                     <div className="text-sm text-slate-600">{testimonial.role}</div>
@@ -734,7 +697,7 @@ export default function Home() {
               <ul className="space-y-4 mb-8">
                 {[
                   'Unlimited receipts',
-                  'AI tax tips & insights',
+                  'Smart expense insights',
                   'IRS Schedule C reports',
                   'Email-to-receipt upload',
                   'Multi-device sync',
@@ -874,7 +837,7 @@ export default function Home() {
                     whileTap={{ scale: 0.95 }}
                     className="bg-white text-cyan-600 hover:bg-slate-50 px-8 py-4 rounded-lg font-semibold text-lg shadow-xl transition-colors whitespace-nowrap"
                   >
-                    Get started free
+                    Start Free Trial
                   </motion.button>
                 </Link>
               </div>
@@ -927,7 +890,7 @@ export default function Home() {
               <nav className="flex flex-col gap-3 text-sm">
                 <a href="#" className="hover:text-white transition-colors">About</a>
                 <a href="#" className="hover:text-white transition-colors">Blog</a>
-                <a href="#" className="hover:text-white transition-colors">Contact</a>
+                <Link href="/contact" className="hover:text-white transition-colors">Contact</Link>
               </nav>
             </div>
 
@@ -935,9 +898,9 @@ export default function Home() {
             <div>
               <h4 className="text-white font-semibold mb-4">Legal</h4>
               <nav className="flex flex-col gap-3 text-sm">
-                <Link href="/terms" className="hover:text-white transition-colors">Terms</Link>
-                <Link href="/privacy" className="hover:text-white transition-colors">Privacy</Link>
-                <Link href="/security" className="hover:text-white transition-colors">Security</Link>
+                <a href="#" className="hover:text-white transition-colors">Terms</a>
+                <a href="#" className="hover:text-white transition-colors">Privacy</a>
+                <a href="#" className="hover:text-white transition-colors">Security</a>
               </nav>
             </div>
           </div>

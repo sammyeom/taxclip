@@ -18,7 +18,7 @@ import {
   FileText,
   Loader2
 } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, ReactNode } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import SignInButton from '@/components/SignInButton';
@@ -331,67 +331,97 @@ export default function Home() {
           </motion.div>
 
           <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
-            {[
-              {
-                icon: <Camera className="w-8 h-8" />,
-                emoji: '📸',
-                title: 'Instant Receipt Capture',
-                subtitle: 'Snap a photo, AI does the rest',
-                desc: 'Upload any receipt, invoice, or screenshot. Advanced AI OCR reads vendor, date, total, tax, and currency in seconds.',
-              },
-              {
-                icon: <Sparkles className="w-8 h-8" />,
-                emoji: '🤖',
-                title: 'AI Smart Categorization',
-                subtitle: 'Intelligent AI learns your patterns',
-                desc: 'AI auto-categorizes expenses into meals, transport, software, and more. Learns from your adjustments to get smarter over time.',
-              },
-              {
-                icon: <FileText className="w-8 h-8" />,
-                emoji: '📄',
-                title: 'IRS-Ready Reports',
-                subtitle: 'Schedule C automatically generated',
-                desc: 'Schedule C automatically generated from your receipts. Export to PDF, CSV, or share with your accountant instantly. No manual calculations needed.',
-              },
-              {
-                icon: <Download className="w-8 h-8" />,
-                emoji: '📊',
-                title: 'Export to Your Tools',
-                subtitle: 'One-click export to accounting tools',
-                desc: 'Download clean CSVs or sync directly with QuickBooks. Your accountant gets structured data, not messy image files.',
-              },
-            ].map((feature, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: i * 0.1 }}
-                whileHover={{ y: -8, boxShadow: '0 20px 40px -10px rgba(6, 182, 212, 0.2)' }}
-                className="bg-white rounded-xl shadow-md border border-slate-100 p-8 hover:shadow-xl transition-all relative overflow-hidden group"
-              >
-                {/* Gradient border effect */}
-                <div className="absolute inset-0 bg-gradient-to-br from-cyan-100 via-transparent to-sky-100 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
-
-                <div className="relative">
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="inline-flex p-3 rounded-lg bg-gradient-to-br from-cyan-100 to-sky-100 text-cyan-600">
-                      {feature.icon}
-                    </div>
-                    <span className="text-3xl">{feature.emoji}</span>
+            {/* Feature 1: Instant Receipt Capture */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, delay: 0 }}
+              whileHover={{ y: -8, boxShadow: '0 20px 40px -10px rgba(6, 182, 212, 0.2)' }}
+              className="bg-white rounded-xl shadow-md border border-slate-100 p-8 hover:shadow-xl transition-all relative overflow-hidden group"
+            >
+              <div className="absolute inset-0 bg-gradient-to-br from-cyan-100 via-transparent to-sky-100 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
+              <div className="relative">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="inline-flex p-3 rounded-lg bg-gradient-to-br from-cyan-100 to-sky-100 text-cyan-600">
+                    <Camera className="w-8 h-8" />
                   </div>
-                  <h3 className="text-xl font-bold text-slate-900 mb-2">
-                    {feature.title}
-                  </h3>
-                  <p className="text-sm font-semibold text-cyan-600 mb-3">
-                    {feature.subtitle}
-                  </p>
-                  <p className="text-slate-600 leading-relaxed">
-                    {feature.desc}
-                  </p>
+                  <span className="text-3xl">📸</span>
                 </div>
-              </motion.div>
-            ))}
+                <h3 className="text-xl font-bold text-slate-900 mb-2">Instant Receipt Capture</h3>
+                <p className="text-sm font-semibold text-cyan-600 mb-3">Snap a photo, AI does the rest</p>
+                <p className="text-slate-600 leading-relaxed">Upload any receipt, invoice, or screenshot. Advanced AI OCR reads vendor, date, total, tax, and currency in seconds.</p>
+              </div>
+            </motion.div>
+
+            {/* Feature 2: AI Smart Categorization */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, delay: 0.1 }}
+              whileHover={{ y: -8, boxShadow: '0 20px 40px -10px rgba(6, 182, 212, 0.2)' }}
+              className="bg-white rounded-xl shadow-md border border-slate-100 p-8 hover:shadow-xl transition-all relative overflow-hidden group"
+            >
+              <div className="absolute inset-0 bg-gradient-to-br from-cyan-100 via-transparent to-sky-100 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
+              <div className="relative">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="inline-flex p-3 rounded-lg bg-gradient-to-br from-cyan-100 to-sky-100 text-cyan-600">
+                    <Sparkles className="w-8 h-8" />
+                  </div>
+                  <span className="text-3xl">🤖</span>
+                </div>
+                <h3 className="text-xl font-bold text-slate-900 mb-2">AI Smart Categorization</h3>
+                <p className="text-sm font-semibold text-cyan-600 mb-3">Intelligent AI learns your patterns</p>
+                <p className="text-slate-600 leading-relaxed">AI auto-categorizes expenses into meals, transport, software, and more. Learns from your adjustments to get smarter over time.</p>
+              </div>
+            </motion.div>
+
+            {/* Feature 3: IRS-Ready Reports */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+              whileHover={{ y: -8, boxShadow: '0 20px 40px -10px rgba(6, 182, 212, 0.2)' }}
+              className="bg-white rounded-xl shadow-md border border-slate-100 p-8 hover:shadow-xl transition-all relative overflow-hidden group"
+            >
+              <div className="absolute inset-0 bg-gradient-to-br from-cyan-100 via-transparent to-sky-100 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
+              <div className="relative">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="inline-flex p-3 rounded-lg bg-gradient-to-br from-cyan-100 to-sky-100 text-cyan-600">
+                    <FileText className="w-8 h-8" />
+                  </div>
+                  <span className="text-3xl">📄</span>
+                </div>
+                <h3 className="text-xl font-bold text-slate-900 mb-2">IRS-Ready Reports</h3>
+                <p className="text-sm font-semibold text-cyan-600 mb-3">Schedule C automatically generated</p>
+                <p className="text-slate-600 leading-relaxed">Schedule C automatically generated from your receipts. Export to PDF, CSV, or share with your accountant instantly. No manual calculations needed.</p>
+              </div>
+            </motion.div>
+
+            {/* Feature 4: Export to Your Tools */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, delay: 0.3 }}
+              whileHover={{ y: -8, boxShadow: '0 20px 40px -10px rgba(6, 182, 212, 0.2)' }}
+              className="bg-white rounded-xl shadow-md border border-slate-100 p-8 hover:shadow-xl transition-all relative overflow-hidden group"
+            >
+              <div className="absolute inset-0 bg-gradient-to-br from-cyan-100 via-transparent to-sky-100 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
+              <div className="relative">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="inline-flex p-3 rounded-lg bg-gradient-to-br from-cyan-100 to-sky-100 text-cyan-600">
+                    <Download className="w-8 h-8" />
+                  </div>
+                  <span className="text-3xl">📊</span>
+                </div>
+                <h3 className="text-xl font-bold text-slate-900 mb-2">Export to Your Tools</h3>
+                <p className="text-sm font-semibold text-cyan-600 mb-3">One-click export to accounting tools</p>
+                <p className="text-slate-600 leading-relaxed">Download clean CSVs or sync directly with QuickBooks. Your accountant gets structured data, not messy image files.</p>
+              </div>
+            </motion.div>
           </div>
         </div>
       </section>

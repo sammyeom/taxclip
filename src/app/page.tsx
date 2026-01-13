@@ -898,7 +898,7 @@ export default function Home() {
               <h4 className="text-white font-semibold mb-4">Legal</h4>
               <nav className="flex flex-col gap-3 text-sm">
                 <Link href="/terms" className="hover:text-white transition-colors">Terms</Link>
-                <a href="#" className="hover:text-white transition-colors">Privacy</a>
+                <Link href="/privacy" className="hover:text-white transition-colors">Privacy</Link>
                 <a href="#" className="hover:text-white transition-colors">Security</a>
               </nav>
             </div>

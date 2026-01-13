@@ -208,7 +208,7 @@ function SignInForm() {
           By continuing, you agree to TaxClip's{' '}
           <Link href="/terms" className="text-cyan-600 hover:text-cyan-700">Terms</Link>
           {' '}and{' '}
-          <a href="#" className="text-cyan-600 hover:text-cyan-700">Privacy Policy</a>
+          <Link href="/privacy" className="text-cyan-600 hover:text-cyan-700">Privacy Policy</Link>
         </p>
       </div>
     </div>

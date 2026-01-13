@@ -145,18 +145,17 @@ export default function Home() {
                 {/* AI-Powered badge */}
                 <div className="inline-flex items-center gap-2 bg-gradient-to-r from-cyan-100 to-sky-100 text-cyan-700 px-4 py-2 rounded-full text-sm font-semibold mb-4 border border-cyan-200">
                   <Sparkles className="w-4 h-4" />
-                  <span>Digital Receipt Scanner & Organizer</span>
+                  <span>AI-Powered Receipt Management</span>
                 </div>
 
                 {/* Main headline */}
                 <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-slate-900 mb-6 leading-tight">
-                  Never Lose a Receipt Again. Stay Organized, Save Time.
+                  Stop Overpaying Taxes from Receipts, Save Thousands
                 </h1>
 
                 {/* Subheadline */}
                 <p className="text-lg sm:text-xl text-slate-600 mb-8 leading-relaxed">
-                  AI scans, sorts, and syncs your receipts to your accounting tools automatically.
-                  No more shoebox chaos. No more missing deductions. Built for founders who hate bookkeeping.
+                  Snap a photo, and AI automatically extracts, categorizes, and prepares your receipts for export to QuickBooks and other tools. Works with receipts, invoices, screenshots, and any proof of payment.
                 </p>
 
                 {/* CTA Buttons */}
@@ -167,7 +166,7 @@ export default function Home() {
                       whileTap={{ scale: 0.95 }}
                       className="gradient-btn text-white px-8 py-4 rounded-lg font-semibold text-lg shadow-lg w-full"
                     >
-                      Start Organizing Free
+                      Start for free
                     </motion.button>
                   </Link>
                   <motion.button
@@ -282,7 +281,7 @@ export default function Home() {
             className="text-center mb-16"
           >
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-slate-900 mb-6">
-              Bookkeeping Shouldn't Take Weekends
+              Tax Season Shouldn't Take Late Nights
             </h2>
             <p className="text-xl text-slate-600 max-w-3xl mx-auto">
               Manual receipt tracking is broken. Here's why:
@@ -293,7 +292,7 @@ export default function Home() {
             {[
               { icon: '📄', title: 'Receipts pile up in wallets and inboxes', desc: 'Paper fades, emails get buried, and digital clutter becomes overwhelming' },
               { icon: '⏰', title: 'You waste hours typing data into spreadsheets', desc: 'Manual data entry is tedious, error-prone, and takes away from actual work' },
-              { icon: '😰', title: 'Year-end reporting becomes a stressful scramble', desc: 'Last-minute searches through months of documents create unnecessary anxiety' },
+              { icon: '😰', title: 'Tax season becomes a stressful scramble', desc: 'Last-minute searches through months of documents create unnecessary anxiety' },
               { icon: '💸', title: 'Important expenses slip through the cracks', desc: 'Missing receipts mean thousands in unclaimed deductions and lost money' },
             ].map((item, i) => (
               <motion.div
@@ -336,17 +335,17 @@ export default function Home() {
               {emoji: '📸',
                 title: 'Instant Receipt Capture',
                 subtitle: 'Snap a photo, AI does the rest',
-                desc: 'Upload receipts, invoices, or screenshots. Advanced OCR extracts vendor, date, amount, tax, and currency instantly—no typing required.',
+                desc: 'Upload any receipt, invoice, or screenshot. Advanced AI OCR reads vendor, date, total, tax, and currency in seconds.',
               },
               {emoji: '🤖',
                 title: 'AI Smart Categorization',
-                subtitle: 'Smart AI learns your spending patterns',
-                desc: 'Automatically sorts expenses into meals, transport, software, and more. Gets smarter with every transaction you review.',
+                subtitle: 'Intelligent AI learns your patterns',
+                desc: 'AI auto-categorizes expenses into meals, transport, software, and more. Learns from your adjustments to get smarter over time.',
               },
               {emoji: '📄',
-                title: 'Export-Ready Reports',
-                subtitle: 'Export-Ready Reports',
-                desc: 'Organized expense reports ready for your accountant or tax software. Export to PDF, CSV, or sync with QuickBooks. No manual entry needed.',
+                title: 'IRS-Ready Reports',
+                subtitle: 'Schedule C automatically generated',
+                desc: 'Schedule C automatically generated from your receipts. Export to PDF, CSV, or share with your accountant instantly. No manual calculations needed.',
               },
               {emoji: '📊',
                 title: 'Export to Your Tools',
@@ -368,11 +367,10 @@ export default function Home() {
 
                 <div className="relative">
                   <div className="flex items-center gap-3 mb-4">
-                    <span className="text-3xl inline-flex p-3 rounded-lg bg-gradient-to-br from-cyan-100 to-sky-100">
+                    <span className="text-3xl inline-flex p-3 rounded-lg bg-gradient-to-br from-cyan-100 to-sky-100 text-cyan-600">
                       {feature.emoji}
                     </span>
                   </div>
-                  
                   <h3 className="text-xl font-bold text-slate-900 mb-2">
                     {feature.title}
                   </h3>
@@ -401,71 +399,42 @@ export default function Home() {
             className="text-center mb-16"
           >
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-slate-900 mb-6">
-              Everything You Need for Effortless Expense Tracking
+              Everything You Need to Save on Taxes
             </h2>
           </motion.div>
 
-          <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+          <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
             {[
-              {
-                emoji: '📸',
-                title: 'Instant Receipt Digitization',
-                desc: 'Never type receipt data again—AI extracts everything in seconds',
-              },
-              {
-                emoji: '🌍',
-                title: 'Global Business Ready',
-                desc: 'Track expenses in 150+ currencies for international teams',
-              },
-              {
-                emoji: '🏷️',
-                title: 'Smart Auto-Categorization',
-                desc: 'AI learns your spending patterns and sorts automatically',
-              },
-              {
-                emoji: '📊',
-                title: 'Export to Any Tool',
-                desc: 'Download clean data for Excel, QuickBooks, or your accountant',
-              },
-              {
-                emoji: '🔗',
-                title: 'One-Click QuickBooks Sync',
-                desc: 'Push expenses directly to your accounting software—no manual entry',
-              },
-              {
-                emoji: '👥',
-                title: 'Built for Teams',
-                desc: 'Share receipts with your accountant or finance team securely',
-              },
-              {
-                emoji: '📱',
-                title: 'Capture on the Go',
-                desc: 'Snap receipts instantly with our mobile app—works offline too',
-              },
-              {
-                emoji: '✉️',
-                title: 'Auto-Import from Email',
-                desc: 'Forward receipts from your inbox—AI handles the rest',
-              },
-              {
-                emoji: '☁️',
-                title: 'Never Lose a Receipt',
-                desc: 'Secure cloud storage keeps every receipt safe and searchable forever',
-              },
-            ].map((feature, i) => (
+              [
+                'Receipt OCR & AI Parsing',
+                'Multi-Currency Support',
+                'Expense Categories',
+              ],
+              [
+                'CSV & Excel Export',
+                'QuickBooks Integration',
+                'Team Collaboration',
+              ],
+              [
+                'Mobile App (iOS & Android)',
+                'Email Receipt Forwarding',
+                'Unlimited Storage',
+              ],
+            ].map((column, colIdx) => (
               <motion.div
-                key={i}
+                key={colIdx}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: i * 0.1 }}
-                className="flex items-start gap-4 bg-white rounded-xl p-6 shadow-sm border border-slate-100"
+                transition={{ duration: 0.6, delay: colIdx * 0.1 }}
+                className="space-y-4"
               >
-                <span className="text-3xl">{feature.emoji}</span>
-                <div>
-                  <h3 className="font-semibold text-slate-900 mb-1">{feature.title}</h3>
-                  <p className="text-slate-600 text-sm">{feature.desc}</p>
-                </div>
+                {column.map((feature, i) => (
+                  <div key={i} className="flex items-start gap-3">
+                    <CheckCircle2 className="w-6 h-6 text-green-500 flex-shrink-0 mt-0.5" />
+                    <span className="text-slate-700 font-medium">{feature}</span>
+                  </div>
+                ))}
               </motion.div>
             ))}
           </div>
@@ -593,13 +562,11 @@ export default function Home() {
                 quote: "I used to spend an entire weekend on receipts. With TaxClip I'm done in under an hour.",
                 name: 'Alex',
                 role: 'SaaS Founder',
-                avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face',
               },
               {
                 quote: 'My clients finally send me data I can import, not blurry photos.',
                 name: 'Mia',
                 role: 'Accountant',
-                avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop&crop=face',
               },
             ].map((testimonial, i) => (
               <motion.div
@@ -610,19 +577,14 @@ export default function Home() {
                 transition={{ duration: 0.6, delay: i * 0.1 }}
                 className="bg-gradient-to-br from-cyan-50 to-sky-50 rounded-xl border border-cyan-100 p-8"
               >
-                <div className="flex items-center justify-between mb-4">
-                  <div className="text-4xl text-cyan-600">"</div>
-                  <div className="text-yellow-400 text-lg">⭐⭐⭐⭐⭐</div>
-                </div>
+                <div className="text-4xl text-cyan-600 mb-4">"</div>
                 <p className="text-slate-700 mb-6 leading-relaxed text-lg">
                   {testimonial.quote}
                 </p>
                 <div className="flex items-center gap-3">
-                  <img
-                    src={testimonial.avatar}
-                    alt={testimonial.name}
-                    className="w-12 h-12 rounded-full object-cover shadow-md"
-                  />
+                  <div className="w-12 h-12 rounded-full gradient-btn flex items-center justify-center text-white font-bold text-lg shadow-md">
+                    {testimonial.name[0]}
+                  </div>
                   <div>
                     <div className="font-semibold text-slate-900">{testimonial.name}</div>
                     <div className="text-sm text-slate-600">{testimonial.role}</div>
@@ -726,7 +688,7 @@ export default function Home() {
               <ul className="space-y-4 mb-8">
                 {[
                   'Unlimited receipts',
-                  'Smart expense insights',
+                  'AI tax tips & insights',
                   'IRS Schedule C reports',
                   'Email-to-receipt upload',
                   'Multi-device sync',
@@ -866,7 +828,7 @@ export default function Home() {
                     whileTap={{ scale: 0.95 }}
                     className="bg-white text-cyan-600 hover:bg-slate-50 px-8 py-4 rounded-lg font-semibold text-lg shadow-xl transition-colors whitespace-nowrap"
                   >
-                    Start Free Trial
+                    Get started free
                   </motion.button>
                 </Link>
               </div>
@@ -919,7 +881,7 @@ export default function Home() {
               <nav className="flex flex-col gap-3 text-sm">
                 <a href="#" className="hover:text-white transition-colors">About</a>
                 <a href="#" className="hover:text-white transition-colors">Blog</a>
-                <Link href="/contact" className="hover:text-white transition-colors">Contact</Link>
+                <a href="#" className="hover:text-white transition-colors">Contact</a>
               </nav>
             </div>
 
@@ -927,9 +889,9 @@ export default function Home() {
             <div>
               <h4 className="text-white font-semibold mb-4">Legal</h4>
               <nav className="flex flex-col gap-3 text-sm">
-                <Link href="/terms" className="hover:text-white transition-colors">Terms</Link>
-                <Link href="/privacy" className="hover:text-white transition-colors">Privacy</Link>
-                <Link href="/security" className="hover:text-white transition-colors">Security</Link>
+                <a href="#" className="hover:text-white transition-colors">Terms</a>
+                <a href="#" className="hover:text-white transition-colors">Privacy</a>
+                <a href="#" className="hover:text-white transition-colors">Security</a>
               </nav>
             </div>
           </div>

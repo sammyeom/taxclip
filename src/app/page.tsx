@@ -849,7 +849,16 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 12. FOOTER */}
+      {/* 12. DISCLAIMER */}
+      <section className="py-8 bg-slate-100 border-t border-slate-200">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <p className="text-xs text-slate-500 text-center leading-relaxed">
+            <span className="font-semibold text-slate-600">Disclaimer:</span> TaxClip helps you scan, organize, and export your receipts for bookkeeping and tax preparation purposes. We do not provide tax advice, prepare or file tax returns, or act as your accountant or tax advisor. All tax-related decisions should be made with a qualified, licensed professional.
+          </p>
+        </div>
+      </section>
+
+      {/* 13. FOOTER */}
       <footer className="bg-slate-900 text-slate-300 py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-4 gap-12 mb-12">

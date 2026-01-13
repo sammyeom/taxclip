@@ -29,180 +29,117 @@ export default function TermsPage() {
               </span>
             </div>
             <h1 className="text-3xl sm:text-4xl font-bold text-slate-900 mb-2">
-              Terms of Service
+              TaxClip Terms of Service
             </h1>
-            <p className="text-slate-500">Last updated: January 13, 2026</p>
+            <p className="text-slate-500">Last updated: 01. 13. 2026</p>
+          </div>
+
+          {/* Intro */}
+          <div className="mb-10">
+            <p className="text-slate-600 leading-relaxed">
+              Welcome to TaxClip. These Terms of Service ("Terms") govern your access to and use of the TaxClip website, apps, and related services (collectively, the "Service"). By using TaxClip, you agree to these Terms.
+            </p>
           </div>
 
           {/* Terms Content */}
-          <div className="prose prose-slate max-w-none">
-            <section className="mb-8">
-              <h2 className="text-xl font-bold text-slate-900 mb-4">1. Acceptance of Terms</h2>
+          <div className="space-y-10">
+            {/* Section 1 */}
+            <section>
+              <h2 className="text-xl font-bold text-slate-900 mb-4">1. Description of Service</h2>
               <p className="text-slate-600 mb-4">
-                By accessing or using TaxClip ("Service"), you agree to be bound by these Terms of Service ("Terms").
-                If you do not agree to these Terms, please do not use the Service.
+                TaxClip is a software-as-a-service (SaaS) tool that helps users digitize, organize, and export receipt and expense data.
               </p>
-            </section>
-
-            <section className="mb-8">
-              <h2 className="text-xl font-bold text-slate-900 mb-4">2. Description of Service</h2>
-              <p className="text-slate-600 mb-4">
-                TaxClip is an AI-powered receipt management platform that helps users scan, organize, and export
-                receipts for bookkeeping and tax preparation purposes. The Service includes:
-              </p>
+              <p className="text-slate-600 mb-3">The Service includes:</p>
               <ul className="list-disc list-inside text-slate-600 space-y-2 ml-4">
-                <li>Receipt scanning and OCR (Optical Character Recognition)</li>
-                <li>AI-powered expense categorization</li>
-                <li>Data export in various formats (CSV, PDF)</li>
-                <li>Integration with accounting software</li>
-                <li>Cloud storage for receipt images and data</li>
+                <li>Scanning receipts and documents using OCR technology,</li>
+                <li>Extracting basic data such as date, amount, vendor, tax, and currency,</li>
+                <li>Categorizing expenses,</li>
+                <li>Providing dashboards and export options (CSV, Excel, PDF, and integrations with accounting tools).</li>
               </ul>
+              <p className="text-slate-600 mt-4 font-medium">
+                TaxClip is a data management and bookkeeping assistance tool only.
+              </p>
             </section>
 
-            <section className="mb-8">
-              <h2 className="text-xl font-bold text-slate-900 mb-4">3. Not Tax or Legal Advice</h2>
+            {/* Section 2 */}
+            <section>
+              <h2 className="text-xl font-bold text-slate-900 mb-4">2. No Tax, Legal, or Financial Advice</h2>
               <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-4">
-                <p className="text-amber-800 font-medium">
-                  TaxClip does NOT provide tax advice, prepare or file tax returns, or act as your accountant
-                  or tax advisor. All tax-related decisions should be made with a qualified, licensed professional.
-                </p>
+                <p className="text-amber-800 font-medium mb-3">TaxClip does NOT provide:</p>
+                <ul className="list-disc list-inside text-amber-800 space-y-1 ml-2">
+                  <li>Tax advice or recommendations,</li>
+                  <li>Legal advice,</li>
+                  <li>Accounting services,</li>
+                  <li>Tax preparation or filing services,</li>
+                  <li>Financial planning or investment advice.</li>
+                </ul>
               </div>
-              <p className="text-slate-600">
-                The categorization suggestions, reports, and any other information provided by the Service are
-                for organizational purposes only and should not be construed as professional tax or financial advice.
-              </p>
-            </section>
-
-            <section className="mb-8">
-              <h2 className="text-xl font-bold text-slate-900 mb-4">4. User Accounts</h2>
-              <p className="text-slate-600 mb-4">To use certain features of the Service, you must:</p>
-              <ul className="list-disc list-inside text-slate-600 space-y-2 ml-4">
-                <li>Create an account with accurate and complete information</li>
-                <li>Maintain the security of your account credentials</li>
-                <li>Promptly notify us of any unauthorized access</li>
-                <li>Be responsible for all activities under your account</li>
-              </ul>
-            </section>
-
-            <section className="mb-8">
-              <h2 className="text-xl font-bold text-slate-900 mb-4">5. Subscription and Billing</h2>
               <p className="text-slate-600 mb-4">
-                TaxClip offers both free and paid subscription plans:
+                Any information provided within the Service (including tips, examples, or educational content) is for general informational purposes only and should not be considered tax, legal, or financial advice.
               </p>
+              <p className="text-slate-600 mb-4">
+                You are solely responsible for your own tax filings, compliance, and financial decisions.
+              </p>
+              <p className="text-slate-600 font-medium">
+                You should always consult a qualified and licensed tax professional, accountant, or financial advisor for advice specific to your situation.
+              </p>
+            </section>
+
+            {/* Section 3 */}
+            <section>
+              <h2 className="text-xl font-bold text-slate-900 mb-4">3. User Responsibilities</h2>
+              <p className="text-slate-600 mb-3">You are responsible for:</p>
               <ul className="list-disc list-inside text-slate-600 space-y-2 ml-4">
-                <li><strong>Free Plan:</strong> Limited to 10 receipts per month with basic features</li>
-                <li><strong>Pro Plan:</strong> Unlimited receipts with advanced features, billed monthly or annually</li>
+                <li>The accuracy and completeness of any data or documents you upload,</li>
+                <li>Reviewing all data before using it for bookkeeping or tax purposes,</li>
+                <li>Complying with all applicable tax laws and regulations in your jurisdiction.</li>
               </ul>
               <p className="text-slate-600 mt-4">
-                Paid subscriptions will automatically renew unless cancelled before the renewal date.
-                You may cancel your subscription at any time through your account settings.
+                TaxClip is not responsible for any penalties, losses, or damages arising from your use of the Service or from inaccurate or incomplete data.
               </p>
             </section>
 
-            <section className="mb-8">
-              <h2 className="text-xl font-bold text-slate-900 mb-4">6. Refund Policy</h2>
-              <p className="text-slate-600 mb-4">
-                We offer a 7-day free trial for new Pro subscribers. After the trial period, payments are non-refundable
-                except as required by law. If you cancel during the trial period, you will not be charged.
-              </p>
-            </section>
-
-            <section className="mb-8">
-              <h2 className="text-xl font-bold text-slate-900 mb-4">7. User Content and Data</h2>
-              <p className="text-slate-600 mb-4">
-                You retain ownership of all receipts, images, and data you upload to TaxClip ("User Content").
-                By using the Service, you grant us a limited license to:
-              </p>
+            {/* Section 4 */}
+            <section>
+              <h2 className="text-xl font-bold text-slate-900 mb-4">4. Account and Access</h2>
               <ul className="list-disc list-inside text-slate-600 space-y-2 ml-4">
-                <li>Store and process your User Content to provide the Service</li>
-                <li>Create backups for data protection</li>
-                <li>Use anonymized, aggregated data to improve our AI and services</li>
+                <li>You must provide accurate information when creating an account.</li>
+                <li>You are responsible for maintaining the security of your login credentials.</li>
               </ul>
             </section>
 
-            <section className="mb-8">
-              <h2 className="text-xl font-bold text-slate-900 mb-4">8. Prohibited Uses</h2>
-              <p className="text-slate-600 mb-4">You agree not to:</p>
+            {/* Section 5 */}
+            <section>
+              <h2 className="text-xl font-bold text-slate-900 mb-4">5. Payment and Subscription</h2>
               <ul className="list-disc list-inside text-slate-600 space-y-2 ml-4">
-                <li>Use the Service for any illegal purpose</li>
-                <li>Upload fraudulent or falsified receipts</li>
-                <li>Attempt to gain unauthorized access to the Service</li>
-                <li>Interfere with or disrupt the Service</li>
-                <li>Reverse engineer or attempt to extract the source code</li>
-                <li>Use automated systems to access the Service without permission</li>
+                <li>Paid plans are billed on a recurring basis (monthly or annually) until cancelled.</li>
+                <li>Fees are non-refundable except where required by law.</li>
               </ul>
             </section>
 
-            <section className="mb-8">
-              <h2 className="text-xl font-bold text-slate-900 mb-4">9. Intellectual Property</h2>
-              <p className="text-slate-600">
-                The Service, including its original content, features, and functionality, is owned by TaxClip
-                and is protected by international copyright, trademark, and other intellectual property laws.
-              </p>
-            </section>
-
-            <section className="mb-8">
-              <h2 className="text-xl font-bold text-slate-900 mb-4">10. Disclaimer of Warranties</h2>
-              <p className="text-slate-600 mb-4">
-                THE SERVICE IS PROVIDED "AS IS" AND "AS AVAILABLE" WITHOUT WARRANTIES OF ANY KIND,
-                EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO:
-              </p>
+            {/* Section 6 */}
+            <section>
+              <h2 className="text-xl font-bold text-slate-900 mb-4">6. Limitation of Liability</h2>
               <ul className="list-disc list-inside text-slate-600 space-y-2 ml-4">
-                <li>Accuracy of OCR or AI categorization</li>
-                <li>Uninterrupted or error-free operation</li>
-                <li>Fitness for a particular purpose</li>
-                <li>Security or availability of data</li>
+                <li>TaxClip is provided "as is" without warranties of any kind.</li>
+                <li>To the maximum extent permitted by law, TaxClip is not liable for indirect, incidental, or consequential damages.</li>
               </ul>
             </section>
 
-            <section className="mb-8">
-              <h2 className="text-xl font-bold text-slate-900 mb-4">11. Limitation of Liability</h2>
-              <p className="text-slate-600">
-                TO THE MAXIMUM EXTENT PERMITTED BY LAW, TAXCLIP SHALL NOT BE LIABLE FOR ANY INDIRECT,
-                INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES, INCLUDING BUT NOT LIMITED TO
-                LOSS OF PROFITS, DATA, OR OTHER INTANGIBLE LOSSES, RESULTING FROM YOUR USE OF THE SERVICE.
-              </p>
+            {/* Section 7 */}
+            <section>
+              <h2 className="text-xl font-bold text-slate-900 mb-4">7. Changes to the Service and Terms</h2>
+              <ul className="list-disc list-inside text-slate-600 space-y-2 ml-4">
+                <li>We may update the Service or these Terms from time to time.</li>
+                <li>Continued use of the Service after changes means you accept the updated Terms.</li>
+              </ul>
             </section>
 
-            <section className="mb-8">
-              <h2 className="text-xl font-bold text-slate-900 mb-4">12. Data Retention</h2>
+            {/* Section 8 */}
+            <section>
+              <h2 className="text-xl font-bold text-slate-900 mb-4">8. Contact</h2>
               <p className="text-slate-600">
-                We retain your data for as long as your account is active or as needed to provide the Service.
-                You may request deletion of your account and associated data at any time. Upon account deletion,
-                we will remove your data within 30 days, except as required by law.
-              </p>
-            </section>
-
-            <section className="mb-8">
-              <h2 className="text-xl font-bold text-slate-900 mb-4">13. Changes to Terms</h2>
-              <p className="text-slate-600">
-                We reserve the right to modify these Terms at any time. We will notify you of material changes
-                by posting the updated Terms on this page and updating the "Last updated" date. Your continued
-                use of the Service after such changes constitutes acceptance of the new Terms.
-              </p>
-            </section>
-
-            <section className="mb-8">
-              <h2 className="text-xl font-bold text-slate-900 mb-4">14. Termination</h2>
-              <p className="text-slate-600">
-                We may terminate or suspend your account and access to the Service immediately, without prior
-                notice, for conduct that we believe violates these Terms or is harmful to other users, us,
-                or third parties, or for any other reason at our sole discretion.
-              </p>
-            </section>
-
-            <section className="mb-8">
-              <h2 className="text-xl font-bold text-slate-900 mb-4">15. Governing Law</h2>
-              <p className="text-slate-600">
-                These Terms shall be governed by and construed in accordance with the laws of the State of California,
-                United States, without regard to its conflict of law provisions.
-              </p>
-            </section>
-
-            <section className="mb-8">
-              <h2 className="text-xl font-bold text-slate-900 mb-4">16. Contact Us</h2>
-              <p className="text-slate-600">
-                If you have any questions about these Terms, please contact us at:
+                If you have any questions about these Terms, you can contact us at:
               </p>
               <p className="text-cyan-600 font-medium mt-2">
                 support@taxclip.co

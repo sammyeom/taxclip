@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
     // Send notification email to admin
     await resend.emails.send({
       from: 'TaxClip Contact <support@taxclip.co>',
-      to: process.env.CONTACT_EMAIL || 'support@taxclip.co',
+      to: process.env.ADMIN_EMAIL || 'sammyeom@gmail.com',
       subject: `[TaxClip Contact] ${subject} - from ${name}`,
       html: `
         <h2>New Contact Form Submission</h2>

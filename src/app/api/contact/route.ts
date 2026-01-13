@@ -3,6 +3,15 @@ import { Resend } from 'resend';
 
 export async function POST(request: NextRequest) {
   try {
+    // Check if API key exists
+    if (!process.env.RESEND_API_KEY) {
+      console.error('RESEND_API_KEY is not set');
+      return NextResponse.json(
+        { error: 'Email service not configured' },
+        { status: 500 }
+      );
+    }
+
     const resend = new Resend(process.env.RESEND_API_KEY);
     const { name, email, subject, message } = await request.json();
 
@@ -69,10 +78,11 @@ export async function POST(request: NextRequest) {
     });
 
     return NextResponse.json({ success: true });
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('Contact form error:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     return NextResponse.json(
-      { error: 'Failed to send message' },
+      { error: 'Failed to send message', details: errorMessage },
       { status: 500 }
     );
   }

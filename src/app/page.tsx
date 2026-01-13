@@ -401,42 +401,71 @@ export default function Home() {
             className="text-center mb-16"
           >
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-slate-900 mb-6">
-              Everything You Need to Save on Taxes
+              Everything You Need for Effortless Expense Tracking
             </h2>
           </motion.div>
 
-          <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+          <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
             {[
-              [
-                'Receipt OCR & AI Parsing',
-                'Multi-Currency Support',
-                'Expense Categories',
-              ],
-              [
-                'CSV & Excel Export',
-                'QuickBooks Integration',
-                'Team Collaboration',
-              ],
-              [
-                'Mobile App (iOS & Android)',
-                'Email Receipt Forwarding',
-                'Unlimited Storage',
-              ],
-            ].map((column, colIdx) => (
+              {
+                emoji: '📸',
+                title: 'Instant Receipt Digitization',
+                desc: 'Never type receipt data again—AI extracts everything in seconds',
+              },
+              {
+                emoji: '🌍',
+                title: 'Global Business Ready',
+                desc: 'Track expenses in 150+ currencies for international teams',
+              },
+              {
+                emoji: '🏷️',
+                title: 'Smart Auto-Categorization',
+                desc: 'AI learns your spending patterns and sorts automatically',
+              },
+              {
+                emoji: '📊',
+                title: 'Export to Any Tool',
+                desc: 'Download clean data for Excel, QuickBooks, or your accountant',
+              },
+              {
+                emoji: '🔗',
+                title: 'One-Click QuickBooks Sync',
+                desc: 'Push expenses directly to your accounting software—no manual entry',
+              },
+              {
+                emoji: '👥',
+                title: 'Built for Teams',
+                desc: 'Share receipts with your accountant or finance team securely',
+              },
+              {
+                emoji: '📱',
+                title: 'Capture on the Go',
+                desc: 'Snap receipts instantly with our mobile app—works offline too',
+              },
+              {
+                emoji: '✉️',
+                title: 'Auto-Import from Email',
+                desc: 'Forward receipts from your inbox—AI handles the rest',
+              },
+              {
+                emoji: '☁️',
+                title: 'Never Lose a Receipt',
+                desc: 'Secure cloud storage keeps every receipt safe and searchable forever',
+              },
+            ].map((feature, i) => (
               <motion.div
-                key={colIdx}
+                key={i}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: colIdx * 0.1 }}
-                className="space-y-4"
+                transition={{ duration: 0.6, delay: i * 0.1 }}
+                className="flex items-start gap-4 bg-white rounded-xl p-6 shadow-sm border border-slate-100"
               >
-                {column.map((feature, i) => (
-                  <div key={i} className="flex items-start gap-3">
-                    <CheckCircle2 className="w-6 h-6 text-green-500 flex-shrink-0 mt-0.5" />
-                    <span className="text-slate-700 font-medium">{feature}</span>
-                  </div>
-                ))}
+                <span className="text-3xl">{feature.emoji}</span>
+                <div>
+                  <h3 className="font-semibold text-slate-900 mb-1">{feature.title}</h3>
+                  <p className="text-slate-600 text-sm">{feature.desc}</p>
+                </div>
               </motion.div>
             ))}
           </div>
@@ -898,9 +927,9 @@ export default function Home() {
             <div>
               <h4 className="text-white font-semibold mb-4">Legal</h4>
               <nav className="flex flex-col gap-3 text-sm">
-                <a href="#" className="hover:text-white transition-colors">Terms</a>
-                <a href="#" className="hover:text-white transition-colors">Privacy</a>
-                <a href="#" className="hover:text-white transition-colors">Security</a>
+                <Link href="/terms" className="hover:text-white transition-colors">Terms</Link>
+                <Link href="/privacy" className="hover:text-white transition-colors">Privacy</Link>
+                <Link href="/security" className="hover:text-white transition-colors">Security</Link>
               </nav>
             </div>
           </div>

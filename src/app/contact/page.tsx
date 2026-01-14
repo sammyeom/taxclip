@@ -56,73 +56,73 @@ export default function ContactPage() {
       </header>
 
       {/* Content */}
-      <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="bg-white rounded-2xl shadow-xl p-8 sm:p-12">
+      <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+        <div className="bg-white rounded-2xl shadow-xl p-5 sm:p-8 lg:p-12">
           {/* Title */}
-          <div className="text-center mb-12">
+          <div className="text-center mb-8 sm:mb-12">
             <div className="flex items-center justify-center gap-2 mb-4">
-              <img src="/logo.svg" alt="TaxClip" width={40} height={40} />
-              <span className="text-2xl font-bold">
+              <img src="/logo.svg" alt="TaxClip" width={36} height={36} className="sm:w-10 sm:h-10" />
+              <span className="text-xl sm:text-2xl font-bold">
                 <span className="text-slate-900">Tax</span>
                 <span className="text-cyan-500">Clip</span>
               </span>
             </div>
-            <h1 className="text-3xl sm:text-4xl font-bold text-slate-900 mb-2">
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-slate-900 mb-2">
               Contact Us
             </h1>
-            <p className="text-slate-500">We'd love to hear from you. Get in touch with our team.</p>
+            <p className="text-sm sm:text-base text-slate-500">We'd love to hear from you</p>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-12">
+          <div className="grid md:grid-cols-2 gap-8 sm:gap-12">
             {/* Contact Info */}
-            <div className="space-y-8">
+            <div className="space-y-6 sm:space-y-8">
               <div>
-                <h2 className="text-xl font-bold text-slate-900 mb-6">Get in Touch</h2>
-                <p className="text-slate-600 leading-relaxed mb-6">
-                  Have a question about TaxClip? Need help with your account? Want to share feedback? We're here to help!
+                <h2 className="text-lg sm:text-xl font-bold text-slate-900 mb-4 sm:mb-6">Get in Touch</h2>
+                <p className="text-sm sm:text-base text-slate-600 leading-relaxed mb-4 sm:mb-6">
+                  Have a question about TaxClip? Need help with your account? We're here to help!
                 </p>
               </div>
 
-              <div className="space-y-6">
-                <div className="flex items-start gap-4">
-                  <div className="p-3 rounded-lg bg-gradient-to-br from-cyan-100 to-sky-100">
-                    <Mail className="w-5 h-5 text-cyan-600" />
+              <div className="space-y-4 sm:space-y-6">
+                <div className="flex items-start gap-3 sm:gap-4">
+                  <div className="p-2 sm:p-3 rounded-lg bg-gradient-to-br from-cyan-100 to-sky-100">
+                    <Mail className="w-4 h-4 sm:w-5 sm:h-5 text-cyan-600" />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-slate-900 mb-1">Email</h3>
-                    <a href="mailto:support@taxclip.co" className="text-cyan-600 hover:text-cyan-700 transition-colors">
+                    <h3 className="text-sm sm:text-base font-semibold text-slate-900 mb-1">Email</h3>
+                    <a href="mailto:support@taxclip.co" className="text-sm sm:text-base text-cyan-600 hover:text-cyan-700 transition-colors">
                       support@taxclip.co
                     </a>
                   </div>
                 </div>
 
-                <div className="flex items-start gap-4">
-                  <div className="p-3 rounded-lg bg-gradient-to-br from-cyan-100 to-sky-100">
-                    <MessageSquare className="w-5 h-5 text-cyan-600" />
+                <div className="flex items-start gap-3 sm:gap-4">
+                  <div className="p-2 sm:p-3 rounded-lg bg-gradient-to-br from-cyan-100 to-sky-100">
+                    <MessageSquare className="w-4 h-4 sm:w-5 sm:h-5 text-cyan-600" />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-slate-900 mb-1">Live Chat</h3>
-                    <p className="text-slate-600">Available for Pro and Annual subscribers</p>
+                    <h3 className="text-sm sm:text-base font-semibold text-slate-900 mb-1">Live Chat</h3>
+                    <p className="text-sm text-slate-600">Pro and Annual subscribers</p>
                   </div>
                 </div>
 
-                <div className="flex items-start gap-4">
-                  <div className="p-3 rounded-lg bg-gradient-to-br from-cyan-100 to-sky-100">
-                    <Clock className="w-5 h-5 text-cyan-600" />
+                <div className="flex items-start gap-3 sm:gap-4">
+                  <div className="p-2 sm:p-3 rounded-lg bg-gradient-to-br from-cyan-100 to-sky-100">
+                    <Clock className="w-4 h-4 sm:w-5 sm:h-5 text-cyan-600" />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-slate-900 mb-1">Response Time</h3>
-                    <p className="text-slate-600">We typically respond within 24 hours</p>
+                    <h3 className="text-sm sm:text-base font-semibold text-slate-900 mb-1">Response Time</h3>
+                    <p className="text-sm text-slate-600">Within 24 hours</p>
                   </div>
                 </div>
               </div>
 
-              <div className="bg-gradient-to-br from-cyan-50 to-sky-50 rounded-xl p-6 border border-cyan-100">
-                <h3 className="font-semibold text-slate-900 mb-2">FAQ</h3>
-                <p className="text-slate-600 text-sm mb-3">
-                  Check out our frequently asked questions for quick answers.
+              <div className="bg-gradient-to-br from-cyan-50 to-sky-50 rounded-xl p-4 sm:p-6 border border-cyan-100">
+                <h3 className="text-sm sm:text-base font-semibold text-slate-900 mb-2">FAQ</h3>
+                <p className="text-slate-600 text-xs sm:text-sm mb-3">
+                  Check out our frequently asked questions.
                 </p>
-                <Link href="/#features" className="text-cyan-600 hover:text-cyan-700 text-sm font-medium transition-colors">
+                <Link href="/#features" className="text-cyan-600 hover:text-cyan-700 text-xs sm:text-sm font-medium transition-colors">
                   View FAQ &rarr;
                 </Link>
               </div>
@@ -151,9 +151,9 @@ export default function ContactPage() {
                   </button>
                 </motion.div>
               ) : (
-                <form onSubmit={handleSubmit} className="space-y-6">
+                <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
                   <div>
-                    <label htmlFor="name" className="block text-sm font-medium text-slate-700 mb-2">
+                    <label htmlFor="name" className="block text-xs sm:text-sm font-medium text-slate-700 mb-1.5 sm:mb-2">
                       Name
                     </label>
                     <input
@@ -162,13 +162,13 @@ export default function ContactPage() {
                       required
                       value={formData.name}
                       onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                      className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all"
+                      className="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all"
                       placeholder="Your name"
                     />
                   </div>
 
                   <div>
-                    <label htmlFor="email" className="block text-sm font-medium text-slate-700 mb-2">
+                    <label htmlFor="email" className="block text-xs sm:text-sm font-medium text-slate-700 mb-1.5 sm:mb-2">
                       Email
                     </label>
                     <input
@@ -177,13 +177,13 @@ export default function ContactPage() {
                       required
                       value={formData.email}
                       onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                      className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all"
+                      className="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all"
                       placeholder="your@email.com"
                     />
                   </div>
 
                   <div>
-                    <label htmlFor="subject" className="block text-sm font-medium text-slate-700 mb-2">
+                    <label htmlFor="subject" className="block text-xs sm:text-sm font-medium text-slate-700 mb-1.5 sm:mb-2">
                       Subject
                     </label>
                     <select
@@ -191,7 +191,7 @@ export default function ContactPage() {
                       required
                       value={formData.subject}
                       onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
-                      className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all"
+                      className="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all"
                     >
                       <option value="">Select a topic</option>
                       <option value="general">General Inquiry</option>
@@ -204,22 +204,22 @@ export default function ContactPage() {
                   </div>
 
                   <div>
-                    <label htmlFor="message" className="block text-sm font-medium text-slate-700 mb-2">
+                    <label htmlFor="message" className="block text-xs sm:text-sm font-medium text-slate-700 mb-1.5 sm:mb-2">
                       Message
                     </label>
                     <textarea
                       id="message"
                       required
-                      rows={5}
+                      rows={4}
                       value={formData.message}
                       onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                      className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all resize-none"
+                      className="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all resize-none"
                       placeholder="How can we help you?"
                     />
                   </div>
 
                   {error && (
-                    <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-red-700 text-sm">
+                    <div className="bg-red-50 border border-red-200 rounded-lg p-3 sm:p-4 text-red-700 text-xs sm:text-sm">
                       {error}
                     </div>
                   )}
@@ -229,16 +229,16 @@ export default function ContactPage() {
                     disabled={isSubmitting}
                     whileHover={{ scale: isSubmitting ? 1 : 1.02 }}
                     whileTap={{ scale: isSubmitting ? 1 : 0.98 }}
-                    className="w-full bg-gradient-to-r from-cyan-500 to-sky-500 text-white px-6 py-4 rounded-lg font-semibold shadow-lg hover:shadow-xl transition-all disabled:opacity-70 flex items-center justify-center gap-2"
+                    className="w-full bg-gradient-to-r from-cyan-500 to-sky-500 text-white px-4 sm:px-6 py-3 sm:py-4 rounded-lg text-sm sm:text-base font-semibold shadow-lg hover:shadow-xl transition-all disabled:opacity-70 flex items-center justify-center gap-2"
                   >
                     {isSubmitting ? (
                       <>
-                        <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                        <div className="w-4 h-4 sm:w-5 sm:h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
                         Sending...
                       </>
                     ) : (
                       <>
-                        <Send className="w-5 h-5" />
+                        <Send className="w-4 h-4 sm:w-5 sm:h-5" />
                         Send Message
                       </>
                     )}

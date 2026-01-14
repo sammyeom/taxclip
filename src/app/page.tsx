@@ -863,7 +863,7 @@ export default function Home() {
             </h2>
           </motion.div>
 
-          <div className="space-y-6">
+          <div className="space-y-4 sm:space-y-6">
             {[
               {
                 q: 'What format do you export?',
@@ -892,10 +892,10 @@ export default function Home() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.4, delay: i * 0.1 }}
-                className="bg-slate-50 rounded-xl p-6 border border-slate-200"
+                className="bg-slate-50 rounded-xl p-4 sm:p-6 border border-slate-200"
               >
-                <h3 className="text-lg font-semibold text-slate-900 mb-3">{item.q}</h3>
-                <p className="text-slate-600 leading-relaxed">{item.a}</p>
+                <h3 className="text-sm sm:text-lg font-semibold text-slate-900 mb-2 sm:mb-3">{item.q}</h3>
+                <p className="text-xs sm:text-base text-slate-600 leading-relaxed">{item.a}</p>
               </motion.div>
             ))}
           </div>
@@ -926,19 +926,19 @@ export default function Home() {
               }}
               className="max-w-md mx-auto mb-6"
             >
-              <div className="flex flex-col sm:flex-row gap-3">
+              <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
                 <input
                   type="email"
                   placeholder="Enter your email"
                   value={ctaEmail}
                   onChange={(e) => setCtaEmail(e.target.value)}
-                  className="flex-1 px-6 py-4 rounded-lg text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-white"
+                  className="flex-1 px-4 sm:px-6 py-3 sm:py-4 text-sm sm:text-base rounded-lg bg-white/20 text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-white border border-white/30"
                 />
                 <motion.button
                   type="submit"
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  className="bg-white text-cyan-600 hover:bg-slate-50 px-8 py-4 rounded-lg font-semibold text-lg shadow-xl transition-colors whitespace-nowrap"
+                  className="bg-white text-cyan-600 hover:bg-slate-50 px-6 sm:px-8 py-3 sm:py-4 rounded-lg font-semibold text-sm sm:text-lg shadow-xl transition-colors whitespace-nowrap"
                 >
                   Get started free
                 </motion.button>

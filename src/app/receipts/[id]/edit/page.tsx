@@ -475,44 +475,44 @@ export default function ReceiptEditPage() {
             Edit Receipt Details
           </h2>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
             {/* Date */}
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">
+              <label className="block text-xs sm:text-sm font-medium text-slate-700 mb-1">
                 Date <span className="text-red-500">*</span>
               </label>
               <input
                 type="date"
                 value={formData.date}
                 onChange={(e) => handleFormChange('date', e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                className="w-full px-3 sm:px-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
               />
             </div>
 
             {/* Vendor */}
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">
+              <label className="block text-xs sm:text-sm font-medium text-slate-700 mb-1">
                 Vendor/Merchant <span className="text-red-500">*</span>
               </label>
               <input
                 type="text"
                 value={formData.merchant}
                 onChange={(e) => handleFormChange('merchant', e.target.value)}
-                placeholder="Enter store or vendor name"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                placeholder="Enter vendor name"
+                className="w-full px-3 sm:px-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
               />
             </div>
 
             {/* Total (Amount + Currency) */}
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">
+              <label className="block text-xs sm:text-sm font-medium text-slate-700 mb-1">
                 Total <span className="text-red-500">*</span>
               </label>
               <div className="flex">
                 <select
                   value={formData.currency}
                   onChange={(e) => handleFormChange('currency', e.target.value)}
-                  className="px-3 py-2 border border-r-0 border-gray-300 rounded-l-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-cyan-500 text-sm font-medium"
+                  className="px-2 sm:px-3 py-2 border border-r-0 border-gray-300 rounded-l-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-cyan-500 text-sm font-medium"
                 >
                   {CURRENCY_OPTIONS.map((curr) => (
                     <option key={curr.value} value={curr.value}>
@@ -531,24 +531,24 @@ export default function ReceiptEditPage() {
                     if (parsed) handleFormChange('total', parsed);
                   }}
                   placeholder="0.00"
-                  className="flex-1 px-4 py-2 border border-gray-300 rounded-r-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                  className="flex-1 min-w-0 px-3 sm:px-4 py-2 text-sm border border-gray-300 rounded-r-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
                 />
               </div>
             </div>
 
             {/* IRS Schedule C Category */}
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">
-                IRS Schedule C Category <span className="text-red-500">*</span>
+              <label className="block text-xs sm:text-sm font-medium text-slate-700 mb-1">
+                Category <span className="text-red-500">*</span>
               </label>
               <select
                 value={formData.category}
                 onChange={(e) => handleFormChange('category', e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                className="w-full px-3 sm:px-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
               >
                 {IRS_SCHEDULE_C_CATEGORIES.map((cat) => (
                   <option key={cat.value} value={cat.value}>
-                    Line {cat.line}: {cat.label}
+                    L{cat.line}: {cat.label}
                   </option>
                 ))}
               </select>
@@ -556,13 +556,13 @@ export default function ReceiptEditPage() {
 
             {/* Payment Method */}
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">
+              <label className="block text-xs sm:text-sm font-medium text-slate-700 mb-1">
                 Payment Method
               </label>
               <select
                 value={formData.payment_method}
                 onChange={(e) => handleFormChange('payment_method', e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                className="w-full px-3 sm:px-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
               >
                 {PAYMENT_METHODS.map((method) => (
                   <option key={method.value} value={method.value}>
@@ -574,51 +574,51 @@ export default function ReceiptEditPage() {
 
             {/* Business Purpose */}
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">
+              <label className="block text-xs sm:text-sm font-medium text-slate-700 mb-1">
                 Business Purpose
               </label>
               <input
                 type="text"
                 value={formData.business_purpose}
                 onChange={(e) => handleFormChange('business_purpose', e.target.value)}
-                placeholder="Enter business purpose (optional)"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                placeholder="Optional"
+                className="w-full px-3 sm:px-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
               />
             </div>
 
             {/* Notes - Full width */}
             <div className="md:col-span-2">
-              <label className="block text-sm font-medium text-slate-700 mb-1">Notes</label>
+              <label className="block text-xs sm:text-sm font-medium text-slate-700 mb-1">Notes</label>
               <textarea
                 value={formData.notes}
                 onChange={(e) => handleFormChange('notes', e.target.value)}
-                rows={3}
-                placeholder="Add any additional notes (optional)"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 resize-none"
+                rows={2}
+                placeholder="Optional"
+                className="w-full px-3 sm:px-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 resize-none"
               />
             </div>
 
             {/* Line Items - Full width */}
             <div className="md:col-span-2">
-              <div className="flex items-center justify-between mb-2">
-                <label className="block text-sm font-medium text-slate-700">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-2">
+                <label className="block text-xs sm:text-sm font-medium text-slate-700">
                   <span className="flex items-center gap-2">
                     <List className="w-4 h-4" />
                     Line Items ({formData.items.length})
                   </span>
                 </label>
                 {formData.items.length > 0 && (
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm text-cyan-600 font-medium">
-                      Selected Total: {formatAmount(selectedItemsTotal, formData.currency)}
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="text-xs sm:text-sm text-cyan-600 font-medium">
+                      Total: {formatAmount(selectedItemsTotal, formData.currency)}
                     </span>
                     <button
                       type="button"
                       onClick={() => handleFormChange('total', selectedItemsTotal.toFixed(2))}
-                      className="px-2 py-1 text-xs bg-cyan-100 hover:bg-cyan-200 text-cyan-700 rounded transition-colors"
+                      className="px-2 py-1 text-xs bg-cyan-100 hover:bg-cyan-200 text-cyan-700 rounded transition-colors whitespace-nowrap"
                       title="Apply to Amount field"
                     >
-                      Apply to Amount
+                      Apply
                     </button>
                   </div>
                 )}
@@ -732,21 +732,21 @@ export default function ReceiptEditPage() {
             </div>
 
             {/* Action Buttons */}
-            <div className="md:col-span-2 flex flex-col sm:flex-row gap-3 pt-4">
+            <div className="md:col-span-2 flex flex-col sm:flex-row gap-2 sm:gap-3 pt-4">
               <button
                 onClick={handleSave}
                 disabled={saving || !formData.date || !formData.merchant || !formData.total}
-                className="flex-1 bg-cyan-500 hover:bg-cyan-600 text-white px-6 py-3 rounded-lg font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                className="flex-1 bg-cyan-500 hover:bg-cyan-600 text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg text-sm sm:text-base font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
                 {saving ? (
                   <>
-                    <Loader2 className="w-5 h-5 animate-spin" />
+                    <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin" />
                     Saving...
                   </>
                 ) : (
                   <>
-                    <Save className="w-5 h-5" />
-                    Save Changes
+                    <Save className="w-4 h-4 sm:w-5 sm:h-5" />
+                    Save
                   </>
                 )}
               </button>
@@ -754,7 +754,7 @@ export default function ReceiptEditPage() {
               <button
                 onClick={() => router.push('/receipts')}
                 disabled={saving}
-                className="flex-1 sm:flex-none border-2 border-slate-300 hover:border-slate-400 text-slate-700 px-6 py-3 rounded-lg font-semibold transition-colors disabled:opacity-50"
+                className="flex-1 sm:flex-none border-2 border-slate-300 hover:border-slate-400 text-slate-700 px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg text-sm sm:text-base font-semibold transition-colors disabled:opacity-50"
               >
                 Cancel
               </button>
@@ -762,9 +762,9 @@ export default function ReceiptEditPage() {
               <button
                 onClick={() => setShowDeleteConfirm(true)}
                 disabled={saving || deleting}
-                className="flex-1 sm:flex-none bg-red-50 hover:bg-red-100 text-red-600 px-6 py-3 rounded-lg font-semibold transition-colors disabled:opacity-50 flex items-center justify-center gap-2 border border-red-200"
+                className="flex-1 sm:flex-none bg-red-50 hover:bg-red-100 text-red-600 px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg text-sm sm:text-base font-semibold transition-colors disabled:opacity-50 flex items-center justify-center gap-2 border border-red-200"
               >
-                <Trash2 className="w-5 h-5" />
+                <Trash2 className="w-4 h-4 sm:w-5 sm:h-5" />
                 Delete
               </button>
             </div>

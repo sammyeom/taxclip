@@ -18,6 +18,14 @@ function SignUpForm() {
   const [error, setError] = useState<string | null>(null);
 
   const redirectTo = searchParams.get('redirect');
+  const initialEmail = searchParams.get('email');
+
+  // Set initial email from query param
+  useEffect(() => {
+    if (initialEmail) {
+      setEmail(initialEmail);
+    }
+  }, [initialEmail]);
 
   // Redirect if already logged in
   useEffect(() => {

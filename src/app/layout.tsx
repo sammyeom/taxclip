@@ -34,6 +34,8 @@ export const metadata: Metadata = {
     "receipt management",
     "AI receipt scanner",
     "tax receipts",
+    "bookkeeping",
+    "accounting software",
   ],
   authors: [{ name: "TaxClip" }],
   creator: "TaxClip",

@@ -30,6 +30,7 @@ export default function Home() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [demoModalOpen, setDemoModalOpen] = useState(false);
   const [checkoutLoading, setCheckoutLoading] = useState<'monthly' | 'yearly' | null>(null);
+  const [ctaEmail, setCtaEmail] = useState('');
 
   const router = useRouter();
   const { user } = useAuth();
@@ -559,11 +560,13 @@ export default function Home() {
                 quote: "I used to spend an entire weekend on receipts. With TaxClip I'm done in under an hour.",
                 name: 'Alex',
                 role: 'SaaS Founder',
+                avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face',
               },
               {
                 quote: 'My clients finally send me data I can import, not blurry photos.',
                 name: 'Mia',
                 role: 'Accountant',
+                avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop&crop=face',
               },
             ].map((testimonial, i) => (
               <motion.div
@@ -574,14 +577,19 @@ export default function Home() {
                 transition={{ duration: 0.6, delay: i * 0.1 }}
                 className="bg-gradient-to-br from-cyan-50 to-sky-50 rounded-xl border border-cyan-100 p-8"
               >
-                <div className="text-4xl text-cyan-600 mb-4">"</div>
+                <div className="flex items-center justify-between mb-4">
+                  <div className="text-4xl text-cyan-600">"</div>
+                  <div className="text-yellow-400 text-lg">⭐⭐⭐⭐⭐</div>
+                </div>
                 <p className="text-slate-700 mb-6 leading-relaxed text-lg">
                   {testimonial.quote}
                 </p>
                 <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-full gradient-btn flex items-center justify-center text-white font-bold text-lg shadow-md">
-                    {testimonial.name[0]}
-                  </div>
+                  <img
+                    src={testimonial.avatar}
+                    alt={testimonial.name}
+                    className="w-12 h-12 rounded-full object-cover shadow-md"
+                  />
                   <div>
                     <div className="font-semibold text-slate-900">{testimonial.name}</div>
                     <div className="text-sm text-slate-600">{testimonial.role}</div>
@@ -866,24 +874,31 @@ export default function Home() {
             </p>
 
             {/* Email input form */}
-            <div className="max-w-md mx-auto mb-6">
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                router.push(`/sign-up${ctaEmail ? `?email=${encodeURIComponent(ctaEmail)}` : ''}`);
+              }}
+              className="max-w-md mx-auto mb-6"
+            >
               <div className="flex flex-col sm:flex-row gap-3">
                 <input
                   type="email"
                   placeholder="Enter your email"
+                  value={ctaEmail}
+                  onChange={(e) => setCtaEmail(e.target.value)}
                   className="flex-1 px-6 py-4 rounded-lg text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-white"
                 />
-                <Link href="/sign-up">
-                  <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    className="bg-white text-cyan-600 hover:bg-slate-50 px-8 py-4 rounded-lg font-semibold text-lg shadow-xl transition-colors whitespace-nowrap"
-                  >
-                    Get started free
-                  </motion.button>
-                </Link>
+                <motion.button
+                  type="submit"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="bg-white text-cyan-600 hover:bg-slate-50 px-8 py-4 rounded-lg font-semibold text-lg shadow-xl transition-colors whitespace-nowrap"
+                >
+                  Get started free
+                </motion.button>
               </div>
-            </div>
+            </form>
 
             <p className="text-blue-100 text-sm">
               Free forever • No credit card required

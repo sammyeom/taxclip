@@ -58,6 +58,6 @@ export async function GET(request: Request) {
     }
   }
 
-  // Redirect to dashboard after successful authentication
-  return NextResponse.redirect(new URL('/dashboard', requestUrl.origin));
+  // Redirect to upload after successful authentication
+  return NextResponse.redirect(new URL('/upload', requestUrl.origin));
 }

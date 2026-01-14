@@ -16,7 +16,8 @@ import {
   X,
   Sparkles,
   FileText,
-  Loader2
+  Loader2,
+  Upload,
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
@@ -82,12 +83,10 @@ export default function Home() {
               <a href="#pricing" className="text-slate-600 hover:text-slate-900 transition-colors">
                 Pricing
               </a>
-              <Link href="/upload" className="text-slate-600 hover:text-slate-900 transition-colors">
-                Upload
-              </Link>
               <SignInButton />
-              <Link href="/sign-up" className="gradient-btn text-white px-6 py-2 rounded-lg font-semibold shadow-md">
-                Start free
+              <Link href="/upload" className="gradient-btn text-white px-6 py-2 rounded-lg font-semibold shadow-md flex items-center gap-2">
+                <Upload className="w-4 h-4" />
+                Upload Receipt
               </Link>
             </div>
 
@@ -118,12 +117,10 @@ export default function Home() {
                 <a href="#pricing" className="text-slate-600 hover:text-slate-900 transition-colors">
                   Pricing
                 </a>
-                <Link href="/upload" className="text-slate-600 hover:text-slate-900 transition-colors">
-                  Upload
-                </Link>
                 <SignInButton />
-                <Link href="/sign-up" className="gradient-btn text-white px-6 py-2 rounded-lg font-semibold shadow-md">
-                  Start free
+                <Link href="/upload" className="gradient-btn text-white px-6 py-2 rounded-lg font-semibold shadow-md flex items-center gap-2 justify-center">
+                  <Upload className="w-4 h-4" />
+                  Upload Receipt
                 </Link>
               </div>
             </motion.div>
@@ -798,7 +795,61 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 11. FINAL CTA */}
+      {/* 11. FAQ SECTION */}
+      <section className="py-20 sm:py-32 bg-white">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="text-center mb-16"
+          >
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-slate-900 mb-6">
+              Frequently Asked Questions
+            </h2>
+          </motion.div>
+
+          <div className="space-y-6">
+            {[
+              {
+                q: 'What format do you export?',
+                a: `We export accounting-ready CSV files that include: Date, Vendor/Merchant name, Amount, Category (Meals, Transport, Software, etc.), Business Purpose, Payment Method, and Receipt Image URL. Compatible with QuickBooks (Online & Desktop), Xero, Wave, FreshBooks, Excel & Google Sheets, and any accounting software that accepts CSV.`,
+              },
+              {
+                q: 'Is my data secure?',
+                a: 'Yes. All data is encrypted in transit (TLS 1.3) and at rest (AES-256). We use Supabase with row-level security, ensuring you can only access your own data. We never sell your information.',
+              },
+              {
+                q: 'Can I try it for free?',
+                a: 'Absolutely! Our Free plan includes 15 receipt scans per month with full AI categorization and CSV export. No credit card required.',
+              },
+              {
+                q: 'What types of receipts can I upload?',
+                a: 'TaxClip works with photos, PDFs, screenshots, email receipts, and invoices. Our AI extracts data from virtually any proof of payment.',
+              },
+              {
+                q: 'Do you file taxes for me?',
+                a: 'No. TaxClip helps you organize and export your receipts for bookkeeping and tax preparation. For tax filing, please work with a qualified accountant or tax professional.',
+              },
+            ].map((item, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 10 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.4, delay: i * 0.1 }}
+                className="bg-slate-50 rounded-xl p-6 border border-slate-200"
+              >
+                <h3 className="text-lg font-semibold text-slate-900 mb-3">{item.q}</h3>
+                <p className="text-slate-600 leading-relaxed">{item.a}</p>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* 12. FINAL CTA */}
       <section className="py-20 sm:py-32 bg-gradient-to-br from-cyan-500 to-sky-600 text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <motion.div

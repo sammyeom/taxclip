@@ -383,6 +383,29 @@ export default function DashboardPage() {
           />
         </div>
 
+        {/* Upload CTA */}
+        <div className="mb-8">
+          <Link href="/upload">
+            <div className="bg-gradient-to-r from-cyan-500 to-sky-500 rounded-xl p-6 sm:p-8 text-white hover:from-cyan-600 hover:to-sky-600 transition-all cursor-pointer shadow-lg hover:shadow-xl">
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div className="flex items-center gap-4">
+                  <div className="p-3 bg-white/20 rounded-xl">
+                    <Upload className="w-8 h-8" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl sm:text-2xl font-bold">Upload New Receipt</h3>
+                    <p className="text-cyan-100 text-sm sm:text-base">Snap, scan, and organize in seconds with AI</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 bg-white text-cyan-600 px-6 py-3 rounded-lg font-semibold hover:bg-cyan-50 transition-colors">
+                  <Upload className="w-5 h-5" />
+                  Upload Now
+                </div>
+              </div>
+            </div>
+          </Link>
+        </div>
+
         {/* Two-column layout */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
           {/* Left Column */}

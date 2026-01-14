@@ -62,20 +62,11 @@ export const metadata: Metadata = {
     title: "TaxClip - AI Receipt Scanner for Freelancers",
     description:
       "Snap, scan, organize receipts in seconds. AI-powered OCR + QuickBooks export.",
-    images: [
-      {
-        url: "https://taxclip.co/og-image.jpg",
-        width: 1200,
-        height: 630,
-        alt: "TaxClip - Receipt Scanner",
-      },
-    ],
   },
   twitter: {
     card: "summary_large_image",
     title: "TaxClip - AI Receipt Scanner",
     description: "Snap, scan, organize receipts in seconds with AI.",
-    images: ["https://taxclip.co/og-image.jpg"],
   },
 };
 

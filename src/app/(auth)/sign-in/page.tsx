@@ -24,7 +24,7 @@ function SignInForm() {
       if (redirectTo === 'checkout') {
         router.push('/#pricing');
       } else {
-        router.push('/dashboard');
+        router.push('/upload');
       }
     }
   }, [user, authLoading, router, redirectTo]);
@@ -45,7 +45,7 @@ function SignInForm() {
     if (redirectTo === 'checkout') {
       router.push('/#pricing');
     } else {
-      router.push('/dashboard');
+      router.push('/upload');
     }
   };
 

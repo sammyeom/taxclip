@@ -13,7 +13,7 @@ import {
   Hash,
 } from 'lucide-react';
 import { Receipt } from '@/types/database';
-import { generateIRSReadyCSV, downloadCSV, ExportOptions } from '@/lib/export';
+import { generateBusinessReceiptCSV, downloadCSV, ExportOptions } from '@/lib/export';
 import { generateAuditPDF, downloadPDF } from '@/lib/pdf-export';
 
 interface TaxExportModalProps {
@@ -66,7 +66,7 @@ export default function TaxExportModal({
     setError(null);
 
     try {
-      const csvContent = generateIRSReadyCSV(receipts, getExportOptions());
+      const csvContent = generateBusinessReceiptCSV(receipts, getExportOptions());
       downloadCSV(csvContent, taxYear);
       setCsvStatus('success');
 

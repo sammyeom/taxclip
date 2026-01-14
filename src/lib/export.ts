@@ -148,7 +148,7 @@ export interface ExportOptions {
  * Format: Date, Vendor, Amount, Category (IRS), Schedule C Line, Business Purpose, Payment Method, Receipt URL
  * Includes UTF-8 BOM for Excel compatibility
  */
-export function generateIRSReadyCSV(
+export function generateBusinessReceiptCSV(
   receipts: Receipt[],
   options: ExportOptions
 ): string {

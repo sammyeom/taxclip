@@ -3,7 +3,7 @@
 import { useState, useCallback } from 'react';
 import { Download, FileText, Loader2, CheckCircle, AlertCircle } from 'lucide-react';
 import { Receipt } from '@/types/database';
-import { generateIRSReadyCSV, downloadCSV, ExportOptions } from '@/lib/export';
+import { generateBusinessReceiptCSV, downloadCSV, ExportOptions } from '@/lib/export';
 import { generateAuditPDF, downloadPDF } from '@/lib/pdf-export';
 
 interface ExportPanelProps {
@@ -43,7 +43,7 @@ export default function ExportPanel({
     setError(null);
 
     try {
-      const csvContent = generateIRSReadyCSV(receipts, getExportOptions());
+      const csvContent = generateBusinessReceiptCSV(receipts, getExportOptions());
       downloadCSV(csvContent, taxYear);
       setCsvStatus('success');
 

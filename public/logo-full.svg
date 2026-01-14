@@ -1,14 +1,11 @@
-<svg width="160" height="48" viewBox="0 0 160 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <!-- Rounded square background -->
-  <rect width="48" height="48" rx="8" fill="#06B6D4"/>
-  <!-- Receipt icon from lucide-react (scaled and centered) -->
-  <g transform="translate(12, 12) scale(1)">
+<svg width="640" height="192" viewBox="0 0 640 192" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="192" height="192" rx="32" fill="#06B6D4"/>
+  <g transform="translate(48, 48) scale(4)">
     <path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
     <path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
     <path d="M12 17.5v-11" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
   </g>
-  <!-- TaxClip text -->
-  <text x="56" y="32" font-family="system-ui, -apple-system, sans-serif" font-size="24" font-weight="700">
+  <text x="224" y="128" font-family="system-ui, -apple-system, sans-serif" font-size="96" font-weight="700">
     <tspan fill="#0F172A">Tax</tspan><tspan fill="#06B6D4">Clip</tspan>
   </text>
 </svg>

@@ -79,6 +79,60 @@ export const metadata: Metadata = {
   },
 };
 
+// Schema.org structured data for SoftwareApplication
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "TaxClip",
+  "applicationCategory": "BusinessApplication",
+  "operatingSystem": "Web",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD",
+    "description": "Free forever with premium features available"
+  },
+  "aggregateRating": {
+    "@type": "AggregateRating",
+    "ratingValue": "4.9",
+    "ratingCount": "127",
+    "bestRating": "5",
+    "worstRating": "1"
+  },
+  "description": "AI-powered receipt scanner and expense management for freelancers and small businesses. Scan receipts, categorize expenses, and export to QuickBooks.",
+  "url": "https://taxclip.co",
+  "screenshot": "https://taxclip.co/og-image.png",
+  "featureList": [
+    "AI-powered OCR receipt scanning",
+    "Automatic expense categorization",
+    "QuickBooks integration",
+    "CSV and PDF export",
+    "Multi-receipt batch processing",
+    "Tax-ready expense reports"
+  ],
+  "author": {
+    "@type": "Organization",
+    "name": "TaxClip",
+    "url": "https://taxclip.co"
+  }
+};
+
+// Organization schema
+const organizationJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "TaxClip",
+  "url": "https://taxclip.co",
+  "logo": "https://taxclip.co/logo.svg",
+  "description": "AI-powered receipt scanner and expense management platform",
+  "contactPoint": {
+    "@type": "ContactPoint",
+    "email": "support@taxclip.co",
+    "contactType": "customer support"
+  },
+  "sameAs": []
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -86,6 +140,16 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
+        />
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >

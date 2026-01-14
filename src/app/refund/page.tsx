@@ -37,7 +37,7 @@ export default function RefundPolicyPage() {
           {/* Intro */}
           <div className="mb-10">
             <p className="text-slate-600 leading-relaxed">
-              At TaxClip, we strive to provide a valuable service to help you manage your receipts and expenses efficiently. We want you to be completely satisfied with your purchase. Please read our refund policy carefully before making a purchase.
+              At TaxClip, we want you to be satisfied with our service. Since we provide a digital SaaS product, our refund policy is designed to be fair to both our users and our business.
             </p>
           </div>
 
@@ -45,84 +45,68 @@ export default function RefundPolicyPage() {
           <div className="space-y-10">
             {/* Section 1 */}
             <section>
-              <h2 className="text-xl font-bold text-slate-900 mb-4">1. Free Trial</h2>
-              <p className="text-slate-600 mb-4">
-                TaxClip offers a free tier that allows you to try our service before committing to a paid subscription. We encourage all users to fully explore our free features to ensure TaxClip meets your needs before upgrading to a paid plan.
+              <h2 className="text-xl font-bold text-slate-900 mb-4">1. Subscription Cancellations</h2>
+              <p className="text-slate-600">
+                You can cancel your subscription at any time through your account settings. Upon cancellation, you will continue to have access to the paid features until the end of your current billing cycle. No further charges will be made after cancellation.
               </p>
             </section>
 
             {/* Section 2 */}
             <section>
-              <h2 className="text-xl font-bold text-slate-900 mb-4">2. Subscription Refunds</h2>
-              <div className="bg-cyan-50 border border-cyan-200 rounded-lg p-4 mb-4">
-                <p className="text-cyan-800 font-medium">
-                  We offer a 7-day money-back guarantee for all new paid subscriptions.
-                </p>
+              <h2 className="text-xl font-bold text-slate-900 mb-4">2. Refund Eligibility</h2>
+
+              <div className="space-y-4">
+                <div className="bg-cyan-50 border border-cyan-200 rounded-lg p-4">
+                  <p className="text-cyan-800 font-medium mb-2">14-Day Money-Back Guarantee</p>
+                  <p className="text-cyan-700">
+                    If you are a new subscriber and are not satisfied with TaxClip, you may request a full refund within 14 days of your initial purchase.
+                  </p>
+                </div>
+
+                <div>
+                  <p className="text-slate-600 mb-2">
+                    <span className="font-medium text-slate-900">Technical Issues:</span> If you experience a technical error that prevents you from using the core features of TaxClip (and our support team is unable to resolve it), you may be eligible for a refund.
+                  </p>
+                </div>
+
+                <div>
+                  <p className="text-slate-600">
+                    <span className="font-medium text-slate-900">Duplicate Charges:</span> In the event of a billing error or duplicate charge, we will issue a full refund for the erroneous transaction.
+                  </p>
+                </div>
               </div>
-              <p className="text-slate-600 mb-4">
-                If you are not satisfied with your paid subscription, you may request a full refund within 7 days of your initial purchase. After the 7-day period, subscription fees are non-refundable.
-              </p>
-              <p className="text-slate-600 mb-3">To be eligible for a refund:</p>
-              <ul className="list-disc list-inside text-slate-600 space-y-2 ml-4">
-                <li>The refund request must be made within 7 days of the initial subscription purchase,</li>
-                <li>This is your first paid subscription with TaxClip,</li>
-                <li>You have not previously received a refund from TaxClip.</li>
-              </ul>
             </section>
 
             {/* Section 3 */}
             <section>
-              <h2 className="text-xl font-bold text-slate-900 mb-4">3. Renewal Refunds</h2>
-              <p className="text-slate-600 mb-4">
-                Subscription renewals (monthly or annual) are not eligible for refunds. If you do not wish to continue your subscription, please cancel before the renewal date to avoid being charged.
-              </p>
-              <p className="text-slate-600">
-                You can cancel your subscription at any time from your account settings. Your access will continue until the end of your current billing period.
-              </p>
+              <h2 className="text-xl font-bold text-slate-900 mb-4">3. Non-Refundable Circumstances</h2>
+              <p className="text-slate-600 mb-3">Refunds will generally not be provided in the following cases:</p>
+              <ul className="list-disc list-inside text-slate-600 space-y-2 ml-4">
+                <li>Requests made after the 14-day window.</li>
+                <li>Partial months of service (no pro-rated refunds for mid-month cancellations).</li>
+                <li>If you simply no longer need the service but forgot to cancel before the renewal date.</li>
+                <li>Accounts that have been suspended or terminated due to a violation of our Terms of Service.</li>
+              </ul>
             </section>
 
             {/* Section 4 */}
             <section>
               <h2 className="text-xl font-bold text-slate-900 mb-4">4. How to Request a Refund</h2>
-              <p className="text-slate-600 mb-3">To request a refund, please:</p>
-              <ol className="list-decimal list-inside text-slate-600 space-y-2 ml-4">
-                <li>Email us at <span className="text-cyan-600 font-medium">support@taxclip.co</span></li>
-                <li>Include your account email address and the reason for your refund request</li>
-                <li>We will process your request within 5-7 business days</li>
-              </ol>
-              <p className="text-slate-600 mt-4">
-                Refunds will be credited to the original payment method used for the purchase.
+              <p className="text-slate-600 mb-3">
+                To request a refund, please email us at <span className="text-cyan-600 font-medium">support@taxclip.co</span> with the following information:
               </p>
+              <ul className="list-disc list-inside text-slate-600 space-y-2 ml-4">
+                <li>Your account email address</li>
+                <li>The date of the transaction</li>
+                <li>The reason for your refund request</li>
+              </ul>
             </section>
 
             {/* Section 5 */}
             <section>
-              <h2 className="text-xl font-bold text-slate-900 mb-4">5. Exceptions</h2>
-              <p className="text-slate-600 mb-3">Refunds may not be granted in the following circumstances:</p>
-              <ul className="list-disc list-inside text-slate-600 space-y-2 ml-4">
-                <li>Violation of our Terms of Service,</li>
-                <li>Fraudulent or abusive use of the refund policy,</li>
-                <li>Requests made after the 7-day refund period,</li>
-                <li>Subscription renewals (monthly or annual).</li>
-              </ul>
-            </section>
-
-            {/* Section 6 */}
-            <section>
-              <h2 className="text-xl font-bold text-slate-900 mb-4">6. Changes to This Policy</h2>
+              <h2 className="text-xl font-bold text-slate-900 mb-4">5. Processing Refunds</h2>
               <p className="text-slate-600">
-                We reserve the right to modify this refund policy at any time. Changes will be effective immediately upon posting to this page. Your continued use of the Service after any changes indicates your acceptance of the updated policy.
-              </p>
-            </section>
-
-            {/* Section 7 */}
-            <section>
-              <h2 className="text-xl font-bold text-slate-900 mb-4">7. Contact Us</h2>
-              <p className="text-slate-600">
-                If you have any questions about our refund policy, please contact us at:
-              </p>
-              <p className="text-cyan-600 font-medium mt-2">
-                support@taxclip.co
+                Once approved, refunds will be processed back to the original payment method used at the time of purchase. Please note that it may take 5-10 business days for the refund to appear on your bank or credit card statement.
               </p>
             </section>
           </div>

@@ -1,8 +1,10 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { supabase } from '@/lib/supabase';
 import { useAuth } from './useAuth';
+
+// TODO: Enable subscription features when LemonSqueezy is approved
+const SUBSCRIPTIONS_ENABLED = false;
 
 export interface Subscription {
   id: string;
@@ -37,6 +39,15 @@ export function useSubscription() {
       return;
     }
 
+    // Subscriptions disabled - give everyone free access
+    if (!SUBSCRIPTIONS_ENABLED) {
+      setSubscription(null);
+      setLoading(false);
+      return;
+    }
+
+    // TODO: Uncomment when LemonSqueezy is approved
+    /*
     try {
       setLoading(true);
       setError(null);
@@ -48,7 +59,6 @@ export function useSubscription() {
         .single();
 
       if (fetchError && fetchError.code !== 'PGRST116') {
-        // PGRST116 = no rows found, which is okay
         throw fetchError;
       }
 
@@ -60,6 +70,8 @@ export function useSubscription() {
     } finally {
       setLoading(false);
     }
+    */
+    setLoading(false);
   }, [user]);
 
   // Initial fetch
@@ -67,11 +79,9 @@ export function useSubscription() {
     fetchSubscription();
   }, [fetchSubscription]);
 
-  // Check if user has an active subscription
-  const isActive = subscription?.status === 'active';
-
-  // Check if user is on a paid plan
-  const isPro = isActive && (subscription?.plan_type === 'pro' || subscription?.plan_type === 'annual');
+  // When subscriptions are disabled, give everyone Pro access
+  const isActive = SUBSCRIPTIONS_ENABLED ? subscription?.status === 'active' : true;
+  const isPro = SUBSCRIPTIONS_ENABLED ? (isActive && (subscription?.plan_type === 'pro' || subscription?.plan_type === 'annual')) : true;
 
   // Check if subscription is cancelled but still active until period end
   const isCancelled = subscription?.status === 'cancelled' && subscription?.ends_at;
@@ -88,11 +98,18 @@ export function useSubscription() {
 
   // Create checkout session
   const createCheckout = async (plan: 'monthly' | 'yearly'): Promise<string | null> => {
+    if (!SUBSCRIPTIONS_ENABLED) {
+      console.log('Subscriptions are currently disabled');
+      return null;
+    }
+
     if (!user) {
       setError('Please sign in to subscribe');
       return null;
     }
 
+    // TODO: Uncomment when LemonSqueezy is approved
+    /*
     try {
       const { data: { session } } = await supabase.auth.getSession();
 
@@ -122,6 +139,8 @@ export function useSubscription() {
       setError(err instanceof Error ? err.message : 'Failed to create checkout');
       return null;
     }
+    */
+    return null;
   };
 
   // Open customer portal

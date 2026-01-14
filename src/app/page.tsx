@@ -871,7 +871,6 @@ export default function Home() {
               <nav className="flex flex-col gap-3 text-sm">
                 <a href="#features" className="hover:text-white transition-colors">Features</a>
                 <a href="#pricing" className="hover:text-white transition-colors">Pricing</a>
-                <a href="#" className="hover:text-white transition-colors">Integrations</a>
               </nav>
             </div>
 
@@ -879,9 +878,7 @@ export default function Home() {
             <div>
               <h4 className="text-white font-semibold mb-4">Company</h4>
               <nav className="flex flex-col gap-3 text-sm">
-                <a href="#" className="hover:text-white transition-colors">About</a>
-                <a href="#" className="hover:text-white transition-colors">Blog</a>
-                <a href="#" className="hover:text-white transition-colors">Contact</a>
+                <a href="/contact" className="hover:text-white transition-colors">Contact</a>
               </nav>
             </div>
 

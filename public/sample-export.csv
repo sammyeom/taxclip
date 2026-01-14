@@ -1,0 +1,11 @@
+Date,Vendor,Category,Amount,Tax,Total,Payment Method,Notes
+2024-01-15,Office Depot,Office Supplies,45.99,3.68,49.67,Credit Card,Printer paper and pens
+2024-01-18,Starbucks,Meals & Entertainment,12.50,1.00,13.50,Debit Card,Client meeting
+2024-01-22,Shell Gas Station,Transportation,58.00,4.64,62.64,Credit Card,Business travel fuel
+2024-01-25,Adobe Creative Cloud,Software & Subscriptions,54.99,4.40,59.39,Credit Card,Monthly subscription
+2024-02-01,Amazon Web Services,Software & Subscriptions,127.43,10.19,137.62,Credit Card,Cloud hosting
+2024-02-05,Uber,Transportation,24.75,1.98,26.73,Credit Card,Airport pickup for client
+2024-02-08,Home Depot,Equipment,189.99,15.20,205.19,Credit Card,Standing desk
+2024-02-12,Zoom,Software & Subscriptions,15.99,1.28,17.27,Credit Card,Video conferencing
+2024-02-15,FedEx,Shipping,32.50,2.60,35.10,Credit Card,Client document delivery
+2024-02-20,Costco,Office Supplies,156.78,12.54,169.32,Credit Card,Bulk supplies

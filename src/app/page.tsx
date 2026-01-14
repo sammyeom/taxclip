@@ -148,12 +148,13 @@ export default function Home() {
 
                 {/* Main headline */}
                 <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-slate-900 mb-6 leading-tight">
-                  Stop Overpaying Taxes from Receipts, Save Thousands
+                  Never Lose a Receipt Again
                 </h1>
 
                 {/* Subheadline */}
                 <p className="text-lg sm:text-xl text-slate-600 mb-8 leading-relaxed">
-                  Snap a photo, and AI automatically extracts, categorizes, and prepares your receipts for export to QuickBooks and other tools. Works with receipts, invoices, screenshots, and any proof of payment.
+                  Snap, scan, and organize business receipts in seconds.<br />
+                  AI-powered OCR extracts data automatically.
                 </p>
 
                 {/* CTA Buttons */}
@@ -164,7 +165,7 @@ export default function Home() {
                       whileTap={{ scale: 0.95 }}
                       className="gradient-btn text-white px-8 py-4 rounded-lg font-semibold text-lg shadow-lg w-full"
                     >
-                      Start for free
+                      Get Started Free
                     </motion.button>
                   </Link>
                   <motion.button
@@ -173,14 +174,25 @@ export default function Home() {
                     onClick={() => setDemoModalOpen(true)}
                     className="border-2 border-cyan-400 hover:border-cyan-500 text-cyan-700 hover:bg-cyan-50 px-8 py-4 rounded-lg font-semibold text-lg transition-colors"
                   >
-                    Watch demo
+                    Watch Demo
                   </motion.button>
                 </div>
 
-                {/* Small text */}
-                <p className="text-sm text-slate-500">
-                  No credit card required • Free forever
-                </p>
+                {/* Checklist */}
+                <div className="flex flex-col sm:flex-row gap-4 text-sm text-slate-600">
+                  <span className="flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-green-500" />
+                    No credit card required
+                  </span>
+                  <span className="flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-green-500" />
+                    Free forever for individuals
+                  </span>
+                  <span className="flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-green-500" />
+                    Export to QuickBooks & Excel
+                  </span>
+                </div>
               </motion.div>
             </div>
 
@@ -279,19 +291,16 @@ export default function Home() {
             className="text-center mb-16"
           >
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-slate-900 mb-6">
-              Tax Season Shouldn't Take Late Nights
+              Manual Receipt Tracking is Broken
             </h2>
-            <p className="text-xl text-slate-600 max-w-3xl mx-auto">
-              Manual receipt tracking is broken. Here's why:
-            </p>
           </motion.div>
 
           <div className="grid md:grid-cols-2 gap-6">
             {[
-              { icon: '📄', title: 'Receipts pile up in wallets and inboxes', desc: 'Paper fades, emails get buried, and digital clutter becomes overwhelming' },
-              { icon: '⏰', title: 'You waste hours typing data into spreadsheets', desc: 'Manual data entry is tedious, error-prone, and takes away from actual work' },
-              { icon: '😰', title: 'Tax season becomes a stressful scramble', desc: 'Last-minute searches through months of documents create unnecessary anxiety' },
-              { icon: '💸', title: 'Important expenses slip through the cracks', desc: 'Missing receipts mean thousands in unclaimed deductions and lost money' },
+              { icon: '📄', title: 'Paper fades, emails get buried', desc: 'Receipts disappear when you need them most' },
+              { icon: '⏰', title: 'Manual entry wastes hours', desc: 'Tedious data entry takes away from actual work' },
+              { icon: '🔍', title: 'Last-minute panic during month-end', desc: 'Searching through months of documents creates anxiety' },
+              { icon: '💸', title: 'Lost receipts = Lost reimbursements', desc: 'Missing documentation means money left on the table' },
             ].map((item, i) => (
               <motion.div
                 key={i}
@@ -310,7 +319,51 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 5. FEATURES SECTION */}
+      {/* 5. HOW IT WORKS */}
+      <section className="py-20 sm:py-32 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="text-center mb-16"
+          >
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-slate-900 mb-6">
+              Snap, Organize, Export — All in 3 Seconds
+            </h2>
+          </motion.div>
+
+          <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+            {[
+              { num: '1', title: 'Capture Any Receipt', desc: 'Upload photos, screenshots, or email receipts. AI OCR reads vendor, date, amount, and category instantly.' },
+              { num: '2', title: 'Smart Categorization', desc: 'AI learns your business patterns and suggests categories. Review and adjust with a simple click.' },
+              { num: '3', title: 'Export Anywhere', desc: 'Download CSV for QuickBooks, Excel, or email to your accountant. Clean, structured data — no manual entry needed.' },
+            ].map((step, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6, delay: i * 0.1 }}
+                className="text-center"
+              >
+                <div className="inline-flex items-center justify-center w-16 h-16 rounded-full gradient-btn text-white text-2xl font-bold mb-4 shadow-lg">
+                  {step.num}
+                </div>
+                <h3 className="text-xl font-semibold text-slate-900 mb-3">
+                  {step.title}
+                </h3>
+                <p className="text-slate-600">
+                  {step.desc}
+                </p>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* 6. FEATURES SECTION */}
       <section id="features" className="py-20 sm:py-32 bg-slate-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
@@ -321,34 +374,31 @@ export default function Home() {
             className="text-center mb-16"
           >
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-slate-900 mb-6">
-              Let AI Do the Boring Work
+              Built for Freelancers & Small Businesses
             </h2>
-            <p className="text-xl text-slate-600 max-w-3xl mx-auto">
-              Snap, categorize, export—all in 3 seconds.
-            </p>
           </motion.div>
 
           <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
             {[
               {emoji: '📸',
-                title: 'Instant Receipt Capture',
-                subtitle: 'Snap a photo, AI does the rest',
-                desc: 'Upload any receipt, invoice, or screenshot. Advanced AI OCR reads vendor, date, total, tax, and currency in seconds.',
+                title: 'Multi-Format Support',
+                subtitle: 'Drag and drop, snap, or forward emails',
+                desc: 'Works with receipts, invoices, screenshots, and email receipts. Upload any proof of payment and let AI handle the rest.',
               },
               {emoji: '🤖',
-                title: 'AI Smart Categorization',
-                subtitle: 'Intelligent AI learns your patterns',
-                desc: 'AI auto-categorizes expenses into meals, transport, software, and more. Learns from your adjustments to get smarter over time.',
-              },
-              {emoji: '📄',
-                title: 'IRS-Ready Reports',
-                subtitle: 'Schedule C automatically generated',
-                desc: 'Schedule C automatically generated from your receipts. Export to PDF, CSV, or share with your accountant instantly. No manual calculations needed.',
+                title: 'AI-Powered Extraction',
+                subtitle: '99% accuracy with continuous learning',
+                desc: 'OCR + AI reads vendor, date, amount, category, and notes automatically. Bank-level encryption keeps your data secure and private.',
               },
               {emoji: '📊',
-                title: 'Export to Your Tools',
-                subtitle: 'One-click export to accounting tools',
-                desc: 'Download clean CSVs or sync directly with QuickBooks. Your accountant gets structured data, not messy image files.',
+                title: 'Smart Categorization',
+                subtitle: 'AI learns your business patterns',
+                desc: 'Auto-categorize by meals, transport, software, supplies, and more. Learns from your adjustments to get smarter over time.',
+              },
+              {emoji: '💾',
+                title: 'Export to Accounting Tools',
+                subtitle: 'One-click export to QuickBooks & more',
+                desc: 'Download CSV for QuickBooks, Xero, Wave, FreshBooks, or Excel. Email clean reports directly to your accountant.',
               },
             ].map((feature, i) => (
               <motion.div
@@ -439,51 +489,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 7. HOW IT WORKS */}
-      <section className="py-20 sm:py-32 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="text-center mb-16"
-          >
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-slate-900 mb-6">
-              From Photo to Report in Under a Minute
-            </h2>
-          </motion.div>
-
-          <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-            {[
-              { num: '1', title: 'Upload a receipt', desc: 'Drag and drop, take a photo, or forward an email. Invoices and screenshots work too.' },
-              { num: '2', title: 'AI extracts and categorizes', desc: 'OCR + AI parsing reads all details and suggests smart categories.' },
-              { num: '3', title: 'Review and export', desc: 'Quick review table, then export to CSV or sync with accounting tools.' },
-            ].map((step, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: i * 0.1 }}
-                className="text-center"
-              >
-                <div className="inline-flex items-center justify-center w-16 h-16 rounded-full gradient-btn text-white text-2xl font-bold mb-4 shadow-lg">
-                  {step.num}
-                </div>
-                <h3 className="text-xl font-semibold text-slate-900 mb-3">
-                  {step.title}
-                </h3>
-                <p className="text-slate-600">
-                  {step.desc}
-                </p>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* 8. USE CASES */}
+      {/* 7. USE CASES */}
       <section className="py-20 sm:py-32 bg-slate-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
@@ -494,26 +500,26 @@ export default function Home() {
             className="text-center mb-16"
           >
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-slate-900 mb-6">
-              Built for Modern Finance Workflows
+              Perfect For:
             </h2>
           </motion.div>
 
           <div className="grid md:grid-cols-3 gap-8">
             {[
               {
-                icon: <Zap className="w-6 h-6" />,
-                title: 'Solo Founders & Indie Hackers',
-                desc: 'Keep SaaS, ads, and travel receipts organized without spreadsheets.',
+                emoji: '💼',
+                title: 'Freelancers & Contractors',
+                desc: 'Keep client expenses organized without spreadsheets. Group receipts by project and stay ready for invoicing.',
               },
               {
-                icon: <Users className="w-6 h-6" />,
-                title: 'Agencies & Freelancers',
-                desc: 'Group receipts by client or project and stay ready for invoicing.',
+                emoji: '🚀',
+                title: 'Small Business Owners',
+                desc: 'Track SaaS subscriptions, ads, and travel receipts. Never miss a deductible expense again.',
               },
               {
-                icon: <Shield className="w-6 h-6" />,
+                emoji: '📊',
                 title: 'Accountants & Bookkeepers',
-                desc: 'Receive clean, structured data instead of folders full of PDFs.',
+                desc: 'Receive clean, structured data instead of messy PDFs. Export-ready formats save hours of manual entry.',
               },
             ].map((useCase, i) => (
               <motion.div
@@ -524,8 +530,8 @@ export default function Home() {
                 transition={{ duration: 0.6, delay: i * 0.1 }}
                 className="bg-white rounded-xl shadow-md border-t-4 border-t-cyan-500 border-slate-100 p-8"
               >
-                <div className="inline-flex p-3 rounded-lg bg-gradient-to-br from-cyan-100 to-sky-100 text-cyan-600 mb-4">
-                  {useCase.icon}
+                <div className="text-4xl mb-4">
+                  {useCase.emoji}
                 </div>
                 <h3 className="text-xl font-semibold text-slate-900 mb-3">
                   {useCase.title}
@@ -605,7 +611,46 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 10. PRICING SECTION */}
+      {/* 10. EXPORT SECTION */}
+      <section className="py-20 sm:py-32 bg-white">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+          >
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-slate-900 mb-12">
+              Export to Your Favorite Tools
+            </h2>
+
+            <div className="grid sm:grid-cols-2 gap-4 max-w-lg mx-auto mb-10">
+              {[
+                'QuickBooks Online & Desktop',
+                'Excel & Google Sheets',
+                'Xero, Wave, FreshBooks',
+                'Email to Accountant (PDF + CSV)',
+              ].map((item, i) => (
+                <div key={i} className="flex items-center gap-3 text-left">
+                  <CheckCircle2 className="w-6 h-6 text-green-500 flex-shrink-0" />
+                  <span className="text-slate-700 font-medium">{item}</span>
+                </div>
+              ))}
+            </div>
+
+            <a
+              href="/sample-export.csv"
+              download
+              className="inline-flex items-center gap-2 border-2 border-cyan-500 text-cyan-600 hover:bg-cyan-50 px-6 py-3 rounded-lg font-semibold transition-colors"
+            >
+              <Download className="w-5 h-5" />
+              Download Sample CSV
+            </a>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* 11. PRICING SECTION */}
       <section id="pricing" className="py-20 sm:py-32 bg-slate-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
@@ -830,7 +875,7 @@ export default function Home() {
               },
               {
                 q: 'Can I try it for free?',
-                a: 'Absolutely! Our Free plan includes 15 receipt scans per month with full AI categorization and CSV export. No credit card required.',
+                a: 'Absolutely! Our Free plan includes 10 receipt scans per month with full AI categorization and CSV export. No credit card required.',
               },
               {
                 q: 'What types of receipts can I upload?',

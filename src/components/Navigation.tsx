@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import { signOut } from '@/lib/supabase';
@@ -85,7 +86,7 @@ export default function Navigation() {
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
             <Link href="/dashboard" className="flex items-center gap-2 flex-shrink-0">
-              <img src="/logo.svg" alt="TaxClip" width={40} height={40} />
+              <Image src="/logo.svg" alt="TaxClip" width={40} height={40} priority />
               <span className="text-xl font-bold"><span className="text-slate-900">Tax</span><span className="text-cyan-500">Clip</span></span>
             </Link>
 

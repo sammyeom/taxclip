@@ -38,6 +38,7 @@ import { EvidenceType, EvidenceItem, ParsedEmailData } from '@/types/evidence';
 import { parseEmailText, validateParsedEmail } from '@/lib/email-parser';
 import { parseEmlFile, isEmlFile, getImageAttachments, getPdfAttachments, attachmentToFile } from '@/lib/eml-parser';
 import { useReceiptStore } from '@/store';
+import { compressImage } from '@/lib/image-compression';
 
 // OCR item can be either a string (legacy) or an object with qty, unitPrice, amount
 interface OCRItem {
@@ -278,9 +279,16 @@ export default function UploadPage() {
         throw new Error('Not authenticated');
       }
 
+      // Compress image before uploading (if applicable)
+      const fileToUpload = await compressImage(file, {
+        maxSizeMB: 1,
+        maxWidthOrHeight: 1920,
+        useWebWorker: true,
+      });
+
       // Create form data
       const formDataToSend = new FormData();
-      formDataToSend.append('file', file);
+      formDataToSend.append('file', fileToUpload);
 
       // Simulate progress updates
       const progressInterval = setInterval(() => {

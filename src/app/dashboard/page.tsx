@@ -3,6 +3,7 @@
 import { useEffect, useState, useMemo, useCallback, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useAuth } from '@/hooks/useAuth';
 import { getReceipts, getReceiptStats, getReceiptsByYear } from '@/lib/supabase';
 import { Receipt } from '@/types/database';
@@ -27,11 +28,39 @@ import {
   SpendingTrendChart,
   CategoryPieChart,
   InsightSection,
+  ChartSkeleton,
+  InsightSkeleton,
   MonthlyData,
   MonthComparisonData,
   CategoryData,
   InsightData,
 } from '@/components/dashboard';
+import dynamic from 'next/dynamic';
+
+// Dynamic imports for heavy chart components (code splitting)
+const DynamicSpendingTrendChart = dynamic(
+  () => import('@/components/dashboard/SpendingTrendChart'),
+  {
+    loading: () => <ChartSkeleton height={300} />,
+    ssr: false,
+  }
+);
+
+const DynamicCategoryPieChart = dynamic(
+  () => import('@/components/dashboard/CategoryPieChart'),
+  {
+    loading: () => <ChartSkeleton height={300} />,
+    ssr: false,
+  }
+);
+
+const DynamicInsightSection = dynamic(
+  () => import('@/components/dashboard/InsightSection'),
+  {
+    loading: () => <InsightSkeleton />,
+    ssr: false,
+  }
+);
 
 // Constants
 const CATEGORIES: Record<string, string> = {
@@ -430,9 +459,15 @@ export default function DashboardPage() {
                   {recentReceipts.map((receipt) => (
                     <Link key={receipt.id} href={`/receipts/${receipt.id}`}>
                       <div className="flex items-center gap-3 p-2 rounded-lg hover:bg-slate-50 transition-colors border border-slate-100">
-                        <div className="w-10 h-10 bg-slate-200 rounded-lg flex-shrink-0 overflow-hidden flex items-center justify-center">
+                        <div className="w-10 h-10 bg-slate-200 rounded-lg flex-shrink-0 overflow-hidden flex items-center justify-center relative">
                           {receipt.image_url ? (
-                            <img src={receipt.image_url} alt="" className="w-full h-full object-cover" />
+                            <Image
+                              src={receipt.image_url}
+                              alt=""
+                              fill
+                              sizes="40px"
+                              className="object-cover"
+                            />
                           ) : (
                             <ReceiptIcon className="w-5 h-5 text-slate-400" />
                           )}
@@ -493,11 +528,17 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          {/* Right Column */}
+          {/* Right Column - Charts with Suspense for progressive loading */}
           <div className="space-y-6">
-            <SpendingTrendChart monthlyData={monthlyData} comparisonData={comparisonData} />
-            <CategoryPieChart data={categoryData} totalAmount={stats?.totalAmount || 0} />
-            <InsightSection data={insightData} />
+            <Suspense fallback={<ChartSkeleton height={300} />}>
+              <DynamicSpendingTrendChart monthlyData={monthlyData} comparisonData={comparisonData} />
+            </Suspense>
+            <Suspense fallback={<ChartSkeleton height={300} />}>
+              <DynamicCategoryPieChart data={categoryData} totalAmount={stats?.totalAmount || 0} />
+            </Suspense>
+            <Suspense fallback={<InsightSkeleton />}>
+              <DynamicInsightSection data={insightData} />
+            </Suspense>
           </div>
         </div>
       </main>

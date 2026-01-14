@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { ArrowLeft, Mail, MessageSquare, Clock, Send } from 'lucide-react';
 import { useState } from 'react';
 import { motion } from 'framer-motion';
@@ -61,7 +62,7 @@ export default function ContactPage() {
           {/* Title */}
           <div className="text-center mb-8 sm:mb-12">
             <div className="flex items-center justify-center gap-2 mb-4">
-              <img src="/logo.svg" alt="TaxClip" width={36} height={36} className="sm:w-10 sm:h-10" />
+              <Image src="/logo.svg" alt="TaxClip" width={40} height={40} priority className="w-9 h-9 sm:w-10 sm:h-10" />
               <span className="text-xl sm:text-2xl font-bold">
                 <span className="text-slate-900">Tax</span>
                 <span className="text-cyan-500">Clip</span>

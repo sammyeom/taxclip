@@ -3,6 +3,7 @@
 import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Mail, Lock, Loader2, AlertCircle } from 'lucide-react';
 import { signInWithEmail, signInWithGoogle } from '@/lib/supabase';
 import { useAuth } from '@/hooks/useAuth';
@@ -89,7 +90,7 @@ function SignInForm() {
         {/* Header */}
         <div className="text-center mb-8">
           <Link href="/" className="inline-flex items-center gap-2 mb-6">
-            <img src="/logo.svg" alt="TaxClip" width={48} height={48} />
+            <Image src="/logo.svg" alt="TaxClip" width={48} height={48} priority />
             <span className="text-2xl font-bold"><span className="text-slate-900">Tax</span><span className="text-cyan-500">Clip</span></span>
           </Link>
           <h1 className="text-3xl sm:text-4xl font-bold text-slate-900 mb-2">

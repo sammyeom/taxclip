@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { ArrowLeft, Shield, Lock, Server, Eye, Key, RefreshCw, AlertTriangle, CheckCircle2 } from 'lucide-react';
 
 export default function SecurityPage() {
@@ -22,7 +23,7 @@ export default function SecurityPage() {
           {/* Title */}
           <div className="text-center mb-12">
             <div className="flex items-center justify-center gap-2 mb-4">
-              <img src="/logo.svg" alt="TaxClip" width={40} height={40} />
+              <Image src="/logo.svg" alt="TaxClip" width={40} height={40} priority />
               <span className="text-2xl font-bold">
                 <span className="text-slate-900">Tax</span>
                 <span className="text-cyan-500">Clip</span>

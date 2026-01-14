@@ -1,6 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import Image from 'next/image';
 import {
   Camera,
   Tags,
@@ -72,7 +73,7 @@ export default function Home() {
           <div className="flex justify-between items-center h-16">
             {/* Logo */}
             <div className="flex items-center gap-2">
-              <img src="/logo.svg" alt="TaxClip" width={36} height={36} />
+              <Image src="/logo.svg" alt="TaxClip" width={36} height={36} priority />
               <span className="text-xl font-bold"><span className="text-slate-900">Tax</span><span className="text-cyan-500">Clip</span></span>
             </div>
 
@@ -591,10 +592,12 @@ export default function Home() {
                   {testimonial.quote}
                 </p>
                 <div className="flex items-center gap-3">
-                  <img
+                  <Image
                     src={testimonial.avatar}
                     alt={testimonial.name}
-                    className="w-12 h-12 rounded-full object-cover shadow-md"
+                    width={48}
+                    height={48}
+                    className="rounded-full object-cover shadow-md"
                   />
                   <div>
                     <div className="font-semibold text-slate-900">{testimonial.name}</div>
@@ -968,7 +971,7 @@ export default function Home() {
             {/* Brand */}
             <div>
               <div className="flex items-center gap-2 mb-4">
-                <img src="/logo.svg" alt="TaxClip" width={36} height={36} />
+                <Image src="/logo.svg" alt="TaxClip" width={36} height={36} />
                 <span className="text-xl font-bold"><span className="text-white">Tax</span><span className="text-cyan-500">Clip</span></span>
               </div>
               <p className="text-sm text-slate-400 italic">

@@ -164,11 +164,12 @@ function EvidenceTypeSelector({
         value={value}
         onChange={(e) => onChange(e.target.value as EvidenceType)}
         disabled={disabled}
-        className="appearance-none w-full pl-10 sm:pl-11 pr-8 sm:pr-9 py-2 text-[11px] sm:text-xs font-medium rounded-md border border-gray-200 bg-white focus:outline-none focus:ring-1 focus:ring-cyan-500 focus:border-cyan-500 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+        className="appearance-none w-full pr-8 sm:pr-9 py-2 text-[11px] sm:text-xs font-medium rounded-md border border-gray-200 bg-white focus:outline-none focus:ring-1 focus:ring-cyan-500 focus:border-cyan-500 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
         style={{
           color: EVIDENCE_TYPE_COLORS[value],
           WebkitAppearance: 'none',
           MozAppearance: 'none',
+          paddingLeft: '44px',
         }}
         onClick={(e) => e.stopPropagation()}
       >
@@ -178,10 +179,27 @@ function EvidenceTypeSelector({
           </option>
         ))}
       </select>
-      <div className="absolute left-3 sm:left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: EVIDENCE_TYPE_COLORS[value] }}>
+      <div
+        className="pointer-events-none"
+        style={{
+          position: 'absolute',
+          left: '12px',
+          top: '50%',
+          transform: 'translateY(-50%)',
+          color: EVIDENCE_TYPE_COLORS[value],
+        }}
+      >
         <EvidenceTypeIcon type={value} className="w-4 h-4" />
       </div>
-      <div className="absolute right-2.5 sm:right-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">
+      <div
+        className="pointer-events-none text-gray-400"
+        style={{
+          position: 'absolute',
+          right: '10px',
+          top: '50%',
+          transform: 'translateY(-50%)',
+        }}
+      >
         <ChevronDown className="w-3.5 h-3.5" />
       </div>
     </div>
@@ -253,20 +271,28 @@ function FilePreviewCard({
             isProcessing ? onCancel(id) : onRemove(id);
           }}
           className={`
-            absolute top-2 right-2
-            w-7 h-7 min-w-[28px] min-h-[28px] max-w-[28px] max-h-[28px]
-            aspect-square flex-shrink-0
+            absolute top-2 right-2 z-10 shadow-md
             flex items-center justify-center
-            rounded-full transition-colors z-10 shadow-md
+            rounded-[50%] transition-colors
             ${
               isProcessing
                 ? 'bg-red-500 hover:bg-red-600 text-white'
                 : 'bg-white hover:bg-slate-50 text-slate-700 hover:text-slate-900 border border-slate-300'
             }
           `}
+          style={{
+            width: '32px',
+            height: '32px',
+            minWidth: '32px',
+            minHeight: '32px',
+            maxWidth: '32px',
+            maxHeight: '32px',
+            aspectRatio: '1 / 1',
+            flexShrink: 0,
+          }}
           title={isProcessing ? 'Cancel' : 'Remove'}
         >
-          <X className="w-4 h-4 flex-shrink-0" />
+          <X className="w-4 h-4" style={{ flexShrink: 0 }} />
         </button>
 
         {/* Selection indicator */}

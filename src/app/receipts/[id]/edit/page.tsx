@@ -8,6 +8,7 @@ import { Receipt } from '@/types/database';
 import { IRS_SCHEDULE_C_CATEGORIES, LineItem, createLineItem } from '@/types/database';
 import Navigation from '@/components/Navigation';
 import { SplitView } from '@/components/receipts';
+import CategorySelector from '@/components/CategorySelector';
 import {
   ArrowLeft,
   Save,
@@ -93,6 +94,7 @@ export default function ReceiptEditPage() {
     merchant: '',
     total: '',
     category: 'other',
+    subcategory: '',
     currency: 'USD',
     business_purpose: '',
     payment_method: '',
@@ -238,6 +240,7 @@ export default function ReceiptEditPage() {
         merchant: data.merchant || '',
         total: data.total?.toString() || '',
         category: data.category || 'other',
+        subcategory: data.subcategory || '',
         currency: 'USD',
         business_purpose: data.business_purpose || '',
         payment_method: data.payment_method || '',
@@ -302,6 +305,7 @@ export default function ReceiptEditPage() {
         merchant: formData.merchant,
         total: totalAmount,
         category: formData.category,
+        subcategory: formData.subcategory || null,
         business_purpose: formData.business_purpose || null,
         payment_method: formData.payment_method || null,
         notes: formData.notes || null,
@@ -539,21 +543,15 @@ export default function ReceiptEditPage() {
             </div>
 
             {/* IRS Schedule C Category */}
-            <div>
-              <label className="block text-xs sm:text-sm font-medium text-slate-700 mb-1">
-                Category <span className="text-red-500">*</span>
-              </label>
-              <select
-                value={formData.category}
-                onChange={(e) => handleFormChange('category', e.target.value)}
-                className="w-full px-3 sm:px-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
-              >
-                {IRS_SCHEDULE_C_CATEGORIES.map((cat) => (
-                  <option key={cat.value} value={cat.value}>
-                    L{cat.line}: {cat.label}
-                  </option>
-                ))}
-              </select>
+            <div className="md:col-span-2">
+              <CategorySelector
+                category={formData.category}
+                subcategory={formData.subcategory}
+                onCategoryChange={(value) => handleFormChange('category', value)}
+                onSubcategoryChange={(value) => handleFormChange('subcategory', value)}
+                required
+                showSubcategory
+              />
             </div>
 
             {/* Business Purpose */}

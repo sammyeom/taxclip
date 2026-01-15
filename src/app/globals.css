@@ -178,19 +178,17 @@ html {
   input[type="number"],
   input[type="date"],
   input[type="tel"],
-  select,
   textarea {
     font-size: 16px !important; /* Prevents zoom on iOS */
-    padding: 12px 16px;
     /* Reset mobile browser default styles */
     -webkit-appearance: none;
     -moz-appearance: none;
     appearance: none;
   }
 
-  /* Ensure select arrows are controlled by custom CSS */
+  /* Select elements - preserve appearance-none from Tailwind */
   select {
-    background-image: none !important;
+    font-size: 16px !important; /* Prevents zoom on iOS */
   }
 
   label {

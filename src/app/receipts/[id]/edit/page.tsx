@@ -516,17 +516,24 @@ export default function ReceiptEditPage() {
                 Total <span className="text-red-500">*</span>
               </label>
               <div className="flex">
-                <select
-                  value={formData.currency}
-                  onChange={(e) => handleFormChange('currency', e.target.value)}
-                  className="px-2 sm:px-3 py-2 border border-r-0 border-gray-300 rounded-l-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-cyan-500 text-sm font-medium"
-                >
-                  {CURRENCY_OPTIONS.map((curr) => (
-                    <option key={curr.value} value={curr.value}>
-                      {curr.symbol}
-                    </option>
-                  ))}
-                </select>
+                <div className="relative">
+                  <select
+                    value={formData.currency}
+                    onChange={(e) => handleFormChange('currency', e.target.value)}
+                    className="appearance-none px-3 pr-7 py-2 border border-r-0 border-gray-300 rounded-l-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-cyan-500 text-sm font-medium min-h-[44px] sm:min-h-0"
+                  >
+                    {CURRENCY_OPTIONS.map((curr) => (
+                      <option key={curr.value} value={curr.value}>
+                        {curr.symbol}
+                      </option>
+                    ))}
+                  </select>
+                  <div className="pointer-events-none absolute inset-y-0 right-1 flex items-center">
+                    <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </div>
+                </div>
                 <input
                   type="text"
                   inputMode="decimal"
@@ -574,17 +581,24 @@ export default function ReceiptEditPage() {
               <label className="block text-xs sm:text-sm font-medium text-slate-700 mb-1">
                 Payment Method
               </label>
-              <select
-                value={formData.payment_method}
-                onChange={(e) => handleFormChange('payment_method', e.target.value)}
-                className="w-full px-3 sm:px-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
-              >
-                {PAYMENT_METHODS.map((method) => (
-                  <option key={method.value} value={method.value}>
-                    {method.label}
-                  </option>
-                ))}
-              </select>
+              <div className="relative">
+                <select
+                  value={formData.payment_method}
+                  onChange={(e) => handleFormChange('payment_method', e.target.value)}
+                  className="appearance-none w-full px-3 sm:px-4 pr-10 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 bg-white"
+                >
+                  {PAYMENT_METHODS.map((method) => (
+                    <option key={method.value} value={method.value}>
+                      {method.label}
+                    </option>
+                  ))}
+                </select>
+                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+                  <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </div>
+              </div>
             </div>
 
             {/* Notes - Full width */}

@@ -130,12 +130,12 @@ export default function CategorySelector({
             onClick={() => !disabled && setIsCategoryOpen(!isCategoryOpen)}
             disabled={disabled}
             className={`
-              w-full px-3 sm:px-4 py-2.5 text-sm text-left
+              w-full px-3 sm:px-4 py-2 text-sm text-left
               border border-gray-300 rounded-lg
               focus:outline-none focus:ring-2 focus:ring-cyan-500
               bg-white flex items-center justify-between
+              min-h-[44px] sm:min-h-0
               ${disabled ? 'bg-gray-100 cursor-not-allowed' : 'hover:border-gray-400'}
-              ${compact ? 'py-2' : 'py-2.5'}
             `}
           >
             <span className={currentCategory ? 'text-gray-900' : 'text-gray-500'}>
@@ -177,8 +177,9 @@ export default function CategorySelector({
                         type="button"
                         onClick={() => handleCategorySelect(key)}
                         className={`
-                          w-full px-3 py-2.5 text-left text-sm
+                          w-full px-3 py-3 text-left text-sm
                           hover:bg-cyan-50 transition-colors
+                          min-h-[44px]
                           ${isSelected ? 'bg-cyan-100 text-cyan-900' : 'text-gray-700'}
                           ${hasNote ? 'border-l-4 border-amber-400' : ''}
                         `}
@@ -240,12 +241,12 @@ export default function CategorySelector({
               onClick={() => !disabled && setIsSubcategoryOpen(!isSubcategoryOpen)}
               disabled={disabled}
               className={`
-                w-full px-3 sm:px-4 py-2.5 text-sm text-left
+                w-full px-3 sm:px-4 py-2 text-sm text-left
                 border border-gray-300 rounded-lg
                 focus:outline-none focus:ring-2 focus:ring-cyan-500
                 bg-white flex items-center justify-between
+                min-h-[44px] sm:min-h-0
                 ${disabled ? 'bg-gray-100 cursor-not-allowed' : 'hover:border-gray-400'}
-                ${compact ? 'py-2' : 'py-2.5'}
               `}
             >
               <span className={currentSubcategory ? 'text-gray-900' : 'text-gray-500'}>
@@ -284,8 +285,9 @@ export default function CategorySelector({
                       type="button"
                       onClick={() => handleSubcategorySelect(sub.key)}
                       className={`
-                        w-full px-3 py-2.5 text-left text-sm
+                        w-full px-3 py-3 text-left text-sm
                         hover:bg-cyan-50 transition-colors
+                        min-h-[44px]
                         ${isSelected ? 'bg-cyan-100 text-cyan-900' : 'text-gray-700'}
                       `}
                     >
@@ -342,21 +344,26 @@ export function SimpleCategorySelector({
       <label className="block text-xs sm:text-sm font-medium text-slate-700 mb-1">
         Category {required && <span className="text-red-500">*</span>}
       </label>
-      <select
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        disabled={disabled}
-        className="w-full px-3 sm:px-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
-      >
-        {CATEGORY_KEYS.map((key) => {
-          const cat = IRS_SCHEDULE_C_CATEGORIES[key];
-          return (
-            <option key={key} value={key}>
-              Line {cat.line} - {cat.label}
-            </option>
-          );
-        })}
-      </select>
+      <div className="relative">
+        <select
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          disabled={disabled}
+          className="appearance-none w-full px-3 sm:px-4 pr-10 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 bg-white"
+        >
+          {CATEGORY_KEYS.map((key) => {
+            const cat = IRS_SCHEDULE_C_CATEGORIES[key];
+            return (
+              <option key={key} value={key}>
+                Line {cat.line} - {cat.label}
+              </option>
+            );
+          })}
+        </select>
+        <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+          <ChevronDown className="w-4 h-4 text-gray-400" />
+        </div>
+      </div>
 
       {/* Category Note Banner */}
       {categoryNote && (

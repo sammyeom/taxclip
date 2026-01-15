@@ -16,6 +16,7 @@ import {
   CreditCard,
   Mail,
   Check,
+  Briefcase,
 } from 'lucide-react';
 import { LineItem } from '@/types/database';
 
@@ -27,6 +28,7 @@ export interface ExtractedData {
   items: LineItem[] | string[];
   category: string;
   paymentMethod?: string;
+  businessPurpose?: string;
 }
 
 // Currency symbol mapping
@@ -375,6 +377,19 @@ export default function SplitView({
                   </div>
                   <p className="text-sm font-semibold text-gray-900 capitalize">
                     {extractedData.paymentMethod}
+                  </p>
+                </div>
+              )}
+
+              {/* Business Purpose */}
+              {extractedData.businessPurpose && (
+                <div className="col-span-2 bg-gradient-to-r from-rose-50 to-pink-50 rounded-lg p-4 border border-rose-100">
+                  <div className="flex items-center gap-2 text-rose-600 mb-1">
+                    <Briefcase className="w-4 h-4" />
+                    <span className="text-xs font-medium uppercase tracking-wide">Business Purpose</span>
+                  </div>
+                  <p className="text-sm font-semibold text-gray-900">
+                    {extractedData.businessPurpose}
                   </p>
                 </div>
               )}

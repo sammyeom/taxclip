@@ -1352,6 +1352,7 @@ export default function UploadPage() {
                   items: extractedItems.filter((item) => item.selected),
                   category: formData.category,
                   paymentMethod: formData.paymentMethod,
+                  businessPurpose: formData.businessPurpose,
                 }}
               />
             )}
@@ -1444,7 +1445,7 @@ export default function UploadPage() {
                 {/* Business Purpose */}
                 <div>
                   <label className="block text-xs sm:text-sm font-medium text-slate-700 mb-1">
-                    Business Purpose
+                    Business Purpose <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="text"
@@ -1452,7 +1453,7 @@ export default function UploadPage() {
                     onChange={(e) =>
                       handleFormChange('businessPurpose', e.target.value)
                     }
-                    placeholder="Optional"
+                    placeholder="e.g., Client meeting, Office supplies, Travel expense"
                     className="w-full px-3 sm:px-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
                   />
                 </div>
@@ -1698,7 +1699,8 @@ export default function UploadPage() {
                       saving ||
                       !formData.date ||
                       !formData.merchant ||
-                      !formData.amount
+                      !formData.amount ||
+                      !formData.businessPurpose
                     }
                     className="w-full bg-cyan-500 hover:bg-cyan-600 text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg text-sm sm:text-base font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                   >

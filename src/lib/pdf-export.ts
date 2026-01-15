@@ -31,9 +31,9 @@ const PDF_CONFIG = {
   margin: 15,
   headerHeight: 50,
   footerHeight: 15,
-  imageMaxWidth: 80, // mm
-  imageMaxHeight: 60, // mm
-  receiptsPerPage: 3,
+  imageMaxWidth: 100, // mm (increased for better visibility)
+  imageMaxHeight: 80, // mm (increased for better visibility)
+  receiptsPerPage: 2, // Reduced from 3 to give more space for images
 };
 
 // Colors
@@ -321,6 +321,7 @@ async function addReceiptPages(
 
 /**
  * Add single receipt block with image and details
+ * Layout: Details on top, larger image below
  */
 async function addReceiptBlock(
   doc: jsPDF,
@@ -331,9 +332,10 @@ async function addReceiptBlock(
 ): Promise<void> {
   const { margin, pageWidth } = PDF_CONFIG;
   const contentWidth = pageWidth - margin * 2;
-  const imageAreaWidth = 85;
-  const detailsAreaWidth = contentWidth - imageAreaWidth - 5;
-  const detailsXPos = margin + imageAreaWidth + 5;
+
+  // New layout: details section (top) + image section (bottom)
+  const detailsHeight = 55; // Fixed height for details
+  const imageHeight = blockHeight - detailsHeight - 10; // Remaining space for image
 
   // Background for receipt block
   doc.setFillColor(250, 250, 250);
@@ -347,40 +349,10 @@ async function addReceiptBlock(
   doc.setFont('helvetica', 'bold');
   doc.text(index.toString(), margin + 8, yPos + 10, { align: 'center' });
 
-  // Receipt Image
-  if (receipt.image_url) {
-    try {
-      const base64 = await imageUrlToBase64(receipt.image_url);
-      if (base64) {
-        const compressed = await compressImageForPDF(base64, 400, 350, 0.85);
-
-        // Calculate image dimensions to fit in area
-        const maxImgWidth = imageAreaWidth - 10;
-        const maxImgHeight = blockHeight - 15;
-
-        doc.addImage(
-          compressed,
-          'JPEG',
-          margin + 5,
-          yPos + 15,
-          maxImgWidth,
-          maxImgHeight,
-          undefined,
-          'SLOW'
-        );
-      } else {
-        addNoImagePlaceholder(doc, margin + 5, yPos + 15, imageAreaWidth - 10, blockHeight - 15);
-      }
-    } catch (error) {
-      console.error('Error adding image to PDF:', error);
-      addNoImagePlaceholder(doc, margin + 5, yPos + 15, imageAreaWidth - 10, blockHeight - 15);
-    }
-  } else {
-    addNoImagePlaceholder(doc, margin + 5, yPos + 15, imageAreaWidth - 10, blockHeight - 15);
-  }
-
-  // Receipt Details
+  // Receipt Details (top section - full width)
   let detailY = yPos + 8;
+  const detailsXPos = margin + 18;
+  const detailsWidth = contentWidth - 20;
 
   // Vendor (Title)
   doc.setTextColor(...COLORS.text);
@@ -389,34 +361,97 @@ async function addReceiptBlock(
   doc.text(receipt.merchant || 'Unknown Vendor', detailsXPos, detailY);
   detailY += 8;
 
-  // Details table
-  const details = [
+  // Details in two columns for better space usage
+  const leftDetails = [
     { label: 'Date', value: formatDate(receipt.date) },
     { label: 'Amount', value: formatCurrency(receipt.total || 0) },
     { label: 'Category', value: `${getCategoryLabel(receipt.category || 'other')} (Line ${getScheduleCLine(receipt.category || 'other')})` },
-    { label: 'Business Purpose', value: receipt.business_purpose || '-' },
-    { label: 'Payment Method', value: receipt.payment_method || '-' },
+  ];
+
+  const rightDetails = [
+    { label: 'Payment', value: receipt.payment_method || '-' },
+    { label: 'Purpose', value: receipt.business_purpose || '-' },
   ];
 
   doc.setFontSize(9);
-  details.forEach((detail) => {
+
+  // Left column
+  let leftY = detailY;
+  leftDetails.forEach((detail) => {
     doc.setFont('helvetica', 'bold');
     doc.setTextColor(...COLORS.secondary);
-    doc.text(`${detail.label}:`, detailsXPos, detailY);
+    doc.text(`${detail.label}:`, detailsXPos, leftY);
 
     doc.setFont('helvetica', 'normal');
     doc.setTextColor(...COLORS.text);
 
-    // Truncate long values
     let value = detail.value;
-    const maxWidth = detailsAreaWidth - 35;
+    const maxWidth = detailsWidth / 2 - 40;
     while (doc.getTextWidth(value) > maxWidth && value.length > 3) {
       value = value.slice(0, -4) + '...';
     }
-    doc.text(value, detailsXPos + 35, detailY);
-
-    detailY += 6;
+    doc.text(value, detailsXPos + 28, leftY);
+    leftY += 6;
   });
+
+  // Right column
+  const rightXPos = margin + contentWidth / 2;
+  let rightY = detailY;
+  rightDetails.forEach((detail) => {
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(...COLORS.secondary);
+    doc.text(`${detail.label}:`, rightXPos, rightY);
+
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(...COLORS.text);
+
+    let value = detail.value;
+    const maxWidth = detailsWidth / 2 - 35;
+    while (doc.getTextWidth(value) > maxWidth && value.length > 3) {
+      value = value.slice(0, -4) + '...';
+    }
+    doc.text(value, rightXPos + 25, rightY);
+    rightY += 6;
+  });
+
+  // Receipt Image (bottom section - larger, centered)
+  const imageYPos = yPos + detailsHeight;
+  const maxImgWidth = Math.min(contentWidth - 20, 120); // Max 120mm wide
+  const maxImgHeight = imageHeight - 5;
+
+  if (receipt.image_url) {
+    try {
+      const base64 = await imageUrlToBase64(receipt.image_url);
+      if (base64) {
+        // Optimized for 800x600 as requested
+        const compressed = await compressImageForPDF(base64, 800, 600, 0.85);
+
+        // Center the image horizontally
+        const imgX = margin + (contentWidth - maxImgWidth) / 2;
+
+        doc.addImage(
+          compressed,
+          'JPEG',
+          imgX,
+          imageYPos,
+          maxImgWidth,
+          maxImgHeight,
+          undefined,
+          'SLOW'
+        );
+      } else {
+        const placeholderX = margin + (contentWidth - maxImgWidth) / 2;
+        addNoImagePlaceholder(doc, placeholderX, imageYPos, maxImgWidth, maxImgHeight);
+      }
+    } catch (error) {
+      console.error('Error adding image to PDF:', error);
+      const placeholderX = margin + (contentWidth - maxImgWidth) / 2;
+      addNoImagePlaceholder(doc, placeholderX, imageYPos, maxImgWidth, maxImgHeight);
+    }
+  } else {
+    const placeholderX = margin + (contentWidth - maxImgWidth) / 2;
+    addNoImagePlaceholder(doc, placeholderX, imageYPos, maxImgWidth, maxImgHeight);
+  }
 
   // Notes (if any)
   if (receipt.notes) {

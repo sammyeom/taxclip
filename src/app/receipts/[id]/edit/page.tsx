@@ -464,6 +464,7 @@ export default function ReceiptEditPage() {
                 items: formData.items.filter((item) => item.selected),
                 category: formData.category,
                 paymentMethod: formData.payment_method,
+                businessPurpose: formData.business_purpose,
               }}
               emailText={receipt.email_text || undefined}
             />
@@ -576,13 +577,13 @@ export default function ReceiptEditPage() {
             {/* Business Purpose */}
             <div>
               <label className="block text-xs sm:text-sm font-medium text-slate-700 mb-1">
-                Business Purpose
+                Business Purpose <span className="text-red-500">*</span>
               </label>
               <input
                 type="text"
                 value={formData.business_purpose}
                 onChange={(e) => handleFormChange('business_purpose', e.target.value)}
-                placeholder="Optional"
+                placeholder="e.g., Client meeting, Office supplies, Travel expense"
                 className="w-full px-3 sm:px-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
               />
             </div>
@@ -802,7 +803,7 @@ export default function ReceiptEditPage() {
             <div className="md:col-span-2 flex flex-col sm:flex-row gap-2 sm:gap-3 pt-4">
               <button
                 onClick={handleSave}
-                disabled={saving || !formData.date || !formData.merchant || !formData.total}
+                disabled={saving || !formData.date || !formData.merchant || !formData.total || !formData.business_purpose}
                 className="flex-1 bg-cyan-500 hover:bg-cyan-600 text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg text-sm sm:text-base font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
                 {saving ? (

@@ -35,12 +35,21 @@ export async function POST(request: NextRequest) {
               type: 'text',
               text: `You are an expert receipt and invoice data extraction assistant for IRS Schedule C business expense tracking. Analyze this receipt/invoice image carefully and extract ALL information in JSON format.
 
-CRITICAL: Extract LINE ITEMS with maximum detail - this is essential for IRS audit compliance, especially for:
-- Purchases over $500 (requires itemization)
-- Meals/food expenses (requires detailed items for 50% deduction)
+CRITICAL: Extract LINE ITEMS with maximum detail - this is essential for IRS audit compliance:
+- Mixed purchases (multiple different items) - REQUIRES itemization
+- Purchases over $500 - REQUIRES itemization
+- Single item receipts under $75 - itemization optional
 
 Extract the following:
 - merchant: Business/store name (look for logo, header, or "Thank you for shopping at...")
+- merchantType: Type of business - IMPORTANT for IRS categorization:
+  * "restaurant" - Sit-down restaurants, cafes, bars, food trucks, takeout with table service
+  * "grocery" - Supermarkets, grocery stores, convenience stores (Walmart, Target, Costco food section)
+  * "gas_station" - Gas stations, fuel stops
+  * "retail" - General retail stores
+  * "online" - E-commerce, digital services
+  * "service" - Professional services, repairs
+  * "other" - Other business types
 - date: Transaction date in YYYY-MM-DD format (check top/bottom of receipt)
 - total: Final total amount as a number (after tax, look for "Total", "Grand Total", "Amount Due")
 - subtotal: Pre-tax subtotal as a number if visible
@@ -58,12 +67,19 @@ Extract the following:
   * rent_equipment (equipment rental/lease)
   * rent_property (office rent, coworking)
   * repairs_maintenance (repairs, maintenance)
-  * supplies (materials, packaging)
+  * supplies (materials, packaging, groceries for business)
   * taxes_licenses (licenses, permits)
   * travel (flights, hotels, transportation)
-  * meals (restaurants, food, beverages - 50% deductible)
+  * meals (RESTAURANTS ONLY - 50% deductible, Line 24b)
   * utilities (internet, phone, electricity)
   * other (software subscriptions, cloud services, etc.)
+
+  IMPORTANT for "meals" category (IRS Schedule C Line 24b):
+  - ONLY use "meals" for RESTAURANTS (sit-down, takeout with service, cafes, bars)
+  - DO NOT use "meals" for grocery stores, supermarkets, or convenience stores
+  - Grocery shopping should be categorized as "supplies" or "other", NOT "meals"
+  - Look for indicators: table numbers, server names, tips = restaurant
+  - Look for indicators: SKU codes, produce codes, aisle numbers = grocery (NOT meals)
 
 - items: ARRAY of ALL line items - EXTRACT EVERY SINGLE ITEM VISIBLE. Each item must have:
   * name: Full item description (include size, variant, SKU if shown)
@@ -79,6 +95,7 @@ Extract the following:
   - Include modifiers, add-ons, or customizations as separate items if priced
   - If item appears multiple times, keep as separate entries or set quantity > 1
 
+- itemCount: Total number of distinct line items on the receipt (integer)
 - rawText: ALL visible text from the document (for audit trail)
 
 Return ONLY valid JSON. Use null for missing fields (not empty string). Items array should be [] only if truly no items are visible.`,
@@ -128,6 +145,7 @@ Return ONLY valid JSON. Use null for missing fields (not empty string). Items ar
 
     return NextResponse.json({
       merchant: extractedData.merchant || '',
+      merchantType: extractedData.merchantType || 'other',
       date: extractedData.date || '',
       total: extractedData.total || '',
       subtotal: extractedData.subtotal || null,
@@ -136,6 +154,7 @@ Return ONLY valid JSON. Use null for missing fields (not empty string). Items ar
       paymentMethod: extractedData.paymentMethod || '',
       category: extractedData.category || '',
       items: processedItems,
+      itemCount: extractedData.itemCount || processedItems.length,
       rawText: extractedData.rawText || '',
     });
   } catch (error) {

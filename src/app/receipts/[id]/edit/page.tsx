@@ -626,30 +626,58 @@ export default function ReceiptEditPage() {
               </div>
 
               {/* IRS Compliance Warnings */}
-              {parseFloat(formData.total) >= 500 && formData.category !== 'meals' && (
-                <div className="mb-3 p-3 bg-amber-50 border border-amber-200 rounded-lg flex items-start gap-2">
-                  <AlertTriangle className="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" />
-                  <p className="text-xs sm:text-sm text-amber-800">
-                    <strong>Recommended:</strong> For purchases over $500, itemized details are recommended for IRS compliance.
-                  </p>
-                </div>
-              )}
-              {formData.category === 'meals' && (
-                <div className="mb-3 p-3 bg-red-50 border border-red-200 rounded-lg flex items-start gap-2">
-                  <AlertTriangle className="w-4 h-4 text-red-600 flex-shrink-0 mt-0.5" />
-                  <p className="text-xs sm:text-sm text-red-800">
-                    <strong>Required:</strong> For Meals category (50% deductible), item details are required for IRS documentation.
-                  </p>
-                </div>
-              )}
-              {parseFloat(formData.total) >= 500 && formData.category === 'meals' && (
-                <div className="mb-3 p-3 bg-red-50 border border-red-200 rounded-lg flex items-start gap-2">
-                  <AlertTriangle className="w-4 h-4 text-red-600 flex-shrink-0 mt-0.5" />
-                  <p className="text-xs sm:text-sm text-red-800">
-                    <strong>Required:</strong> For Meals category over $500, detailed item information is required for IRS audit compliance and 50% deduction documentation.
-                  </p>
-                </div>
-              )}
+              {(() => {
+                const amount = parseFloat(formData.total) || 0;
+                const itemCount = formData.items.length;
+                const isMixedPurchase = itemCount > 1;
+                const isOver500 = amount >= 500;
+                const isSmallSingleItem = itemCount <= 1 && amount < 75;
+                const isMeals = formData.category === 'meals';
+
+                // No warning needed for small single-item purchases
+                if (isSmallSingleItem && !isMeals) return null;
+
+                return (
+                  <>
+                    {/* $500+ warning */}
+                    {isOver500 && !isMeals && (
+                      <div className="mb-3 p-3 bg-red-50 border border-red-200 rounded-lg flex items-start gap-2">
+                        <AlertTriangle className="w-4 h-4 text-red-600 flex-shrink-0 mt-0.5" />
+                        <p className="text-xs sm:text-sm text-red-800">
+                          <strong>Required:</strong> For purchases over $500, itemized details are required for IRS audit compliance.
+                        </p>
+                      </div>
+                    )}
+                    {/* Mixed purchase warning (multiple items, not $500+, not meals) */}
+                    {isMixedPurchase && !isOver500 && !isMeals && amount >= 75 && (
+                      <div className="mb-3 p-3 bg-amber-50 border border-amber-200 rounded-lg flex items-start gap-2">
+                        <AlertTriangle className="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" />
+                        <p className="text-xs sm:text-sm text-amber-800">
+                          <strong>Recommended:</strong> For mixed purchases (multiple items), itemized details help with IRS documentation.
+                        </p>
+                      </div>
+                    )}
+                    {/* Meals category warning */}
+                    {isMeals && !isOver500 && (
+                      <div className="mb-3 p-3 bg-red-50 border border-red-200 rounded-lg flex items-start gap-2">
+                        <AlertTriangle className="w-4 h-4 text-red-600 flex-shrink-0 mt-0.5" />
+                        <p className="text-xs sm:text-sm text-red-800">
+                          <strong>Required:</strong> For Meals category (50% deductible), item details are required. Note: Only restaurant meals qualify - grocery shopping should use "Supplies" category.
+                        </p>
+                      </div>
+                    )}
+                    {/* Meals + $500+ combined warning */}
+                    {isMeals && isOver500 && (
+                      <div className="mb-3 p-3 bg-red-50 border border-red-200 rounded-lg flex items-start gap-2">
+                        <AlertTriangle className="w-4 h-4 text-red-600 flex-shrink-0 mt-0.5" />
+                        <p className="text-xs sm:text-sm text-red-800">
+                          <strong>Required:</strong> For Meals over $500, detailed item information is required for IRS audit compliance. Note: Only restaurant meals qualify for 50% deduction - grocery shopping should use "Supplies" category.
+                        </p>
+                      </div>
+                    )}
+                  </>
+                );
+              })()}
 
               {/* Items Table - Desktop */}
               {formData.items.length > 0 && (

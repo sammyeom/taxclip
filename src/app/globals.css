@@ -61,6 +61,22 @@ html {
   animation: fade-in 0.3s ease-out;
 }
 
+/* Slide-up animation for bottom sheets */
+@keyframes slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-slide-up {
+  animation: slide-up 0.3s ease-out;
+}
+
 /* ===== Mobile Responsive Base Styles ===== */
 
 /* Better text rendering on mobile */

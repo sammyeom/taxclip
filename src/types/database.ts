@@ -34,6 +34,7 @@ export type Expense = {
   date: string;
   total: number;
   irs_category: string;           // IRS Schedule C category
+  irs_subcategory: string | null; // IRS Schedule C subcategory
   file_urls: string[];            // Array of uploaded file URLs
   document_types: string[];       // Array of document types (receipt, invoice, etc.)
   raw_text: string | null;        // PDF parsed raw text for audit
@@ -90,6 +91,7 @@ export type Receipt = {
   date: string;
   total: number;
   category: string;
+  subcategory: string | null;      // IRS Schedule C subcategory for detailed tracking
   items: ReceiptItem[];
   image_url: string | null;        // Legacy single image (for backward compatibility)
   image_urls: string[];            // New: Array of image URLs for multi-image support
@@ -135,6 +137,7 @@ export interface ReceiptInterface {
   amount: number; // alias for total
   description?: string;
   category: string;
+  subcategory?: string;    // IRS Schedule C subcategory
   business_purpose?: string;
   tax_year: number;
   payment_method?: string;
@@ -154,6 +157,7 @@ export interface InsertReceiptInterface {
   amount: number;
   description?: string;
   category: string;
+  subcategory?: string;    // IRS Schedule C subcategory
   business_purpose?: string;
   tax_year: number;
   payment_method?: string;
@@ -171,6 +175,7 @@ export interface UpdateReceiptInterface {
   amount?: number;
   description?: string;
   category?: string;
+  subcategory?: string;    // IRS Schedule C subcategory
   business_purpose?: string;
   tax_year?: number;
   payment_method?: string;

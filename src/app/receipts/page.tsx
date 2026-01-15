@@ -20,6 +20,7 @@ import {
   FileText,
   Calendar,
 } from 'lucide-react';
+import { getSubcategoryLabel } from '@/constants/irs-categories';
 
 // Category colors mapping
 const CATEGORY_COLORS: Record<string, string> = {
@@ -493,6 +494,11 @@ export default function ReceiptsPage() {
                     >
                       {CATEGORY_LABELS[receipt.category] || 'Other'}
                     </span>
+                    {receipt.subcategory && (
+                      <span className="ml-1.5 text-xs text-slate-500">
+                        - {getSubcategoryLabel(receipt.category, receipt.subcategory)}
+                      </span>
+                    )}
                   </div>
 
                   {/* Description */}
@@ -602,7 +608,7 @@ export default function ReceiptsPage() {
 
                   <div>
                     <label className="text-sm font-medium text-slate-500">Category</label>
-                    <div className="mt-1">
+                    <div className="mt-1 flex items-center flex-wrap gap-1.5">
                       <span
                         className={`inline-block px-3 py-1 rounded-full text-sm font-semibold ${
                           CATEGORY_COLORS[selectedReceipt.category] || CATEGORY_COLORS.other
@@ -610,6 +616,11 @@ export default function ReceiptsPage() {
                       >
                         {CATEGORY_LABELS[selectedReceipt.category] || 'Other'}
                       </span>
+                      {selectedReceipt.subcategory && (
+                        <span className="text-sm text-slate-600">
+                          - {getSubcategoryLabel(selectedReceipt.category, selectedReceipt.subcategory)}
+                        </span>
+                      )}
                     </div>
                   </div>
 

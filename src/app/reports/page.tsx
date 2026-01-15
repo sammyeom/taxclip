@@ -35,6 +35,7 @@ import {
   Legend,
   ResponsiveContainer,
 } from 'recharts';
+import { getSubcategoryLabel } from '@/constants/irs-categories';
 
 const CATEGORIES: Record<string, string> = {
   advertising: 'Advertising',
@@ -555,6 +556,9 @@ export default function ReportsPage() {
                           </td>
                           <td className="py-2 sm:py-3 px-3 sm:px-4 text-xs sm:text-sm text-slate-700 hidden sm:table-cell">
                             {CATEGORIES[receipt.category] || receipt.category}
+                            {receipt.subcategory && (
+                              <span className="text-slate-500"> - {getSubcategoryLabel(receipt.category, receipt.subcategory)}</span>
+                            )}
                           </td>
                           <td className="py-2 sm:py-3 px-3 sm:px-4 text-center">
                             <Link href={`/receipts/${receipt.id}`}>

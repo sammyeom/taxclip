@@ -40,8 +40,10 @@ export const metadata: Metadata = {
   authors: [{ name: "TaxClip" }],
   creator: "TaxClip",
   publisher: "TaxClip",
+  manifest: "/manifest.json",
   icons: {
     icon: [
+      { url: "/favicon.ico", sizes: "48x48", type: "image/x-icon" },
       { url: "/favicon.svg", type: "image/svg+xml" },
       { url: "/favicon-32x32.png", sizes: "32x32", type: "image/png" },
       { url: "/favicon-16x16.png", sizes: "16x16", type: "image/png" },
@@ -49,6 +51,23 @@ export const metadata: Metadata = {
     apple: [
       { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
     ],
+    other: [
+      { rel: "icon", url: "/icon-192.png", sizes: "192x192", type: "image/png" },
+      { rel: "icon", url: "/icon-512.png", sizes: "512x512", type: "image/png" },
+    ],
+  },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "TaxClip",
+  },
+  formatDetection: {
+    telephone: false,
+  },
+  other: {
+    "mobile-web-app-capable": "yes",
+    "msapplication-TileColor": "#06b6d4",
+    "msapplication-config": "/browserconfig.xml",
   },
   robots: {
     index: true,
@@ -141,6 +160,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
+        <meta name="theme-color" content="#06b6d4" />
+        <meta name="theme-color" media="(prefers-color-scheme: light)" content="#06b6d4" />
+        <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0891b2" />
+        <link rel="shortcut icon" href="/favicon.ico" />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}

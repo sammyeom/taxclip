@@ -17,6 +17,7 @@ import {
   CheckCircle,
   XCircle,
   AlertCircle,
+  AlertTriangle,
   Plus,
   X,
   List,
@@ -623,6 +624,32 @@ export default function ReceiptEditPage() {
                   </div>
                 )}
               </div>
+
+              {/* IRS Compliance Warnings */}
+              {parseFloat(formData.total) >= 500 && formData.category !== 'meals' && (
+                <div className="mb-3 p-3 bg-amber-50 border border-amber-200 rounded-lg flex items-start gap-2">
+                  <AlertTriangle className="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" />
+                  <p className="text-xs sm:text-sm text-amber-800">
+                    <strong>Recommended:</strong> For purchases over $500, itemized details are recommended for IRS compliance.
+                  </p>
+                </div>
+              )}
+              {formData.category === 'meals' && (
+                <div className="mb-3 p-3 bg-red-50 border border-red-200 rounded-lg flex items-start gap-2">
+                  <AlertTriangle className="w-4 h-4 text-red-600 flex-shrink-0 mt-0.5" />
+                  <p className="text-xs sm:text-sm text-red-800">
+                    <strong>Required:</strong> For Meals category (50% deductible), item details are required for IRS documentation.
+                  </p>
+                </div>
+              )}
+              {parseFloat(formData.total) >= 500 && formData.category === 'meals' && (
+                <div className="mb-3 p-3 bg-red-50 border border-red-200 rounded-lg flex items-start gap-2">
+                  <AlertTriangle className="w-4 h-4 text-red-600 flex-shrink-0 mt-0.5" />
+                  <p className="text-xs sm:text-sm text-red-800">
+                    <strong>Required:</strong> For Meals category over $500, detailed item information is required for IRS audit compliance and 50% deduction documentation.
+                  </p>
+                </div>
+              )}
 
               {/* Items Table - Desktop */}
               {formData.items.length > 0 && (

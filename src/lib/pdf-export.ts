@@ -16,7 +16,7 @@ import {
   CategorySummary,
   ExportOptions,
 } from './export';
-import { getCategoryLabel, getScheduleCLine } from '@/constants/irs-categories';
+import { getCategoryLabel, getScheduleCLine, getSubcategoryLabel } from '@/constants/irs-categories';
 import {
   EvidenceItem,
   EvidenceType,
@@ -362,10 +362,14 @@ async function addReceiptBlock(
   detailY += 8;
 
   // Details in two columns for better space usage
+  const categoryText = receipt.subcategory
+    ? `${getCategoryLabel(receipt.category || 'other')} (Line ${getScheduleCLine(receipt.category || 'other')}) - ${getSubcategoryLabel(receipt.category || 'other', receipt.subcategory)}`
+    : `${getCategoryLabel(receipt.category || 'other')} (Line ${getScheduleCLine(receipt.category || 'other')})`;
+
   const leftDetails = [
     { label: 'Date', value: formatDate(receipt.date) },
     { label: 'Amount', value: formatCurrency(receipt.total || 0) },
-    { label: 'Category', value: `${getCategoryLabel(receipt.category || 'other')} (Line ${getScheduleCLine(receipt.category || 'other')})` },
+    { label: 'Category', value: categoryText },
   ];
 
   const rightDetails = [
@@ -744,11 +748,10 @@ async function addExpenseOverviewPage(
 
   const detailsY = yPos + 28;
   doc.text(`Date: ${formatDate(receipt.date)}`, margin + 10, detailsY);
-  doc.text(
-    `Category: ${getCategoryLabel(receipt.category || 'other')} (Line ${getScheduleCLine(receipt.category || 'other')})`,
-    margin + 10,
-    detailsY + 7
-  );
+  const overviewCategoryText = receipt.subcategory
+    ? `${getCategoryLabel(receipt.category || 'other')} (Line ${getScheduleCLine(receipt.category || 'other')}) - ${getSubcategoryLabel(receipt.category || 'other', receipt.subcategory)}`
+    : `${getCategoryLabel(receipt.category || 'other')} (Line ${getScheduleCLine(receipt.category || 'other')})`;
+  doc.text(`Category: ${overviewCategoryText}`, margin + 10, detailsY + 7);
 
   if (receipt.business_purpose) {
     doc.text(`Business Purpose: ${receipt.business_purpose}`, margin + 10, detailsY + 14);

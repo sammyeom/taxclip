@@ -9,6 +9,7 @@ import {
   getCategoryLabel,
   getScheduleCLine,
   getDeductionRate,
+  getSubcategoryLabel,
   CATEGORY_KEYS,
 } from '@/constants/irs-categories';
 
@@ -185,6 +186,7 @@ export function generateBusinessReceiptCSV(
     'Vendor',
     'Amount',
     'Category (IRS)',
+    'Subcategory',
     'Schedule C Line',
     'Business Purpose',
     'Payment Method',
@@ -195,6 +197,9 @@ export function generateBusinessReceiptCSV(
   // CSV Rows
   const rows = sortedReceipts.map((receipt) => {
     const category = receipt.category || 'other';
+    const subcategory = receipt.subcategory
+      ? getSubcategoryLabel(category, receipt.subcategory)
+      : '';
     // Clean email text: remove excessive whitespace and newlines for CSV
     const cleanEmailText = receipt.email_text
       ? receipt.email_text.replace(/\s+/g, ' ').trim()
@@ -204,6 +209,7 @@ export function generateBusinessReceiptCSV(
       escapeCSVField(receipt.merchant),
       escapeCSVField(receipt.total?.toFixed(2)),
       escapeCSVField(getCategoryLabel(category)),
+      escapeCSVField(subcategory),
       escapeCSVField(`Line ${getScheduleCLine(category)}`),
       escapeCSVField(receipt.business_purpose),
       escapeCSVField(receipt.payment_method),

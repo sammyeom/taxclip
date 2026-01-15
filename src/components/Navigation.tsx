@@ -265,6 +265,14 @@ export default function Navigation() {
           {/* Mobile Menu Actions */}
           <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-slate-200 space-y-2">
             <button
+              onClick={() => router.push('/profile')}
+              className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-slate-700 hover:bg-slate-100 transition-colors"
+            >
+              <User className="w-5 h-5" />
+              <span className="font-semibold">Profile</span>
+            </button>
+
+            <button
               onClick={() => router.push('/settings')}
               className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-slate-700 hover:bg-slate-100 transition-colors"
             >

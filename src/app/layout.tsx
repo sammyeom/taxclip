@@ -167,6 +167,7 @@ export default function RootLayout({
         <meta name="theme-color" media="(prefers-color-scheme: light)" content="#06b6d4" />
         <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0891b2" />
         <link rel="shortcut icon" href="/favicon.ico?v=3" />
+        <link rel="icon" href="/favicon.png?v=3" />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}

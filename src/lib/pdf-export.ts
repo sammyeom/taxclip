@@ -414,7 +414,7 @@ async function addReceiptBlock(
     rightY += 6;
   });
 
-  // Receipt Image (bottom section - larger, centered)
+  // Receipt Image or Email Text (bottom section - larger, centered)
   const imageYPos = yPos + detailsHeight;
   const maxImgWidth = Math.min(contentWidth - 20, 120); // Max 120mm wide
   const maxImgHeight = imageHeight - 5;
@@ -448,6 +448,9 @@ async function addReceiptBlock(
       const placeholderX = margin + (contentWidth - maxImgWidth) / 2;
       addNoImagePlaceholder(doc, placeholderX, imageYPos, maxImgWidth, maxImgHeight);
     }
+  } else if (receipt.email_text) {
+    // Show email text when no image is available
+    addEmailTextBlock(doc, receipt.email_text, margin + 5, imageYPos, contentWidth - 10, maxImgHeight);
   } else {
     const placeholderX = margin + (contentWidth - maxImgWidth) / 2;
     addNoImagePlaceholder(doc, placeholderX, imageYPos, maxImgWidth, maxImgHeight);
@@ -484,6 +487,67 @@ function addNoImagePlaceholder(
   doc.setTextColor(...COLORS.secondary);
   doc.setFontSize(10);
   doc.text('No Image', x + width / 2, y + height / 2, { align: 'center' });
+}
+
+/**
+ * Add email text block when no image is available
+ * Displays the original email/text content in place of the receipt image
+ */
+function addEmailTextBlock(
+  doc: jsPDF,
+  emailText: string,
+  x: number,
+  y: number,
+  width: number,
+  height: number
+): void {
+  // Background with light blue tint to distinguish from image
+  doc.setFillColor(240, 249, 255); // sky-50
+  doc.roundedRect(x, y, width, height, 2, 2, 'F');
+
+  // Border
+  doc.setDrawColor(186, 230, 253); // sky-200
+  doc.setLineWidth(0.5);
+  doc.roundedRect(x, y, width, height, 2, 2, 'S');
+
+  // Header label
+  doc.setFillColor(14, 165, 233); // sky-500
+  doc.roundedRect(x, y, width, 8, 2, 2, 'F');
+  doc.setFillColor(240, 249, 255); // Cover bottom corners
+  doc.rect(x, y + 6, width, 4, 'F');
+
+  doc.setTextColor(255, 255, 255);
+  doc.setFontSize(8);
+  doc.setFont('helvetica', 'bold');
+  doc.text('EMAIL / TEXT EVIDENCE', x + width / 2, y + 5.5, { align: 'center' });
+
+  // Email content
+  doc.setTextColor(...COLORS.text);
+  doc.setFontSize(7);
+  doc.setFont('courier', 'normal'); // Monospace font for email text
+
+  const padding = 4;
+  const textX = x + padding;
+  const textY = y + 14;
+  const textWidth = width - padding * 2;
+  const maxHeight = height - 18; // Account for header and padding
+
+  // Split text into lines that fit the width
+  const lines = doc.splitTextToSize(emailText, textWidth);
+
+  // Calculate how many lines can fit in the available height
+  const lineHeight = 3; // Approximate line height for font size 7
+  const maxLines = Math.floor(maxHeight / lineHeight);
+
+  // Display lines that fit
+  const displayLines = lines.slice(0, maxLines);
+
+  // Add ellipsis if text is truncated
+  if (lines.length > maxLines && displayLines.length > 0) {
+    displayLines[displayLines.length - 1] = displayLines[displayLines.length - 1].substring(0, 50) + '...';
+  }
+
+  doc.text(displayLines, textX, textY);
 }
 
 /**

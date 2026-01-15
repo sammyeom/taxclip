@@ -36,6 +36,7 @@ import {
   InsightData,
 } from '@/components/dashboard';
 import dynamic from 'next/dynamic';
+import { getSubcategoryLabel } from '@/constants/irs-categories';
 
 // Dynamic imports for heavy chart components (code splitting)
 const DynamicSpendingTrendChart = dynamic(
@@ -490,6 +491,11 @@ export default function DashboardPage() {
                             >
                               {CATEGORIES[receipt.category] || receipt.category}
                             </span>
+                            {receipt.subcategory && (
+                              <span className="text-xs text-slate-500 hidden sm:inline-block">
+                                - {getSubcategoryLabel(receipt.category, receipt.subcategory)}
+                              </span>
+                            )}
                           </div>
                         </div>
                       </div>

@@ -231,12 +231,13 @@ async function addSummaryPage(
       fillColor: COLORS.lightGray,
     },
     columnStyles: {
-      0: { cellWidth: 20 },
-      1: { cellWidth: 55 },
-      2: { cellWidth: 30, halign: 'right' },
-      3: { cellWidth: 20, halign: 'center' },
-      4: { cellWidth: 35, halign: 'right' },
+      0: { cellWidth: 25 },      // Line #
+      1: { cellWidth: 70 },      // Category (wider for long names)
+      2: { cellWidth: 35, halign: 'right' },  // Amount
+      3: { cellWidth: 20, halign: 'center' }, // Count
+      4: { cellWidth: 30, halign: 'right' },  // Deductible
     },
+    tableWidth: 180, // Match page width minus margins (210 - 15*2)
     margin: { left: margin, right: margin },
     didParseCell: (data) => {
       // Style total row
@@ -351,7 +352,7 @@ async function addReceiptBlock(
     try {
       const base64 = await imageUrlToBase64(receipt.image_url);
       if (base64) {
-        const compressed = await compressImageForPDF(base64, 300, 250, 0.6);
+        const compressed = await compressImageForPDF(base64, 400, 350, 0.85);
 
         // Calculate image dimensions to fit in area
         const maxImgWidth = imageAreaWidth - 10;
@@ -365,7 +366,7 @@ async function addReceiptBlock(
           maxImgWidth,
           maxImgHeight,
           undefined,
-          'MEDIUM'
+          'SLOW'
         );
       } else {
         addNoImagePlaceholder(doc, margin + 5, yPos + 15, imageAreaWidth - 10, blockHeight - 15);
@@ -805,7 +806,7 @@ async function addEvidencePage(
     try {
       const base64 = await imageUrlToBase64(evidence.file_url);
       if (base64) {
-        const compressed = await compressImageForPDF(base64, 800, 1000, 0.75);
+        const compressed = await compressImageForPDF(base64, 1000, 1200, 0.9);
         doc.addImage(
           compressed,
           'JPEG',
@@ -814,7 +815,7 @@ async function addEvidencePage(
           imageMaxWidth,
           imageMaxHeight,
           undefined,
-          'MEDIUM'
+          'SLOW'
         );
       } else {
         addNoImagePlaceholder(doc, margin, imageY, imageMaxWidth, imageMaxHeight);
@@ -896,7 +897,7 @@ async function addComparisonPage(
     try {
       const base64 = await imageUrlToBase64(purchaseDoc.file_url);
       if (base64) {
-        const compressed = await compressImageForPDF(base64, 400, 500, 0.7);
+        const compressed = await compressImageForPDF(base64, 600, 700, 0.85);
         doc.addImage(
           compressed,
           'JPEG',
@@ -905,7 +906,7 @@ async function addComparisonPage(
           halfWidth,
           imageHeight,
           undefined,
-          'MEDIUM'
+          'SLOW'
         );
       }
     } catch (error) {
@@ -929,7 +930,7 @@ async function addComparisonPage(
     try {
       const base64 = await imageUrlToBase64(paymentProof.file_url);
       if (base64) {
-        const compressed = await compressImageForPDF(base64, 400, 500, 0.7);
+        const compressed = await compressImageForPDF(base64, 600, 700, 0.85);
         doc.addImage(
           compressed,
           'JPEG',
@@ -938,7 +939,7 @@ async function addComparisonPage(
           halfWidth,
           imageHeight,
           undefined,
-          'MEDIUM'
+          'SLOW'
         );
       }
     } catch (error) {

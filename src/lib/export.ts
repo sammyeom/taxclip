@@ -189,11 +189,16 @@ export function generateBusinessReceiptCSV(
     'Business Purpose',
     'Payment Method',
     'Receipt URL',
+    'Email Text',
   ].join(',');
 
   // CSV Rows
   const rows = sortedReceipts.map((receipt) => {
     const category = receipt.category || 'other';
+    // Clean email text: remove excessive whitespace and newlines for CSV
+    const cleanEmailText = receipt.email_text
+      ? receipt.email_text.replace(/\s+/g, ' ').trim()
+      : '';
     return [
       escapeCSVField(formatDate(receipt.date)),
       escapeCSVField(receipt.merchant),
@@ -203,6 +208,7 @@ export function generateBusinessReceiptCSV(
       escapeCSVField(receipt.business_purpose),
       escapeCSVField(receipt.payment_method),
       escapeCSVField(receipt.image_url),
+      escapeCSVField(cleanEmailText),
     ].join(',');
   });
 

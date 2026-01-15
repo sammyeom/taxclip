@@ -152,9 +152,9 @@ export default function TaxExportModal({
             <button
               onClick={onClose}
               disabled={isExporting}
-              className="text-white/80 hover:text-white transition-colors disabled:opacity-50"
+              className="w-10 h-10 min-w-[40px] min-h-[40px] max-w-[40px] max-h-[40px] aspect-square flex-shrink-0 flex items-center justify-center text-white/80 hover:text-white transition-colors disabled:opacity-50 rounded-lg hover:bg-white/10"
             >
-              <X className="w-6 h-6" />
+              <X className="w-6 h-6 flex-shrink-0" />
             </button>
           </div>
         </div>
@@ -169,7 +169,11 @@ export default function TaxExportModal({
               value={taxYear}
               onChange={(e) => onYearChange(Number(e.target.value))}
               disabled={isExporting}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-700 font-medium focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent disabled:opacity-50"
+              className="appearance-none w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-700 font-medium focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent disabled:opacity-50"
+              style={{
+                WebkitAppearance: 'none',
+                MozAppearance: 'none',
+              }}
             >
               {availableYears.map((year) => (
                 <option key={year} value={year}>

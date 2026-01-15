@@ -423,12 +423,12 @@ export default function SettingsPage() {
               </div>
               <button
                 onClick={() => updateSetting('autoCategorize', !settings.autoCategorize)}
-                className={`relative inline-flex h-6 w-11 flex-shrink-0 items-center rounded-full transition-colors ${
+                className={`relative inline-flex h-6 w-11 min-h-[24px] max-h-[24px] min-w-[44px] max-w-[44px] flex-shrink-0 items-center rounded-full transition-colors ${
                   settings.autoCategorize ? 'bg-cyan-500' : 'bg-slate-300'
                 }`}
               >
                 <span
-                  className={`inline-block h-5 w-5 transform rounded-full bg-white shadow transition-transform ${
+                  className={`inline-block h-5 w-5 min-h-[20px] max-h-[20px] min-w-[20px] max-w-[20px] transform rounded-full bg-white shadow transition-transform ${
                     settings.autoCategorize ? 'translate-x-[22px]' : 'translate-x-0.5'
                   }`}
                 />
@@ -454,12 +454,12 @@ export default function SettingsPage() {
                 onClick={() =>
                   updateSetting('emailNotifications', !settings.emailNotifications)
                 }
-                className={`relative inline-flex h-6 w-11 flex-shrink-0 items-center rounded-full transition-colors ${
+                className={`relative inline-flex h-6 w-11 min-h-[24px] max-h-[24px] min-w-[44px] max-w-[44px] flex-shrink-0 items-center rounded-full transition-colors ${
                   settings.emailNotifications ? 'bg-cyan-500' : 'bg-slate-300'
                 }`}
               >
                 <span
-                  className={`inline-block h-5 w-5 transform rounded-full bg-white shadow transition-transform ${
+                  className={`inline-block h-5 w-5 min-h-[20px] max-h-[20px] min-w-[20px] max-w-[20px] transform rounded-full bg-white shadow transition-transform ${
                     settings.emailNotifications ? 'translate-x-[22px]' : 'translate-x-0.5'
                   }`}
                 />
@@ -473,12 +473,12 @@ export default function SettingsPage() {
               </div>
               <button
                 onClick={() => updateSetting('monthlySummary', !settings.monthlySummary)}
-                className={`relative inline-flex h-6 w-11 flex-shrink-0 items-center rounded-full transition-colors ${
+                className={`relative inline-flex h-6 w-11 min-h-[24px] max-h-[24px] min-w-[44px] max-w-[44px] flex-shrink-0 items-center rounded-full transition-colors ${
                   settings.monthlySummary ? 'bg-cyan-500' : 'bg-slate-300'
                 }`}
               >
                 <span
-                  className={`inline-block h-5 w-5 transform rounded-full bg-white shadow transition-transform ${
+                  className={`inline-block h-5 w-5 min-h-[20px] max-h-[20px] min-w-[20px] max-w-[20px] transform rounded-full bg-white shadow transition-transform ${
                     settings.monthlySummary ? 'translate-x-[22px]' : 'translate-x-0.5'
                   }`}
                 />
@@ -494,12 +494,12 @@ export default function SettingsPage() {
                 onClick={() =>
                   updateSetting('uploadReminders', !settings.uploadReminders)
                 }
-                className={`relative inline-flex h-6 w-11 flex-shrink-0 items-center rounded-full transition-colors ${
+                className={`relative inline-flex h-6 w-11 min-h-[24px] max-h-[24px] min-w-[44px] max-w-[44px] flex-shrink-0 items-center rounded-full transition-colors ${
                   settings.uploadReminders ? 'bg-cyan-500' : 'bg-slate-300'
                 }`}
               >
                 <span
-                  className={`inline-block h-5 w-5 transform rounded-full bg-white shadow transition-transform ${
+                  className={`inline-block h-5 w-5 min-h-[20px] max-h-[20px] min-w-[20px] max-w-[20px] transform rounded-full bg-white shadow transition-transform ${
                     settings.uploadReminders ? 'translate-x-[22px]' : 'translate-x-0.5'
                   }`}
                 />
@@ -515,12 +515,12 @@ export default function SettingsPage() {
                 onClick={() =>
                   updateSetting('taxDeadlineReminders', !settings.taxDeadlineReminders)
                 }
-                className={`relative inline-flex h-6 w-11 flex-shrink-0 items-center rounded-full transition-colors ${
+                className={`relative inline-flex h-6 w-11 min-h-[24px] max-h-[24px] min-w-[44px] max-w-[44px] flex-shrink-0 items-center rounded-full transition-colors ${
                   settings.taxDeadlineReminders ? 'bg-cyan-500' : 'bg-slate-300'
                 }`}
               >
                 <span
-                  className={`inline-block h-5 w-5 transform rounded-full bg-white shadow transition-transform ${
+                  className={`inline-block h-5 w-5 min-h-[20px] max-h-[20px] min-w-[20px] max-w-[20px] transform rounded-full bg-white shadow transition-transform ${
                     settings.taxDeadlineReminders ? 'translate-x-[22px]' : 'translate-x-0.5'
                   }`}
                 />
@@ -602,12 +602,12 @@ export default function SettingsPage() {
               </div>
               <button
                 onClick={() => updateSetting('mileageTracking', !settings.mileageTracking)}
-                className={`relative inline-flex h-6 w-11 flex-shrink-0 items-center rounded-full transition-colors ${
+                className={`relative inline-flex h-6 w-11 min-h-[24px] max-h-[24px] min-w-[44px] max-w-[44px] flex-shrink-0 items-center rounded-full transition-colors ${
                   settings.mileageTracking ? 'bg-cyan-500' : 'bg-slate-300'
                 }`}
               >
                 <span
-                  className={`inline-block h-5 w-5 transform rounded-full bg-white shadow transition-transform ${
+                  className={`inline-block h-5 w-5 min-h-[20px] max-h-[20px] min-w-[20px] max-w-[20px] transform rounded-full bg-white shadow transition-transform ${
                     settings.mileageTracking ? 'translate-x-[22px]' : 'translate-x-0.5'
                   }`}
                 />

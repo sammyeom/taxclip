@@ -164,8 +164,12 @@ function EvidenceTypeSelector({
         value={value}
         onChange={(e) => onChange(e.target.value as EvidenceType)}
         disabled={disabled}
-        className="appearance-none w-full pl-8 sm:pl-9 pr-7 sm:pr-8 py-1.5 text-[11px] sm:text-xs font-medium rounded-md border border-gray-200 bg-white focus:outline-none focus:ring-1 focus:ring-cyan-500 focus:border-cyan-500 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-        style={{ color: EVIDENCE_TYPE_COLORS[value] }}
+        className="appearance-none w-full pl-10 sm:pl-11 pr-8 sm:pr-9 py-2 text-[11px] sm:text-xs font-medium rounded-md border border-gray-200 bg-white focus:outline-none focus:ring-1 focus:ring-cyan-500 focus:border-cyan-500 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+        style={{
+          color: EVIDENCE_TYPE_COLORS[value],
+          WebkitAppearance: 'none',
+          MozAppearance: 'none',
+        }}
         onClick={(e) => e.stopPropagation()}
       >
         {Object.values(EvidenceType).map((type) => (
@@ -174,11 +178,11 @@ function EvidenceTypeSelector({
           </option>
         ))}
       </select>
-      <div className="absolute left-2.5 sm:left-3 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: EVIDENCE_TYPE_COLORS[value] }}>
-        <EvidenceTypeIcon type={value} className="w-3.5 h-3.5" />
+      <div className="absolute left-3 sm:left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: EVIDENCE_TYPE_COLORS[value] }}>
+        <EvidenceTypeIcon type={value} className="w-4 h-4" />
       </div>
-      <div className="absolute right-2 sm:right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">
-        <ChevronDown className="w-3 h-3" />
+      <div className="absolute right-2.5 sm:right-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">
+        <ChevronDown className="w-3.5 h-3.5" />
       </div>
     </div>
   );
@@ -250,7 +254,8 @@ function FilePreviewCard({
           }}
           className={`
             absolute top-2 right-2
-            w-7 h-7 min-w-[28px] min-h-[28px] aspect-square
+            w-7 h-7 min-w-[28px] min-h-[28px] max-w-[28px] max-h-[28px]
+            aspect-square flex-shrink-0
             flex items-center justify-center
             rounded-full transition-colors z-10 shadow-md
             ${

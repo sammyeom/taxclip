@@ -164,7 +164,7 @@ function EvidenceTypeSelector({
         value={value}
         onChange={(e) => onChange(e.target.value as EvidenceType)}
         disabled={disabled}
-        className="appearance-none w-full pl-7 sm:pl-8 pr-6 sm:pr-7 py-1.5 sm:py-1.5 text-[10px] sm:text-xs font-medium rounded-md border border-gray-200 bg-white focus:outline-none focus:ring-1 focus:ring-cyan-500 focus:border-cyan-500 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+        className="appearance-none w-full pl-8 sm:pl-9 pr-7 sm:pr-8 py-1.5 text-[11px] sm:text-xs font-medium rounded-md border border-gray-200 bg-white focus:outline-none focus:ring-1 focus:ring-cyan-500 focus:border-cyan-500 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
         style={{ color: EVIDENCE_TYPE_COLORS[value] }}
         onClick={(e) => e.stopPropagation()}
       >
@@ -174,11 +174,11 @@ function EvidenceTypeSelector({
           </option>
         ))}
       </select>
-      <div className="absolute left-2 sm:left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: EVIDENCE_TYPE_COLORS[value] }}>
-        <EvidenceTypeIcon type={value} className="w-3.5 h-3.5 sm:w-3.5 sm:h-3.5" />
+      <div className="absolute left-2.5 sm:left-3 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: EVIDENCE_TYPE_COLORS[value] }}>
+        <EvidenceTypeIcon type={value} className="w-3.5 h-3.5" />
       </div>
-      <div className="absolute right-1.5 sm:right-2 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">
-        <ChevronDown className="w-3 h-3 sm:w-3 sm:h-3" />
+      <div className="absolute right-2 sm:right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">
+        <ChevronDown className="w-3 h-3" />
       </div>
     </div>
   );
@@ -242,26 +242,26 @@ function FilePreviewCard({
           </div>
         )}
 
-        {/* Remove/Cancel button - circular on mobile */}
+        {/* Remove/Cancel button - perfectly circular */}
         <button
           onClick={(e) => {
             e.stopPropagation();
             isProcessing ? onCancel(id) : onRemove(id);
           }}
           className={`
-            absolute top-1.5 right-1.5 sm:top-2 sm:right-2
-            w-6 h-6 sm:w-7 sm:h-7
+            absolute top-2 right-2
+            w-7 h-7 min-w-[28px] min-h-[28px] aspect-square
             flex items-center justify-center
-            rounded-full transition-colors z-10 shadow-sm
+            rounded-full transition-colors z-10 shadow-md
             ${
               isProcessing
                 ? 'bg-red-500 hover:bg-red-600 text-white'
-                : 'bg-white/95 hover:bg-white text-slate-600 hover:text-slate-900 border border-slate-200'
+                : 'bg-white hover:bg-slate-50 text-slate-700 hover:text-slate-900 border border-slate-300'
             }
           `}
           title={isProcessing ? 'Cancel' : 'Remove'}
         >
-          <X className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+          <X className="w-4 h-4 flex-shrink-0" />
         </button>
 
         {/* Selection indicator */}

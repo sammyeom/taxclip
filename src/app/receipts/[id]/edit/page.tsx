@@ -556,6 +556,20 @@ export default function ReceiptEditPage() {
               </select>
             </div>
 
+            {/* Business Purpose */}
+            <div>
+              <label className="block text-xs sm:text-sm font-medium text-slate-700 mb-1">
+                Business Purpose <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                value={formData.business_purpose}
+                onChange={(e) => handleFormChange('business_purpose', e.target.value)}
+                placeholder="e.g., Client meeting, Office supplies, Travel expense"
+                className="w-full px-3 sm:px-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
+              />
+            </div>
+
             {/* Payment Method */}
             <div>
               <label className="block text-xs sm:text-sm font-medium text-slate-700 mb-1">
@@ -572,20 +586,6 @@ export default function ReceiptEditPage() {
                   </option>
                 ))}
               </select>
-            </div>
-
-            {/* Business Purpose */}
-            <div>
-              <label className="block text-xs sm:text-sm font-medium text-slate-700 mb-1">
-                Business Purpose <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="text"
-                value={formData.business_purpose}
-                onChange={(e) => handleFormChange('business_purpose', e.target.value)}
-                placeholder="e.g., Client meeting, Office supplies, Travel expense"
-                className="w-full px-3 sm:px-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
-              />
             </div>
 
             {/* Notes - Full width */}

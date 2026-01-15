@@ -461,7 +461,7 @@ async function addReceiptBlock(
     doc.setFontSize(8);
 
     let notes = `Notes: ${receipt.notes}`;
-    const maxNotesWidth = detailsAreaWidth;
+    const maxNotesWidth = detailsWidth;
     while (doc.getTextWidth(notes) > maxNotesWidth && notes.length > 10) {
       notes = notes.slice(0, -4) + '...';
     }

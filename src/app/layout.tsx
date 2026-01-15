@@ -43,18 +43,21 @@ export const metadata: Metadata = {
   manifest: "/manifest.json",
   icons: {
     icon: [
-      { url: "/favicon.ico", sizes: "48x48", type: "image/x-icon" },
-      { url: "/favicon.svg", type: "image/svg+xml" },
-      { url: "/favicon-32x32.png", sizes: "32x32", type: "image/png" },
-      { url: "/favicon-16x16.png", sizes: "16x16", type: "image/png" },
+      { url: "/favicon.ico?v=3", sizes: "48x48", type: "image/x-icon" },
+      { url: "/favicon.svg?v=3", type: "image/svg+xml" },
+      { url: "/favicon-16x16.png?v=3", sizes: "16x16", type: "image/png" },
+      { url: "/favicon-32x32.png?v=3", sizes: "32x32", type: "image/png" },
+      // Google Search requires 48x48 multiples
+      { url: "/icon-48.png?v=3", sizes: "48x48", type: "image/png" },
+      { url: "/icon-96.png?v=3", sizes: "96x96", type: "image/png" },
+      { url: "/icon-144.png?v=3", sizes: "144x144", type: "image/png" },
+      { url: "/icon-192.png?v=3", sizes: "192x192", type: "image/png" },
+      { url: "/icon-512.png?v=3", sizes: "512x512", type: "image/png" },
     ],
     apple: [
-      { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
+      { url: "/apple-touch-icon.png?v=3", sizes: "180x180", type: "image/png" },
     ],
-    other: [
-      { rel: "icon", url: "/icon-192.png", sizes: "192x192", type: "image/png" },
-      { rel: "icon", url: "/icon-512.png", sizes: "512x512", type: "image/png" },
-    ],
+    shortcut: [{ url: "/favicon.ico?v=3" }],
   },
   appleWebApp: {
     capable: true,
@@ -163,7 +166,7 @@ export default function RootLayout({
         <meta name="theme-color" content="#06b6d4" />
         <meta name="theme-color" media="(prefers-color-scheme: light)" content="#06b6d4" />
         <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0891b2" />
-        <link rel="shortcut icon" href="/favicon.ico" />
+        <link rel="shortcut icon" href="/favicon.ico?v=3" />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}

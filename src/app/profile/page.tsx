@@ -465,7 +465,7 @@ export default function ProfilePage() {
                       value={displayName}
                       onChange={(e) => setDisplayName(e.target.value)}
                       placeholder="Enter your display name"
-                      className="w-full pl-9 sm:pl-10 pr-4 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                      className="w-full pl-10 sm:pl-11 pr-4 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
                     />
                   </div>
                 </div>
@@ -481,7 +481,7 @@ export default function ProfilePage() {
                       value={businessName}
                       onChange={(e) => setBusinessName(e.target.value)}
                       placeholder="Enter your business name"
-                      className="w-full pl-9 sm:pl-10 pr-4 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                      className="w-full pl-10 sm:pl-11 pr-4 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
                     />
                   </div>
                 </div>
@@ -497,7 +497,7 @@ export default function ProfilePage() {
                       value={phoneNumber}
                       onChange={(e) => setPhoneNumber(e.target.value)}
                       placeholder="+1 (555) 123-4567"
-                      className="w-full pl-9 sm:pl-10 pr-4 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                      className="w-full pl-10 sm:pl-11 pr-4 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
                     />
                   </div>
                 </div>
@@ -513,7 +513,7 @@ export default function ProfilePage() {
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="your@email.com"
-                      className="w-full pl-9 sm:pl-10 pr-4 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                      className="w-full pl-10 sm:pl-11 pr-4 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
                     />
                   </div>
                   <p className="text-xs text-slate-500 mt-1">
@@ -544,7 +544,7 @@ export default function ProfilePage() {
                             value={newPassword}
                             onChange={(e) => setNewPassword(e.target.value)}
                             placeholder="Enter new password"
-                            className="w-full pl-9 sm:pl-10 pr-4 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                            className="w-full pl-10 sm:pl-11 pr-4 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
                           />
                         </div>
                       </div>
@@ -560,7 +560,7 @@ export default function ProfilePage() {
                             value={confirmPassword}
                             onChange={(e) => setConfirmPassword(e.target.value)}
                             placeholder="Confirm new password"
-                            className="w-full pl-9 sm:pl-10 pr-4 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                            className="w-full pl-10 sm:pl-11 pr-4 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
                           />
                         </div>
                       </div>

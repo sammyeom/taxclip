@@ -146,14 +146,17 @@ function SignInForm() {
                 Email address
               </label>
               <div className="relative">
-                <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-slate-400" />
+                <div className="absolute top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" style={{ left: '14px' }}>
+                  <Mail className="w-4 h-4 sm:w-5 sm:h-5" />
+                </div>
                 <input
                   id="email"
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  className="w-full pl-9 sm:pl-10 pr-4 py-2.5 sm:py-3 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent text-slate-900"
+                  className="w-full pr-4 py-2.5 sm:py-3 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent text-slate-900"
+                  style={{ paddingLeft: '44px' }}
                   placeholder="you@example.com"
                 />
               </div>
@@ -164,14 +167,17 @@ function SignInForm() {
                 Password
               </label>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-slate-400" />
+                <div className="absolute top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" style={{ left: '14px' }}>
+                  <Lock className="w-4 h-4 sm:w-5 sm:h-5" />
+                </div>
                 <input
                   id="password"
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
-                  className="w-full pl-9 sm:pl-10 pr-4 py-2.5 sm:py-3 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent text-slate-900"
+                  className="w-full pr-4 py-2.5 sm:py-3 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent text-slate-900"
+                  style={{ paddingLeft: '44px' }}
                   placeholder="••••••••"
                 />
               </div>

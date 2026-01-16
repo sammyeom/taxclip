@@ -1,7 +1,15 @@
 'use client';
 
+import { useMemo } from 'react';
 import { Tag } from 'lucide-react';
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
+import { PieChart, Pie, Cell, Label } from 'recharts';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  ChartConfig,
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+} from '@/components/ui/chart';
 
 export interface CategoryData {
   name: string;
@@ -23,89 +31,139 @@ const formatCurrency = (amount: number) => {
   }).format(amount);
 };
 
+const formatCurrencyCompact = (amount: number) => {
+  if (amount >= 1000000) {
+    return `$${(amount / 1000000).toFixed(1)}M`;
+  }
+  if (amount >= 1000) {
+    return `$${(amount / 1000).toFixed(1)}k`;
+  }
+  return `$${amount.toFixed(0)}`;
+};
+
 export default function CategoryPieChart({
   data,
   totalAmount,
 }: CategoryPieChartProps) {
-  return (
-    <div className="bg-white rounded-xl shadow-lg p-4 sm:p-6">
-      <h2 className="text-xl sm:text-2xl font-bold text-slate-900 mb-4 sm:mb-6">
-        Spending by Category
-      </h2>
-      {data.length === 0 ? (
-        <div className="text-center py-12">
-          <Tag className="w-12 h-12 text-slate-300 mx-auto mb-3" />
-          <p className="text-slate-600 text-sm">No category data yet</p>
-        </div>
-      ) : (
-        <div className="relative">
-          <ResponsiveContainer width="100%" height={300}>
-            <PieChart>
-              <Pie
-                data={data}
-                cx="50%"
-                cy="50%"
-                innerRadius={60}
-                outerRadius={100}
-                paddingAngle={2}
-                dataKey="value"
-              >
-                {data.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={entry.color} />
-                ))}
-              </Pie>
-              <Tooltip
-                formatter={(value, _name, props) => {
-                  const payload = props.payload as
-                    | { name: string; count: number }
-                    | undefined;
-                  return [
-                    formatCurrency(Number(value) || 0),
-                    `${payload?.name} (${payload?.count} receipts)`,
-                  ];
-                }}
-                contentStyle={{
-                  backgroundColor: 'white',
-                  border: '1px solid #E2E8F0',
-                  borderRadius: '8px',
-                }}
-              />
-            </PieChart>
-          </ResponsiveContainer>
-          {/* Center label */}
-          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-            <div className="text-center">
-              <p className="text-xs text-slate-500 mb-1">Total</p>
-              <p className="text-2xl font-bold text-slate-900">
-                {formatCurrency(totalAmount)}
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
+  // Build chart config dynamically from data
+  const chartConfig = useMemo(() => {
+    const config: ChartConfig = {};
+    data.forEach((category) => {
+      config[category.name] = {
+        label: category.name,
+        color: category.color,
+      };
+    });
+    return config;
+  }, [data]);
 
-      {/* Category Legend */}
-      {data.length > 0 && (
-        <div className="mt-4 grid grid-cols-2 gap-2">
-          {data.slice(0, 6).map((category) => (
-            <div key={category.name} className="flex items-center gap-2">
-              <div
-                className="w-3 h-3 rounded-full flex-shrink-0"
-                style={{ backgroundColor: category.color }}
-              />
-              <span className="text-xs text-slate-600 truncate">
-                {category.name}
-              </span>
-              <span className="text-xs text-slate-400 ml-auto">
-                {totalAmount > 0
-                  ? ((category.value / totalAmount) * 100).toFixed(0)
-                  : 0}
-                %
-              </span>
+  return (
+    <Card>
+      <CardHeader className="pb-2 sm:pb-6">
+        <CardTitle className="text-base sm:text-xl md:text-2xl font-bold">
+          Spending by Category
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="px-2 sm:px-6 pb-4 sm:pb-6">
+        {data.length === 0 ? (
+          <div className="text-center py-8 sm:py-12">
+            <Tag className="w-10 h-10 sm:w-12 sm:h-12 text-slate-300 mx-auto mb-3" />
+            <p className="text-slate-600 text-xs sm:text-sm">No category data yet</p>
+          </div>
+        ) : (
+          <>
+            <ChartContainer
+              config={chartConfig}
+              className="mx-auto h-[200px] sm:h-[260px] md:h-[300px] w-full max-w-[300px] sm:max-w-none"
+            >
+              <PieChart>
+                <ChartTooltip
+                  cursor={false}
+                  content={
+                    <ChartTooltipContent
+                      formatter={(value, name) => (
+                        <div className="flex flex-col gap-0.5">
+                          <span className="font-medium text-xs sm:text-sm">{name}</span>
+                          <span className="text-xs sm:text-sm">{formatCurrency(Number(value) || 0)}</span>
+                        </div>
+                      )}
+                    />
+                  }
+                />
+                <Pie
+                  data={data}
+                  dataKey="value"
+                  nameKey="name"
+                  cx="50%"
+                  cy="50%"
+                  innerRadius="40%"
+                  outerRadius="70%"
+                  paddingAngle={2}
+                  strokeWidth={1}
+                >
+                  {data.map((entry, index) => (
+                    <Cell
+                      key={`cell-${index}`}
+                      fill={entry.color}
+                      stroke={entry.color}
+                    />
+                  ))}
+                  <Label
+                    content={({ viewBox }) => {
+                      if (viewBox && 'cx' in viewBox && 'cy' in viewBox) {
+                        return (
+                          <text
+                            x={viewBox.cx}
+                            y={viewBox.cy}
+                            textAnchor="middle"
+                            dominantBaseline="middle"
+                          >
+                            <tspan
+                              x={viewBox.cx}
+                              y={(viewBox.cy || 0) - 8}
+                              className="fill-muted-foreground text-[10px] sm:text-xs"
+                            >
+                              Total
+                            </tspan>
+                            <tspan
+                              x={viewBox.cx}
+                              y={(viewBox.cy || 0) + 10}
+                              className="fill-foreground text-sm sm:text-lg md:text-xl font-bold"
+                            >
+                              {formatCurrencyCompact(totalAmount)}
+                            </tspan>
+                          </text>
+                        );
+                      }
+                    }}
+                  />
+                </Pie>
+              </PieChart>
+            </ChartContainer>
+
+            {/* Category Legend */}
+            <div className="mt-3 sm:mt-4 grid grid-cols-2 gap-x-2 gap-y-1.5 sm:gap-2 px-1 sm:px-0">
+              {data.slice(0, 6).map((category) => (
+                <div key={category.name} className="flex items-center gap-1.5 sm:gap-2 min-w-0">
+                  <div
+                    className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full flex-shrink-0"
+                    style={{ backgroundColor: category.color }}
+                  />
+                  <span className="text-[10px] sm:text-xs text-muted-foreground truncate flex-1">
+                    {category.name}
+                  </span>
+                  <span className="text-[10px] sm:text-xs text-muted-foreground/70 flex-shrink-0">
+                    {totalAmount > 0
+                      ? ((category.value / totalAmount) * 100).toFixed(0)
+                      : 0}
+                    %
+                  </span>
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
-      )}
-    </div>
+          </>
+        )}
+      </CardContent>
+    </Card>
   );
 }

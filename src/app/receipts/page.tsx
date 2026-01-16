@@ -22,6 +22,9 @@ import {
 } from 'lucide-react';
 import { getSubcategoryLabel } from '@/constants/irs-categories';
 import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import {
   Select,
   SelectContent,
@@ -29,6 +32,32 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 // Category colors mapping
 const CATEGORY_COLORS: Record<string, string> = {
@@ -298,19 +327,21 @@ export default function ReceiptsPage() {
               <Filter className="w-4 h-4 sm:w-5 sm:h-5 text-slate-600" />
               <h2 className="text-base sm:text-lg font-semibold text-slate-900">Filters</h2>
               {activeFilterCount > 0 && (
-                <span className="bg-blue-500 text-white text-xs font-semibold px-2 py-0.5 sm:py-1 rounded-full">
+                <Badge className="bg-cyan-500 hover:bg-cyan-500 text-white">
                   {activeFilterCount}
-                </span>
+                </Badge>
               )}
             </div>
             {activeFilterCount > 0 && (
-              <button
+              <Button
+                variant="ghost"
+                size="sm"
                 onClick={clearFilters}
-                className="text-xs sm:text-sm text-blue-600 hover:text-blue-700 font-medium flex items-center gap-1"
+                className="text-cyan-600 hover:text-cyan-700 hover:bg-cyan-50"
               >
-                <X className="w-3 h-3 sm:w-4 sm:h-4" />
+                <X className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
                 Clear All
-              </button>
+              </Button>
             )}
           </div>
 
@@ -398,37 +429,37 @@ export default function ReceiptsPage() {
 
         {/* Stats Bar */}
         <div className="grid grid-cols-3 gap-2 sm:gap-4 mb-4 sm:mb-6">
-          <div className="bg-gradient-to-br from-cyan-500 to-cyan-600 rounded-lg shadow-lg p-3 sm:p-6 text-white">
-            <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3">
-              <ReceiptIcon className="w-5 h-5 sm:w-8 sm:h-8" />
-              <div>
-                <p className="text-xs sm:text-sm text-cyan-100">Total</p>
-                <p className="text-lg sm:text-3xl font-bold">{stats.totalCount}</p>
+          <Card className="bg-gradient-to-t from-cyan-500/5 to-card shadow-sm">
+            <CardContent className="p-4 sm:p-6">
+              <div className="flex items-center gap-2 text-muted-foreground mb-2">
+                <ReceiptIcon className="w-5 h-5 sm:w-6 sm:h-6 text-cyan-500" />
+                <span className="text-sm sm:text-base font-medium">Total</span>
               </div>
-            </div>
-          </div>
+              <p className="text-2xl sm:text-4xl font-bold text-slate-900">{stats.totalCount}</p>
+            </CardContent>
+          </Card>
 
-          <div className="bg-gradient-to-br from-green-500 to-green-600 rounded-lg shadow-lg p-3 sm:p-6 text-white">
-            <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3">
-              <DollarSign className="w-5 h-5 sm:w-8 sm:h-8" />
-              <div className="min-w-0">
-                <p className="text-xs sm:text-sm text-green-100">Amount</p>
-                <p className="text-base sm:text-3xl font-bold truncate">{formatCurrency(stats.totalAmount)}</p>
+          <Card className="bg-gradient-to-t from-green-500/5 to-card shadow-sm">
+            <CardContent className="p-4 sm:p-6">
+              <div className="flex items-center gap-2 text-muted-foreground mb-2">
+                <DollarSign className="w-5 h-5 sm:w-6 sm:h-6 text-green-500" />
+                <span className="text-sm sm:text-base font-medium">Amount</span>
               </div>
-            </div>
-          </div>
+              <p className="text-xl sm:text-4xl font-bold text-slate-900 truncate">{formatCurrency(stats.totalAmount)}</p>
+            </CardContent>
+          </Card>
 
-          <div className="bg-gradient-to-br from-sky-500 to-sky-600 rounded-lg shadow-lg p-3 sm:p-6 text-white">
-            <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3">
-              <FileText className="w-5 h-5 sm:w-8 sm:h-8" />
-              <div>
-                <p className="text-xs sm:text-sm text-sky-100">Filtered</p>
-                <p className="text-lg sm:text-3xl font-bold">
-                  {stats.filteredCount}/{stats.totalCount}
-                </p>
+          <Card className="bg-gradient-to-t from-sky-500/5 to-card shadow-sm">
+            <CardContent className="p-4 sm:p-6">
+              <div className="flex items-center gap-2 text-muted-foreground mb-2">
+                <FileText className="w-5 h-5 sm:w-6 sm:h-6 text-sky-500" />
+                <span className="text-sm sm:text-base font-medium">Filtered</span>
               </div>
-            </div>
-          </div>
+              <p className="text-2xl sm:text-4xl font-bold text-slate-900">
+                {stats.filteredCount}/{stats.totalCount}
+              </p>
+            </CardContent>
+          </Card>
         </div>
 
         {/* Empty State */}
@@ -444,13 +475,14 @@ export default function ReceiptsPage() {
                 : 'Try adjusting your filters to see more results'}
             </p>
             {receipts.length === 0 && (
-              <button
+              <Button
                 onClick={() => router.push('/upload')}
-                className="bg-cyan-500 hover:bg-cyan-600 text-white px-6 py-3 rounded-lg font-semibold transition-colors inline-flex items-center gap-2"
+                className="bg-cyan-500 hover:bg-cyan-600 text-white"
+                size="lg"
               >
-                <Upload className="w-5 h-5" />
+                <Upload className="w-5 h-5 mr-2" />
                 Upload Receipt
-              </button>
+              </Button>
             )}
           </div>
         )}
@@ -459,15 +491,15 @@ export default function ReceiptsPage() {
         {filteredReceipts.length > 0 && (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
             {filteredReceipts.map((receipt) => (
-              <div
+              <Card
                 key={receipt.id}
-                className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 sm:hover:scale-105 cursor-pointer overflow-hidden"
+                className="hover:shadow-xl transition-all duration-200 sm:hover:scale-105 cursor-pointer overflow-hidden"
                 onClick={() => {
                   setSelectedReceipt(receipt);
                   setShowDetailModal(true);
                 }}
               >
-                <div className="p-4 sm:p-6">
+                <CardContent className="p-4 sm:p-6">
                   <div className="flex gap-3 sm:gap-4 mb-3 sm:mb-4">
                     {/* Thumbnail */}
                     <div className="w-16 h-16 sm:w-20 sm:h-20 flex-shrink-0">
@@ -500,13 +532,12 @@ export default function ReceiptsPage() {
 
                   {/* Category Badge */}
                   <div className="mb-2 sm:mb-3">
-                    <span
-                      className={`inline-block px-2 sm:px-3 py-0.5 sm:py-1 rounded-full text-xs font-semibold ${
-                        CATEGORY_COLORS[receipt.category] || CATEGORY_COLORS.other
-                      }`}
+                    <Badge
+                      variant="secondary"
+                      className={CATEGORY_COLORS[receipt.category] || CATEGORY_COLORS.other}
                     >
                       {CATEGORY_LABELS[receipt.category] || 'Other'}
-                    </span>
+                    </Badge>
                     {receipt.subcategory && (
                       <span className="ml-1.5 text-xs text-slate-500">
                         - {getSubcategoryLabel(receipt.category, receipt.subcategory)}
@@ -521,74 +552,68 @@ export default function ReceiptsPage() {
 
                   {/* Action Buttons */}
                   <div className="flex gap-1.5 sm:gap-2 pt-3 sm:pt-4 border-t border-gray-100">
-                    <button
+                    <Button
+                      variant="ghost"
+                      size="sm"
                       onClick={(e) => {
                         e.stopPropagation();
                         setSelectedReceipt(receipt);
                         setShowDetailModal(true);
                       }}
-                      className="flex-1 flex items-center justify-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 sm:py-2 bg-cyan-50 text-cyan-600 rounded-lg hover:bg-cyan-100 transition-colors"
+                      className="flex-1 bg-cyan-50 text-cyan-600 hover:bg-cyan-100 hover:text-cyan-700"
                     >
-                      <Eye className="w-3 h-3 sm:w-4 sm:h-4" />
-                      <span className="text-xs sm:text-sm font-medium">View</span>
-                    </button>
-                    <button
+                      <Eye className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
+                      <span className="text-xs sm:text-sm">View</span>
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
                       onClick={(e) => {
                         e.stopPropagation();
                         router.push(`/receipts/${receipt.id}/edit`);
                       }}
-                      className="flex-1 flex items-center justify-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 sm:py-2 bg-green-50 text-green-600 rounded-lg hover:bg-green-100 transition-colors"
+                      className="flex-1 bg-green-50 text-green-600 hover:bg-green-100 hover:text-green-700"
                     >
-                      <Edit2 className="w-3 h-3 sm:w-4 sm:h-4" />
-                      <span className="text-xs sm:text-sm font-medium">Edit</span>
-                    </button>
-                    <button
+                      <Edit2 className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
+                      <span className="text-xs sm:text-sm">Edit</span>
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
                       onClick={(e) => {
                         e.stopPropagation();
                         setDeleteConfirmReceipt(receipt);
                       }}
-                      className="flex-1 flex items-center justify-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 sm:py-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors"
+                      className="flex-1 bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700"
                     >
-                      <Trash2 className="w-3 h-3 sm:w-4 sm:h-4" />
-                      <span className="text-xs sm:text-sm font-medium">Delete</span>
-                    </button>
+                      <Trash2 className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
+                      <span className="text-xs sm:text-sm">Delete</span>
+                    </Button>
                   </div>
-                </div>
-              </div>
+                </CardContent>
+              </Card>
             ))}
           </div>
         )}
 
         {/* Upload Button (floating) */}
-        <button
+        <Button
           onClick={() => router.push('/upload')}
-          className="fixed bottom-8 right-8 bg-cyan-500 hover:bg-cyan-600 text-white p-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-110"
+          size="icon"
+          className="fixed bottom-8 right-8 bg-cyan-500 hover:bg-cyan-600 text-white w-14 h-14 rounded-full shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-110"
         >
           <Upload className="w-6 h-6" />
-        </button>
+        </Button>
 
         {/* Detail Modal */}
-        {showDetailModal && selectedReceipt && (
-          <div
-            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
-            onClick={() => setShowDetailModal(false)}
-          >
-            <div
-              className="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div className="p-6">
-                {/* Header */}
-                <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-2xl font-bold text-slate-900">Receipt Details</h2>
-                  <button
-                    onClick={() => setShowDetailModal(false)}
-                    className="text-gray-400 hover:text-gray-600"
-                  >
-                    <X className="w-6 h-6" />
-                  </button>
-                </div>
+        <Dialog open={showDetailModal} onOpenChange={setShowDetailModal}>
+          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle className="text-2xl font-bold text-slate-900">Receipt Details</DialogTitle>
+            </DialogHeader>
 
+            {selectedReceipt && (
+              <>
                 {/* Image */}
                 {selectedReceipt.image_url && (
                   <div className="mb-6">
@@ -622,13 +647,12 @@ export default function ReceiptsPage() {
                   <div>
                     <label className="text-sm font-medium text-slate-500">Category</label>
                     <div className="mt-1 flex items-center flex-wrap gap-1.5">
-                      <span
-                        className={`inline-block px-3 py-1 rounded-full text-sm font-semibold ${
-                          CATEGORY_COLORS[selectedReceipt.category] || CATEGORY_COLORS.other
-                        }`}
+                      <Badge
+                        variant="secondary"
+                        className={CATEGORY_COLORS[selectedReceipt.category] || CATEGORY_COLORS.other}
                       >
                         {CATEGORY_LABELS[selectedReceipt.category] || 'Other'}
-                      </span>
+                      </Badge>
                       {selectedReceipt.subcategory && (
                         <span className="text-sm text-slate-600">
                           - {getSubcategoryLabel(selectedReceipt.category, selectedReceipt.subcategory)}
@@ -676,78 +700,74 @@ export default function ReceiptsPage() {
                 </div>
 
                 {/* Actions */}
-                <div className="flex gap-3 mt-6 pt-6 border-t border-gray-200">
-                  <button
+                <DialogFooter className="flex gap-3 mt-6 pt-6 border-t border-gray-200 sm:flex-row">
+                  <Button
+                    variant="outline"
+                    onClick={() => setShowDetailModal(false)}
+                    className="flex-1"
+                  >
+                    Close
+                  </Button>
+                  <Button
                     onClick={() => {
                       setShowDetailModal(false);
                       router.push(`/receipts/${selectedReceipt.id}/edit`);
                     }}
-                    className="flex-1 bg-cyan-500 hover:bg-cyan-600 text-white px-4 py-2 rounded-lg font-semibold transition-colors flex items-center justify-center gap-2"
+                    className="flex-1 bg-cyan-500 hover:bg-cyan-600 text-white"
                   >
-                    <Edit2 className="w-4 h-4" />
+                    <Edit2 className="w-4 h-4 mr-2" />
                     Edit Receipt
-                  </button>
-                  <button
-                    onClick={() => setShowDetailModal(false)}
-                    className="flex-1 border-2 border-gray-300 hover:border-gray-400 text-slate-700 px-4 py-2 rounded-lg font-semibold transition-colors"
-                  >
-                    Close
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
+                  </Button>
+                </DialogFooter>
+              </>
+            )}
+          </DialogContent>
+        </Dialog>
 
         {/* Delete Confirmation Dialog */}
-        {deleteConfirmReceipt && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-            <div className="bg-white rounded-xl shadow-2xl max-w-md w-full p-6">
-              <div className="flex items-start gap-4 mb-4">
+        <AlertDialog open={!!deleteConfirmReceipt} onOpenChange={(open) => !open && setDeleteConfirmReceipt(null)}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <div className="flex items-start gap-4">
                 <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0">
                   <Trash2 className="w-6 h-6 text-red-600" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-semibold text-slate-900 mb-2">Delete Receipt?</h3>
-                  <p className="text-slate-600 text-sm mb-2">
+                  <AlertDialogTitle className="text-lg font-semibold text-slate-900">Delete Receipt?</AlertDialogTitle>
+                  <AlertDialogDescription className="mt-2">
                     Are you sure you want to delete this receipt?
-                  </p>
-                  <p className="text-sm">
-                    <span className="font-semibold">{deleteConfirmReceipt.merchant}</span> -{' '}
-                    {formatCurrency(deleteConfirmReceipt.total)}
-                  </p>
+                    {deleteConfirmReceipt && (
+                      <span className="block mt-2 text-slate-900">
+                        <span className="font-semibold">{deleteConfirmReceipt.merchant}</span> -{' '}
+                        {formatCurrency(deleteConfirmReceipt.total)}
+                      </span>
+                    )}
+                  </AlertDialogDescription>
                 </div>
               </div>
-
-              <div className="flex gap-3">
-                <button
-                  onClick={() => setDeleteConfirmReceipt(null)}
-                  disabled={deleting}
-                  className="flex-1 border-2 border-gray-300 hover:border-gray-400 text-slate-700 px-4 py-2 rounded-lg font-semibold transition-colors disabled:opacity-50"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleDelete}
-                  disabled={deleting}
-                  className="flex-1 bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg font-semibold transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
-                >
-                  {deleting ? (
-                    <>
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                      Deleting...
-                    </>
-                  ) : (
-                    <>
-                      <Trash2 className="w-4 h-4" />
-                      Delete
-                    </>
-                  )}
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel disabled={deleting}>Cancel</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={handleDelete}
+                disabled={deleting}
+                className="bg-red-500 hover:bg-red-600 text-white"
+              >
+                {deleting ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                    Deleting...
+                  </>
+                ) : (
+                  <>
+                    <Trash2 className="w-4 h-4 mr-2" />
+                    Delete
+                  </>
+                )}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     </div>
   );

@@ -26,6 +26,32 @@ import {
   AlertCircle,
   Mail,
 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {
+  Dialog,
+  DialogContent,
+} from '@/components/ui/dialog';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 // Category colors and labels (same as receipts page)
 const CATEGORY_COLORS: Record<string, string> = {
@@ -348,13 +374,13 @@ export default function ReceiptDetailPage() {
           <p className="text-slate-600 mb-6">
             This receipt doesn't exist or you don't have permission to view it.
           </p>
-          <button
+          <Button
             onClick={() => router.push('/receipts')}
-            className="bg-cyan-500 hover:bg-cyan-600 text-white px-6 py-3 rounded-lg font-semibold transition-colors inline-flex items-center gap-2"
+            className="bg-cyan-500 hover:bg-cyan-600 text-white"
           >
-            <ArrowLeft className="w-5 h-5" />
+            <ArrowLeft className="w-5 h-5 mr-2" />
             Back to Receipts
-          </button>
+          </Button>
         </div>
       </div>
     );
@@ -384,20 +410,21 @@ export default function ReceiptDetailPage() {
 
             {!isEditMode && (
               <div className="flex gap-2">
-                <button
+                <Button
                   onClick={handleEditClick}
-                  className="flex-1 sm:flex-none bg-cyan-500 hover:bg-cyan-600 text-white px-3 sm:px-4 py-2 rounded-lg font-semibold text-sm sm:text-base transition-colors inline-flex items-center justify-center gap-2"
+                  className="flex-1 sm:flex-none bg-cyan-500 hover:bg-cyan-600 text-white"
                 >
-                  <Edit2 className="w-4 h-4" />
+                  <Edit2 className="w-4 h-4 mr-2" />
                   Edit
-                </button>
-                <button
+                </Button>
+                <Button
                   onClick={() => setShowDeleteConfirm(true)}
-                  className="flex-1 sm:flex-none bg-red-500 hover:bg-red-600 text-white px-3 sm:px-4 py-2 rounded-lg font-semibold text-sm sm:text-base transition-colors inline-flex items-center justify-center gap-2"
+                  variant="destructive"
+                  className="flex-1 sm:flex-none"
                 >
-                  <Trash2 className="w-4 h-4" />
+                  <Trash2 className="w-4 h-4 mr-2" />
                   Delete
-                </button>
+                </Button>
               </div>
             )}
           </div>
@@ -476,20 +503,22 @@ export default function ReceiptDetailPage() {
                 </div>
 
                 <div className="flex gap-2">
-                  <button
+                  <Button
+                    variant="outline"
                     onClick={handleDownloadImage}
-                    className="flex-1 border-2 border-slate-300 hover:border-slate-400 text-slate-700 px-4 py-2 rounded-lg font-semibold transition-colors inline-flex items-center justify-center gap-2"
+                    className="flex-1"
                   >
-                    <Download className="w-4 h-4" />
+                    <Download className="w-4 h-4 mr-2" />
                     Download
-                  </button>
-                  <button
+                  </Button>
+                  <Button
+                    variant="outline"
                     onClick={() => window.open(receipt.image_url!, '_blank')}
-                    className="flex-1 border-2 border-slate-300 hover:border-slate-400 text-slate-700 px-4 py-2 rounded-lg font-semibold transition-colors inline-flex items-center justify-center gap-2"
+                    className="flex-1"
                   >
-                    <ExternalLink className="w-4 h-4" />
+                    <ExternalLink className="w-4 h-4 mr-2" />
                     Open
-                  </button>
+                  </Button>
                 </div>
               </div>
             ) : receipt.email_text ? (
@@ -547,13 +576,12 @@ export default function ReceiptDetailPage() {
                     <Tag className="w-4 h-4" />
                     <span>Category</span>
                   </div>
-                  <span
-                    className={`inline-block px-4 py-2 rounded-full text-sm font-semibold ${
-                      CATEGORY_COLORS[receipt.category] || CATEGORY_COLORS.other
-                    }`}
+                  <Badge
+                    variant="secondary"
+                    className={`px-4 py-2 text-sm ${CATEGORY_COLORS[receipt.category] || CATEGORY_COLORS.other}`}
                   >
                     {CATEGORY_LABELS[receipt.category] || 'Other'}
-                  </span>
+                  </Badge>
                 </div>
 
                 {/* Business Purpose */}
@@ -639,11 +667,10 @@ export default function ReceiptDetailPage() {
                   <label className="block text-sm font-medium text-slate-700 mb-1">
                     Date <span className="text-red-500">*</span>
                   </label>
-                  <input
+                  <Input
                     type="date"
                     value={editForm.date}
                     onChange={(e) => handleFormChange('date', e.target.value)}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
                   />
                 </div>
 
@@ -652,11 +679,10 @@ export default function ReceiptDetailPage() {
                   <label className="block text-sm font-medium text-slate-700 mb-1">
                     Vendor/Merchant <span className="text-red-500">*</span>
                   </label>
-                  <input
+                  <Input
                     type="text"
                     value={editForm.merchant}
                     onChange={(e) => handleFormChange('merchant', e.target.value)}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
                     placeholder="Enter vendor name"
                   />
                 </div>
@@ -666,12 +692,11 @@ export default function ReceiptDetailPage() {
                   <label className="block text-sm font-medium text-slate-700 mb-1">
                     Amount <span className="text-red-500">*</span>
                   </label>
-                  <input
+                  <Input
                     type="number"
                     step="0.01"
                     value={editForm.total}
                     onChange={(e) => handleFormChange('total', e.target.value)}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
                     placeholder="0.00"
                   />
                 </div>
@@ -681,17 +706,21 @@ export default function ReceiptDetailPage() {
                   <label className="block text-sm font-medium text-slate-700 mb-1">
                     Category <span className="text-red-500">*</span>
                   </label>
-                  <select
+                  <Select
                     value={editForm.category}
-                    onChange={(e) => handleFormChange('category', e.target.value)}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                    onValueChange={(value) => handleFormChange('category', value)}
                   >
-                    {IRS_CATEGORIES.map((cat) => (
-                      <option key={cat.value} value={cat.value}>
-                        {cat.label}
-                      </option>
-                    ))}
-                  </select>
+                    <SelectTrigger className="w-full">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {IRS_CATEGORIES.map((cat) => (
+                        <SelectItem key={cat.value} value={cat.value}>
+                          {cat.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
 
                 {/* Business Purpose */}
@@ -699,11 +728,10 @@ export default function ReceiptDetailPage() {
                   <label className="block text-sm font-medium text-slate-700 mb-1">
                     Business Purpose
                   </label>
-                  <input
+                  <Input
                     type="text"
                     value={editForm.business_purpose}
                     onChange={(e) => handleFormChange('business_purpose', e.target.value)}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
                     placeholder="Optional"
                   />
                 </div>
@@ -713,144 +741,133 @@ export default function ReceiptDetailPage() {
                   <label className="block text-sm font-medium text-slate-700 mb-1">
                     Payment Method
                   </label>
-                  <select
-                    value={editForm.payment_method}
-                    onChange={(e) => handleFormChange('payment_method', e.target.value)}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                  <Select
+                    value={editForm.payment_method || undefined}
+                    onValueChange={(value) => handleFormChange('payment_method', value)}
                   >
-                    {PAYMENT_METHODS.map((method) => (
-                      <option key={method.value} value={method.value}>
-                        {method.label}
-                      </option>
-                    ))}
-                  </select>
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Select payment method" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {PAYMENT_METHODS.filter(m => m.value !== '').map((method) => (
+                        <SelectItem key={method.value} value={method.value}>
+                          {method.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
 
                 {/* Notes */}
                 <div>
                   <label className="block text-sm font-medium text-slate-700 mb-1">Notes</label>
-                  <textarea
+                  <Textarea
                     value={editForm.notes}
                     onChange={(e) => handleFormChange('notes', e.target.value)}
                     rows={4}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 resize-none"
                     placeholder="Add any additional notes"
+                    className="resize-none"
                   />
                 </div>
 
                 {/* Action Buttons */}
                 <div className="flex gap-3 pt-4">
-                  <button
+                  <Button
                     onClick={handleSave}
                     disabled={saving}
-                    className="flex-1 bg-cyan-500 hover:bg-cyan-600 text-white px-4 py-3 rounded-lg font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center justify-center gap-2"
+                    className="flex-1 bg-cyan-500 hover:bg-cyan-600 text-white"
                   >
                     {saving ? (
                       <>
-                        <Loader2 className="w-5 h-5 animate-spin" />
+                        <Loader2 className="w-5 h-5 animate-spin mr-2" />
                         Saving...
                       </>
                     ) : (
                       <>
-                        <Save className="w-5 h-5" />
+                        <Save className="w-5 h-5 mr-2" />
                         Save Changes
                       </>
                     )}
-                  </button>
-                  <button
+                  </Button>
+                  <Button
+                    variant="outline"
                     onClick={handleCancelEdit}
                     disabled={saving}
-                    className="flex-1 border-2 border-slate-300 hover:border-slate-400 text-slate-700 px-4 py-3 rounded-lg font-semibold transition-colors disabled:opacity-50"
+                    className="flex-1"
                   >
                     Cancel
-                  </button>
+                  </Button>
                 </div>
 
                 {/* Delete button in edit mode */}
-                <button
+                <Button
+                  variant="ghost"
                   onClick={() => setShowDeleteConfirm(true)}
                   disabled={saving}
-                  className="w-full bg-red-50 hover:bg-red-100 text-red-600 px-4 py-2 rounded-lg font-semibold transition-colors disabled:opacity-50 inline-flex items-center justify-center gap-2 border border-red-200"
+                  className="w-full bg-red-50 hover:bg-red-100 text-red-600 border border-red-200"
                 >
-                  <Trash2 className="w-4 h-4" />
+                  <Trash2 className="w-4 h-4 mr-2" />
                   Delete Receipt
-                </button>
+                </Button>
               </div>
             )}
           </div>
         </div>
 
         {/* Image Modal */}
-        {showImageModal && receipt.image_url && (
-          <div
-            className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 z-50"
-            onClick={() => setShowImageModal(false)}
-          >
-            <div className="relative max-w-5xl w-full">
-              <button
-                onClick={() => setShowImageModal(false)}
-                className="absolute -top-12 right-0 text-white hover:text-gray-300"
-              >
-                <X className="w-8 h-8" />
-              </button>
+        <Dialog open={showImageModal} onOpenChange={setShowImageModal}>
+          <DialogContent className="max-w-5xl p-0 bg-transparent border-none">
+            {receipt.image_url && (
               <img
                 src={receipt.image_url}
                 alt={receipt.merchant}
-                className="w-full h-auto max-h-[90vh] object-contain"
-                onClick={(e) => e.stopPropagation()}
+                className="w-full h-auto max-h-[90vh] object-contain rounded-lg"
               />
-            </div>
-          </div>
-        )}
+            )}
+          </DialogContent>
+        </Dialog>
 
         {/* Delete Confirmation Dialog */}
-        {showDeleteConfirm && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-            <div className="bg-white rounded-xl shadow-2xl max-w-md w-full p-6">
-              <div className="flex items-start gap-4 mb-4">
+        <AlertDialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <div className="flex items-start gap-4">
                 <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0">
                   <Trash2 className="w-6 h-6 text-red-600" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-semibold text-slate-900 mb-2">Delete Receipt?</h3>
-                  <p className="text-slate-600 text-sm mb-2">
+                  <AlertDialogTitle className="text-lg font-semibold text-slate-900">Delete Receipt?</AlertDialogTitle>
+                  <AlertDialogDescription className="mt-2">
                     Are you sure you want to delete this receipt? This action cannot be undone.
-                  </p>
-                  <p className="text-sm font-semibold">
-                    {receipt.merchant} - {formatCurrency(receipt.total)}
-                  </p>
+                    <span className="block mt-2 text-slate-900 font-semibold">
+                      {receipt.merchant} - {formatCurrency(receipt.total)}
+                    </span>
+                  </AlertDialogDescription>
                 </div>
               </div>
-
-              <div className="flex gap-3">
-                <button
-                  onClick={() => setShowDeleteConfirm(false)}
-                  disabled={deleting}
-                  className="flex-1 border-2 border-gray-300 hover:border-gray-400 text-slate-700 px-4 py-2 rounded-lg font-semibold transition-colors disabled:opacity-50"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleDelete}
-                  disabled={deleting}
-                  className="flex-1 bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg font-semibold transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
-                >
-                  {deleting ? (
-                    <>
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                      Deleting...
-                    </>
-                  ) : (
-                    <>
-                      <Trash2 className="w-4 h-4" />
-                      Delete
-                    </>
-                  )}
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel disabled={deleting}>Cancel</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={handleDelete}
+                disabled={deleting}
+                className="bg-red-500 hover:bg-red-600 text-white"
+              >
+                {deleting ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                    Deleting...
+                  </>
+                ) : (
+                  <>
+                    <Trash2 className="w-4 h-4 mr-2" />
+                    Delete
+                  </>
+                )}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     </div>
   );

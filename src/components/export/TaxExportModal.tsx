@@ -2,7 +2,6 @@
 
 import { useState, useCallback } from 'react';
 import {
-  X,
   Download,
   FileText,
   Loader2,
@@ -15,6 +14,25 @@ import {
 import { Receipt } from '@/types/database';
 import { generateBusinessReceiptCSV, downloadCSV, ExportOptions } from '@/lib/export';
 import { generateAuditPDF, downloadPDF } from '@/lib/pdf-export';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Progress } from '@/components/ui/progress';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 interface TaxExportModalProps {
   isOpen: boolean;
@@ -126,72 +144,51 @@ export default function TaxExportModal({
     }
   };
 
-  if (!isOpen) return null;
-
   const isExporting = csvStatus === 'loading' || pdfStatus === 'loading';
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
-      {/* Backdrop */}
-      <div
-        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
-        onClick={!isExporting ? onClose : undefined}
-      />
+    <Dialog open={isOpen} onOpenChange={(open) => !open && !isExporting && onClose()}>
+      <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
+        <DialogHeader className="bg-gradient-to-r from-cyan-500 to-blue-600 -mx-6 -mt-6 px-4 sm:px-6 py-4 sm:py-5 rounded-t-lg">
+          <DialogTitle className="text-lg sm:text-xl font-bold text-white">
+            Export for Tax Filing
+          </DialogTitle>
+          <DialogDescription className="text-cyan-100 text-xs sm:text-sm">
+            IRS Schedule C Ready Format
+          </DialogDescription>
+        </DialogHeader>
 
-      {/* Modal */}
-      <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto">
-        {/* Header */}
-        <div className="bg-gradient-to-r from-cyan-500 to-blue-600 rounded-t-2xl px-6 py-5">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-xl font-bold text-white">Export for Tax Filing</h2>
-              <p className="text-cyan-100 text-sm mt-1">
-                IRS Schedule C Ready Format
-              </p>
-            </div>
-            <button
-              onClick={onClose}
-              disabled={isExporting}
-              className="w-10 h-10 min-w-[40px] min-h-[40px] max-w-[40px] max-h-[40px] aspect-square flex-shrink-0 flex items-center justify-center text-white/80 hover:text-white transition-colors disabled:opacity-50 rounded-lg hover:bg-white/10"
-            >
-              <X className="w-6 h-6 flex-shrink-0" />
-            </button>
-          </div>
-        </div>
-
-        <div className="p-6 space-y-6">
+        <div className="space-y-4 sm:space-y-6 pt-2">
           {/* Tax Year Selector */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Tax Year
-            </label>
-            <select
-              value={taxYear}
-              onChange={(e) => onYearChange(Number(e.target.value))}
+          <div className="space-y-2">
+            <Label className="text-sm font-medium">Tax Year</Label>
+            <Select
+              value={taxYear.toString()}
+              onValueChange={(value) => onYearChange(Number(value))}
               disabled={isExporting}
-              className="appearance-none w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-700 font-medium focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent disabled:opacity-50"
-              style={{
-                WebkitAppearance: 'none',
-                MozAppearance: 'none',
-              }}
             >
-              {availableYears.map((year) => (
-                <option key={year} value={year}>
-                  FY{year}
-                </option>
-              ))}
-            </select>
+              <SelectTrigger className="w-full h-10 sm:h-11">
+                <SelectValue placeholder="Select year" />
+              </SelectTrigger>
+              <SelectContent>
+                {availableYears.map((year) => (
+                  <SelectItem key={year} value={year.toString()}>
+                    FY{year}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           {/* Receipt Count */}
-          <div className="bg-gray-50 rounded-lg p-4">
-            <div className="flex items-center justify-between">
-              <span className="text-gray-600">
+          <div className="bg-muted/50 rounded-lg p-3 sm:p-4">
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-muted-foreground">
                 {receipts.length === 0 ? (
                   <span className="text-orange-600">No receipts for this year</span>
                 ) : (
                   <>
-                    <span className="font-bold text-gray-800">{receipts.length}</span>
+                    <span className="font-bold text-foreground">{receipts.length}</span>
                     {' '}receipt{receipts.length !== 1 ? 's' : ''} ready
                   </>
                 )}
@@ -205,154 +202,149 @@ export default function TaxExportModal({
           </div>
 
           {/* Business Info (Optional) */}
-          <div className="space-y-4">
-            <h3 className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+          <div className="space-y-3 sm:space-y-4">
+            <h3 className="text-xs sm:text-sm font-semibold text-foreground flex items-center gap-2">
               <Building2 className="w-4 h-4" />
               Business Information (Optional)
             </h3>
 
             {/* Business Name */}
-            <div>
-              <label className="block text-sm text-gray-600 mb-1">
+            <div className="space-y-1.5">
+              <Label className="text-xs sm:text-sm text-muted-foreground">
                 Business Name
-              </label>
-              <input
+              </Label>
+              <Input
                 type="text"
                 value={businessName}
                 onChange={(e) => setBusinessName(e.target.value)}
                 placeholder="Your Business Name"
                 disabled={isExporting}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent disabled:opacity-50"
+                className="h-9 sm:h-10"
               />
             </div>
 
             {/* EIN */}
-            <div>
-              <label className="block text-sm text-gray-600 mb-1 flex items-center gap-1">
+            <div className="space-y-1.5">
+              <Label className="text-xs sm:text-sm text-muted-foreground flex items-center gap-1">
                 <Hash className="w-3 h-3" />
                 EIN (Employer Identification Number)
-              </label>
-              <input
+              </Label>
+              <Input
                 type="text"
                 value={ein}
                 onChange={(e) => handleEinChange(e.target.value)}
                 placeholder="XX-XXXXXXX"
                 disabled={isExporting}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent disabled:opacity-50"
+                className="h-9 sm:h-10"
               />
             </div>
 
             {/* CPA Name */}
-            <div>
-              <label className="block text-sm text-gray-600 mb-1 flex items-center gap-1">
+            <div className="space-y-1.5">
+              <Label className="text-xs sm:text-sm text-muted-foreground flex items-center gap-1">
                 <User className="w-3 h-3" />
                 Prepared for (CPA/Accountant)
-              </label>
-              <input
+              </Label>
+              <Input
                 type="text"
                 value={cpaName}
                 onChange={(e) => setCpaName(e.target.value)}
                 placeholder="CPA or Accountant Name"
                 disabled={isExporting}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent disabled:opacity-50"
+                className="h-9 sm:h-10"
               />
             </div>
           </div>
 
           {/* PDF Progress */}
           {pdfStatus === 'loading' && (
-            <div className="bg-blue-50 rounded-lg p-4">
-              <div className="flex items-center justify-between text-sm text-blue-700 mb-2">
+            <div className="bg-cyan-50 rounded-lg p-3 sm:p-4 space-y-2">
+              <div className="flex items-center justify-between text-xs sm:text-sm text-cyan-700">
                 <span>{pdfMessage}</span>
                 <span className="font-semibold">{pdfProgress}%</span>
               </div>
-              <div className="w-full bg-blue-200 rounded-full h-2">
-                <div
-                  className="bg-blue-500 h-2 rounded-full transition-all duration-300"
-                  style={{ width: `${pdfProgress}%` }}
-                />
-              </div>
+              <Progress value={pdfProgress} className="h-2" />
             </div>
           )}
 
           {/* Error */}
           {error && (
-            <div className="bg-red-50 border border-red-200 rounded-lg p-3 text-red-700 text-sm flex items-start gap-2">
-              <AlertCircle className="w-4 h-4 mt-0.5 flex-shrink-0" />
-              {error}
-            </div>
+            <Alert variant="destructive">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription className="text-xs sm:text-sm">{error}</AlertDescription>
+            </Alert>
           )}
 
           {/* Export Buttons */}
-          <div className="flex flex-col sm:flex-row gap-3">
+          <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
             {/* CSV Button */}
-            <button
+            <Button
               onClick={handleCSVExport}
               disabled={isExporting || receipts.length === 0}
-              className={`flex-1 flex items-center justify-center gap-2 px-5 py-3 rounded-lg font-semibold transition-all duration-200 ${
+              className={`flex-1 h-10 sm:h-11 text-sm sm:text-base ${
                 csvStatus === 'success'
-                  ? 'bg-green-500 text-white'
+                  ? 'bg-green-500 hover:bg-green-600'
                   : csvStatus === 'error'
-                  ? 'bg-red-500 text-white'
-                  : 'bg-green-600 text-white hover:bg-green-700 disabled:bg-gray-300 disabled:cursor-not-allowed'
+                  ? 'bg-red-500 hover:bg-red-600'
+                  : 'bg-green-600 hover:bg-green-700'
               }`}
             >
               {csvStatus === 'loading' ? (
                 <>
-                  <Loader2 className="w-5 h-5 animate-spin" />
+                  <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin mr-2" />
                   Exporting...
                 </>
               ) : csvStatus === 'success' ? (
                 <>
-                  <CheckCircle className="w-5 h-5" />
+                  <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
                   Downloaded!
                 </>
               ) : (
                 <>
-                  <Download className="w-5 h-5" />
+                  <Download className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
                   Download CSV
                 </>
               )}
-            </button>
+            </Button>
 
             {/* PDF Button */}
-            <button
+            <Button
               onClick={handlePDFExport}
               disabled={isExporting || receipts.length === 0}
-              className={`flex-1 flex items-center justify-center gap-2 px-5 py-3 rounded-lg font-semibold transition-all duration-200 ${
+              className={`flex-1 h-10 sm:h-11 text-sm sm:text-base ${
                 pdfStatus === 'success'
-                  ? 'bg-green-500 text-white'
+                  ? 'bg-green-500 hover:bg-green-600'
                   : pdfStatus === 'error'
-                  ? 'bg-red-500 text-white'
-                  : 'bg-blue-600 text-white hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed'
+                  ? 'bg-red-500 hover:bg-red-600'
+                  : 'bg-cyan-600 hover:bg-cyan-700'
               }`}
             >
               {pdfStatus === 'loading' ? (
                 <>
-                  <Loader2 className="w-5 h-5 animate-spin" />
+                  <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin mr-2" />
                   Generating...
                 </>
               ) : pdfStatus === 'success' ? (
                 <>
-                  <CheckCircle className="w-5 h-5" />
+                  <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
                   Downloaded!
                 </>
               ) : (
                 <>
-                  <FileText className="w-5 h-5" />
+                  <FileText className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
                   Audit PDF
                 </>
               )}
-            </button>
+            </Button>
           </div>
 
           {/* Info */}
-          <div className="text-xs text-gray-500 space-y-1">
-            <p><strong>CSV:</strong> Date, Vendor, Amount, IRS Category, Line #, Business Purpose, Receipt URL</p>
-            <p><strong>PDF:</strong> Summary page + receipt images with details (IRS audit-ready)</p>
+          <div className="text-[10px] sm:text-xs text-muted-foreground space-y-1 pt-2 border-t">
+            <p><strong className="text-green-600">CSV:</strong> Date, Vendor, Amount, IRS Category, Line #, Business Purpose, Receipt URL</p>
+            <p><strong className="text-cyan-600">PDF:</strong> Summary page + receipt images with details (IRS audit-ready)</p>
           </div>
         </div>
-      </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 }

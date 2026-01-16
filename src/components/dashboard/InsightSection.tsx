@@ -8,6 +8,7 @@ import {
   TrendingUp,
   TrendingDown,
 } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
 
 export interface InsightData {
   topCategory: {
@@ -39,12 +40,11 @@ export default function InsightSection({ data }: InsightSectionProps) {
   if (data.topCategory) {
     insights.push({
       icon: Tag,
-      iconBg: 'bg-blue-500',
+      iconColor: 'text-blue-500',
       title: 'Top Spending Category',
       description: `${data.topCategory.name} accounts for ${data.topCategory.percentage.toFixed(1)}% of your spending`,
       value: formatCurrency(data.topCategory.amount),
-      gradient: 'from-blue-50 to-indigo-50',
-      border: 'border-blue-200',
+      gradient: 'from-blue-500/5',
     });
   }
 
@@ -52,12 +52,11 @@ export default function InsightSection({ data }: InsightSectionProps) {
   if (data.totalCount > 0) {
     insights.push({
       icon: ReceiptIcon,
-      iconBg: 'bg-green-500',
+      iconColor: 'text-green-500',
       title: 'Average Receipt',
       description: `Based on ${data.totalCount} receipts`,
       value: formatCurrency(data.averageAmount || 0),
-      gradient: 'from-green-50 to-emerald-50',
-      border: 'border-green-200',
+      gradient: 'from-green-500/5',
     });
   }
 
@@ -66,12 +65,11 @@ export default function InsightSection({ data }: InsightSectionProps) {
     const isUp = data.monthlyChange >= 0;
     insights.push({
       icon: isUp ? TrendingUp : TrendingDown,
-      iconBg: isUp ? 'bg-orange-500' : 'bg-teal-500',
+      iconColor: isUp ? 'text-orange-500' : 'text-teal-500',
       title: 'Monthly Trend',
       description: `${isUp ? 'Up' : 'Down'} from last month`,
       value: `${isUp ? '+' : ''}${data.monthlyChange.toFixed(1)}%`,
-      gradient: isUp ? 'from-orange-50 to-amber-50' : 'from-teal-50 to-cyan-50',
-      border: isUp ? 'border-orange-200' : 'border-teal-200',
+      gradient: isUp ? 'from-orange-500/5' : 'from-teal-500/5',
     });
   }
 
@@ -79,74 +77,65 @@ export default function InsightSection({ data }: InsightSectionProps) {
   if (data.estimatedTaxBenefit > 0) {
     insights.push({
       icon: DollarSign,
-      iconBg: 'bg-purple-500',
+      iconColor: 'text-purple-500',
       title: 'Estimated Tax Benefit',
       description: 'Based on 10% deduction rate',
       value: formatCurrency(data.estimatedTaxBenefit),
-      gradient: 'from-purple-50 to-pink-50',
-      border: 'border-purple-200',
+      gradient: 'from-purple-500/5',
     });
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3 sm:space-y-4">
       {/* Insights Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div className="grid grid-cols-2 gap-2 sm:gap-4">
         {insights.map((insight, index) => {
           const Icon = insight.icon;
           return (
-            <div
+            <Card
               key={index}
-              className={`bg-gradient-to-br ${insight.gradient} rounded-xl shadow-lg p-4 border ${insight.border}`}
+              className={`bg-gradient-to-t ${insight.gradient} to-card shadow-sm`}
             >
-              <div className="flex items-start gap-3">
-                <div className={`${insight.iconBg} rounded-lg p-2 flex-shrink-0`}>
-                  <Icon className="w-4 h-4 text-white" />
+              <CardContent className="p-3 sm:p-4">
+                <div className="flex items-center gap-1.5 sm:gap-2 text-muted-foreground mb-1.5 sm:mb-2">
+                  <Icon className={`w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 ${insight.iconColor} flex-shrink-0`} />
+                  <span className="text-xs sm:text-sm md:text-base font-medium truncate">{insight.title}</span>
                 </div>
-                <div className="flex-1 min-w-0">
-                  <h3 className="font-semibold text-slate-900 text-sm">
-                    {insight.title}
-                  </h3>
-                  <p className="text-lg font-bold text-slate-900 mt-1">
-                    {insight.value}
-                  </p>
-                  <p className="text-xs text-slate-600 mt-0.5">
-                    {insight.description}
-                  </p>
-                </div>
-              </div>
-            </div>
+                <p className="text-lg sm:text-2xl md:text-3xl font-bold text-slate-900 truncate">
+                  {insight.value}
+                </p>
+                <p className="text-[10px] sm:text-xs md:text-sm text-muted-foreground mt-0.5 sm:mt-1 line-clamp-2">
+                  {insight.description}
+                </p>
+              </CardContent>
+            </Card>
           );
         })}
       </div>
 
       {/* Tips Card */}
-      <div className="bg-gradient-to-br from-amber-50 to-yellow-50 rounded-xl shadow-lg p-4 border border-amber-200">
-        <div className="flex items-start gap-3">
-          <div className="bg-amber-500 rounded-lg p-2 flex-shrink-0">
-            <Lightbulb className="w-4 h-4 text-white" />
+      <Card className="bg-gradient-to-t from-amber-500/5 to-card shadow-sm">
+        <CardContent className="p-3 sm:p-4">
+          <div className="flex items-center gap-1.5 sm:gap-2 text-muted-foreground mb-2 sm:mb-3">
+            <Lightbulb className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-amber-500" />
+            <span className="text-xs sm:text-sm md:text-base font-medium">Tax Tips</span>
           </div>
-          <div>
-            <h3 className="font-semibold text-slate-900 text-sm mb-2">
-              Tax Tips
-            </h3>
-            <ul className="space-y-1 text-xs text-slate-700">
-              <li className="flex items-center gap-2">
-                <span className="text-amber-500">•</span>
-                Keep receipts for expenses over $75
-              </li>
-              <li className="flex items-center gap-2">
-                <span className="text-amber-500">•</span>
-                Business meals are 50% deductible
-              </li>
-              <li className="flex items-center gap-2">
-                <span className="text-amber-500">•</span>
-                Categorize receipts regularly for accuracy
-              </li>
-            </ul>
-          </div>
-        </div>
-      </div>
+          <ul className="space-y-1.5 sm:space-y-2 text-xs sm:text-sm text-slate-700">
+            <li className="flex items-start gap-1.5 sm:gap-2">
+              <span className="text-amber-500 flex-shrink-0">•</span>
+              <span>Keep receipts for expenses over $75</span>
+            </li>
+            <li className="flex items-start gap-1.5 sm:gap-2">
+              <span className="text-amber-500 flex-shrink-0">•</span>
+              <span>Business meals are 50% deductible</span>
+            </li>
+            <li className="flex items-start gap-1.5 sm:gap-2">
+              <span className="text-amber-500 flex-shrink-0">•</span>
+              <span>Categorize receipts regularly for accuracy</span>
+            </li>
+          </ul>
+        </CardContent>
+      </Card>
     </div>
   );
 }

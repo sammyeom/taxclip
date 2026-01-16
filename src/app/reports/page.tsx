@@ -22,19 +22,25 @@ import {
   PieChart as PieChartIcon,
   AlertCircle,
 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
-  BarChart,
-  Bar,
-  PieChart,
-  Pie,
-  Cell,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-} from 'recharts';
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import { BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, Label } from 'recharts';
+import {
+  ChartConfig,
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+  ChartLegend,
+  ChartLegendContent,
+} from '@/components/ui/chart';
 import { getSubcategoryLabel } from '@/constants/irs-categories';
 
 const CATEGORIES: Record<string, string> = {
@@ -294,75 +300,75 @@ export default function ReportsPage() {
             <p className="text-slate-600 mb-6">
               Upload some receipts to see your tax reports and analytics
             </p>
-            <button
+            <Button
               onClick={() => router.push('/upload')}
-              className="bg-cyan-500 hover:bg-cyan-600 text-white px-6 py-3 rounded-lg font-semibold transition-colors inline-flex items-center gap-2"
+              className="bg-cyan-500 hover:bg-cyan-600 text-white"
             >
-              <ReceiptIcon className="w-5 h-5" />
+              <ReceiptIcon className="w-5 h-5 mr-2" />
               Upload Receipt
-            </button>
+            </Button>
           </div>
         ) : (
           <>
             {/* Summary Cards */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4 mb-6 sm:mb-8">
               {/* Total Expenses */}
-              <div className="bg-gradient-to-br from-cyan-500 to-cyan-600 rounded-xl shadow-lg p-3 sm:p-6 text-white">
-                <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
-                  <DollarSign className="w-5 h-5 sm:w-8 sm:h-8" />
-                  <div className="min-w-0">
-                    <p className="text-xs sm:text-sm text-cyan-100">Expenses</p>
-                    <p className="text-base sm:text-3xl font-bold truncate">{formatCurrency(stats.totalAmount)}</p>
+              <Card className="bg-gradient-to-t from-cyan-500/5 to-card shadow-sm">
+                <CardContent className="p-4 sm:p-6">
+                  <div className="flex items-center gap-2 text-muted-foreground mb-2">
+                    <DollarSign className="w-5 h-5 sm:w-6 sm:h-6 text-cyan-500" />
+                    <span className="text-sm sm:text-base font-medium">Expenses</span>
                   </div>
-                </div>
-              </div>
+                  <p className="text-xl sm:text-4xl font-bold text-slate-900 truncate">{formatCurrency(stats.totalAmount)}</p>
+                </CardContent>
+              </Card>
 
               {/* Total Receipts */}
-              <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl shadow-lg p-3 sm:p-6 text-white">
-                <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
-                  <ReceiptIcon className="w-5 h-5 sm:w-8 sm:h-8" />
-                  <div>
-                    <p className="text-xs sm:text-sm text-blue-100">Receipts</p>
-                    <p className="text-xl sm:text-3xl font-bold">{stats.totalCount}</p>
+              <Card className="bg-gradient-to-t from-blue-500/5 to-card shadow-sm">
+                <CardContent className="p-4 sm:p-6">
+                  <div className="flex items-center gap-2 text-muted-foreground mb-2">
+                    <ReceiptIcon className="w-5 h-5 sm:w-6 sm:h-6 text-blue-500" />
+                    <span className="text-sm sm:text-base font-medium">Receipts</span>
                   </div>
-                </div>
-              </div>
+                  <p className="text-2xl sm:text-4xl font-bold text-slate-900">{stats.totalCount}</p>
+                </CardContent>
+              </Card>
 
               {/* Largest Expense */}
-              <div className="bg-gradient-to-br from-green-500 to-green-600 rounded-xl shadow-lg p-3 sm:p-6 text-white">
-                <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
-                  <TrendingUp className="w-5 h-5 sm:w-8 sm:h-8" />
-                  <div className="min-w-0">
-                    <p className="text-xs sm:text-sm text-green-100">Largest</p>
-                    <p className="text-base sm:text-2xl font-bold truncate">
-                      {summaryStats?.largestExpense.total
-                        ? formatCurrency(summaryStats.largestExpense.total)
-                        : 'N/A'}
-                    </p>
-                    <p className="text-xs text-green-100 truncate hidden sm:block">
-                      {summaryStats?.largestExpense.merchant || 'N/A'}
-                    </p>
+              <Card className="bg-gradient-to-t from-green-500/5 to-card shadow-sm">
+                <CardContent className="p-4 sm:p-6">
+                  <div className="flex items-center gap-2 text-muted-foreground mb-2">
+                    <TrendingUp className="w-5 h-5 sm:w-6 sm:h-6 text-green-500" />
+                    <span className="text-sm sm:text-base font-medium">Largest</span>
                   </div>
-                </div>
-              </div>
+                  <p className="text-lg sm:text-3xl font-bold text-slate-900 truncate">
+                    {summaryStats?.largestExpense.total
+                      ? formatCurrency(summaryStats.largestExpense.total)
+                      : 'N/A'}
+                  </p>
+                  <p className="text-xs sm:text-sm text-muted-foreground truncate hidden sm:block">
+                    {summaryStats?.largestExpense.merchant || 'N/A'}
+                  </p>
+                </CardContent>
+              </Card>
 
               {/* Most Used Category */}
-              <div className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl shadow-lg p-3 sm:p-6 text-white">
-                <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
-                  <Tag className="w-5 h-5 sm:w-8 sm:h-8" />
-                  <div className="min-w-0">
-                    <p className="text-xs sm:text-sm text-purple-100">Top Category</p>
-                    <p className="text-sm sm:text-xl font-bold truncate">
-                      {summaryStats?.mostUsedCategory.category !== 'none'
-                        ? CATEGORIES[summaryStats!.mostUsedCategory.category]
-                        : 'N/A'}
-                    </p>
-                    <p className="text-xs text-purple-100 hidden sm:block">
-                      {summaryStats?.mostUsedCategory.count || 0} receipts
-                    </p>
+              <Card className="bg-gradient-to-t from-purple-500/5 to-card shadow-sm">
+                <CardContent className="p-4 sm:p-6">
+                  <div className="flex items-center gap-2 text-muted-foreground mb-2">
+                    <Tag className="w-5 h-5 sm:w-6 sm:h-6 text-purple-500" />
+                    <span className="text-sm sm:text-base font-medium">Top Category</span>
                   </div>
-                </div>
-              </div>
+                  <p className="text-base sm:text-2xl font-bold text-slate-900 truncate">
+                    {summaryStats?.mostUsedCategory.category !== 'none'
+                      ? CATEGORIES[summaryStats!.mostUsedCategory.category]
+                      : 'N/A'}
+                  </p>
+                  <p className="text-xs sm:text-sm text-muted-foreground hidden sm:block">
+                    {summaryStats?.mostUsedCategory.count || 0} receipts
+                  </p>
+                </CardContent>
+              </Card>
             </div>
 
             {/* Schedule C Summary Table */}
@@ -438,71 +444,151 @@ export default function ReportsPage() {
             </div>
 
             {/* Charts Row */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-8 mb-6 sm:mb-8">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 mb-6 sm:mb-8">
               {/* Monthly Expenses Chart */}
-              <div className="bg-white rounded-xl shadow-lg p-4 sm:p-6">
-                <h2 className="text-base sm:text-xl font-bold text-slate-900 mb-4 sm:mb-6 flex items-center gap-2">
-                  <BarChart3 className="w-5 h-5 sm:w-6 sm:h-6 text-cyan-600" />
-                  Monthly Expenses
-                </h2>
-
-                <ResponsiveContainer width="100%" height={250}>
-                  <BarChart data={monthlyChartData}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" />
-                    <XAxis dataKey="month" stroke="#64748B" fontSize={10} tick={{ fontSize: 10 }} />
-                    <YAxis stroke="#64748B" fontSize={10} tick={{ fontSize: 10 }} width={50} />
-                    <Tooltip
-                      formatter={(value: number | undefined) => formatCurrency(value || 0)}
-                      contentStyle={{
-                        backgroundColor: 'white',
-                        border: '1px solid #E2E8F0',
-                        borderRadius: '8px',
-                        fontSize: '12px',
-                      }}
-                    />
-                    <Bar dataKey="amount" fill="#06B6D4" radius={[4, 4, 0, 0]} />
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
+              <Card>
+                <CardHeader className="pb-2 sm:pb-6">
+                  <CardTitle className="text-sm sm:text-base md:text-xl font-bold flex items-center gap-2">
+                    <BarChart3 className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-cyan-600" />
+                    Monthly Expenses
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="px-2 sm:px-6 pb-4 sm:pb-6">
+                  <ChartContainer
+                    config={{
+                      amount: { label: 'Amount', color: '#06B6D4' },
+                    } satisfies ChartConfig}
+                    className="h-[180px] sm:h-[220px] md:h-[250px] w-full"
+                  >
+                    <BarChart
+                      data={monthlyChartData}
+                      accessibilityLayer
+                      margin={{ top: 5, right: 5, left: -15, bottom: 0 }}
+                    >
+                      <XAxis
+                        dataKey="month"
+                        tickLine={false}
+                        tickMargin={8}
+                        axisLine={false}
+                        fontSize={10}
+                        interval={0}
+                        tick={{ fontSize: 10 }}
+                      />
+                      <YAxis
+                        tickLine={false}
+                        tickMargin={5}
+                        axisLine={false}
+                        width={45}
+                        fontSize={10}
+                        tick={{ fontSize: 10 }}
+                        tickFormatter={(value) =>
+                          value >= 1000 ? `$${(value / 1000).toFixed(1)}k` : `$${value}`
+                        }
+                      />
+                      <ChartTooltip
+                        cursor={{ fill: 'rgba(6, 182, 212, 0.1)' }}
+                        content={
+                          <ChartTooltipContent
+                            formatter={(value) => formatCurrency(Number(value) || 0)}
+                          />
+                        }
+                      />
+                      <Bar
+                        dataKey="amount"
+                        fill="var(--color-amount)"
+                        radius={[4, 4, 0, 0]}
+                      />
+                    </BarChart>
+                  </ChartContainer>
+                </CardContent>
+              </Card>
 
               {/* Category Breakdown Pie Chart */}
-              <div className="bg-white rounded-xl shadow-lg p-4 sm:p-6">
-                <h2 className="text-base sm:text-xl font-bold text-slate-900 mb-4 sm:mb-6 flex items-center gap-2">
-                  <PieChartIcon className="w-5 h-5 sm:w-6 sm:h-6 text-cyan-600" />
-                  Category Breakdown
-                </h2>
-
-                <ResponsiveContainer width="100%" height={250}>
-                  <PieChart>
-                    <Pie
-                      data={categoryChartData}
-                      cx="50%"
-                      cy="50%"
-                      labelLine={false}
-                      outerRadius={70}
-                      fill="#8884d8"
-                      dataKey="value"
-                    >
-                      {categoryChartData.map((entry, index) => (
-                        <Cell
-                          key={`cell-${index}`}
-                          fill={CATEGORY_COLORS[entry.category] || '#6B7280'}
+              <Card>
+                <CardHeader className="pb-2 sm:pb-6">
+                  <CardTitle className="text-sm sm:text-base md:text-xl font-bold flex items-center gap-2">
+                    <PieChartIcon className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-cyan-600" />
+                    Category Breakdown
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="px-2 sm:px-6 pb-4 sm:pb-6">
+                  <ChartContainer
+                    config={Object.fromEntries(
+                      categoryChartData.map((item) => [
+                        item.name,
+                        { label: item.name, color: CATEGORY_COLORS[item.category] || '#6B7280' },
+                      ])
+                    ) as ChartConfig}
+                    className="mx-auto h-[200px] sm:h-[240px] md:h-[280px] w-full max-w-[280px] sm:max-w-none"
+                  >
+                    <PieChart>
+                      <ChartTooltip
+                        cursor={false}
+                        content={
+                          <ChartTooltipContent
+                            formatter={(value) => formatCurrency(Number(value) || 0)}
+                          />
+                        }
+                      />
+                      <Pie
+                        data={categoryChartData}
+                        dataKey="value"
+                        nameKey="name"
+                        cx="50%"
+                        cy="45%"
+                        innerRadius="35%"
+                        outerRadius="60%"
+                        paddingAngle={2}
+                        strokeWidth={1}
+                      >
+                        {categoryChartData.map((entry, index) => (
+                          <Cell
+                            key={`cell-${index}`}
+                            fill={CATEGORY_COLORS[entry.category] || '#6B7280'}
+                            stroke={CATEGORY_COLORS[entry.category] || '#6B7280'}
+                          />
+                        ))}
+                        <Label
+                          content={({ viewBox }) => {
+                            if (viewBox && 'cx' in viewBox && 'cy' in viewBox) {
+                              const compactAmount = stats.totalAmount >= 1000
+                                ? `$${(stats.totalAmount / 1000).toFixed(1)}k`
+                                : `$${stats.totalAmount.toFixed(0)}`;
+                              return (
+                                <text
+                                  x={viewBox.cx}
+                                  y={viewBox.cy}
+                                  textAnchor="middle"
+                                  dominantBaseline="middle"
+                                >
+                                  <tspan
+                                    x={viewBox.cx}
+                                    y={(viewBox.cy || 0) - 6}
+                                    className="fill-muted-foreground text-[10px] sm:text-xs"
+                                  >
+                                    Total
+                                  </tspan>
+                                  <tspan
+                                    x={viewBox.cx}
+                                    y={(viewBox.cy || 0) + 8}
+                                    className="fill-foreground text-xs sm:text-sm md:text-lg font-bold"
+                                  >
+                                    {compactAmount}
+                                  </tspan>
+                                </text>
+                              );
+                            }
+                          }}
                         />
-                      ))}
-                    </Pie>
-                    <Tooltip
-                      formatter={(value: number | undefined) => formatCurrency(value || 0)}
-                      contentStyle={{
-                        backgroundColor: 'white',
-                        border: '1px solid #E2E8F0',
-                        borderRadius: '8px',
-                        fontSize: '12px',
-                      }}
-                    />
-                    <Legend wrapperStyle={{ fontSize: '10px' }} />
-                  </PieChart>
-                </ResponsiveContainer>
-              </div>
+                      </Pie>
+                      <ChartLegend
+                        content={<ChartLegendContent nameKey="name" />}
+                        className="flex-wrap gap-1 sm:gap-2 justify-center text-[10px] sm:text-xs [&>*]:px-1"
+                      />
+                    </PieChart>
+                  </ChartContainer>
+                </CardContent>
+              </Card>
             </div>
 
             {/* Recent Receipts */}
@@ -511,11 +597,14 @@ export default function ReportsPage() {
                 <h2 className="text-lg sm:text-2xl font-bold text-slate-900">
                   Recent ({selectedYear})
                 </h2>
-                <Link href="/receipts">
-                  <button className="text-cyan-600 hover:text-cyan-700 font-semibold text-xs sm:text-sm">
-                    View All →
-                  </button>
-                </Link>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  asChild
+                  className="text-cyan-600 hover:text-cyan-700 hover:bg-cyan-50"
+                >
+                  <Link href="/receipts">View All →</Link>
+                </Button>
               </div>
 
               {recentReceipts.length === 0 ? (
@@ -561,11 +650,14 @@ export default function ReportsPage() {
                             )}
                           </td>
                           <td className="py-2 sm:py-3 px-3 sm:px-4 text-center">
-                            <Link href={`/receipts/${receipt.id}`}>
-                              <button className="text-cyan-600 hover:text-cyan-700 text-xs sm:text-sm font-semibold">
-                                View
-                              </button>
-                            </Link>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              asChild
+                              className="text-cyan-600 hover:text-cyan-700 hover:bg-cyan-50 h-auto py-1 px-2"
+                            >
+                              <Link href={`/receipts/${receipt.id}`}>View</Link>
+                            </Button>
                           </td>
                         </tr>
                       ))}

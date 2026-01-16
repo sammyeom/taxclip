@@ -3,7 +3,8 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  --primary: oklch(0.205 0 0);
+  /* TaxClip Brand Colors */
+  --primary: 190 95% 45%;
   --primary-hover: #06B6D4;
   --primary-deep: #0891B2;
   --success: #10b981;

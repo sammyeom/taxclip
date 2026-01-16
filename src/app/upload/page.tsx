@@ -42,6 +42,9 @@ import { compressImage } from '@/lib/image-compression';
 import CategorySelector from '@/components/CategorySelector';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import {
   Select,
   SelectContent,
@@ -1404,10 +1407,11 @@ export default function UploadPage() {
             )}
 
             {/* Editable Form */}
-            <div className="bg-white rounded-xl shadow-lg p-4 sm:p-6">
-              <h2 className="text-lg sm:text-xl font-semibold text-slate-900 mb-4">
-                Edit Receipt Details
-              </h2>
+            <Card>
+              <CardHeader>
+                <CardTitle>Edit Receipt Details</CardTitle>
+              </CardHeader>
+              <CardContent>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
                 {/* Date */}
@@ -1797,7 +1801,7 @@ export default function UploadPage() {
 
                 {/* Save button - Full width */}
                 <div className="md:col-span-2 pt-2">
-                  <button
+                  <Button
                     onClick={handleSaveReceipt}
                     disabled={
                       saving ||
@@ -1806,42 +1810,45 @@ export default function UploadPage() {
                       !formData.amount ||
                       !formData.businessPurpose
                     }
-                    className="w-full bg-cyan-500 hover:bg-cyan-600 text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg text-sm sm:text-base font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                    className="w-full h-11 sm:h-12 bg-cyan-500 hover:bg-cyan-600 text-white"
                   >
                     {saving ? (
                       <>
-                        <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin" />
+                        <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin mr-2" />
                         Saving...
                       </>
                     ) : (
                       <>
-                        <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5" />
+                        <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
                         Save Receipt
                         {completedCount > 1 && (
-                          <span className="text-cyan-200 text-xs sm:text-sm">
-                            (+{completedCount - 1})
-                          </span>
+                          <Badge variant="secondary" className="ml-2 bg-cyan-400 text-white">
+                            +{completedCount - 1}
+                          </Badge>
                         )}
                       </>
                     )}
-                  </button>
+                  </Button>
                 </div>
               </div>
-            </div>
+              </CardContent>
+            </Card>
           </div>
         )}
 
         {/* No completed files message */}
         {files.length > 0 && !hasFilesToSave && (
-          <div className="bg-white rounded-xl shadow-lg p-6 sm:p-8 text-center">
-            <Loader2 className="w-10 h-10 sm:w-12 sm:h-12 text-cyan-500 animate-spin mx-auto mb-3 sm:mb-4" />
-            <h3 className="text-base sm:text-lg font-semibold text-slate-900 mb-1 sm:mb-2">
-              Processing your receipts...
-            </h3>
-            <p className="text-sm sm:text-base text-slate-600">
-              AI is analyzing your uploads
-            </p>
-          </div>
+          <Card className="text-center py-8">
+            <CardContent>
+              <Loader2 className="w-10 h-10 sm:w-12 sm:h-12 text-cyan-500 animate-spin mx-auto mb-3 sm:mb-4" />
+              <h3 className="text-base sm:text-lg font-semibold text-slate-900 mb-1 sm:mb-2">
+                Processing your receipts...
+              </h3>
+              <p className="text-sm sm:text-base text-slate-600">
+                AI is analyzing your uploads
+              </p>
+            </CardContent>
+          </Card>
         )}
       </div>
 

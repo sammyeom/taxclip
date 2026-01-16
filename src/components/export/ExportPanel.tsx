@@ -5,6 +5,17 @@ import { Download, FileText, Loader2, CheckCircle, AlertCircle } from 'lucide-re
 import { Receipt } from '@/types/database';
 import { generateBusinessReceiptCSV, downloadCSV, ExportOptions } from '@/lib/export';
 import { generateAuditPDF, downloadPDF } from '@/lib/pdf-export';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Progress } from '@/components/ui/progress';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 interface ExportPanelProps {
   receipts: Receipt[];
@@ -91,150 +102,161 @@ export default function ExportPanel({
     }
   }, [receipts, taxYear]);
 
-  // Get button styles based on status
-  const getButtonStyles = (status: ExportStatus, baseColor: string) => {
-    const base = `flex items-center justify-center gap-2 px-6 py-3 rounded-lg font-semibold transition-all duration-200 min-w-[180px]`;
-
+  // Get button variant based on status
+  const getButtonVariant = (status: ExportStatus): 'default' | 'secondary' | 'destructive' | 'outline' => {
     switch (status) {
-      case 'loading':
-        return `${base} bg-gray-400 text-white cursor-not-allowed`;
-      case 'success':
-        return `${base} bg-green-500 text-white`;
       case 'error':
-        return `${base} bg-red-500 text-white hover:bg-red-600`;
+        return 'destructive';
       default:
-        return `${base} ${baseColor} text-white hover:opacity-90 shadow-md hover:shadow-lg`;
+        return 'default';
     }
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-lg p-6">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h2 className="text-xl font-bold text-gray-800">IRS-Ready Export</h2>
-          <p className="text-sm text-gray-500 mt-1">
-            Export your expenses for Schedule C filing
-          </p>
-        </div>
+    <Card>
+      <CardHeader className="pb-3 sm:pb-6">
+        {/* Header with Year Selector */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <div>
+            <CardTitle className="text-base sm:text-xl font-bold">IRS-Ready Export</CardTitle>
+            <CardDescription className="text-xs sm:text-sm mt-1">
+              Export your expenses for Schedule C filing
+            </CardDescription>
+          </div>
 
-        {/* Year Selector */}
-        <div className="flex items-center gap-3">
-          <label htmlFor="tax-year" className="text-sm font-medium text-gray-600">
-            Tax Year:
-          </label>
-          <select
-            id="tax-year"
-            value={taxYear}
-            onChange={(e) => onYearChange(Number(e.target.value))}
-            className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          >
-            {availableYears.map((year) => (
-              <option key={year} value={year}>
-                FY{year}
-              </option>
-            ))}
-          </select>
+          {/* Year Selector */}
+          <div className="flex items-center gap-2 sm:gap-3">
+            <label className="text-xs sm:text-sm font-medium text-muted-foreground whitespace-nowrap">
+              Tax Year:
+            </label>
+            <Select
+              value={taxYear.toString()}
+              onValueChange={(value) => onYearChange(Number(value))}
+            >
+              <SelectTrigger className="w-[100px] sm:w-[120px] h-9 sm:h-10 text-sm">
+                <SelectValue placeholder="Select year" />
+              </SelectTrigger>
+              <SelectContent>
+                {availableYears.map((year) => (
+                  <SelectItem key={year} value={year.toString()}>
+                    FY{year}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
         </div>
-      </div>
+      </CardHeader>
 
-      {/* Receipt Count Info */}
-      <div className="bg-gray-50 rounded-lg p-4 mb-6">
-        <div className="flex items-center justify-between">
-          <span className="text-gray-600">
-            {receipts.length === 0 ? (
-              'No receipts found for this tax year'
-            ) : (
-              <>
-                <span className="font-semibold text-gray-800">{receipts.length}</span>
-                {' '}receipt{receipts.length !== 1 ? 's' : ''} ready for export
-              </>
-            )}
-          </span>
-          {receipts.length > 0 && (
-            <span className="text-sm text-gray-500">
-              Total: ${receipts.reduce((sum, r) => sum + (r.total || 0), 0).toFixed(2)}
+      <CardContent className="space-y-4 sm:space-y-6">
+        {/* Receipt Count Info */}
+        <div className="bg-muted/50 rounded-lg p-3 sm:p-4">
+          <div className="flex items-center justify-between text-sm">
+            <span className="text-muted-foreground">
+              {receipts.length === 0 ? (
+                'No receipts found for this tax year'
+              ) : (
+                <>
+                  <span className="font-semibold text-foreground">{receipts.length}</span>
+                  {' '}receipt{receipts.length !== 1 ? 's' : ''} ready for export
+                </>
+              )}
             </span>
-          )}
-        </div>
-      </div>
-
-      {/* Export Buttons */}
-      <div className="flex flex-col sm:flex-row gap-4">
-        {/* CSV Export Button */}
-        <button
-          onClick={handleCSVExport}
-          disabled={csvStatus === 'loading' || receipts.length === 0}
-          className={getButtonStyles(csvStatus, 'bg-green-600')}
-        >
-          {csvStatus === 'loading' ? (
-            <Loader2 className="w-5 h-5 animate-spin" />
-          ) : csvStatus === 'success' ? (
-            <CheckCircle className="w-5 h-5" />
-          ) : csvStatus === 'error' ? (
-            <AlertCircle className="w-5 h-5" />
-          ) : (
-            <Download className="w-5 h-5" />
-          )}
-          {csvStatus === 'success' ? 'Downloaded!' : 'Download CSV'}
-        </button>
-
-        {/* PDF Export Button */}
-        <button
-          onClick={handlePDFExport}
-          disabled={pdfStatus === 'loading' || receipts.length === 0}
-          className={getButtonStyles(pdfStatus, 'bg-blue-600')}
-        >
-          {pdfStatus === 'loading' ? (
-            <Loader2 className="w-5 h-5 animate-spin" />
-          ) : pdfStatus === 'success' ? (
-            <CheckCircle className="w-5 h-5" />
-          ) : pdfStatus === 'error' ? (
-            <AlertCircle className="w-5 h-5" />
-          ) : (
-            <FileText className="w-5 h-5" />
-          )}
-          {pdfStatus === 'success' ? 'Downloaded!' : 'Generate Audit PDF'}
-        </button>
-      </div>
-
-      {/* PDF Progress Bar */}
-      {pdfStatus === 'loading' && (
-        <div className="mt-4">
-          <div className="flex items-center justify-between text-sm text-gray-600 mb-2">
-            <span>{pdfMessage}</span>
-            <span>{pdfProgress}%</span>
-          </div>
-          <div className="w-full bg-gray-200 rounded-full h-2">
-            <div
-              className="bg-blue-500 h-2 rounded-full transition-all duration-300"
-              style={{ width: `${pdfProgress}%` }}
-            />
+            {receipts.length > 0 && (
+              <span className="text-xs sm:text-sm text-muted-foreground">
+                Total: ${receipts.reduce((sum, r) => sum + (r.total || 0), 0).toFixed(2)}
+              </span>
+            )}
           </div>
         </div>
-      )}
 
-      {/* Error Message */}
-      {error && (
-        <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
-          {error}
+        {/* Export Buttons */}
+        <div className="flex flex-col sm:flex-row gap-2 sm:gap-4">
+          {/* CSV Export Button */}
+          <Button
+            onClick={handleCSVExport}
+            disabled={csvStatus === 'loading' || receipts.length === 0}
+            variant={getButtonVariant(csvStatus)}
+            className={`flex-1 h-10 sm:h-11 text-sm sm:text-base ${
+              csvStatus === 'success'
+                ? 'bg-green-500 hover:bg-green-600'
+                : csvStatus === 'idle'
+                ? 'bg-green-600 hover:bg-green-700'
+                : ''
+            }`}
+          >
+            {csvStatus === 'loading' ? (
+              <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin mr-2" />
+            ) : csvStatus === 'success' ? (
+              <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
+            ) : csvStatus === 'error' ? (
+              <AlertCircle className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
+            ) : (
+              <Download className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
+            )}
+            {csvStatus === 'success' ? 'Downloaded!' : 'Download CSV'}
+          </Button>
+
+          {/* PDF Export Button */}
+          <Button
+            onClick={handlePDFExport}
+            disabled={pdfStatus === 'loading' || receipts.length === 0}
+            variant={getButtonVariant(pdfStatus)}
+            className={`flex-1 h-10 sm:h-11 text-sm sm:text-base ${
+              pdfStatus === 'success'
+                ? 'bg-green-500 hover:bg-green-600'
+                : pdfStatus === 'idle'
+                ? 'bg-cyan-600 hover:bg-cyan-700'
+                : ''
+            }`}
+          >
+            {pdfStatus === 'loading' ? (
+              <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin mr-2" />
+            ) : pdfStatus === 'success' ? (
+              <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
+            ) : pdfStatus === 'error' ? (
+              <AlertCircle className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
+            ) : (
+              <FileText className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
+            )}
+            {pdfStatus === 'success' ? 'Downloaded!' : 'Generate Audit PDF'}
+          </Button>
         </div>
-      )}
 
-      {/* Export Info */}
-      <div className="mt-6 pt-4 border-t border-gray-200">
-        <h3 className="text-sm font-semibold text-gray-700 mb-2">What&apos;s included:</h3>
-        <ul className="text-sm text-gray-500 space-y-1">
-          <li className="flex items-start gap-2">
-            <span className="text-green-500 font-bold">CSV:</span>
-            <span>Date, Vendor, Amount, IRS Category, Schedule C Line, Business Purpose</span>
-          </li>
-          <li className="flex items-start gap-2">
-            <span className="text-blue-500 font-bold">PDF:</span>
-            <span>Summary page with category totals + receipt images matched with details</span>
-          </li>
-        </ul>
-      </div>
-    </div>
+        {/* PDF Progress Bar */}
+        {pdfStatus === 'loading' && (
+          <div className="space-y-2">
+            <div className="flex items-center justify-between text-xs sm:text-sm text-muted-foreground">
+              <span>{pdfMessage}</span>
+              <span>{pdfProgress}%</span>
+            </div>
+            <Progress value={pdfProgress} className="h-2" />
+          </div>
+        )}
+
+        {/* Error Message */}
+        {error && (
+          <Alert variant="destructive">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription className="text-sm">{error}</AlertDescription>
+          </Alert>
+        )}
+
+        {/* Export Info */}
+        <div className="pt-3 sm:pt-4 border-t">
+          <h3 className="text-xs sm:text-sm font-semibold text-foreground mb-2">What&apos;s included:</h3>
+          <ul className="text-xs sm:text-sm text-muted-foreground space-y-1">
+            <li className="flex items-start gap-2">
+              <span className="text-green-600 font-bold flex-shrink-0">CSV:</span>
+              <span>Date, Vendor, Amount, IRS Category, Schedule C Line, Business Purpose</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="text-cyan-600 font-bold flex-shrink-0">PDF:</span>
+              <span>Summary page with category totals + receipt images matched with details</span>
+            </li>
+          </ul>
+        </div>
+      </CardContent>
+    </Card>
   );
 }

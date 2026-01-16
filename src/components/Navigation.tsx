@@ -12,12 +12,29 @@ import {
   FileText,
   BarChart3,
   Menu,
-  X,
   LogOut,
   Settings,
   User,
-  ChevronDown,
 } from 'lucide-react';
+
+import { Button } from '@/components/ui/button';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Separator } from '@/components/ui/separator';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from '@/components/ui/sheet';
 
 export default function Navigation() {
   const pathname = usePathname();
@@ -25,7 +42,6 @@ export default function Navigation() {
   const { user } = useAuth();
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [userDropdownOpen, setUserDropdownOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
   // Handle scroll for shadow effect
@@ -41,23 +57,7 @@ export default function Navigation() {
   // Close mobile menu on route change
   useEffect(() => {
     setMobileMenuOpen(false);
-    setUserDropdownOpen(false);
   }, [pathname]);
-
-  // Close dropdowns when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      const target = e.target as HTMLElement;
-      if (!target.closest('.user-dropdown')) {
-        setUserDropdownOpen(false);
-      }
-    };
-
-    if (userDropdownOpen) {
-      document.addEventListener('click', handleClickOutside);
-      return () => document.removeEventListener('click', handleClickOutside);
-    }
-  }, [userDropdownOpen]);
 
   const handleSignOut = async () => {
     await signOut();
@@ -73,12 +73,18 @@ export default function Navigation() {
 
   const isActive = (path: string) => pathname === path;
 
+  // Get user initials for avatar
+  const getUserInitials = () => {
+    if (!user?.email) return 'U';
+    return user.email.charAt(0).toUpperCase();
+  };
+
   if (!user) return null;
 
   return (
     <>
       <nav
-        className={`fixed top-0 left-0 right-0 bg-white border-b border-slate-200 z-50 transition-shadow ${
+        className={`fixed top-0 left-0 right-0 bg-background border-b z-50 transition-shadow ${
           scrolled ? 'shadow-md' : ''
         }`}
       >
@@ -87,7 +93,10 @@ export default function Navigation() {
             {/* Logo */}
             <Link href="/dashboard" className="flex items-center gap-2 flex-shrink-0">
               <Image src="/logo.svg" alt="TaxClip" width={40} height={40} priority />
-              <span className="text-xl font-bold"><span className="text-slate-900">Tax</span><span className="text-cyan-500">Clip</span></span>
+              <span className="text-xl font-bold">
+                <span className="text-slate-900">Tax</span>
+                <span className="text-cyan-500">Clip</span>
+              </span>
             </Link>
 
             {/* Desktop Navigation Links (Center) */}
@@ -97,199 +106,154 @@ export default function Navigation() {
                 const active = isActive(link.href);
 
                 return (
-                  <Link key={link.href} href={link.href}>
-                    <button
-                      className={`flex items-center gap-2 px-4 py-2 rounded-lg font-semibold transition-all ${
-                        active
-                          ? 'bg-cyan-500 text-white'
-                          : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
-                      }`}
-                    >
-                      <Icon className="w-4 h-4" />
+                  <Button
+                    key={link.href}
+                    variant={active ? 'default' : 'ghost'}
+                    className={active ? 'bg-cyan-500 hover:bg-cyan-600 text-white' : 'text-muted-foreground'}
+                    asChild
+                  >
+                    <Link href={link.href}>
+                      <Icon className="w-4 h-4 mr-2" />
                       {link.label}
-                    </button>
-                  </Link>
+                    </Link>
+                  </Button>
                 );
               })}
             </div>
 
             {/* Desktop User Menu */}
             <div className="hidden md:flex items-center gap-3">
-              <div className="relative user-dropdown">
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setUserDropdownOpen(!userDropdownOpen);
-                  }}
-                  className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-slate-100 transition-colors"
-                >
-                  <div className="w-8 h-8 bg-cyan-500 rounded-full flex items-center justify-center">
-                    <User className="w-5 h-5 text-white" />
-                  </div>
-                  <div className="text-left hidden lg:block">
-                    <p className="text-sm font-semibold text-slate-900 max-w-[150px] truncate">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="relative h-10 gap-2 px-2">
+                    <Avatar className="h-8 w-8">
+                      <AvatarFallback className="bg-cyan-500 text-white">
+                        {getUserInitials()}
+                      </AvatarFallback>
+                    </Avatar>
+                    <span className="hidden lg:inline-block text-sm font-medium max-w-[150px] truncate">
                       {user.email}
-                    </p>
-                  </div>
-                  <ChevronDown
-                    className={`w-4 h-4 text-slate-600 transition-transform ${
-                      userDropdownOpen ? 'rotate-180' : ''
-                    }`}
-                  />
-                </button>
-
-                {/* Dropdown Menu */}
-                {userDropdownOpen && (
-                  <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-slate-200 py-2">
-                    <div className="px-4 py-2 border-b border-slate-200">
-                      <p className="text-xs text-slate-500">Signed in as</p>
-                      <p className="text-sm font-semibold text-slate-900 truncate">
-                        {user.email}
-                      </p>
+                    </span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-56" align="end" forceMount>
+                  <DropdownMenuLabel className="font-normal">
+                    <div className="flex flex-col space-y-1">
+                      <p className="text-xs text-muted-foreground">Signed in as</p>
+                      <p className="text-sm font-medium truncate">{user.email}</p>
                     </div>
-
-                    <button
-                      onClick={() => router.push('/profile')}
-                      className="w-full flex items-center gap-3 px-4 py-2 text-sm text-slate-700 hover:bg-slate-100 transition-colors"
-                    >
-                      <User className="w-4 h-4" />
-                      Profile
-                    </button>
-
-                    <button
-                      onClick={() => router.push('/settings')}
-                      className="w-full flex items-center gap-3 px-4 py-2 text-sm text-slate-700 hover:bg-slate-100 transition-colors"
-                    >
-                      <Settings className="w-4 h-4" />
-                      Settings
-                    </button>
-
-                    <div className="border-t border-slate-200 my-2"></div>
-
-                    <button
-                      onClick={handleSignOut}
-                      className="w-full flex items-center gap-3 px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
-                    >
-                      <LogOut className="w-4 h-4" />
-                      Sign Out
-                    </button>
-                  </div>
-                )}
-              </div>
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => router.push('/profile')}>
+                    <User className="mr-2 h-4 w-4" />
+                    Profile
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => router.push('/settings')}>
+                    <Settings className="mr-2 h-4 w-4" />
+                    Settings
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    onClick={handleSignOut}
+                    className="text-destructive focus:text-destructive"
+                  >
+                    <LogOut className="mr-2 h-4 w-4" />
+                    Sign Out
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
 
             {/* Mobile Menu Button */}
-            <button
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden p-2 rounded-lg hover:bg-slate-100 transition-colors"
-            >
-              {mobileMenuOpen ? (
-                <X className="w-6 h-6 text-slate-900" />
-              ) : (
-                <Menu className="w-6 h-6 text-slate-900" />
-              )}
-            </button>
+            <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+              <SheetTrigger asChild className="md:hidden">
+                <Button variant="ghost" size="icon">
+                  <Menu className="h-6 w-6" />
+                  <span className="sr-only">Toggle menu</span>
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="right" className="w-72 p-0">
+                <SheetHeader className="p-4 border-b">
+                  <SheetTitle>Menu</SheetTitle>
+                </SheetHeader>
+
+                {/* User Info */}
+                <div className="p-4 border-b">
+                  <div className="flex items-center gap-3">
+                    <Avatar className="h-10 w-10">
+                      <AvatarFallback className="bg-cyan-500 text-white">
+                        {getUserInitials()}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs text-muted-foreground">Signed in as</p>
+                      <p className="text-sm font-medium truncate">{user.email}</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Mobile Navigation Links */}
+                <div className="p-4 space-y-1">
+                  {navLinks.map((link) => {
+                    const Icon = link.icon;
+                    const active = isActive(link.href);
+
+                    return (
+                      <Button
+                        key={link.href}
+                        variant={active ? 'default' : 'ghost'}
+                        className={`w-full justify-start ${active ? 'bg-cyan-500 hover:bg-cyan-600 text-white' : 'text-muted-foreground'}`}
+                        asChild
+                      >
+                        <Link href={link.href}>
+                          <Icon className="mr-3 h-5 w-5" />
+                          {link.label}
+                        </Link>
+                      </Button>
+                    );
+                  })}
+                </div>
+
+                <Separator />
+
+                {/* Mobile Menu Actions */}
+                <div className="p-4 space-y-1">
+                  <Button
+                    variant="ghost"
+                    className="w-full justify-start text-muted-foreground"
+                    onClick={() => {
+                      router.push('/profile');
+                      setMobileMenuOpen(false);
+                    }}
+                  >
+                    <User className="mr-3 h-5 w-5" />
+                    Profile
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    className="w-full justify-start text-muted-foreground"
+                    onClick={() => {
+                      router.push('/settings');
+                      setMobileMenuOpen(false);
+                    }}
+                  >
+                    <Settings className="mr-3 h-5 w-5" />
+                    Settings
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    className="w-full justify-start text-destructive hover:text-destructive hover:bg-destructive/10"
+                    onClick={handleSignOut}
+                  >
+                    <LogOut className="mr-3 h-5 w-5" />
+                    Sign Out
+                  </Button>
+                </div>
+              </SheetContent>
+            </Sheet>
           </div>
         </div>
       </nav>
-
-      {/* Mobile Slide-out Menu */}
-      <div
-        className={`fixed inset-0 z-40 md:hidden transition-opacity ${
-          mobileMenuOpen
-            ? 'opacity-100 pointer-events-auto'
-            : 'opacity-0 pointer-events-none'
-        }`}
-      >
-        {/* Backdrop */}
-        <div
-          className="absolute inset-0 bg-black bg-opacity-50"
-          onClick={() => setMobileMenuOpen(false)}
-        ></div>
-
-        {/* Slide-out Drawer */}
-        <div
-          className={`absolute top-0 right-0 h-full w-64 bg-white shadow-xl transform transition-transform ${
-            mobileMenuOpen ? 'translate-x-0' : 'translate-x-full'
-          }`}
-        >
-          {/* Close Button */}
-          <div className="flex items-center justify-between p-4 border-b border-slate-200">
-            <span className="font-bold text-slate-900">Menu</span>
-            <button
-              onClick={() => setMobileMenuOpen(false)}
-              className="w-9 h-9 min-w-[36px] min-h-[36px] max-w-[36px] max-h-[36px] aspect-square flex-shrink-0 flex items-center justify-center rounded-lg hover:bg-slate-100 transition-colors"
-            >
-              <X className="w-5 h-5 text-slate-900 flex-shrink-0" />
-            </button>
-          </div>
-
-          {/* User Info */}
-          <div className="p-4 border-b border-slate-200">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-cyan-500 rounded-full flex items-center justify-center">
-                <User className="w-6 h-6 text-white" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-xs text-slate-500">Signed in as</p>
-                <p className="text-sm font-semibold text-slate-900 truncate">
-                  {user.email}
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* Mobile Navigation Links */}
-          <div className="p-4 space-y-2">
-            {navLinks.map((link) => {
-              const Icon = link.icon;
-              const active = isActive(link.href);
-
-              return (
-                <Link key={link.href} href={link.href}>
-                  <button
-                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg font-semibold transition-all ${
-                      active
-                        ? 'bg-cyan-500 text-white'
-                        : 'text-slate-700 hover:bg-slate-100'
-                    }`}
-                  >
-                    <Icon className="w-5 h-5" />
-                    {link.label}
-                  </button>
-                </Link>
-              );
-            })}
-          </div>
-
-          {/* Mobile Menu Actions */}
-          <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-slate-200 space-y-2">
-            <button
-              onClick={() => router.push('/profile')}
-              className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-slate-700 hover:bg-slate-100 transition-colors"
-            >
-              <User className="w-5 h-5" />
-              <span className="font-semibold">Profile</span>
-            </button>
-
-            <button
-              onClick={() => router.push('/settings')}
-              className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-slate-700 hover:bg-slate-100 transition-colors"
-            >
-              <Settings className="w-5 h-5" />
-              <span className="font-semibold">Settings</span>
-            </button>
-
-            <button
-              onClick={handleSignOut}
-              className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-red-600 hover:bg-red-50 transition-colors"
-            >
-              <LogOut className="w-5 h-5" />
-              <span className="font-semibold">Sign Out</span>
-            </button>
-          </div>
-        </div>
-      </div>
 
       {/* Spacer to prevent content from going under fixed nav */}
       <div className="h-16"></div>

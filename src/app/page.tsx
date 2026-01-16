@@ -936,13 +936,13 @@ export default function Home() {
                   placeholder="Enter your email"
                   value={ctaEmail}
                   onChange={(e) => setCtaEmail(e.target.value)}
-                  className="flex-1 bg-white/20 text-white placeholder-white/70 border-white/30"
+                  className="flex-1 h-12 bg-white/20 text-white placeholder-white/70 border-white/30 text-base"
                 />
                 <motion.button
                   type="submit"
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  className="bg-white text-cyan-600 hover:bg-slate-50 px-6 sm:px-8 py-3 sm:py-4 rounded-lg font-semibold text-sm sm:text-lg shadow-xl transition-colors whitespace-nowrap"
+                  className="bg-white text-cyan-600 hover:bg-slate-50 h-12 px-6 sm:px-8 rounded-lg font-semibold text-base shadow-xl transition-colors whitespace-nowrap"
                 >
                   Get started free
                 </motion.button>

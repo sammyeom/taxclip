@@ -2,15 +2,16 @@
 
 import { useRouter } from 'next/navigation';
 import { TrendingUp } from 'lucide-react';
+import { BarChart, Bar, XAxis, YAxis } from 'recharts';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
-  BarChart,
-  Bar,
-  ResponsiveContainer,
-  XAxis,
-  YAxis,
-  Tooltip,
-  Legend,
-} from 'recharts';
+  ChartConfig,
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+  ChartLegend,
+  ChartLegendContent,
+} from '@/components/ui/chart';
 
 export interface MonthlyData {
   month: string;
@@ -38,6 +39,31 @@ const formatCurrency = (amount: number) => {
   }).format(amount);
 };
 
+const formatCurrencyCompact = (amount: number) => {
+  if (amount >= 1000) {
+    return `$${(amount / 1000).toFixed(1)}k`;
+  }
+  return `$${amount}`;
+};
+
+const monthlyChartConfig = {
+  amount: {
+    label: 'Spending',
+    color: '#06B6D4',
+  },
+} satisfies ChartConfig;
+
+const comparisonChartConfig = {
+  'Last Month': {
+    label: 'Last Month',
+    color: '#F97316',
+  },
+  'This Month': {
+    label: 'This Month',
+    color: '#06B6D4',
+  },
+} satisfies ChartConfig;
+
 export default function SpendingTrendChart({
   monthlyData,
   comparisonData,
@@ -49,106 +75,134 @@ export default function SpendingTrendChart({
   );
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Monthly Spending Trend */}
-      <div className="bg-white rounded-xl shadow-lg p-4 sm:p-6">
-        <h2 className="text-xl sm:text-2xl font-bold text-slate-900 mb-4 sm:mb-6">
-          Monthly Spending Trend
-        </h2>
-        {!hasMonthlyData ? (
-          <div className="text-center py-12">
-            <TrendingUp className="w-12 h-12 text-slate-300 mx-auto mb-3" />
-            <p className="text-slate-600 text-sm">No data for trend analysis</p>
-          </div>
-        ) : (
-          <ResponsiveContainer width="100%" height={250}>
-            <BarChart data={monthlyData}>
-              <XAxis
-                dataKey="month"
-                stroke="#64748B"
-                fontSize={12}
-                tickLine={false}
-              />
-              <YAxis
-                stroke="#64748B"
-                fontSize={12}
-                tickLine={false}
-                tickFormatter={(value) =>
-                  value >= 1000 ? `$${value / 1000}k` : `$${value}`
-                }
-              />
-              <Tooltip
-                formatter={(value: number | undefined) =>
-                  formatCurrency(value || 0)
-                }
-                contentStyle={{
-                  backgroundColor: 'white',
-                  border: '1px solid #E2E8F0',
-                  borderRadius: '8px',
-                }}
-                cursor={{ fill: 'rgba(6, 182, 212, 0.1)' }}
-              />
-              <Bar
-                dataKey="amount"
-                fill="#06B6D4"
-                radius={[8, 8, 0, 0]}
-                onClick={(data) => {
-                  const payload = data as unknown as {
-                    monthIndex?: number;
-                    year?: number;
-                  };
-                  if (payload && payload.monthIndex !== undefined) {
-                    const year = payload.year || new Date().getFullYear();
-                    router.push(
-                      `/receipts?month=${payload.monthIndex}&year=${year}`
-                    );
+      <Card>
+        <CardHeader className="pb-2 sm:pb-6">
+          <CardTitle className="text-base sm:text-xl md:text-2xl font-bold">
+            Monthly Spending Trend
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="px-2 sm:px-6 pb-4 sm:pb-6">
+          {!hasMonthlyData ? (
+            <div className="text-center py-8 sm:py-12">
+              <TrendingUp className="w-10 h-10 sm:w-12 sm:h-12 text-slate-300 mx-auto mb-3" />
+              <p className="text-slate-600 text-xs sm:text-sm">No data for trend analysis</p>
+            </div>
+          ) : (
+            <ChartContainer config={monthlyChartConfig} className="h-[180px] sm:h-[220px] md:h-[250px] w-full">
+              <BarChart
+                data={monthlyData}
+                accessibilityLayer
+                margin={{ top: 5, right: 5, left: -15, bottom: 0 }}
+              >
+                <XAxis
+                  dataKey="month"
+                  tickLine={false}
+                  tickMargin={8}
+                  axisLine={false}
+                  fontSize={10}
+                  interval={0}
+                  tick={{ fontSize: 10 }}
+                />
+                <YAxis
+                  tickLine={false}
+                  tickMargin={5}
+                  axisLine={false}
+                  width={45}
+                  fontSize={10}
+                  tick={{ fontSize: 10 }}
+                  tickFormatter={(value) => formatCurrencyCompact(value)}
+                />
+                <ChartTooltip
+                  cursor={{ fill: 'rgba(6, 182, 212, 0.1)' }}
+                  content={
+                    <ChartTooltipContent
+                      formatter={(value) => formatCurrency(Number(value) || 0)}
+                    />
                   }
-                }}
-                style={{ cursor: 'pointer' }}
-              />
-            </BarChart>
-          </ResponsiveContainer>
-        )}
-      </div>
+                />
+                <Bar
+                  dataKey="amount"
+                  fill="var(--color-amount)"
+                  radius={[4, 4, 0, 0]}
+                  onClick={(data) => {
+                    const payload = data as unknown as {
+                      monthIndex?: number;
+                      year?: number;
+                    };
+                    if (payload && payload.monthIndex !== undefined) {
+                      const year = payload.year || new Date().getFullYear();
+                      router.push(
+                        `/receipts?month=${payload.monthIndex}&year=${year}`
+                      );
+                    }
+                  }}
+                  style={{ cursor: 'pointer' }}
+                />
+              </BarChart>
+            </ChartContainer>
+          )}
+        </CardContent>
+      </Card>
 
       {/* Month Comparison */}
       {hasComparisonData && (
-        <div className="bg-white rounded-xl shadow-lg p-4 sm:p-6">
-          <h2 className="text-xl sm:text-2xl font-bold text-slate-900 mb-4 sm:mb-6">
-            This Month vs Last Month
-          </h2>
-          <ResponsiveContainer width="100%" height={200}>
-            <BarChart data={comparisonData}>
-              <XAxis
-                dataKey="month"
-                stroke="#64748B"
-                fontSize={12}
-                tickLine={false}
-              />
-              <YAxis
-                stroke="#64748B"
-                fontSize={12}
-                tickLine={false}
-                tickFormatter={(value) =>
-                  value >= 1000 ? `$${value / 1000}k` : `$${value}`
-                }
-              />
-              <Tooltip
-                formatter={(value: number | undefined) =>
-                  formatCurrency(value || 0)
-                }
-                contentStyle={{
-                  backgroundColor: 'white',
-                  border: '1px solid #E2E8F0',
-                  borderRadius: '8px',
-                }}
-              />
-              <Legend />
-              <Bar dataKey="Last Month" fill="#94A3B8" radius={[8, 8, 0, 0]} />
-              <Bar dataKey="This Month" fill="#06B6D4" radius={[8, 8, 0, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
+        <Card>
+          <CardHeader className="pb-2 sm:pb-6">
+            <CardTitle className="text-base sm:text-xl md:text-2xl font-bold">
+              This Month vs Last Month
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="px-2 sm:px-6 pb-4 sm:pb-6">
+            <ChartContainer config={comparisonChartConfig} className="h-[200px] sm:h-[220px] md:h-[250px] w-full">
+              <BarChart
+                data={comparisonData}
+                accessibilityLayer
+                margin={{ top: 5, right: 5, left: -15, bottom: 0 }}
+              >
+                <XAxis
+                  dataKey="month"
+                  tickLine={false}
+                  tickMargin={8}
+                  axisLine={false}
+                  fontSize={10}
+                  tick={{ fontSize: 10 }}
+                />
+                <YAxis
+                  tickLine={false}
+                  tickMargin={5}
+                  axisLine={false}
+                  width={45}
+                  fontSize={10}
+                  tick={{ fontSize: 10 }}
+                  tickFormatter={(value) => formatCurrencyCompact(value)}
+                />
+                <ChartTooltip
+                  content={
+                    <ChartTooltipContent
+                      formatter={(value) => formatCurrency(Number(value) || 0)}
+                    />
+                  }
+                />
+                <ChartLegend
+                  content={<ChartLegendContent />}
+                  className="mt-2 flex-wrap justify-center gap-2 sm:gap-4 text-xs sm:text-sm"
+                />
+                <Bar
+                  dataKey="Last Month"
+                  fill="#F97316"
+                  radius={[4, 4, 0, 0]}
+                />
+                <Bar
+                  dataKey="This Month"
+                  fill="#06B6D4"
+                  radius={[4, 4, 0, 0]}
+                />
+              </BarChart>
+            </ChartContainer>
+          </CardContent>
+        </Card>
       )}
     </div>
   );

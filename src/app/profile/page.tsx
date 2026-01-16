@@ -18,7 +18,6 @@ import {
   Loader2,
   CheckCircle,
   AlertCircle,
-  Trash2,
   Receipt as ReceiptIcon,
   DollarSign,
   TrendingUp,
@@ -27,6 +26,8 @@ import {
   Lock,
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
 
 interface UserMetadata {
   displayName?: string;
@@ -56,8 +57,6 @@ export default function ProfilePage() {
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [deleting, setDeleting] = useState(false);
   const [showPasswordFields, setShowPasswordFields] = useState(false);
 
   // Data state
@@ -254,29 +253,6 @@ export default function ProfilePage() {
     }
   };
 
-  // Delete account
-  const handleDeleteAccount = async () => {
-    if (!user) return;
-
-    setDeleting(true);
-    setError(null);
-
-    try {
-      // Note: Supabase doesn't have a direct user deletion API from client
-      // This would need to be implemented via a server-side function
-      // For now, we'll show an error message
-      throw new Error(
-        'Account deletion must be requested through support. Please contact support@taxclip.com'
-      );
-    } catch (err) {
-      console.error('Error deleting account:', err);
-      setError(err instanceof Error ? err.message : 'Failed to delete account');
-      setDeleteDialogOpen(false);
-    } finally {
-      setDeleting(false);
-    }
-  };
-
   // Format date
   const formatDate = (dateString: string | Date | null) => {
     if (!dateString) return 'N/A';
@@ -382,26 +358,28 @@ export default function ProfilePage() {
                     )}
                   </div>
                   <div className="mt-2 sm:mt-3 flex gap-2 justify-center">
-                    <button
+                    <Button
+                      variant="secondary"
+                      size="sm"
                       onClick={() => fileInputRef.current?.click()}
                       disabled={uploadingPhoto}
-                      className="text-xs text-slate-700 hover:text-slate-900 transition-colors flex items-center justify-center gap-1 py-1.5 px-3 bg-slate-100 hover:bg-slate-200 rounded disabled:opacity-50"
                     >
                       {uploadingPhoto ? (
-                        <Loader2 className="w-3 h-3 animate-spin" />
+                        <Loader2 className="w-3 h-3 animate-spin mr-1" />
                       ) : (
-                        <UploadIcon className="w-3 h-3" />
+                        <UploadIcon className="w-3 h-3 mr-1" />
                       )}
-                      <span>Upload</span>
-                    </button>
-                    <button
+                      Upload
+                    </Button>
+                    <Button
+                      variant="secondary"
+                      size="sm"
                       onClick={() => cameraInputRef.current?.click()}
                       disabled={uploadingPhoto}
-                      className="text-xs text-slate-700 hover:text-slate-900 transition-colors flex items-center justify-center gap-1 py-1.5 px-3 bg-slate-100 hover:bg-slate-200 rounded disabled:opacity-50"
                     >
-                      <Camera className="w-3 h-3" />
-                      <span>Camera</span>
-                    </button>
+                      <Camera className="w-3 h-3 mr-1" />
+                      Camera
+                    </Button>
                   </div>
                   {/* Hidden file inputs */}
                   <input
@@ -529,13 +507,15 @@ export default function ProfilePage() {
                 {/* Password Change Section */}
                 <div className="pt-3 sm:pt-4 border-t border-slate-200">
                   {!showPasswordFields ? (
-                    <button
+                    <Button
+                      variant="ghost"
+                      size="sm"
                       onClick={() => setShowPasswordFields(true)}
-                      className="text-xs sm:text-sm text-cyan-600 hover:text-cyan-700 font-semibold flex items-center gap-2"
+                      className="text-cyan-600 hover:text-cyan-700 hover:bg-cyan-50 p-0 h-auto"
                     >
-                      <Lock className="w-3 h-3 sm:w-4 sm:h-4" />
+                      <Lock className="w-3 h-3 sm:w-4 sm:h-4 mr-2" />
                       Change Password
-                    </button>
+                    </Button>
                   ) : (
                     <div className="space-y-3 sm:space-y-4">
                       <div>
@@ -574,38 +554,41 @@ export default function ProfilePage() {
                         </div>
                       </div>
 
-                      <button
+                      <Button
+                        variant="ghost"
+                        size="sm"
                         onClick={() => {
                           setShowPasswordFields(false);
                           setNewPassword('');
                           setConfirmPassword('');
                         }}
-                        className="text-xs sm:text-sm text-slate-600 hover:text-slate-900"
+                        className="text-slate-600 hover:text-slate-900 p-0 h-auto"
                       >
                         Cancel
-                      </button>
+                      </Button>
                     </div>
                   )}
                 </div>
 
                 {/* Save Button */}
-                <button
+                <Button
                   onClick={handleSave}
                   disabled={saving}
-                  className="w-full bg-cyan-500 hover:bg-cyan-600 text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg font-semibold text-sm sm:text-base transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  className="w-full bg-cyan-500 hover:bg-cyan-600 text-white"
+                  size="lg"
                 >
                   {saving ? (
                     <>
-                      <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin" />
+                      <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin mr-2" />
                       Saving...
                     </>
                   ) : (
                     <>
-                      <Save className="w-4 h-4 sm:w-5 sm:h-5" />
+                      <Save className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
                       Save Changes
                     </>
                   )}
-                </button>
+                </Button>
               </div>
             </div>
           </div>
@@ -615,142 +598,69 @@ export default function ProfilePage() {
             <div className="bg-white rounded-xl shadow-lg p-4 sm:p-6">
               <h2 className="text-lg sm:text-xl font-bold text-slate-900 mb-4 sm:mb-6">Account Statistics</h2>
 
-              <div className="grid grid-cols-2 lg:grid-cols-1 gap-3 sm:gap-4 lg:space-y-4 lg:gap-0">
+              <div className="grid grid-cols-2 lg:grid-cols-1 gap-3 sm:gap-4">
                 {/* Total Receipts */}
-                <div className="bg-gradient-to-br from-cyan-50 to-blue-50 rounded-lg p-3 sm:p-4">
-                  <div className="flex items-center gap-2 sm:gap-3">
-                    <div className="bg-cyan-500 rounded-lg p-1.5 sm:p-2">
-                      <ReceiptIcon className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+                <Card className="bg-gradient-to-t from-cyan-500/5 to-card shadow-sm">
+                  <CardContent className="p-4 sm:p-5">
+                    <div className="flex items-center gap-2 text-muted-foreground mb-2">
+                      <ReceiptIcon className="w-5 h-5 sm:w-6 sm:h-6 text-cyan-500" />
+                      <span className="text-sm sm:text-base font-medium">Receipts</span>
                     </div>
-                    <div>
-                      <p className="text-xs sm:text-sm text-slate-600">Receipts</p>
-                      <p className="text-lg sm:text-2xl font-bold text-slate-900">
-                        {stats.totalReceipts}
-                      </p>
-                    </div>
-                  </div>
-                </div>
+                    <p className="text-2xl sm:text-3xl font-bold text-slate-900">
+                      {stats.totalReceipts}
+                    </p>
+                  </CardContent>
+                </Card>
 
                 {/* Total Expenses */}
-                <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-lg p-3 sm:p-4">
-                  <div className="flex items-center gap-2 sm:gap-3">
-                    <div className="bg-green-500 rounded-lg p-1.5 sm:p-2">
-                      <DollarSign className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+                <Card className="bg-gradient-to-t from-green-500/5 to-card shadow-sm">
+                  <CardContent className="p-4 sm:p-5">
+                    <div className="flex items-center gap-2 text-muted-foreground mb-2">
+                      <DollarSign className="w-5 h-5 sm:w-6 sm:h-6 text-green-500" />
+                      <span className="text-sm sm:text-base font-medium">Expenses</span>
                     </div>
-                    <div className="min-w-0">
-                      <p className="text-xs sm:text-sm text-slate-600">Expenses</p>
-                      <p className="text-base sm:text-2xl font-bold text-slate-900 truncate">
-                        {formatCurrency(stats.totalExpenses)}
-                      </p>
-                    </div>
-                  </div>
-                </div>
+                    <p className="text-xl sm:text-3xl font-bold text-slate-900 truncate">
+                      {formatCurrency(stats.totalExpenses)}
+                    </p>
+                  </CardContent>
+                </Card>
 
                 {/* Account Age */}
-                <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-lg p-3 sm:p-4">
-                  <div className="flex items-center gap-2 sm:gap-3">
-                    <div className="bg-purple-500 rounded-lg p-1.5 sm:p-2">
-                      <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+                <Card className="bg-gradient-to-t from-purple-500/5 to-card shadow-sm">
+                  <CardContent className="p-4 sm:p-5">
+                    <div className="flex items-center gap-2 text-muted-foreground mb-2">
+                      <TrendingUp className="w-5 h-5 sm:w-6 sm:h-6 text-purple-500" />
+                      <span className="text-sm sm:text-base font-medium">Account Age</span>
                     </div>
-                    <div>
-                      <p className="text-xs sm:text-sm text-slate-600">Account Age</p>
-                      <p className="text-lg sm:text-2xl font-bold text-slate-900">
-                        {stats.accountAge}{' '}
-                        <span className="text-xs sm:text-base">
-                          {stats.accountAge === 1 ? 'day' : 'days'}
-                        </span>
-                      </p>
-                    </div>
-                  </div>
-                </div>
+                    <p className="text-2xl sm:text-3xl font-bold text-slate-900">
+                      {stats.accountAge}{' '}
+                      <span className="text-sm sm:text-base font-normal">
+                        {stats.accountAge === 1 ? 'day' : 'days'}
+                      </span>
+                    </p>
+                  </CardContent>
+                </Card>
 
                 {/* Last Receipt */}
-                <div className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-lg p-3 sm:p-4">
-                  <div className="flex items-center gap-2 sm:gap-3">
-                    <div className="bg-amber-500 rounded-lg p-1.5 sm:p-2">
-                      <Calendar className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+                <Card className="bg-gradient-to-t from-amber-500/5 to-card shadow-sm">
+                  <CardContent className="p-4 sm:p-5">
+                    <div className="flex items-center gap-2 text-muted-foreground mb-2">
+                      <Calendar className="w-5 h-5 sm:w-6 sm:h-6 text-amber-500" />
+                      <span className="text-sm sm:text-base font-medium">Last Receipt</span>
                     </div>
-                    <div className="min-w-0">
-                      <p className="text-xs sm:text-sm text-slate-600">Last Receipt</p>
-                      <p className="text-xs sm:text-sm font-bold text-slate-900 truncate">
-                        {stats.lastReceiptDate
-                          ? formatDate(stats.lastReceiptDate)
-                          : 'No receipts yet'}
-                      </p>
-                    </div>
-                  </div>
-                </div>
+                    <p className="text-base sm:text-lg font-bold text-slate-900 truncate">
+                      {stats.lastReceiptDate
+                        ? formatDate(stats.lastReceiptDate)
+                        : 'No receipts yet'}
+                    </p>
+                  </CardContent>
+                </Card>
               </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Danger Zone - Subtle, at bottom */}
-        <div className="max-w-4xl mx-auto">
-          <div className="bg-white rounded-lg shadow p-3 sm:p-4 border border-slate-200">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-              <div>
-                <h3 className="text-xs sm:text-sm font-semibold text-slate-700">Delete Account</h3>
-                <p className="text-xs text-slate-500 mt-0.5">
-                  Permanently delete your account and all data
-                </p>
-              </div>
-              <button
-                onClick={() => setDeleteDialogOpen(true)}
-                className="w-full sm:w-auto text-xs sm:text-sm text-slate-600 hover:text-slate-900 px-4 py-2 rounded-lg transition-colors border border-slate-300 hover:border-slate-400 text-center"
-              >
-                Delete
-              </button>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Delete Account Confirmation Dialog */}
-      {deleteDialogOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50">
-          <div className="bg-white rounded-xl shadow-2xl max-w-md w-full p-6">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="bg-red-100 rounded-full p-3">
-                <AlertCircle className="w-6 h-6 text-red-600" />
-              </div>
-              <h3 className="text-xl font-bold text-slate-900">Delete Account</h3>
-            </div>
-
-            <p className="text-slate-600 mb-6">
-              Are you absolutely sure you want to delete your account? This action cannot be
-              undone. All your receipts, data, and settings will be permanently deleted.
-            </p>
-
-            <div className="flex gap-3">
-              <button
-                onClick={() => setDeleteDialogOpen(false)}
-                disabled={deleting}
-                className="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-900 px-4 py-3 rounded-lg font-semibold transition-colors"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleDeleteAccount}
-                disabled={deleting}
-                className="flex-1 bg-red-600 hover:bg-red-700 text-white px-4 py-3 rounded-lg font-semibold transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
-              >
-                {deleting ? (
-                  <>
-                    <Loader2 className="w-5 h-5 animate-spin" />
-                    Deleting...
-                  </>
-                ) : (
-                  <>
-                    <Trash2 className="w-5 h-5" />
-                    Delete Forever
-                  </>
-                )}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

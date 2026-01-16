@@ -29,6 +29,22 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 interface AppSettings {
   // General
@@ -344,547 +360,450 @@ export default function SettingsPage() {
 
         {/* Error Alert */}
         {error && (
-          <div className="mb-6 bg-red-50 border border-red-200 rounded-lg p-4 flex items-start gap-3">
-            <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
-            <div>
-              <h3 className="font-semibold text-red-900 mb-1">Error</h3>
-              <p className="text-red-700 text-sm">{error}</p>
-            </div>
-          </div>
+          <Alert variant="destructive" className="mb-6">
+            <AlertCircle className="h-4 w-4" />
+            <AlertTitle>Error</AlertTitle>
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
         )}
 
         {/* General Settings */}
-        <div className="bg-white rounded-xl shadow-lg p-4 sm:p-6 mb-4 sm:mb-6">
-          <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
-            <SettingsIcon className="w-5 h-5 sm:w-6 sm:h-6 text-cyan-600" />
-            <h2 className="text-lg sm:text-xl font-bold text-slate-900">General Settings</h2>
-          </div>
-
-          <div className="divide-y divide-slate-100">
+        <Card className="mb-4 sm:mb-6">
+          <CardHeader className="pb-3 sm:pb-6">
+            <CardTitle className="flex items-center gap-2 sm:gap-3 text-lg sm:text-xl">
+              <SettingsIcon className="w-5 h-5 sm:w-6 sm:h-6 text-cyan-600" />
+              General Settings
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-0 divide-y divide-border">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between py-3 sm:py-4 gap-2">
-              <div className="flex-1">
-                <label className="block text-xs sm:text-sm font-semibold text-slate-700">
-                  Default Currency
-                </label>
-              </div>
-              <div className="w-full sm:w-auto sm:flex-shrink-0">
-                <Select value={settings.currency} onValueChange={(value) => updateSetting('currency', value)}>
-                  <SelectTrigger className="w-full sm:w-48 lg:w-64 px-3 sm:px-4 py-2 sm:py-2.5 text-sm bg-slate-50 border border-slate-300 rounded-lg text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:bg-white hover:bg-white transition-colors">
-                    <SelectValue placeholder="Select currency" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="USD">USD ($)</SelectItem>
-                    <SelectItem value="EUR">EUR (€)</SelectItem>
-                    <SelectItem value="GBP">GBP (£)</SelectItem>
-                    <SelectItem value="CAD">CAD ($)</SelectItem>
-                    <SelectItem value="AUD">AUD ($)</SelectItem>
-                    <SelectItem value="JPY">JPY (¥)</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+              <Label className="text-xs sm:text-sm font-semibold">Default Currency</Label>
+              <Select value={settings.currency} onValueChange={(value) => updateSetting('currency', value)}>
+                <SelectTrigger className="w-full sm:w-48 lg:w-64 h-9 sm:h-10">
+                  <SelectValue placeholder="Select currency" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="USD">USD ($)</SelectItem>
+                  <SelectItem value="EUR">EUR (€)</SelectItem>
+                  <SelectItem value="GBP">GBP (£)</SelectItem>
+                  <SelectItem value="CAD">CAD ($)</SelectItem>
+                  <SelectItem value="AUD">AUD ($)</SelectItem>
+                  <SelectItem value="JPY">JPY (¥)</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between py-3 sm:py-4 gap-2">
-              <div className="flex-1">
-                <label className="block text-xs sm:text-sm font-semibold text-slate-700">
-                  Date Format
-                </label>
-              </div>
-              <div className="w-full sm:w-auto sm:flex-shrink-0">
-                <Select value={settings.dateFormat} onValueChange={(value) => updateSetting('dateFormat', value)}>
-                  <SelectTrigger className="w-full sm:w-48 lg:w-64 px-3 sm:px-4 py-2 sm:py-2.5 text-sm bg-slate-50 border border-slate-300 rounded-lg text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:bg-white hover:bg-white transition-colors">
-                    <SelectValue placeholder="Select format" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="MM/DD/YYYY">MM/DD/YYYY</SelectItem>
-                    <SelectItem value="DD/MM/YYYY">DD/MM/YYYY</SelectItem>
-                    <SelectItem value="YYYY-MM-DD">YYYY-MM-DD</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+              <Label className="text-xs sm:text-sm font-semibold">Date Format</Label>
+              <Select value={settings.dateFormat} onValueChange={(value) => updateSetting('dateFormat', value)}>
+                <SelectTrigger className="w-full sm:w-48 lg:w-64 h-9 sm:h-10">
+                  <SelectValue placeholder="Select format" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="MM/DD/YYYY">MM/DD/YYYY</SelectItem>
+                  <SelectItem value="DD/MM/YYYY">DD/MM/YYYY</SelectItem>
+                  <SelectItem value="YYYY-MM-DD">YYYY-MM-DD</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between py-3 sm:py-4 gap-2">
-              <div className="flex-1">
-                <label className="block text-xs sm:text-sm font-semibold text-slate-700">
-                  Default Tax Category
-                </label>
-              </div>
-              <div className="w-full sm:w-auto sm:flex-shrink-0">
-                <Select value={settings.defaultCategory} onValueChange={(value) => updateSetting('defaultCategory', value)}>
-                  <SelectTrigger className="w-full sm:w-48 lg:w-64 px-3 sm:px-4 py-2 sm:py-2.5 text-sm bg-slate-50 border border-slate-300 rounded-lg text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:bg-white hover:bg-white transition-colors">
-                    <SelectValue placeholder="Select category" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {IRS_CATEGORIES.map((cat) => (
-                      <SelectItem key={cat.value} value={cat.value}>
-                        {cat.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+              <Label className="text-xs sm:text-sm font-semibold">Default Tax Category</Label>
+              <Select value={settings.defaultCategory} onValueChange={(value) => updateSetting('defaultCategory', value)}>
+                <SelectTrigger className="w-full sm:w-48 lg:w-64 h-9 sm:h-10">
+                  <SelectValue placeholder="Select category" />
+                </SelectTrigger>
+                <SelectContent>
+                  {IRS_CATEGORIES.map((cat) => (
+                    <SelectItem key={cat.value} value={cat.value}>
+                      {cat.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
 
-            <div className="flex items-center justify-between py-3 border-t border-slate-100">
+            <div className="flex items-center justify-between py-3 sm:py-4">
               <div className="flex-1 mr-4">
-                <p className="text-xs sm:text-sm font-semibold text-slate-700">Auto-categorize Receipts</p>
-                <p className="text-xs text-slate-500 mt-0.5">Use AI to suggest categories</p>
+                <Label className="text-xs sm:text-sm font-semibold">Auto-categorize Receipts</Label>
+                <p className="text-xs text-muted-foreground mt-0.5">Use AI to suggest categories</p>
               </div>
-              <button
-                onClick={() => updateSetting('autoCategorize', !settings.autoCategorize)}
-                className={`relative inline-flex h-6 w-11 min-h-[24px] max-h-[24px] min-w-[44px] max-w-[44px] flex-shrink-0 items-center rounded-full transition-colors ${
-                  settings.autoCategorize ? 'bg-cyan-500' : 'bg-slate-300'
-                }`}
-              >
-                <span
-                  className={`inline-block h-5 w-5 min-h-[20px] max-h-[20px] min-w-[20px] max-w-[20px] transform rounded-full bg-white shadow transition-transform ${
-                    settings.autoCategorize ? 'translate-x-[22px]' : 'translate-x-0.5'
-                  }`}
-                />
-              </button>
+              <Switch
+                checked={settings.autoCategorize}
+                onCheckedChange={(checked) => updateSetting('autoCategorize', checked)}
+                className="data-[state=checked]:bg-cyan-500"
+              />
             </div>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
 
         {/* Notifications */}
-        <div className="bg-white rounded-xl shadow-lg p-4 sm:p-6 mb-4 sm:mb-6">
-          <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
-            <Bell className="w-5 h-5 sm:w-6 sm:h-6 text-cyan-600" />
-            <h2 className="text-lg sm:text-xl font-bold text-slate-900">Notifications</h2>
-          </div>
-
-          <div className="divide-y divide-slate-100">
-            <div className="flex items-center justify-between py-3">
+        <Card className="mb-4 sm:mb-6">
+          <CardHeader className="pb-3 sm:pb-6">
+            <CardTitle className="flex items-center gap-2 sm:gap-3 text-lg sm:text-xl">
+              <Bell className="w-5 h-5 sm:w-6 sm:h-6 text-cyan-600" />
+              Notifications
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-0 divide-y divide-border">
+            <div className="flex items-center justify-between py-3 sm:py-4">
               <div className="flex-1 mr-4">
-                <p className="text-xs sm:text-sm font-semibold text-slate-700">Email Notifications</p>
-                <p className="text-xs text-slate-500 mt-0.5">Receive email updates</p>
+                <Label className="text-xs sm:text-sm font-semibold">Email Notifications</Label>
+                <p className="text-xs text-muted-foreground mt-0.5">Receive email updates</p>
               </div>
-              <button
-                onClick={() =>
-                  updateSetting('emailNotifications', !settings.emailNotifications)
-                }
-                className={`relative inline-flex h-6 w-11 min-h-[24px] max-h-[24px] min-w-[44px] max-w-[44px] flex-shrink-0 items-center rounded-full transition-colors ${
-                  settings.emailNotifications ? 'bg-cyan-500' : 'bg-slate-300'
-                }`}
-              >
-                <span
-                  className={`inline-block h-5 w-5 min-h-[20px] max-h-[20px] min-w-[20px] max-w-[20px] transform rounded-full bg-white shadow transition-transform ${
-                    settings.emailNotifications ? 'translate-x-[22px]' : 'translate-x-0.5'
-                  }`}
-                />
-              </button>
+              <Switch
+                checked={settings.emailNotifications}
+                onCheckedChange={(checked) => updateSetting('emailNotifications', checked)}
+                className="data-[state=checked]:bg-cyan-500"
+              />
             </div>
 
-            <div className="flex items-center justify-between py-3">
+            <div className="flex items-center justify-between py-3 sm:py-4">
               <div className="flex-1 mr-4">
-                <p className="text-xs sm:text-sm font-semibold text-slate-700">Monthly Summary</p>
-                <p className="text-xs text-slate-500 mt-0.5">Get monthly expense reports</p>
+                <Label className="text-xs sm:text-sm font-semibold">Monthly Summary</Label>
+                <p className="text-xs text-muted-foreground mt-0.5">Get monthly expense reports</p>
               </div>
-              <button
-                onClick={() => updateSetting('monthlySummary', !settings.monthlySummary)}
-                className={`relative inline-flex h-6 w-11 min-h-[24px] max-h-[24px] min-w-[44px] max-w-[44px] flex-shrink-0 items-center rounded-full transition-colors ${
-                  settings.monthlySummary ? 'bg-cyan-500' : 'bg-slate-300'
-                }`}
-              >
-                <span
-                  className={`inline-block h-5 w-5 min-h-[20px] max-h-[20px] min-w-[20px] max-w-[20px] transform rounded-full bg-white shadow transition-transform ${
-                    settings.monthlySummary ? 'translate-x-[22px]' : 'translate-x-0.5'
-                  }`}
-                />
-              </button>
+              <Switch
+                checked={settings.monthlySummary}
+                onCheckedChange={(checked) => updateSetting('monthlySummary', checked)}
+                className="data-[state=checked]:bg-cyan-500"
+              />
             </div>
 
-            <div className="flex items-center justify-between py-3">
+            <div className="flex items-center justify-between py-3 sm:py-4">
               <div className="flex-1 mr-4">
-                <p className="text-xs sm:text-sm font-semibold text-slate-700">Upload Reminders</p>
-                <p className="text-xs text-slate-500 mt-0.5">Weekly reminders to upload</p>
+                <Label className="text-xs sm:text-sm font-semibold">Upload Reminders</Label>
+                <p className="text-xs text-muted-foreground mt-0.5">Weekly reminders to upload</p>
               </div>
-              <button
-                onClick={() =>
-                  updateSetting('uploadReminders', !settings.uploadReminders)
-                }
-                className={`relative inline-flex h-6 w-11 min-h-[24px] max-h-[24px] min-w-[44px] max-w-[44px] flex-shrink-0 items-center rounded-full transition-colors ${
-                  settings.uploadReminders ? 'bg-cyan-500' : 'bg-slate-300'
-                }`}
-              >
-                <span
-                  className={`inline-block h-5 w-5 min-h-[20px] max-h-[20px] min-w-[20px] max-w-[20px] transform rounded-full bg-white shadow transition-transform ${
-                    settings.uploadReminders ? 'translate-x-[22px]' : 'translate-x-0.5'
-                  }`}
-                />
-              </button>
+              <Switch
+                checked={settings.uploadReminders}
+                onCheckedChange={(checked) => updateSetting('uploadReminders', checked)}
+                className="data-[state=checked]:bg-cyan-500"
+              />
             </div>
 
-            <div className="flex items-center justify-between py-3">
+            <div className="flex items-center justify-between py-3 sm:py-4">
               <div className="flex-1 mr-4">
-                <p className="text-xs sm:text-sm font-semibold text-slate-700">Tax Reminders</p>
-                <p className="text-xs text-slate-500 mt-0.5">Alerts for important dates</p>
+                <Label className="text-xs sm:text-sm font-semibold">Tax Reminders</Label>
+                <p className="text-xs text-muted-foreground mt-0.5">Alerts for important dates</p>
               </div>
-              <button
-                onClick={() =>
-                  updateSetting('taxDeadlineReminders', !settings.taxDeadlineReminders)
-                }
-                className={`relative inline-flex h-6 w-11 min-h-[24px] max-h-[24px] min-w-[44px] max-w-[44px] flex-shrink-0 items-center rounded-full transition-colors ${
-                  settings.taxDeadlineReminders ? 'bg-cyan-500' : 'bg-slate-300'
-                }`}
-              >
-                <span
-                  className={`inline-block h-5 w-5 min-h-[20px] max-h-[20px] min-w-[20px] max-w-[20px] transform rounded-full bg-white shadow transition-transform ${
-                    settings.taxDeadlineReminders ? 'translate-x-[22px]' : 'translate-x-0.5'
-                  }`}
-                />
-              </button>
+              <Switch
+                checked={settings.taxDeadlineReminders}
+                onCheckedChange={(checked) => updateSetting('taxDeadlineReminders', checked)}
+                className="data-[state=checked]:bg-cyan-500"
+              />
             </div>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
 
         {/* Tax Settings */}
-        <div className="bg-white rounded-xl shadow-lg p-4 sm:p-6 mb-4 sm:mb-6">
-          <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
-            <FileText className="w-5 h-5 sm:w-6 sm:h-6 text-cyan-600" />
-            <h2 className="text-lg sm:text-xl font-bold text-slate-900">Tax Settings</h2>
-          </div>
-
-          <div className="divide-y divide-slate-100">
+        <Card className="mb-4 sm:mb-6">
+          <CardHeader className="pb-3 sm:pb-6">
+            <CardTitle className="flex items-center gap-2 sm:gap-3 text-lg sm:text-xl">
+              <FileText className="w-5 h-5 sm:w-6 sm:h-6 text-cyan-600" />
+              Tax Settings
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-0 divide-y divide-border">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between py-3 sm:py-4 gap-2">
-              <div className="flex-1">
-                <label className="block text-xs sm:text-sm font-semibold text-slate-700">
-                  Business Type
-                </label>
-              </div>
-              <div className="w-full sm:w-auto sm:flex-shrink-0">
-                <Select value={settings.businessType} onValueChange={(value) => updateSetting('businessType', value)}>
-                  <SelectTrigger className="w-full sm:w-48 lg:w-64 px-3 sm:px-4 py-2 sm:py-2.5 text-sm bg-slate-50 border border-slate-300 rounded-lg text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:bg-white hover:bg-white transition-colors">
-                    <SelectValue placeholder="Select business type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="sole_proprietor">Sole Proprietor</SelectItem>
-                    <SelectItem value="llc">LLC</SelectItem>
-                    <SelectItem value="s_corp">S Corporation</SelectItem>
-                    <SelectItem value="c_corp">C Corporation</SelectItem>
-                    <SelectItem value="partnership">Partnership</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+              <Label className="text-xs sm:text-sm font-semibold">Business Type</Label>
+              <Select value={settings.businessType} onValueChange={(value) => updateSetting('businessType', value)}>
+                <SelectTrigger className="w-full sm:w-48 lg:w-64 h-9 sm:h-10">
+                  <SelectValue placeholder="Select business type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="sole_proprietor">Sole Proprietor</SelectItem>
+                  <SelectItem value="llc">LLC</SelectItem>
+                  <SelectItem value="s_corp">S Corporation</SelectItem>
+                  <SelectItem value="c_corp">C Corporation</SelectItem>
+                  <SelectItem value="partnership">Partnership</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between py-3 sm:py-4 gap-2">
+              <Label className="text-xs sm:text-sm font-semibold">Tax Year</Label>
+              <Select value={settings.taxYear} onValueChange={(value) => updateSetting('taxYear', value)}>
+                <SelectTrigger className="w-full sm:w-48 lg:w-64 h-9 sm:h-10">
+                  <SelectValue placeholder="Select tax year" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="calendar">Calendar Year</SelectItem>
+                  <SelectItem value="fiscal">Fiscal Year</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between py-3 sm:py-4 gap-2">
               <div className="flex-1">
-                <label className="block text-xs sm:text-sm font-semibold text-slate-700">
-                  Tax Year
-                </label>
+                <Label className="text-xs sm:text-sm font-semibold">Meals Deduction (%)</Label>
+                <p className="text-xs text-muted-foreground mt-0.5">IRS standard is 50%</p>
               </div>
-              <div className="w-full sm:w-auto sm:flex-shrink-0">
-                <Select value={settings.taxYear} onValueChange={(value) => updateSetting('taxYear', value)}>
-                  <SelectTrigger className="w-full sm:w-48 lg:w-64 px-3 sm:px-4 py-2 sm:py-2.5 text-sm bg-slate-50 border border-slate-300 rounded-lg text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:bg-white hover:bg-white transition-colors">
-                    <SelectValue placeholder="Select tax year" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="calendar">Calendar Year</SelectItem>
-                    <SelectItem value="fiscal">Fiscal Year</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+              <Input
+                type="number"
+                min="0"
+                max="100"
+                value={settings.mealsDeduction}
+                onChange={(e) => updateSetting('mealsDeduction', Number(e.target.value))}
+                className="w-full sm:w-48 lg:w-64 h-9 sm:h-10"
+              />
             </div>
 
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between py-3 sm:py-4 gap-2">
-              <div className="flex-1">
-                <label className="block text-xs sm:text-sm font-semibold text-slate-700">
-                  Meals Deduction (%)
-                </label>
-                <p className="text-xs text-slate-500 mt-0.5">IRS standard is 50%</p>
-              </div>
-              <div className="w-full sm:w-auto sm:flex-shrink-0">
-                <input
-                  type="number"
-                  min="0"
-                  max="100"
-                  value={settings.mealsDeduction}
-                  onChange={(e) => updateSetting('mealsDeduction', Number(e.target.value))}
-                  className="w-full sm:w-48 lg:w-64 px-3 sm:px-4 py-2 sm:py-2.5 text-sm bg-slate-50 border border-slate-300 rounded-lg text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:bg-white hover:bg-white transition-colors"
-                />
-              </div>
-            </div>
-
-            <div className="flex items-center justify-between py-3 border-t border-slate-100">
+            <div className="flex items-center justify-between py-3 sm:py-4">
               <div className="flex-1 mr-4">
-                <p className="text-xs sm:text-sm font-semibold text-slate-700">Mileage Tracking</p>
-                <p className="text-xs text-slate-500 mt-0.5">Track business mileage</p>
+                <Label className="text-xs sm:text-sm font-semibold">Mileage Tracking</Label>
+                <p className="text-xs text-muted-foreground mt-0.5">Track business mileage</p>
               </div>
-              <button
-                onClick={() => updateSetting('mileageTracking', !settings.mileageTracking)}
-                className={`relative inline-flex h-6 w-11 min-h-[24px] max-h-[24px] min-w-[44px] max-w-[44px] flex-shrink-0 items-center rounded-full transition-colors ${
-                  settings.mileageTracking ? 'bg-cyan-500' : 'bg-slate-300'
-                }`}
-              >
-                <span
-                  className={`inline-block h-5 w-5 min-h-[20px] max-h-[20px] min-w-[20px] max-w-[20px] transform rounded-full bg-white shadow transition-transform ${
-                    settings.mileageTracking ? 'translate-x-[22px]' : 'translate-x-0.5'
-                  }`}
-                />
-              </button>
+              <Switch
+                checked={settings.mileageTracking}
+                onCheckedChange={(checked) => updateSetting('mileageTracking', checked)}
+                className="data-[state=checked]:bg-cyan-500"
+              />
             </div>
 
             {settings.mileageTracking && (
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between py-3 sm:py-4 gap-2">
                 <div className="flex-1">
-                  <label className="block text-xs sm:text-sm font-semibold text-slate-700">
-                    Mileage Rate ($/mile)
-                  </label>
-                  <p className="text-xs text-slate-500 mt-0.5">2026: $0.67/mile</p>
+                  <Label className="text-xs sm:text-sm font-semibold">Mileage Rate ($/mile)</Label>
+                  <p className="text-xs text-muted-foreground mt-0.5">2026: $0.67/mile</p>
                 </div>
-                <div className="w-full sm:w-auto sm:flex-shrink-0">
-                  <input
-                    type="number"
-                    step="0.01"
-                    min="0"
-                    value={settings.mileageRate}
-                    onChange={(e) => updateSetting('mileageRate', Number(e.target.value))}
-                    className="w-full sm:w-48 lg:w-64 px-3 sm:px-4 py-2 sm:py-2.5 text-sm bg-slate-50 border border-slate-300 rounded-lg text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:bg-white hover:bg-white transition-colors"
-                  />
-                </div>
+                <Input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={settings.mileageRate}
+                  onChange={(e) => updateSetting('mileageRate', Number(e.target.value))}
+                  className="w-full sm:w-48 lg:w-64 h-9 sm:h-10"
+                />
               </div>
             )}
-          </div>
-        </div>
+          </CardContent>
+        </Card>
 
         {/* Data & Privacy */}
-        <div className="bg-white rounded-xl shadow-lg p-4 sm:p-6 mb-4 sm:mb-6">
-          <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
-            <Shield className="w-5 h-5 sm:w-6 sm:h-6 text-cyan-600" />
-            <h2 className="text-lg sm:text-xl font-bold text-slate-900">Data & Privacy</h2>
-          </div>
-
-          <div className="space-y-3 sm:space-y-4">
+        <Card className="mb-4 sm:mb-6">
+          <CardHeader className="pb-3 sm:pb-6">
+            <CardTitle className="flex items-center gap-2 sm:gap-3 text-lg sm:text-xl">
+              <Shield className="w-5 h-5 sm:w-6 sm:h-6 text-cyan-600" />
+              Data & Privacy
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3 sm:space-y-4">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between py-3 gap-2">
               <div className="flex-1">
-                <p className="text-xs sm:text-sm font-semibold text-slate-700">Export All Data</p>
-                <p className="text-xs text-slate-500 mt-0.5">Download your data as CSV</p>
+                <Label className="text-xs sm:text-sm font-semibold">Export All Data</Label>
+                <p className="text-xs text-muted-foreground mt-0.5">Download your data as CSV</p>
               </div>
-              <button
+              <Button
+                variant="secondary"
                 onClick={handleExportData}
-                className="w-full sm:w-auto px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg transition-colors flex items-center justify-center gap-2 text-sm font-semibold"
+                className="w-full sm:w-auto"
               >
-                <Download className="w-4 h-4" />
+                <Download className="w-4 h-4 mr-2" />
                 Export CSV
-              </button>
+              </Button>
             </div>
 
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between py-3 border-t border-slate-100 gap-2">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between py-3 border-t gap-2">
               <div className="flex-1">
-                <p className="text-xs sm:text-sm font-semibold text-slate-700">Download Archive</p>
-                <p className="text-xs text-slate-500 mt-0.5">Download receipt images as ZIP</p>
+                <Label className="text-xs sm:text-sm font-semibold">Download Archive</Label>
+                <p className="text-xs text-muted-foreground mt-0.5">Download receipt images as ZIP</p>
               </div>
-              <button
+              <Button
+                variant="secondary"
                 onClick={handleDownloadArchive}
-                className="w-full sm:w-auto px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg transition-colors flex items-center justify-center gap-2 text-sm font-semibold"
+                className="w-full sm:w-auto"
               >
-                <Archive className="w-4 h-4" />
+                <Archive className="w-4 h-4 mr-2" />
                 Download
-              </button>
+              </Button>
             </div>
 
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between py-3 sm:py-4 border-t border-slate-100 gap-2">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between py-3 sm:py-4 border-t gap-2">
               <div className="flex-1">
-                <label className="block text-xs sm:text-sm font-semibold text-slate-700">
-                  Data Retention
-                </label>
-                <p className="text-xs text-slate-500 mt-0.5">
-                  IRS recommends 7 years
-                </p>
+                <Label className="text-xs sm:text-sm font-semibold">Data Retention</Label>
+                <p className="text-xs text-muted-foreground mt-0.5">IRS recommends 7 years</p>
               </div>
-              <div className="w-full sm:w-auto sm:flex-shrink-0">
-                <Select value={String(settings.dataRetention)} onValueChange={(value) => updateSetting('dataRetention', Number(value))}>
-                  <SelectTrigger className="w-full sm:w-48 lg:w-64 px-3 sm:px-4 py-2 sm:py-2.5 text-sm bg-slate-50 border border-slate-300 rounded-lg text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:bg-white hover:bg-white transition-colors">
-                    <SelectValue placeholder="Select retention period" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="1">1 Year</SelectItem>
-                    <SelectItem value="3">3 Years</SelectItem>
-                    <SelectItem value="5">5 Years</SelectItem>
-                    <SelectItem value="7">7 Years (Recommended)</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+              <Select value={String(settings.dataRetention)} onValueChange={(value) => updateSetting('dataRetention', Number(value))}>
+                <SelectTrigger className="w-full sm:w-48 lg:w-64 h-9 sm:h-10">
+                  <SelectValue placeholder="Select retention period" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="1">1 Year</SelectItem>
+                  <SelectItem value="3">3 Years</SelectItem>
+                  <SelectItem value="5">5 Years</SelectItem>
+                  <SelectItem value="7">7 Years (Recommended)</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between py-3 border-t border-slate-100 gap-2">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between py-3 border-t gap-2">
               <div className="flex-1">
-                <p className="text-xs sm:text-sm font-semibold text-slate-700">Clear Cache</p>
-                <p className="text-xs text-slate-500 mt-0.5">Clear local browser data</p>
+                <Label className="text-xs sm:text-sm font-semibold">Clear Cache</Label>
+                <p className="text-xs text-muted-foreground mt-0.5">Clear local browser data</p>
               </div>
-              <button
+              <Button
+                variant="secondary"
                 onClick={handleClearCache}
-                className="w-full sm:w-auto px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg transition-colors flex items-center justify-center gap-2 text-sm font-semibold"
+                className="w-full sm:w-auto"
               >
-                <RotateCcw className="w-4 h-4" />
+                <RotateCcw className="w-4 h-4 mr-2" />
                 Clear Cache
-              </button>
+              </Button>
             </div>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
 
         {/* Danger Zone */}
-        <div className="bg-white rounded-lg shadow p-4 sm:p-6 border border-slate-200 mb-4 sm:mb-6">
-          <h3 className="text-base sm:text-lg font-bold text-slate-900 mb-3 sm:mb-4">Danger Zone</h3>
-
-          <div className="space-y-2 sm:space-y-3">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between py-2 sm:py-3 border-b border-slate-200 gap-2">
+        <Card className="mb-4 sm:mb-6">
+          <CardHeader className="pb-3 sm:pb-4">
+            <CardTitle className="text-base sm:text-lg">Danger Zone</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-2 sm:space-y-3">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between py-2 sm:py-3 border-b gap-2">
               <div className="flex-1">
-                <p className="text-xs sm:text-sm font-semibold text-slate-700">Delete All Receipts</p>
-                <p className="text-xs text-slate-500">Permanently delete all receipts</p>
+                <Label className="text-xs sm:text-sm font-semibold">Delete All Receipts</Label>
+                <p className="text-xs text-muted-foreground">Permanently delete all receipts</p>
               </div>
-              <button
+              <Button
+                variant="outline"
                 onClick={() => setDeleteReceiptsDialog(true)}
-                className="w-full sm:w-auto px-4 py-2 text-xs sm:text-sm text-slate-600 hover:text-slate-900 border border-slate-300 hover:border-slate-400 rounded-lg transition-colors text-center"
+                className="w-full sm:w-auto"
               >
                 Delete Receipts
-              </button>
+              </Button>
             </div>
 
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between py-2 sm:py-3 border-b border-slate-200 gap-2">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between py-2 sm:py-3 border-b gap-2">
               <div className="flex-1">
-                <p className="text-xs sm:text-sm font-semibold text-slate-700">Reset All Settings</p>
-                <p className="text-xs text-slate-500">Restore default settings</p>
+                <Label className="text-xs sm:text-sm font-semibold">Reset All Settings</Label>
+                <p className="text-xs text-muted-foreground">Restore default settings</p>
               </div>
-              <button
+              <Button
+                variant="outline"
                 onClick={() => setResetSettingsDialog(true)}
-                className="w-full sm:w-auto px-4 py-2 text-xs sm:text-sm text-slate-600 hover:text-slate-900 border border-slate-300 hover:border-slate-400 rounded-lg transition-colors text-center"
+                className="w-full sm:w-auto"
               >
                 Reset Settings
-              </button>
+              </Button>
             </div>
 
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between py-2 sm:py-3 gap-2">
               <div className="flex-1">
-                <p className="text-xs sm:text-sm font-semibold text-slate-700">Delete Account</p>
-                <p className="text-xs text-slate-500">Permanently delete account and data</p>
+                <Label className="text-xs sm:text-sm font-semibold">Delete Account</Label>
+                <p className="text-xs text-muted-foreground">Permanently delete account and data</p>
               </div>
-              <button
+              <Button
+                variant="outline"
                 onClick={() => setDeleteAccountDialog(true)}
-                className="w-full sm:w-auto px-4 py-2 text-xs sm:text-sm text-slate-600 hover:text-slate-900 border border-slate-300 hover:border-slate-400 rounded-lg transition-colors text-center"
+                className="w-full sm:w-auto"
               >
                 Delete Account
-              </button>
+              </Button>
             </div>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
 
         {/* Save Button */}
-        <button
+        <Button
           onClick={() => saveSettings()}
           disabled={saving}
-          className="w-full bg-cyan-500 hover:bg-cyan-600 text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg font-semibold text-sm sm:text-base transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+          className="w-full bg-cyan-500 hover:bg-cyan-600 text-white"
+          size="lg"
         >
           {saving ? (
             <>
-              <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin" />
+              <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin mr-2" />
               Saving...
             </>
           ) : (
             <>
-              <Save className="w-4 h-4 sm:w-5 sm:h-5" />
+              <Save className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
               Save Settings
             </>
           )}
-        </button>
+        </Button>
       </div>
 
       {/* Confirmation Dialogs */}
-      {deleteReceiptsDialog && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50">
-          <div className="bg-white rounded-xl shadow-2xl max-w-md w-full p-6">
-            <div className="flex items-center gap-3 mb-4">
+      <AlertDialog open={deleteReceiptsDialog} onOpenChange={setDeleteReceiptsDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <div className="flex items-center gap-3">
               <div className="bg-red-100 rounded-full p-3">
                 <Trash2 className="w-6 h-6 text-red-600" />
               </div>
-              <h3 className="text-xl font-bold text-slate-900">Delete All Receipts</h3>
+              <AlertDialogTitle className="text-xl font-bold text-slate-900">Delete All Receipts</AlertDialogTitle>
             </div>
-            <p className="text-slate-600 mb-6">
+            <AlertDialogDescription className="mt-4">
               Are you sure you want to delete all receipts? This action cannot be undone.
-            </p>
-            <div className="flex gap-3">
-              <button
-                onClick={() => setDeleteReceiptsDialog(false)}
-                disabled={deleting}
-                className="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-900 px-4 py-3 rounded-lg font-semibold transition-colors"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleDeleteAllReceipts}
-                disabled={deleting}
-                className="flex-1 bg-red-600 hover:bg-red-700 text-white px-4 py-3 rounded-lg font-semibold transition-colors"
-              >
-                {deleting ? <Loader2 className="w-5 h-5 animate-spin mx-auto" /> : 'Delete'}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deleting}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeleteAllReceipts}
+              disabled={deleting}
+              className="bg-red-600 hover:bg-red-700 text-white"
+            >
+              {deleting ? <Loader2 className="w-5 h-5 animate-spin mr-2" /> : null}
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
-      {resetSettingsDialog && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50">
-          <div className="bg-white rounded-xl shadow-2xl max-w-md w-full p-6">
-            <div className="flex items-center gap-3 mb-4">
+      <AlertDialog open={resetSettingsDialog} onOpenChange={setResetSettingsDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <div className="flex items-center gap-3">
               <div className="bg-orange-100 rounded-full p-3">
                 <RotateCcw className="w-6 h-6 text-orange-600" />
               </div>
-              <h3 className="text-xl font-bold text-slate-900">Reset Settings</h3>
+              <AlertDialogTitle className="text-xl font-bold text-slate-900">Reset Settings</AlertDialogTitle>
             </div>
-            <p className="text-slate-600 mb-6">
+            <AlertDialogDescription className="mt-4">
               Are you sure you want to reset all settings to defaults?
-            </p>
-            <div className="flex gap-3">
-              <button
-                onClick={() => setResetSettingsDialog(false)}
-                disabled={deleting}
-                className="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-900 px-4 py-3 rounded-lg font-semibold transition-colors"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleResetSettings}
-                disabled={deleting}
-                className="flex-1 bg-orange-600 hover:bg-orange-700 text-white px-4 py-3 rounded-lg font-semibold transition-colors"
-              >
-                {deleting ? <Loader2 className="w-5 h-5 animate-spin mx-auto" /> : 'Reset'}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deleting}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleResetSettings}
+              disabled={deleting}
+              className="bg-orange-600 hover:bg-orange-700 text-white"
+            >
+              {deleting ? <Loader2 className="w-5 h-5 animate-spin mr-2" /> : null}
+              Reset
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
-      {deleteAccountDialog && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50">
-          <div className="bg-white rounded-xl shadow-2xl max-w-md w-full p-6">
-            <div className="flex items-center gap-3 mb-4">
+      <AlertDialog open={deleteAccountDialog} onOpenChange={setDeleteAccountDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <div className="flex items-center gap-3">
               <div className="bg-red-100 rounded-full p-3">
                 <AlertCircle className="w-6 h-6 text-red-600" />
               </div>
-              <h3 className="text-xl font-bold text-slate-900">Delete Account</h3>
+              <AlertDialogTitle className="text-xl font-bold text-slate-900">Delete Account</AlertDialogTitle>
             </div>
-            <p className="text-slate-600 mb-6">
+            <AlertDialogDescription className="mt-4">
               Are you absolutely sure? This will permanently delete your account and all data.
-            </p>
-            <div className="flex gap-3">
-              <button
-                onClick={() => setDeleteAccountDialog(false)}
-                className="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-900 px-4 py-3 rounded-lg font-semibold transition-colors"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleDeleteAccount}
-                className="flex-1 bg-red-600 hover:bg-red-700 text-white px-4 py-3 rounded-lg font-semibold transition-colors"
-              >
-                Delete Forever
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeleteAccount}
+              className="bg-red-600 hover:bg-red-700 text-white"
+            >
+              Delete Forever
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

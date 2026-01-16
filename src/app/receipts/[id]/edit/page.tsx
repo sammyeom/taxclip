@@ -31,6 +31,17 @@ import {
   X,
   List,
 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 const PAYMENT_METHODS = [
   { value: '', label: 'Select payment method' },
@@ -411,13 +422,13 @@ export default function ReceiptEditPage() {
           <p className="text-slate-600 mb-6">
             This receipt doesn't exist or you don't have permission to edit it.
           </p>
-          <button
+          <Button
             onClick={() => router.push('/receipts')}
-            className="bg-cyan-500 hover:bg-cyan-600 text-white px-6 py-3 rounded-lg font-semibold transition-colors inline-flex items-center gap-2"
+            className="bg-cyan-500 hover:bg-cyan-600 text-white"
           >
-            <ArrowLeft className="w-5 h-5" />
+            <ArrowLeft className="w-5 h-5 mr-2" />
             Back to Receipts
-          </button>
+          </Button>
         </div>
       </div>
     );
@@ -878,92 +889,87 @@ export default function ReceiptEditPage() {
 
             {/* Action Buttons */}
             <div className="md:col-span-2 flex flex-col sm:flex-row gap-2 sm:gap-3 pt-4">
-              <button
+              <Button
                 onClick={handleSave}
                 disabled={saving || !formData.date || !formData.merchant || !formData.total || !formData.business_purpose}
-                className="flex-1 bg-cyan-500 hover:bg-cyan-600 text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg text-sm sm:text-base font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                className="flex-1 bg-cyan-500 hover:bg-cyan-600 text-white"
               >
                 {saving ? (
                   <>
-                    <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin" />
+                    <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin mr-2" />
                     Saving...
                   </>
                 ) : (
                   <>
-                    <Save className="w-4 h-4 sm:w-5 sm:h-5" />
+                    <Save className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
                     Save
                   </>
                 )}
-              </button>
+              </Button>
 
-              <button
+              <Button
+                variant="outline"
                 onClick={() => router.push('/receipts')}
                 disabled={saving}
-                className="flex-1 sm:flex-none border-2 border-slate-300 hover:border-slate-400 text-slate-700 px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg text-sm sm:text-base font-semibold transition-colors disabled:opacity-50"
+                className="flex-1 sm:flex-none"
               >
                 Cancel
-              </button>
+              </Button>
 
-              <button
+              <Button
+                variant="ghost"
                 onClick={() => setShowDeleteConfirm(true)}
                 disabled={saving || deleting}
-                className="flex-1 sm:flex-none bg-red-50 hover:bg-red-100 text-red-600 px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg text-sm sm:text-base font-semibold transition-colors disabled:opacity-50 flex items-center justify-center gap-2 border border-red-200"
+                className="flex-1 sm:flex-none bg-red-50 hover:bg-red-100 text-red-600 border border-red-200"
               >
-                <Trash2 className="w-4 h-4 sm:w-5 sm:h-5" />
+                <Trash2 className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
                 Delete
-              </button>
+              </Button>
             </div>
           </div>
         </div>
 
         {/* Delete Confirmation Dialog */}
-        {showDeleteConfirm && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-            <div className="bg-white rounded-xl shadow-2xl max-w-md w-full p-6">
-              <div className="flex items-start gap-4 mb-4">
+        <AlertDialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <div className="flex items-start gap-4">
                 <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0">
                   <Trash2 className="w-6 h-6 text-red-600" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-semibold text-slate-900 mb-2">Delete Receipt?</h3>
-                  <p className="text-slate-600 text-sm mb-2">
+                  <AlertDialogTitle className="text-lg font-semibold text-slate-900">Delete Receipt?</AlertDialogTitle>
+                  <AlertDialogDescription className="mt-2">
                     Are you sure you want to delete this receipt? This action cannot be undone.
-                  </p>
-                  <p className="text-sm font-semibold">
-                    {receipt.merchant} - ${parseFloat(formData.total || '0').toFixed(2)}
-                  </p>
+                    <span className="block mt-2 text-slate-900 font-semibold">
+                      {receipt.merchant} - ${parseFloat(formData.total || '0').toFixed(2)}
+                    </span>
+                  </AlertDialogDescription>
                 </div>
               </div>
-
-              <div className="flex gap-3">
-                <button
-                  onClick={() => setShowDeleteConfirm(false)}
-                  disabled={deleting}
-                  className="flex-1 border-2 border-gray-300 hover:border-gray-400 text-slate-700 px-4 py-2 rounded-lg font-semibold transition-colors disabled:opacity-50"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleDelete}
-                  disabled={deleting}
-                  className="flex-1 bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg font-semibold transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
-                >
-                  {deleting ? (
-                    <>
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                      Deleting...
-                    </>
-                  ) : (
-                    <>
-                      <Trash2 className="w-4 h-4" />
-                      Delete
-                    </>
-                  )}
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel disabled={deleting}>Cancel</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={handleDelete}
+                disabled={deleting}
+                className="bg-red-500 hover:bg-red-600 text-white"
+              >
+                {deleting ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                    Deleting...
+                  </>
+                ) : (
+                  <>
+                    <Trash2 className="w-4 h-4 mr-2" />
+                    Delete
+                  </>
+                )}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
 
         {/* Item Detail Bottom Sheet - Mobile */}
         {selectedItemForModal && (

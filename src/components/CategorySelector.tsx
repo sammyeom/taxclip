@@ -254,16 +254,23 @@ export default function CategorySelector({
               </span>
               <div className="flex items-center gap-1">
                 {currentSubcategory && (
-                  <button
-                    type="button"
+                  <span
+                    role="button"
+                    tabIndex={0}
                     onClick={(e) => {
                       e.stopPropagation();
                       if (onSubcategoryChange) onSubcategoryChange('');
                     }}
-                    className="p-0.5 hover:bg-gray-200 rounded"
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.stopPropagation();
+                        if (onSubcategoryChange) onSubcategoryChange('');
+                      }
+                    }}
+                    className="p-0.5 hover:bg-gray-200 rounded cursor-pointer"
                   >
                     <X className="w-3.5 h-3.5 text-gray-400" />
-                  </button>
+                  </span>
                 )}
                 <ChevronDown
                   className={`w-4 h-4 text-gray-400 transition-transform ${

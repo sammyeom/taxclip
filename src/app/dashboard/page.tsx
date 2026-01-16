@@ -24,10 +24,6 @@ import {
   X,
 } from 'lucide-react';
 import {
-  StatCard,
-  SpendingTrendChart,
-  CategoryPieChart,
-  InsightSection,
   ChartSkeleton,
   InsightSkeleton,
   MonthlyData,
@@ -37,6 +33,13 @@ import {
 } from '@/components/dashboard';
 import dynamic from 'next/dynamic';
 import { getSubcategoryLabel } from '@/constants/irs-categories';
+
+// shadcn/ui components
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardAction, CardFooter } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Skeleton } from '@/components/ui/skeleton';
 
 // Dynamic imports for heavy chart components (code splitting)
 const DynamicSpendingTrendChart = dynamic(
@@ -79,19 +82,19 @@ const CATEGORIES: Record<string, string> = {
   other: 'Other',
 };
 
-const CATEGORY_COLORS: Record<string, string> = {
-  advertising: 'bg-blue-100 text-blue-800',
-  office_expense: 'bg-purple-100 text-purple-800',
-  supplies: 'bg-green-100 text-green-800',
-  meals: 'bg-orange-100 text-orange-800',
-  travel: 'bg-pink-100 text-pink-800',
-  utilities: 'bg-yellow-100 text-yellow-800',
-  car_truck: 'bg-indigo-100 text-indigo-800',
-  insurance: 'bg-red-100 text-red-800',
-  legal_professional: 'bg-teal-100 text-teal-800',
-  rent_lease: 'bg-cyan-100 text-cyan-800',
-  repairs_maintenance: 'bg-lime-100 text-lime-800',
-  other: 'bg-gray-100 text-gray-800',
+const CATEGORY_VARIANTS: Record<string, 'default' | 'secondary' | 'destructive' | 'outline'> = {
+  advertising: 'default',
+  office_expense: 'secondary',
+  supplies: 'default',
+  meals: 'secondary',
+  travel: 'default',
+  utilities: 'secondary',
+  car_truck: 'default',
+  insurance: 'destructive',
+  legal_professional: 'secondary',
+  rent_lease: 'default',
+  repairs_maintenance: 'secondary',
+  other: 'outline',
 };
 
 const CHART_COLORS = [
@@ -128,7 +131,64 @@ const formatDate = (dateString: string) => {
   });
 };
 
-// Separate component for checkout success banner (uses useSearchParams)
+// Stat Card Component using shadcn Card (new design)
+function StatCard({
+  icon: Icon,
+  value,
+  label,
+  subLabel,
+  trend,
+}: {
+  icon: React.ElementType;
+  value: string | number;
+  label: string;
+  subLabel?: string;
+  trend?: { value: number; label: string };
+}) {
+  const isPositive = trend ? trend.value >= 0 : true;
+
+  return (
+    <Card className="@container/card bg-gradient-to-t from-cyan-500/5 to-card shadow-sm">
+      <CardHeader>
+        <CardDescription className="flex items-center gap-2 text-sm sm:text-base">
+          <Icon className="w-5 h-5 sm:w-6 sm:h-6 text-cyan-500" />
+          <span className="font-medium">{label}</span>
+        </CardDescription>
+        <CardTitle className="text-2xl sm:text-3xl font-bold tabular-nums @[250px]/card:text-4xl">
+          {value}
+        </CardTitle>
+        {trend && (
+          <CardAction>
+            <Badge variant="outline" className={isPositive ? 'text-green-600 border-green-200' : 'text-red-600 border-red-200'}>
+              {isPositive ? <TrendingUp className="w-3 h-3 mr-1" /> : <TrendingUp className="w-3 h-3 mr-1 rotate-180" />}
+              {isPositive ? '+' : ''}{trend.value.toFixed(1)}%
+            </Badge>
+          </CardAction>
+        )}
+      </CardHeader>
+      <CardFooter className="flex-col items-start gap-1.5 text-sm">
+        {trend && (
+          <div className="line-clamp-1 flex gap-2 font-medium">
+            {isPositive ? 'Trending up' : 'Trending down'} this month
+            {isPositive ? <TrendingUp className="w-4 h-4 text-green-500" /> : <TrendingUp className="w-4 h-4 text-red-500 rotate-180" />}
+          </div>
+        )}
+        {subLabel && (
+          <div className="text-muted-foreground">
+            {subLabel}
+          </div>
+        )}
+        {trend && (
+          <div className="text-muted-foreground">
+            {trend.label}
+          </div>
+        )}
+      </CardFooter>
+    </Card>
+  );
+}
+
+// Checkout Success Banner Component
 function CheckoutSuccessBanner() {
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -145,24 +205,22 @@ function CheckoutSuccessBanner() {
   if (!show) return null;
 
   return (
-    <div className="bg-green-50 border-b border-green-200">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <CheckCircle2 className="w-5 h-5 text-green-600" />
-            <span className="text-green-800 font-medium">
-              Welcome to TaxClip Pro! Your subscription is now active.
-            </span>
-          </div>
-          <button
-            onClick={() => setShow(false)}
-            className="text-green-600 hover:text-green-800"
-          >
-            <X className="w-5 h-5" />
-          </button>
-        </div>
-      </div>
-    </div>
+    <Alert className="rounded-none border-x-0 border-t-0 bg-green-50 border-green-200">
+      <CheckCircle2 className="h-4 w-4 text-green-600" />
+      <AlertDescription className="flex items-center justify-between w-full">
+        <span className="text-green-800 font-medium">
+          Welcome to TaxClip Pro! Your subscription is now active.
+        </span>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-6 w-6 text-green-600 hover:text-green-800 hover:bg-green-100"
+          onClick={() => setShow(false)}
+        >
+          <X className="h-4 w-4" />
+        </Button>
+      </AlertDescription>
+    </Alert>
   );
 }
 
@@ -350,11 +408,25 @@ export default function DashboardPage() {
 
   if (authLoading || loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-cyan-50 via-blue-50 to-sky-50 flex items-center justify-center">
-        <div className="text-center">
-          <Loader2 className="w-12 h-12 text-cyan-600 animate-spin mx-auto mb-4" />
-          <p className="text-slate-600">Loading...</p>
-        </div>
+      <div className="min-h-screen bg-gradient-to-br from-cyan-50 via-blue-50 to-sky-50">
+        <Navigation />
+        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+          {/* Loading Skeleton */}
+          <div className="mb-8">
+            <Skeleton className="h-10 w-64 mb-2" />
+            <Skeleton className="h-6 w-48" />
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8">
+            {[...Array(4)].map((_, i) => (
+              <Skeleton key={i} className="h-36 rounded-xl" />
+            ))}
+          </div>
+          <Skeleton className="h-32 rounded-xl mb-8" />
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <Skeleton className="h-96 rounded-xl" />
+            <Skeleton className="h-96 rounded-xl" />
+          </div>
+        </main>
       </div>
     );
   }
@@ -373,10 +445,10 @@ export default function DashboardPage() {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
         {/* Welcome */}
         <div className="mb-8">
-          <h1 className="text-3xl sm:text-4xl font-bold text-slate-900 mb-2">
+          <h1 className="text-3xl sm:text-4xl font-bold text-foreground mb-2">
             Welcome back!
           </h1>
-          <p className="text-base sm:text-lg text-slate-600">
+          <p className="text-base sm:text-lg text-muted-foreground">
             Here's your financial overview
           </p>
         </div>
@@ -388,13 +460,11 @@ export default function DashboardPage() {
             value={stats?.totalCount || 0}
             label="Total Receipts"
             subLabel="All time"
-            gradient="cyan"
           />
           <StatCard
             icon={Calendar}
             value={formatCurrency(currentMonthStats.total)}
             label="This Month"
-            gradient="blue"
             trend={monthComparison !== null ? { value: monthComparison, label: 'vs last month' } : undefined}
           />
           <StatCard
@@ -402,136 +472,136 @@ export default function DashboardPage() {
             value={formatCurrency(currentYearStats.total)}
             label="This Year"
             subLabel={`${new Date().getFullYear()} YTD`}
-            gradient="green"
           />
           <StatCard
             icon={Tag}
             value={topCategory?.name || 'N/A'}
             label="Top Category"
             subLabel="Most frequent"
-            gradient="purple"
           />
         </div>
 
         {/* Upload CTA */}
-        <div className="mb-8">
-          <Link href="/upload">
-            <div className="bg-gradient-to-r from-cyan-500 to-sky-500 rounded-xl p-6 sm:p-8 text-white hover:from-cyan-600 hover:to-sky-600 transition-all cursor-pointer shadow-lg hover:shadow-xl">
-              <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-                <div className="flex items-center gap-4">
-                  <div className="p-3 bg-white/20 rounded-xl">
-                    <Upload className="w-8 h-8" />
-                  </div>
-                  <div>
-                    <h3 className="text-xl sm:text-2xl font-bold">Upload New Receipt</h3>
-                    <p className="text-cyan-100 text-sm sm:text-base">Snap, scan, and organize in seconds with AI</p>
-                  </div>
+        <Link href="/upload" className="block mb-8">
+          <div className="bg-gradient-to-r from-cyan-500 to-sky-500 rounded-xl p-6 sm:p-8 text-white hover:from-cyan-600 hover:to-sky-600 transition-all cursor-pointer shadow-lg hover:shadow-xl">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+              <div className="flex items-center gap-4">
+                <div className="p-3 bg-white/20 rounded-xl">
+                  <Upload className="w-8 h-8" />
                 </div>
-                <div className="flex items-center gap-2 bg-white text-cyan-600 px-6 py-3 rounded-lg font-semibold hover:bg-cyan-50 transition-colors">
-                  <Upload className="w-5 h-5" />
-                  Upload Now
+                <div>
+                  <h3 className="text-xl sm:text-2xl font-bold">Upload New Receipt</h3>
+                  <p className="text-cyan-100 text-sm sm:text-base">Snap, scan, and organize in seconds with AI</p>
                 </div>
               </div>
+              <div className="flex items-center gap-2 bg-white text-cyan-600 px-6 py-3 rounded-lg font-semibold hover:bg-cyan-50 transition-colors">
+                <Upload className="w-5 h-5" />
+                Upload Now
+              </div>
             </div>
-          </Link>
-        </div>
+          </div>
+        </Link>
 
         {/* Two-column layout */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
           {/* Left Column */}
           <div className="space-y-6">
             {/* Recent Receipts */}
-            <div className="bg-white rounded-xl shadow-lg p-4 sm:p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl font-bold text-slate-900">Recent Receipts</h2>
-                <Link href="/receipts">
-                  <button className="text-cyan-600 hover:text-cyan-700 font-semibold text-sm flex items-center gap-1">
-                    View All <ChevronRight className="w-4 h-4" />
-                  </button>
-                </Link>
-              </div>
-              {recentReceipts.length === 0 ? (
-                <div className="text-center py-8">
-                  <ReceiptIcon className="w-12 h-12 text-slate-300 mx-auto mb-3" />
-                  <p className="text-slate-600 text-sm">No receipts yet</p>
-                </div>
-              ) : (
-                <div className="space-y-2">
-                  {recentReceipts.map((receipt) => (
-                    <Link key={receipt.id} href={`/receipts/${receipt.id}`}>
-                      <div className="flex items-center gap-3 p-2 rounded-lg hover:bg-slate-50 transition-colors border border-slate-100">
-                        <div className="w-10 h-10 bg-slate-200 rounded-lg flex-shrink-0 overflow-hidden flex items-center justify-center relative">
-                          {receipt.image_url ? (
-                            <Image
-                              src={receipt.image_url}
-                              alt=""
-                              fill
-                              sizes="40px"
-                              className="object-cover"
-                            />
-                          ) : (
-                            <ReceiptIcon className="w-5 h-5 text-slate-400" />
-                          )}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center justify-between">
-                            <p className="font-semibold text-sm text-slate-900 truncate">
-                              {receipt.merchant}
-                            </p>
-                            <p className="text-green-600 font-bold text-sm ml-2">
-                              {formatCurrency(receipt.total)}
-                            </p>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <p className="text-xs text-slate-500">{formatDate(receipt.date)}</p>
-                            <span
-                              className={`text-xs px-2 py-0.5 rounded-full hidden sm:inline-block ${
-                                CATEGORY_COLORS[receipt.category] || 'bg-gray-100 text-gray-800'
-                              }`}
-                            >
-                              {CATEGORIES[receipt.category] || receipt.category}
-                            </span>
-                            {receipt.subcategory && (
-                              <span className="text-xs text-slate-500 hidden sm:inline-block">
-                                - {getSubcategoryLabel(receipt.category, receipt.subcategory)}
-                              </span>
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
+                <CardTitle className="text-xl font-bold">Recent Receipts</CardTitle>
+                <Button variant="ghost" size="sm" asChild>
+                  <Link href="/receipts" className="text-primary">
+                    View All <ChevronRight className="w-4 h-4 ml-1" />
+                  </Link>
+                </Button>
+              </CardHeader>
+              <CardContent>
+                {recentReceipts.length === 0 ? (
+                  <div className="text-center py-8">
+                    <ReceiptIcon className="w-12 h-12 text-muted-foreground/50 mx-auto mb-3" />
+                    <p className="text-muted-foreground text-sm">No receipts yet</p>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    {recentReceipts.map((receipt) => (
+                      <Link key={receipt.id} href={`/receipts/${receipt.id}`}>
+                        <div className="flex items-center gap-3 p-2 rounded-lg hover:bg-muted transition-colors border">
+                          <div className="w-10 h-10 bg-muted rounded-lg flex-shrink-0 overflow-hidden flex items-center justify-center relative">
+                            {receipt.image_url ? (
+                              <Image
+                                src={receipt.image_url}
+                                alt=""
+                                fill
+                                sizes="40px"
+                                className="object-cover"
+                              />
+                            ) : (
+                              <ReceiptIcon className="w-5 h-5 text-muted-foreground" />
                             )}
                           </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center justify-between">
+                              <p className="font-semibold text-sm truncate">
+                                {receipt.merchant}
+                              </p>
+                              <p className="text-green-600 font-bold text-sm ml-2">
+                                {formatCurrency(receipt.total)}
+                              </p>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <p className="text-xs text-muted-foreground">{formatDate(receipt.date)}</p>
+                              <Badge
+                                variant={CATEGORY_VARIANTS[receipt.category] || 'outline'}
+                                className="hidden sm:inline-flex text-xs"
+                              >
+                                {CATEGORIES[receipt.category] || receipt.category}
+                              </Badge>
+                              {receipt.subcategory && (
+                                <span className="text-xs text-muted-foreground hidden sm:inline-block">
+                                  - {getSubcategoryLabel(receipt.category, receipt.subcategory)}
+                                </span>
+                              )}
+                            </div>
+                          </div>
                         </div>
-                      </div>
-                    </Link>
-                  ))}
-                </div>
-              )}
-            </div>
+                      </Link>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
 
             {/* Quick Actions */}
-            <div className="bg-white rounded-xl shadow-lg p-4 sm:p-6">
-              <h2 className="text-xl font-bold text-slate-900 mb-4">Quick Actions</h2>
-              <div className="grid grid-cols-1 gap-2">
-                <Link href="/upload">
-                  <button className="w-full bg-cyan-500 hover:bg-cyan-600 text-white px-4 py-3 rounded-lg font-semibold text-sm transition-colors flex items-center justify-center gap-2">
-                    <Upload className="w-4 h-4" /> Upload Receipt
-                  </button>
-                </Link>
-                <button
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-xl font-bold">Quick Actions</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-2">
+                <Button className="w-full bg-cyan-500 hover:bg-cyan-600 text-white" asChild>
+                  <Link href="/upload">
+                    <Upload className="w-4 h-4 mr-2" /> Upload Receipt
+                  </Link>
+                </Button>
+                <Button
+                  variant="default"
+                  className="w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700"
                   onClick={() => setIsExportModalOpen(true)}
-                  className="w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white px-4 py-3 rounded-lg font-semibold text-sm transition-all flex items-center justify-center gap-2 shadow-md hover:shadow-lg"
                 >
-                  <Download className="w-4 h-4" /> Export for Tax Filing
-                </button>
-                <Link href="/receipts">
-                  <button className="w-full bg-slate-100 hover:bg-slate-200 text-slate-900 px-4 py-3 rounded-lg font-semibold text-sm transition-colors flex items-center justify-center gap-2">
-                    <FileText className="w-4 h-4" /> View All Receipts
-                  </button>
-                </Link>
-                <Link href="/reports">
-                  <button className="w-full bg-slate-100 hover:bg-slate-200 text-slate-900 px-4 py-3 rounded-lg font-semibold text-sm transition-colors flex items-center justify-center gap-2">
-                    <BarChart3 className="w-4 h-4" /> Generate Report
-                  </button>
-                </Link>
-              </div>
-            </div>
+                  <Download className="w-4 h-4 mr-2" /> Export for Tax Filing
+                </Button>
+                <Button variant="secondary" className="w-full" asChild>
+                  <Link href="/receipts">
+                    <FileText className="w-4 h-4 mr-2" /> View All Receipts
+                  </Link>
+                </Button>
+                <Button variant="secondary" className="w-full" asChild>
+                  <Link href="/reports">
+                    <BarChart3 className="w-4 h-4 mr-2" /> Generate Report
+                  </Link>
+                </Button>
+              </CardContent>
+            </Card>
           </div>
 
           {/* Right Column - Charts with Suspense for progressive loading */}

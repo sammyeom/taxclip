@@ -225,6 +225,14 @@ export default function UploadPage() {
     }
   };
 
+  // Add new item and open drawer immediately (for mobile)
+  const handleAddNewItemWithDrawer = () => {
+    const newItem = createLineItem('', 1, 0);
+    setExtractedItems((prev) => [...prev, newItem]);
+    setSelectedItemForModal(newItem);
+    setNewItemName('');
+  };
+
   const handleRemoveItem = (id: string) => {
     setExtractedItems((prev) => prev.filter((item) => item.id !== id));
   };
@@ -1774,8 +1782,8 @@ export default function UploadPage() {
                     </div>
                   )}
 
-                  {/* Add new item */}
-                  <div className="flex items-center gap-2">
+                  {/* Add new item - Desktop */}
+                  <div className="hidden sm:flex items-center gap-2">
                     <Input
                       type="text"
                       value={newItemName}
@@ -1799,6 +1807,15 @@ export default function UploadPage() {
                       <Plus className="w-4 h-4" />
                     </button>
                   </div>
+                  {/* Add new item - Mobile (opens drawer directly) */}
+                  <button
+                    type="button"
+                    onClick={handleAddNewItemWithDrawer}
+                    className="sm:hidden w-full flex items-center justify-center gap-2 p-3 border-2 border-dashed border-gray-300 rounded-lg text-gray-500 hover:border-cyan-400 hover:text-cyan-600 transition-colors"
+                  >
+                    <Plus className="w-4 h-4" />
+                    <span className="text-sm">Add new item</span>
+                  </button>
                 </div>
 
                 {/* Save button - Full width */}
@@ -1856,7 +1873,7 @@ export default function UploadPage() {
 
       {/* Item Detail Bottom Sheet - Mobile */}
       <Sheet open={!!selectedItemForModal} onOpenChange={(open) => !open && setSelectedItemForModal(null)}>
-        <SheetContent side="bottom" className="sm:hidden rounded-t-2xl px-0 pb-0">
+        <SheetContent side="bottom" className="sm:hidden rounded-t-2xl px-0 pb-0 max-h-[85vh]">
           {selectedItemForModal && (
             <>
               {/* Handle */}
@@ -1864,10 +1881,12 @@ export default function UploadPage() {
                 <div className="w-10 h-1 bg-gray-300 rounded-full" />
               </div>
               <SheetHeader className="px-4 pb-3 border-b border-gray-100">
-                <SheetTitle className="text-lg font-semibold">Edit Item</SheetTitle>
+                <SheetTitle className="text-lg font-semibold">
+                  {selectedItemForModal.name ? 'Edit Item' : 'New Item'}
+                </SheetTitle>
               </SheetHeader>
-              {/* Content */}
-              <div className="p-4 space-y-4 max-h-[50vh] overflow-y-auto">
+              {/* Content - extra padding at bottom for keyboard */}
+              <div className="p-4 space-y-4 max-h-[50vh] overflow-y-auto pb-8">
                 {/* Item Name */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -1946,8 +1965,8 @@ export default function UploadPage() {
                   </label>
                 </div>
               </div>
-              {/* Footer Actions */}
-              <SheetFooter className="flex-row gap-3 p-4 border-t border-gray-100">
+              {/* Footer Actions - with safe area padding for keyboard */}
+              <SheetFooter className="flex-row gap-3 p-4 pb-8 border-t border-gray-100 sticky bottom-0 bg-white">
                 <Button
                   variant="outline"
                   onClick={() => {

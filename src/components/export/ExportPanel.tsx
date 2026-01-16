@@ -133,7 +133,7 @@ export default function ExportPanel({
               value={taxYear.toString()}
               onValueChange={(value) => onYearChange(Number(value))}
             >
-              <SelectTrigger className="w-[100px] sm:w-[120px] h-9 sm:h-10 text-sm">
+              <SelectTrigger className="w-[120px] sm:w-[130px] h-9 sm:h-10 text-sm">
                 <SelectValue placeholder="Select year" />
               </SelectTrigger>
               <SelectContent>

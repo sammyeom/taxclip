@@ -149,16 +149,17 @@ function StatCard({
 
   return (
     <Card className="@container/card bg-gradient-to-t from-cyan-500/5 to-card shadow-sm">
-      <CardHeader>
-        <CardDescription className="flex items-center gap-2 text-sm sm:text-base">
-          <Icon className="w-5 h-5 sm:w-6 sm:h-6 text-cyan-500" />
-          <span className="font-medium">{label}</span>
+      {/* Mobile compact header */}
+      <CardHeader className="p-3 sm:p-6 pb-2 sm:pb-4">
+        <CardDescription className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-base">
+          <Icon className="w-4 h-4 sm:w-6 sm:h-6 text-cyan-500" />
+          <span className="font-medium truncate">{label}</span>
         </CardDescription>
-        <CardTitle className="text-2xl sm:text-3xl font-bold tabular-nums @[250px]/card:text-4xl">
+        <CardTitle className="text-lg sm:text-3xl font-bold tabular-nums @[250px]/card:text-4xl truncate">
           {value}
         </CardTitle>
         {trend && (
-          <CardAction>
+          <CardAction className="hidden sm:block">
             <Badge variant="outline" className={isPositive ? 'text-green-600 border-green-200' : 'text-red-600 border-red-200'}>
               {isPositive ? <TrendingUp className="w-3 h-3 mr-1" /> : <TrendingUp className="w-3 h-3 mr-1 rotate-180" />}
               {isPositive ? '+' : ''}{trend.value.toFixed(1)}%
@@ -166,7 +167,8 @@ function StatCard({
           </CardAction>
         )}
       </CardHeader>
-      <CardFooter className="flex-col items-start gap-1.5 text-sm">
+      {/* Footer - hidden on mobile for compact 2x2 layout */}
+      <CardFooter className="hidden sm:flex flex-col items-start gap-1.5 text-sm">
         {trend && (
           <div className="line-clamp-1 flex gap-2 font-medium">
             {isPositive ? 'Trending up' : 'Trending down'} this month
@@ -184,6 +186,20 @@ function StatCard({
           </div>
         )}
       </CardFooter>
+      {/* Mobile-only subLabel */}
+      {subLabel && (
+        <div className="sm:hidden px-3 pb-3 text-[10px] text-muted-foreground truncate">
+          {subLabel}
+        </div>
+      )}
+      {/* Mobile-only trend indicator */}
+      {trend && (
+        <div className="sm:hidden px-3 pb-3">
+          <span className={`text-[10px] font-medium ${isPositive ? 'text-green-600' : 'text-red-600'}`}>
+            {isPositive ? '+' : ''}{trend.value.toFixed(1)}%
+          </span>
+        </div>
+      )}
     </Card>
   );
 }
@@ -416,9 +432,9 @@ export default function DashboardPage() {
             <Skeleton className="h-10 w-64 mb-2" />
             <Skeleton className="h-6 w-48" />
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4 lg:gap-6 mb-6 sm:mb-8">
             {[...Array(4)].map((_, i) => (
-              <Skeleton key={i} className="h-36 rounded-xl" />
+              <Skeleton key={i} className="h-20 sm:h-36 rounded-xl" />
             ))}
           </div>
           <Skeleton className="h-32 rounded-xl mb-8" />
@@ -453,8 +469,8 @@ export default function DashboardPage() {
           </p>
         </div>
 
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8">
+        {/* Stats Cards - 2x2 on mobile, 4 cols on desktop */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4 lg:gap-6 mb-6 sm:mb-8">
           <StatCard
             icon={ReceiptIcon}
             value={stats?.totalCount || 0}

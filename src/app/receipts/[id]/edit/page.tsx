@@ -748,8 +748,8 @@ export default function ReceiptEditPage() {
                         </th>
                         <th className="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase">Item Name</th>
                         <th className="px-2 py-2 text-center text-xs font-medium text-gray-500 uppercase w-14">Qty</th>
-                        <th className="px-2 py-2 text-right text-xs font-medium text-gray-500 uppercase w-20">Unit Price</th>
-                        <th className="px-2 py-2 text-right text-xs font-medium text-gray-500 uppercase w-20">Amount</th>
+                        <th className="px-2 py-2 text-right text-xs font-medium text-gray-500 uppercase w-28 whitespace-nowrap">Unit Price</th>
+                        <th className="px-2 py-2 text-right text-xs font-medium text-gray-500 uppercase w-24">Amount</th>
                         <th className="px-2 py-2 w-8"></th>
                       </tr>
                     </thead>
@@ -774,7 +774,7 @@ export default function ReceiptEditPage() {
                               title={item.name}
                             />
                           </td>
-                          <td className="px-2 py-2">
+                          <td className="px-2 py-2 w-14">
                             <input
                               type="number"
                               min="1"
@@ -783,17 +783,20 @@ export default function ReceiptEditPage() {
                               className="w-full px-2 py-1 border border-gray-200 rounded focus:outline-none focus:ring-1 focus:ring-cyan-500 text-sm text-center"
                             />
                           </td>
-                          <td className="px-2 py-2">
+                          <td className="px-2 py-2 w-28">
                             <input
-                              type="number"
-                              step="0.01"
+                              type="text"
+                              inputMode="decimal"
                               value={item.unitPrice.toFixed(2)}
-                              onChange={(e) => handleUpdateItem(item.id, 'unitPrice', parseFloat(e.target.value) || 0)}
+                              onChange={(e) => {
+                                const val = e.target.value.replace(/[^0-9.]/g, '');
+                                handleUpdateItem(item.id, 'unitPrice', parseFloat(val) || 0);
+                              }}
                               className="w-full px-2 py-1 border border-gray-200 rounded focus:outline-none focus:ring-1 focus:ring-cyan-500 text-sm text-right"
                               placeholder="0.00"
                             />
                           </td>
-                          <td className="px-2 py-2 text-right font-medium text-gray-900 truncate">
+                          <td className="px-2 py-2 w-24 text-right font-medium text-gray-900 whitespace-nowrap">
                             {formatAmount(item.amount, formData.currency)}
                           </td>
                           <td className="px-2 py-2">

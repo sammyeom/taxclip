@@ -735,10 +735,10 @@ export default function ReceiptEditPage() {
               {/* Items Table - Desktop */}
               {formData.items.length > 0 && (
                 <div className="hidden sm:block border border-gray-200 rounded-lg overflow-hidden mb-3">
-                  <table className="w-full text-sm table-fixed">
+                  <table className="w-full text-sm">
                     <thead className="bg-gray-50">
                       <tr>
-                        <th className="px-3 py-2 text-left w-10">
+                        <th className="px-2 py-2 text-left w-8">
                           <input
                             type="checkbox"
                             checked={formData.items.length > 0 && formData.items.every((item) => item.selected)}
@@ -746,17 +746,17 @@ export default function ReceiptEditPage() {
                             className="rounded border-gray-300 text-cyan-500 focus:ring-cyan-500"
                           />
                         </th>
-                        <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Item Name</th>
-                        <th className="px-3 py-2 text-center text-xs font-medium text-gray-500 uppercase w-16">Qty</th>
-                        <th className="px-3 py-2 text-right text-xs font-medium text-gray-500 uppercase w-24">Unit Price</th>
-                        <th className="px-3 py-2 text-right text-xs font-medium text-gray-500 uppercase w-24">Amount</th>
-                        <th className="px-3 py-2 w-10"></th>
+                        <th className="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase">Item Name</th>
+                        <th className="px-2 py-2 text-center text-xs font-medium text-gray-500 uppercase w-14">Qty</th>
+                        <th className="px-2 py-2 text-right text-xs font-medium text-gray-500 uppercase w-20">Unit Price</th>
+                        <th className="px-2 py-2 text-right text-xs font-medium text-gray-500 uppercase w-20">Amount</th>
+                        <th className="px-2 py-2 w-8"></th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-100">
                       {formData.items.map((item) => (
                         <tr key={item.id} className={`${item.selected ? 'bg-white' : 'bg-gray-50 opacity-60'}`}>
-                          <td className="px-3 py-2">
+                          <td className="px-2 py-2">
                             <input
                               type="checkbox"
                               checked={item.selected}
@@ -764,7 +764,7 @@ export default function ReceiptEditPage() {
                               className="rounded border-gray-300 text-cyan-500 focus:ring-cyan-500"
                             />
                           </td>
-                          <td className="px-3 py-2">
+                          <td className="px-2 py-2">
                             <input
                               type="text"
                               value={item.name}
@@ -774,7 +774,7 @@ export default function ReceiptEditPage() {
                               title={item.name}
                             />
                           </td>
-                          <td className="px-3 py-2">
+                          <td className="px-2 py-2">
                             <input
                               type="number"
                               min="1"
@@ -783,7 +783,7 @@ export default function ReceiptEditPage() {
                               className="w-full px-2 py-1 border border-gray-200 rounded focus:outline-none focus:ring-1 focus:ring-cyan-500 text-sm text-center"
                             />
                           </td>
-                          <td className="px-3 py-2">
+                          <td className="px-2 py-2">
                             <input
                               type="number"
                               step="0.01"
@@ -793,10 +793,10 @@ export default function ReceiptEditPage() {
                               placeholder="0.00"
                             />
                           </td>
-                          <td className="px-3 py-2 text-right font-medium text-gray-900 truncate">
+                          <td className="px-2 py-2 text-right font-medium text-gray-900 truncate">
                             {formatAmount(item.amount, formData.currency)}
                           </td>
-                          <td className="px-3 py-2">
+                          <td className="px-2 py-2">
                             <button
                               type="button"
                               onClick={() => handleRemoveItem(item.id)}
@@ -998,11 +998,11 @@ export default function ReceiptEditPage() {
         <Sheet open={!!selectedItemForModal} onOpenChange={(open) => !open && setSelectedItemForModal(null)}>
           <SheetContent
             side="bottom"
-            className="sm:hidden rounded-t-2xl px-0 pb-[env(safe-area-inset-bottom)] h-auto max-h-[90dvh]"
+            className="sm:hidden rounded-t-2xl px-0 pb-[env(safe-area-inset-bottom)] h-auto max-h-[90vh] max-h-[90dvh]"
             onOpenAutoFocus={(e) => e.preventDefault()}
           >
             {selectedItemForModal && (
-              <div className="flex flex-col h-full max-h-[90dvh]">
+              <div className="flex flex-col h-full max-h-[90vh] max-h-[90dvh]">
                 {/* Handle */}
                 <div className="flex justify-center py-2 flex-shrink-0">
                   <div className="w-10 h-1 bg-gray-300 rounded-full" />
@@ -1026,12 +1026,20 @@ export default function ReceiptEditPage() {
                         setSelectedItemForModal({ ...selectedItemForModal, name: e.target.value });
                       }}
                       rows={2}
-                      className="resize-none"
+                      className="resize-none text-base"
                       placeholder="Item name"
                       onFocus={(e) => {
-                        setTimeout(() => {
-                          e.target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        const target = e.target;
+                        const timeoutId = setTimeout(() => {
+                          if (target && document.body.contains(target)) {
+                            target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                          }
                         }, 300);
+                        target.dataset.scrollTimeout = String(timeoutId);
+                      }}
+                      onBlur={(e) => {
+                        const timeoutId = e.target.dataset.scrollTimeout;
+                        if (timeoutId) clearTimeout(Number(timeoutId));
                       }}
                     />
                   </div>
@@ -1050,11 +1058,19 @@ export default function ReceiptEditPage() {
                           handleUpdateItem(selectedItemForModal.id, 'qty', qty);
                           setSelectedItemForModal({ ...selectedItemForModal, qty, amount: qty * selectedItemForModal.unitPrice });
                         }}
-                        className="text-center"
+                        className="text-center text-base"
                         onFocus={(e) => {
-                          setTimeout(() => {
-                            e.target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                          const target = e.target;
+                          const timeoutId = setTimeout(() => {
+                            if (target && document.body.contains(target)) {
+                              target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                            }
                           }, 300);
+                          target.dataset.scrollTimeout = String(timeoutId);
+                        }}
+                        onBlur={(e) => {
+                          const timeoutId = e.target.dataset.scrollTimeout;
+                          if (timeoutId) clearTimeout(Number(timeoutId));
                         }}
                       />
                     </div>
@@ -1071,12 +1087,20 @@ export default function ReceiptEditPage() {
                           handleUpdateItem(selectedItemForModal.id, 'unitPrice', unitPrice);
                           setSelectedItemForModal({ ...selectedItemForModal, unitPrice, amount: selectedItemForModal.qty * unitPrice });
                         }}
-                        className="text-right"
+                        className="text-right text-base"
                         placeholder="0.00"
                         onFocus={(e) => {
-                          setTimeout(() => {
-                            e.target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                          const target = e.target;
+                          const timeoutId = setTimeout(() => {
+                            if (target && document.body.contains(target)) {
+                              target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                            }
                           }, 300);
+                          target.dataset.scrollTimeout = String(timeoutId);
+                        }}
+                        onBlur={(e) => {
+                          const timeoutId = e.target.dataset.scrollTimeout;
+                          if (timeoutId) clearTimeout(Number(timeoutId));
                         }}
                       />
                     </div>

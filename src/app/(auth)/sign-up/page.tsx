@@ -7,6 +7,7 @@ import Image from 'next/image';
 import { Mail, Lock, Loader2, AlertCircle } from 'lucide-react';
 import { signUpWithEmail, signInWithGoogle } from '@/lib/supabase';
 import { useAuth } from '@/hooks/useAuth';
+import { Input } from '@/components/ui/input';
 
 function SignUpForm() {
   const router = useRouter();
@@ -164,17 +165,16 @@ function SignUpForm() {
                 Email address
               </label>
               <div className="relative">
-                <div className="absolute top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" style={{ left: '14px' }}>
+                <div className="absolute top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none z-10" style={{ left: '14px' }}>
                   <Mail className="w-4 h-4 sm:w-5 sm:h-5" />
                 </div>
-                <input
+                <Input
                   id="email"
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  className="w-full pr-4 py-2.5 sm:py-3 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent text-slate-900"
-                  style={{ paddingLeft: '44px' }}
+                  className="pl-11"
                   placeholder="you@example.com"
                 />
               </div>
@@ -185,18 +185,17 @@ function SignUpForm() {
                 Password
               </label>
               <div className="relative">
-                <div className="absolute top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" style={{ left: '14px' }}>
+                <div className="absolute top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none z-10" style={{ left: '14px' }}>
                   <Lock className="w-4 h-4 sm:w-5 sm:h-5" />
                 </div>
-                <input
+                <Input
                   id="password"
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
                   minLength={6}
-                  className="w-full pr-4 py-2.5 sm:py-3 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent text-slate-900"
-                  style={{ paddingLeft: '44px' }}
+                  className="pl-11"
                   placeholder="••••••••"
                 />
               </div>
@@ -208,22 +207,21 @@ function SignUpForm() {
                 Confirm Password
               </label>
               <div className="relative">
-                <div className="absolute top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" style={{ left: '14px' }}>
+                <div className="absolute top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none z-10" style={{ left: '14px' }}>
                   <Lock className="w-4 h-4 sm:w-5 sm:h-5" />
                 </div>
-                <input
+                <Input
                   id="confirmPassword"
                   type="password"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   required
                   minLength={6}
-                  className={`w-full pr-4 py-2.5 sm:py-3 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent text-slate-900 ${
+                  className={`pl-11 ${
                     confirmPassword && password !== confirmPassword
-                      ? 'border-red-300 focus:ring-red-500'
-                      : 'border-slate-300'
+                      ? 'border-red-300 focus-visible:ring-red-500'
+                      : ''
                   }`}
-                  style={{ paddingLeft: '44px' }}
                   placeholder="••••••••"
                 />
               </div>

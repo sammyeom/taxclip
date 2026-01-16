@@ -26,6 +26,7 @@ import { useRouter } from 'next/navigation';
 import SignInButton from '@/components/SignInButton';
 import { useAuth } from '@/hooks/useAuth';
 import { useSubscription } from '@/hooks/useSubscription';
+import { Input } from '@/components/ui/input';
 
 export default function Home() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -930,12 +931,12 @@ export default function Home() {
               className="max-w-md mx-auto mb-6"
             >
               <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
-                <input
+                <Input
                   type="email"
                   placeholder="Enter your email"
                   value={ctaEmail}
                   onChange={(e) => setCtaEmail(e.target.value)}
-                  className="flex-1 px-4 sm:px-6 py-3 sm:py-4 text-sm sm:text-base rounded-lg bg-white/20 text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-white border border-white/30"
+                  className="flex-1 bg-white/20 text-white placeholder-white/70 border-white/30"
                 />
                 <motion.button
                   type="submit"
@@ -1058,10 +1059,9 @@ export default function Home() {
 
               {/* Email form */}
               <div className="space-y-4">
-                <input
+                <Input
                   type="email"
                   placeholder="Enter your email"
-                  className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
                 />
                 <motion.button
                   whileHover={{ scale: 1.02 }}

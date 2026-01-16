@@ -376,6 +376,13 @@ export const createReceipt = async (receipt: InsertReceipt) => {
 
 // 영수증 수정
 export const updateReceipt = async (id: string, receipt: UpdateReceipt) => {
+  // Check if user is authenticated
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session) {
+    console.error('Error updating receipt: No active session');
+    return { data: null, error: { message: 'Not authenticated. Please log in again.' } };
+  }
+
   const { data, error } = await supabase
     .from('receipts')
     .update(receipt)
@@ -384,7 +391,7 @@ export const updateReceipt = async (id: string, receipt: UpdateReceipt) => {
     .single();
 
   if (error) {
-    console.error('Error updating receipt:', error.message);
+    console.error('Error updating receipt:', error.message, error);
     return { data: null, error };
   }
 

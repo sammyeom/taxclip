@@ -9,6 +9,15 @@ import { IRS_SCHEDULE_C_CATEGORIES, LineItem, createLineItem } from '@/types/dat
 import Navigation from '@/components/Navigation';
 import { SplitView } from '@/components/receipts';
 import CategorySelector from '@/components/CategorySelector';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import {
   ArrowLeft,
   Save,
@@ -106,6 +115,9 @@ export default function ReceiptEditPage() {
   // New item input state
   const [newItemName, setNewItemName] = useState('');
   const [selectedItemForModal, setSelectedItemForModal] = useState<LineItem | null>(null);
+
+  // Track if amount field is being edited (to show raw value during editing)
+  const [isEditingAmount, setIsEditingAmount] = useState(false);
 
   // Item management functions
   const handleAddItem = () => {
@@ -306,10 +318,12 @@ export default function ReceiptEditPage() {
         merchant: formData.merchant,
         total: totalAmount,
         category: formData.category,
-        subcategory: formData.subcategory || null,
+        // Note: subcategory column doesn't exist in database - store in notes if needed
         business_purpose: formData.business_purpose || null,
         payment_method: formData.payment_method || null,
-        notes: formData.notes || null,
+        notes: formData.subcategory
+          ? `[Subcategory: ${formData.subcategory}] ${formData.notes || ''}`
+          : (formData.notes || null),
         items: receiptItems,
         tax_year: taxYear,
       };
@@ -488,11 +502,10 @@ export default function ReceiptEditPage() {
               <label className="block text-xs sm:text-sm font-medium text-slate-700 mb-1">
                 Date <span className="text-red-500">*</span>
               </label>
-              <input
+              <Input
                 type="date"
                 value={formData.date}
                 onChange={(e) => handleFormChange('date', e.target.value)}
-                className="w-full px-3 sm:px-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
               />
             </div>
 
@@ -501,12 +514,11 @@ export default function ReceiptEditPage() {
               <label className="block text-xs sm:text-sm font-medium text-slate-700 mb-1">
                 Vendor/Merchant <span className="text-red-500">*</span>
               </label>
-              <input
+              <Input
                 type="text"
                 value={formData.merchant}
                 onChange={(e) => handleFormChange('merchant', e.target.value)}
                 placeholder="Enter vendor name"
-                className="w-full px-3 sm:px-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
               />
             </div>
 
@@ -516,36 +528,38 @@ export default function ReceiptEditPage() {
                 Total <span className="text-red-500">*</span>
               </label>
               <div className="flex">
-                <div className="relative">
-                  <select
-                    value={formData.currency}
-                    onChange={(e) => handleFormChange('currency', e.target.value)}
-                    className="appearance-none px-3 pr-7 py-2 border border-r-0 border-gray-300 rounded-l-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-cyan-500 text-sm font-medium min-h-[44px] sm:min-h-0"
-                  >
+                <Select
+                  value={formData.currency}
+                  onValueChange={(value) => handleFormChange('currency', value)}
+                >
+                  <SelectTrigger className="w-auto rounded-r-none border-r-0">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
                     {CURRENCY_OPTIONS.map((curr) => (
-                      <option key={curr.value} value={curr.value}>
+                      <SelectItem key={curr.value} value={curr.value}>
                         {curr.symbol}
-                      </option>
+                      </SelectItem>
                     ))}
-                  </select>
-                  <div className="pointer-events-none absolute inset-y-0 right-1 flex items-center">
-                    <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                    </svg>
-                  </div>
-                </div>
-                <input
+                  </SelectContent>
+                </Select>
+                <Input
                   type="text"
                   inputMode="decimal"
-                  value={formatNumberWithCommas(formData.total)}
-                  onChange={(e) => handleFormChange('total', parseFormattedNumber(e.target.value))}
+                  value={isEditingAmount ? formData.total : formatNumberWithCommas(formData.total)}
+                  onChange={(e) => {
+                    // Allow raw input during editing (remove non-numeric chars except . and ,)
+                    const value = e.target.value.replace(/[^0-9.,]/g, '');
+                    handleFormChange('total', value.replace(/,/g, ''));
+                  }}
+                  onFocus={() => setIsEditingAmount(true)}
                   onBlur={(e) => {
-                    // Re-format on blur to ensure proper formatting
+                    setIsEditingAmount(false);
                     const parsed = parseFormattedNumber(e.target.value);
                     if (parsed) handleFormChange('total', parsed);
                   }}
                   placeholder="0.00"
-                  className="flex-1 min-w-0 px-3 sm:px-4 py-2 text-sm border border-gray-300 rounded-r-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                  className="flex-1 min-w-0 rounded-l-none"
                 />
               </div>
             </div>
@@ -567,12 +581,11 @@ export default function ReceiptEditPage() {
               <label className="block text-xs sm:text-sm font-medium text-slate-700 mb-1">
                 Business Purpose <span className="text-red-500">*</span>
               </label>
-              <input
+              <Input
                 type="text"
                 value={formData.business_purpose}
                 onChange={(e) => handleFormChange('business_purpose', e.target.value)}
                 placeholder="e.g., Client meeting, Office supplies, Travel expense"
-                className="w-full px-3 sm:px-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
               />
             </div>
 
@@ -581,35 +594,32 @@ export default function ReceiptEditPage() {
               <label className="block text-xs sm:text-sm font-medium text-slate-700 mb-1">
                 Payment Method
               </label>
-              <div className="relative">
-                <select
-                  value={formData.payment_method}
-                  onChange={(e) => handleFormChange('payment_method', e.target.value)}
-                  className="appearance-none w-full px-3 sm:px-4 pr-10 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 bg-white"
-                >
-                  {PAYMENT_METHODS.map((method) => (
-                    <option key={method.value} value={method.value}>
+              <Select
+                value={formData.payment_method || undefined}
+                onValueChange={(value) => handleFormChange('payment_method', value)}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select payment method" />
+                </SelectTrigger>
+                <SelectContent>
+                  {PAYMENT_METHODS.filter(m => m.value !== '').map((method) => (
+                    <SelectItem key={method.value} value={method.value}>
                       {method.label}
-                    </option>
+                    </SelectItem>
                   ))}
-                </select>
-                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
-                  <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                  </svg>
-                </div>
-              </div>
+                </SelectContent>
+              </Select>
             </div>
 
             {/* Notes - Full width */}
             <div className="md:col-span-2">
               <label className="block text-xs sm:text-sm font-medium text-slate-700 mb-1">Notes</label>
-              <textarea
+              <Textarea
                 value={formData.notes}
                 onChange={(e) => handleFormChange('notes', e.target.value)}
                 rows={2}
                 placeholder="Optional"
-                className="w-full px-3 sm:px-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 resize-none"
+                className="resize-none"
               />
             </div>
 
@@ -841,7 +851,7 @@ export default function ReceiptEditPage() {
 
               {/* Add new item */}
               <div className="flex items-center gap-2">
-                <input
+                <Input
                   type="text"
                   value={newItemName}
                   onChange={(e) => setNewItemName(e.target.value)}
@@ -852,7 +862,7 @@ export default function ReceiptEditPage() {
                     }
                   }}
                   placeholder="Add new item..."
-                  className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 text-sm"
+                  className="flex-1"
                 />
                 <button
                   type="button"
@@ -994,14 +1004,14 @@ export default function ReceiptEditPage() {
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Item Name
                   </label>
-                  <textarea
+                  <Textarea
                     value={selectedItemForModal.name}
                     onChange={(e) => {
                       handleUpdateItem(selectedItemForModal.id, 'name', e.target.value);
                       setSelectedItemForModal({ ...selectedItemForModal, name: e.target.value });
                     }}
                     rows={3}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 text-sm resize-none"
+                    className="resize-none"
                     placeholder="Item name"
                   />
                 </div>
@@ -1011,23 +1021,23 @@ export default function ReceiptEditPage() {
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                       Quantity
                     </label>
-                    <input
+                    <Input
                       type="number"
-                      min="1"
+                      min={1}
                       value={selectedItemForModal.qty}
                       onChange={(e) => {
                         const qty = parseInt(e.target.value) || 1;
                         handleUpdateItem(selectedItemForModal.id, 'qty', qty);
                         setSelectedItemForModal({ ...selectedItemForModal, qty, amount: qty * selectedItemForModal.unitPrice });
                       }}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 text-sm text-center"
+                      className="text-center"
                     />
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                       Unit Price
                     </label>
-                    <input
+                    <Input
                       type="number"
                       step="0.01"
                       value={selectedItemForModal.unitPrice.toFixed(2)}
@@ -1036,7 +1046,7 @@ export default function ReceiptEditPage() {
                         handleUpdateItem(selectedItemForModal.id, 'unitPrice', unitPrice);
                         setSelectedItemForModal({ ...selectedItemForModal, unitPrice, amount: selectedItemForModal.qty * unitPrice });
                       }}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 text-sm text-right"
+                      className="text-right"
                       placeholder="0.00"
                     />
                   </div>

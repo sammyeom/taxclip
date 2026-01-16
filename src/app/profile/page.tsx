@@ -26,6 +26,7 @@ import {
   Upload as UploadIcon,
   Lock,
 } from 'lucide-react';
+import { Input } from '@/components/ui/input';
 
 interface UserMetadata {
   displayName?: string;
@@ -429,10 +430,6 @@ export default function ProfilePage() {
                       <span className="truncate">{user.email}</span>
                     </p>
                   </div>
-                  <div className="hidden sm:block">
-                    <p className="text-xs sm:text-sm text-slate-500">User ID</p>
-                    <p className="text-xs text-slate-400 font-mono truncate">{user.id}</p>
-                  </div>
                   <div className="grid grid-cols-2 gap-3 sm:gap-4 pt-2">
                     <div>
                       <p className="text-xs text-slate-500">Created</p>
@@ -459,16 +456,15 @@ export default function ProfilePage() {
                     Display Name
                   </label>
                   <div className="relative">
-                    <div className="absolute top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" style={{ left: '14px' }}>
+                    <div className="absolute top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none z-10" style={{ left: '14px' }}>
                       <User className="w-4 h-4 sm:w-5 sm:h-5" />
                     </div>
-                    <input
+                    <Input
                       type="text"
                       value={displayName}
                       onChange={(e) => setDisplayName(e.target.value)}
                       placeholder="Enter your display name"
-                      className="w-full pr-4 py-2.5 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
-                      style={{ paddingLeft: '44px' }}
+                      className="pl-11"
                     />
                   </div>
                 </div>
@@ -478,16 +474,15 @@ export default function ProfilePage() {
                     Business Name
                   </label>
                   <div className="relative">
-                    <div className="absolute top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" style={{ left: '14px' }}>
+                    <div className="absolute top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none z-10" style={{ left: '14px' }}>
                       <Briefcase className="w-4 h-4 sm:w-5 sm:h-5" />
                     </div>
-                    <input
+                    <Input
                       type="text"
                       value={businessName}
                       onChange={(e) => setBusinessName(e.target.value)}
                       placeholder="Enter your business name"
-                      className="w-full pr-4 py-2.5 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
-                      style={{ paddingLeft: '44px' }}
+                      className="pl-11"
                     />
                   </div>
                 </div>
@@ -497,16 +492,15 @@ export default function ProfilePage() {
                     Phone <span className="text-slate-400 font-normal">(optional)</span>
                   </label>
                   <div className="relative">
-                    <div className="absolute top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" style={{ left: '14px' }}>
+                    <div className="absolute top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none z-10" style={{ left: '14px' }}>
                       <Phone className="w-4 h-4 sm:w-5 sm:h-5" />
                     </div>
-                    <input
+                    <Input
                       type="tel"
                       value={phoneNumber}
                       onChange={(e) => setPhoneNumber(e.target.value)}
                       placeholder="+1 (555) 123-4567"
-                      className="w-full pr-4 py-2.5 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
-                      style={{ paddingLeft: '44px' }}
+                      className="pl-11"
                     />
                   </div>
                 </div>
@@ -516,16 +510,15 @@ export default function ProfilePage() {
                     Email Address
                   </label>
                   <div className="relative">
-                    <div className="absolute top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" style={{ left: '14px' }}>
+                    <div className="absolute top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none z-10" style={{ left: '14px' }}>
                       <Mail className="w-4 h-4 sm:w-5 sm:h-5" />
                     </div>
-                    <input
+                    <Input
                       type="email"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="your@email.com"
-                      className="w-full pr-4 py-2.5 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
-                      style={{ paddingLeft: '44px' }}
+                      className="pl-11"
                     />
                   </div>
                   <p className="text-xs text-slate-500 mt-1">
@@ -550,16 +543,15 @@ export default function ProfilePage() {
                           New Password
                         </label>
                         <div className="relative">
-                          <div className="absolute top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" style={{ left: '14px' }}>
+                          <div className="absolute top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none z-10" style={{ left: '14px' }}>
                             <Lock className="w-4 h-4 sm:w-5 sm:h-5" />
                           </div>
-                          <input
+                          <Input
                             type="password"
                             value={newPassword}
                             onChange={(e) => setNewPassword(e.target.value)}
                             placeholder="Enter new password"
-                            className="w-full pr-4 py-2.5 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
-                            style={{ paddingLeft: '44px' }}
+                            className="pl-11"
                           />
                         </div>
                       </div>
@@ -569,16 +561,15 @@ export default function ProfilePage() {
                           Confirm Password
                         </label>
                         <div className="relative">
-                          <div className="absolute top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" style={{ left: '14px' }}>
+                          <div className="absolute top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none z-10" style={{ left: '14px' }}>
                             <Lock className="w-4 h-4 sm:w-5 sm:h-5" />
                           </div>
-                          <input
+                          <Input
                             type="password"
                             value={confirmPassword}
                             onChange={(e) => setConfirmPassword(e.target.value)}
                             placeholder="Confirm new password"
-                            className="w-full pr-4 py-2.5 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
-                            style={{ paddingLeft: '44px' }}
+                            className="pl-11"
                           />
                         </div>
                       </div>

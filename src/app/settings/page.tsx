@@ -22,6 +22,13 @@ import {
   FileText,
   Archive,
 } from 'lucide-react';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 interface AppSettings {
   // General
@@ -361,18 +368,19 @@ export default function SettingsPage() {
                 </label>
               </div>
               <div className="w-full sm:w-auto sm:flex-shrink-0">
-                <select
-                  value={settings.currency}
-                  onChange={(e) => updateSetting('currency', e.target.value)}
-                  className="w-full sm:w-48 lg:w-64 px-3 sm:px-4 py-2 sm:py-2.5 text-sm bg-slate-50 border border-slate-300 rounded-lg text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:bg-white hover:bg-white transition-colors"
-                >
-                  <option value="USD">USD ($)</option>
-                  <option value="EUR">EUR (€)</option>
-                  <option value="GBP">GBP (£)</option>
-                  <option value="CAD">CAD ($)</option>
-                  <option value="AUD">AUD ($)</option>
-                  <option value="JPY">JPY (¥)</option>
-                </select>
+                <Select value={settings.currency} onValueChange={(value) => updateSetting('currency', value)}>
+                  <SelectTrigger className="w-full sm:w-48 lg:w-64 px-3 sm:px-4 py-2 sm:py-2.5 text-sm bg-slate-50 border border-slate-300 rounded-lg text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:bg-white hover:bg-white transition-colors">
+                    <SelectValue placeholder="Select currency" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="USD">USD ($)</SelectItem>
+                    <SelectItem value="EUR">EUR (€)</SelectItem>
+                    <SelectItem value="GBP">GBP (£)</SelectItem>
+                    <SelectItem value="CAD">CAD ($)</SelectItem>
+                    <SelectItem value="AUD">AUD ($)</SelectItem>
+                    <SelectItem value="JPY">JPY (¥)</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             </div>
 
@@ -383,15 +391,16 @@ export default function SettingsPage() {
                 </label>
               </div>
               <div className="w-full sm:w-auto sm:flex-shrink-0">
-                <select
-                  value={settings.dateFormat}
-                  onChange={(e) => updateSetting('dateFormat', e.target.value)}
-                  className="w-full sm:w-48 lg:w-64 px-3 sm:px-4 py-2 sm:py-2.5 text-sm bg-slate-50 border border-slate-300 rounded-lg text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:bg-white hover:bg-white transition-colors"
-                >
-                  <option value="MM/DD/YYYY">MM/DD/YYYY</option>
-                  <option value="DD/MM/YYYY">DD/MM/YYYY</option>
-                  <option value="YYYY-MM-DD">YYYY-MM-DD</option>
-                </select>
+                <Select value={settings.dateFormat} onValueChange={(value) => updateSetting('dateFormat', value)}>
+                  <SelectTrigger className="w-full sm:w-48 lg:w-64 px-3 sm:px-4 py-2 sm:py-2.5 text-sm bg-slate-50 border border-slate-300 rounded-lg text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:bg-white hover:bg-white transition-colors">
+                    <SelectValue placeholder="Select format" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="MM/DD/YYYY">MM/DD/YYYY</SelectItem>
+                    <SelectItem value="DD/MM/YYYY">DD/MM/YYYY</SelectItem>
+                    <SelectItem value="YYYY-MM-DD">YYYY-MM-DD</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             </div>
 
@@ -402,17 +411,18 @@ export default function SettingsPage() {
                 </label>
               </div>
               <div className="w-full sm:w-auto sm:flex-shrink-0">
-                <select
-                  value={settings.defaultCategory}
-                  onChange={(e) => updateSetting('defaultCategory', e.target.value)}
-                  className="w-full sm:w-48 lg:w-64 px-3 sm:px-4 py-2 sm:py-2.5 text-sm bg-slate-50 border border-slate-300 rounded-lg text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:bg-white hover:bg-white transition-colors"
-                >
-                  {IRS_CATEGORIES.map((cat) => (
-                    <option key={cat.value} value={cat.value}>
-                      {cat.label}
-                    </option>
-                  ))}
-                </select>
+                <Select value={settings.defaultCategory} onValueChange={(value) => updateSetting('defaultCategory', value)}>
+                  <SelectTrigger className="w-full sm:w-48 lg:w-64 px-3 sm:px-4 py-2 sm:py-2.5 text-sm bg-slate-50 border border-slate-300 rounded-lg text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:bg-white hover:bg-white transition-colors">
+                    <SelectValue placeholder="Select category" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {IRS_CATEGORIES.map((cat) => (
+                      <SelectItem key={cat.value} value={cat.value}>
+                        {cat.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
             </div>
 
@@ -544,17 +554,18 @@ export default function SettingsPage() {
                 </label>
               </div>
               <div className="w-full sm:w-auto sm:flex-shrink-0">
-                <select
-                  value={settings.businessType}
-                  onChange={(e) => updateSetting('businessType', e.target.value)}
-                  className="w-full sm:w-48 lg:w-64 px-3 sm:px-4 py-2 sm:py-2.5 text-sm bg-slate-50 border border-slate-300 rounded-lg text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:bg-white hover:bg-white transition-colors"
-                >
-                  <option value="sole_proprietor">Sole Proprietor</option>
-                  <option value="llc">LLC</option>
-                  <option value="s_corp">S Corporation</option>
-                  <option value="c_corp">C Corporation</option>
-                  <option value="partnership">Partnership</option>
-                </select>
+                <Select value={settings.businessType} onValueChange={(value) => updateSetting('businessType', value)}>
+                  <SelectTrigger className="w-full sm:w-48 lg:w-64 px-3 sm:px-4 py-2 sm:py-2.5 text-sm bg-slate-50 border border-slate-300 rounded-lg text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:bg-white hover:bg-white transition-colors">
+                    <SelectValue placeholder="Select business type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="sole_proprietor">Sole Proprietor</SelectItem>
+                    <SelectItem value="llc">LLC</SelectItem>
+                    <SelectItem value="s_corp">S Corporation</SelectItem>
+                    <SelectItem value="c_corp">C Corporation</SelectItem>
+                    <SelectItem value="partnership">Partnership</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             </div>
 
@@ -565,14 +576,15 @@ export default function SettingsPage() {
                 </label>
               </div>
               <div className="w-full sm:w-auto sm:flex-shrink-0">
-                <select
-                  value={settings.taxYear}
-                  onChange={(e) => updateSetting('taxYear', e.target.value)}
-                  className="w-full sm:w-48 lg:w-64 px-3 sm:px-4 py-2 sm:py-2.5 text-sm bg-slate-50 border border-slate-300 rounded-lg text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:bg-white hover:bg-white transition-colors"
-                >
-                  <option value="calendar">Calendar Year</option>
-                  <option value="fiscal">Fiscal Year</option>
-                </select>
+                <Select value={settings.taxYear} onValueChange={(value) => updateSetting('taxYear', value)}>
+                  <SelectTrigger className="w-full sm:w-48 lg:w-64 px-3 sm:px-4 py-2 sm:py-2.5 text-sm bg-slate-50 border border-slate-300 rounded-lg text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:bg-white hover:bg-white transition-colors">
+                    <SelectValue placeholder="Select tax year" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="calendar">Calendar Year</SelectItem>
+                    <SelectItem value="fiscal">Fiscal Year</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             </div>
 
@@ -683,16 +695,17 @@ export default function SettingsPage() {
                 </p>
               </div>
               <div className="w-full sm:w-auto sm:flex-shrink-0">
-                <select
-                  value={settings.dataRetention}
-                  onChange={(e) => updateSetting('dataRetention', Number(e.target.value))}
-                  className="w-full sm:w-48 lg:w-64 px-3 sm:px-4 py-2 sm:py-2.5 text-sm bg-slate-50 border border-slate-300 rounded-lg text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:bg-white hover:bg-white transition-colors"
-                >
-                  <option value={1}>1 Year</option>
-                  <option value={3}>3 Years</option>
-                  <option value={5}>5 Years</option>
-                  <option value={7}>7 Years (Recommended)</option>
-                </select>
+                <Select value={String(settings.dataRetention)} onValueChange={(value) => updateSetting('dataRetention', Number(value))}>
+                  <SelectTrigger className="w-full sm:w-48 lg:w-64 px-3 sm:px-4 py-2 sm:py-2.5 text-sm bg-slate-50 border border-slate-300 rounded-lg text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:bg-white hover:bg-white transition-colors">
+                    <SelectValue placeholder="Select retention period" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="1">1 Year</SelectItem>
+                    <SelectItem value="3">3 Years</SelectItem>
+                    <SelectItem value="5">5 Years</SelectItem>
+                    <SelectItem value="7">7 Years (Recommended)</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             </div>
 

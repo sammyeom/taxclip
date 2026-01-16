@@ -40,6 +40,15 @@ import { parseEmlFile, isEmlFile, getImageAttachments, getPdfAttachments, attach
 import { useReceiptStore } from '@/store';
 import { compressImage } from '@/lib/image-compression';
 import CategorySelector from '@/components/CategorySelector';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 // OCR item can be either a string (legacy) or an object with qty, unitPrice, amount
 interface OCRItem {
@@ -400,21 +409,26 @@ export default function UploadPage() {
         })
       );
 
-      // Always populate the form when OCR completes (for the first completed file or selected file)
+      // Populate the form when OCR completes (only if user hasn't manually edited)
       const ocrData = result.data;
       if (ocrData) {
-        setFormData((prev) => ({
-          date: ocrData.date || prev.date || '',
-          merchant: ocrData.vendor || prev.merchant || '',
-          amount: ocrData.amount ? ocrData.amount.toFixed(2) : prev.amount || '',
-          currency: ocrData.currency || prev.currency || 'USD',
-          category: ocrData.category || prev.category || 'other',
-          subcategory: prev.subcategory || '',
-          businessPurpose: prev.businessPurpose || '',
-          paymentMethod: ocrData.paymentMethod || prev.paymentMethod || '',
-          notes: prev.notes || '',
-        }));
-        setExtractedItems(convertOcrItemsToLineItems(ocrData.items || []));
+        // Only auto-populate form fields if user hasn't manually edited the form
+        setFormData((prev) => {
+          // Check if this is a fresh form (no user edits)
+          // We use a ref check via the callback to get current state
+          return {
+            date: prev.date || ocrData.date || '',
+            merchant: prev.merchant || ocrData.vendor || '',
+            amount: prev.amount || (ocrData.amount ? ocrData.amount.toFixed(2) : ''),
+            currency: prev.currency || ocrData.currency || 'USD',
+            category: prev.category !== 'other' ? prev.category : (ocrData.category || 'other'),
+            subcategory: prev.subcategory || '',
+            businessPurpose: prev.businessPurpose || '',
+            paymentMethod: prev.paymentMethod || ocrData.paymentMethod || '',
+            notes: prev.notes || '',
+          };
+        });
+        setExtractedItems((prev) => prev.length > 0 ? prev : convertOcrItemsToLineItems(ocrData.items || []));
         setUploadedImageUrl(result.imageUrl);
         setUploadedImageUrls(result.imageUrls || [result.imageUrl]);
         setUploadedDocumentTypes(ocrData.documentType ? [ocrData.documentType] : []);
@@ -757,17 +771,17 @@ export default function UploadPage() {
       const groupOcrData = result.data;
       if (groupOcrData) {
         setFormData((prev) => ({
-          date: groupOcrData.date || prev.date || '',
-          merchant: groupOcrData.vendor || prev.merchant || '',
-          amount: groupOcrData.amount ? groupOcrData.amount.toFixed(2) : prev.amount || '',
-          currency: groupOcrData.currency || prev.currency || 'USD',
-          category: groupOcrData.category || prev.category || 'other',
+          date: prev.date || groupOcrData.date || '',
+          merchant: prev.merchant || groupOcrData.vendor || '',
+          amount: prev.amount || (groupOcrData.amount ? groupOcrData.amount.toFixed(2) : ''),
+          currency: prev.currency || groupOcrData.currency || 'USD',
+          category: prev.category !== 'other' ? prev.category : (groupOcrData.category || 'other'),
           subcategory: prev.subcategory || '',
           businessPurpose: prev.businessPurpose || '',
-          paymentMethod: groupOcrData.paymentMethod || prev.paymentMethod || '',
+          paymentMethod: prev.paymentMethod || groupOcrData.paymentMethod || '',
           notes: prev.notes || '',
         }));
-        setExtractedItems(convertOcrItemsToLineItems(groupOcrData.items || []));
+        setExtractedItems((prev) => prev.length > 0 ? prev : convertOcrItemsToLineItems(groupOcrData.items || []));
       }
 
       // Select the first file for editing
@@ -801,6 +815,8 @@ export default function UploadPage() {
   // Handle form field changes
   const handleFormChange = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
+    // Mark that user has manually edited the form
+    setUserHasEditedForm(true);
   };
 
   // Handle evidence type change for a file
@@ -948,7 +964,7 @@ export default function UploadPage() {
         date: formData.date,
         total: totalAmount,
         category: formData.category,
-        subcategory: formData.subcategory || null,
+        // Note: subcategory is stored in notes until DB column is added
         items: receiptItems,
         image_url: uploadedImageUrl, // Legacy single image
         image_urls: uploadedImageUrls.length > 0 ? uploadedImageUrls : (uploadedImageUrl ? [uploadedImageUrl] : []),
@@ -957,7 +973,9 @@ export default function UploadPage() {
         parsed_email_data: parsedEmailData,
         business_purpose: formData.businessPurpose || null,
         payment_method: formData.paymentMethod || null,
-        notes: formData.notes || null,
+        notes: formData.subcategory
+          ? `[Subcategory: ${formData.subcategory}] ${formData.notes || ''}`
+          : (formData.notes || null),
         tax_year: taxYear,
         description: formData.notes || formData.businessPurpose || null,
       };
@@ -979,13 +997,15 @@ export default function UploadPage() {
         date: formData.date,
         total: totalAmount,
         irs_category: formData.category,
-        irs_subcategory: formData.subcategory || null,
+        // Note: irs_subcategory column doesn't exist yet - store in notes if needed
         file_urls: uploadedImageUrls.length > 0 ? uploadedImageUrls : (uploadedImageUrl ? [uploadedImageUrl] : []),
         document_types: uploadedDocumentTypes.length > 0 ? uploadedDocumentTypes : uploadedImageUrls.map(() => 'receipt'),
         raw_text: uploadedRawText,
         business_purpose: formData.businessPurpose || null,
         payment_method: formData.paymentMethod || null,
-        notes: formData.notes || null,
+        notes: formData.subcategory
+          ? `[Subcategory: ${formData.subcategory}] ${formData.notes || ''}`
+          : (formData.notes || null),
         tax_year: taxYear,
         email_text: emailText || null,
         parsed_email_data: parsedEmailData,
@@ -1037,6 +1057,7 @@ export default function UploadPage() {
         paymentMethod: '',
         notes: '',
       });
+      setUserHasEditedForm(false); // Reset edit tracking for next receipt
 
       // Refetch usage count after saving
       refetchUsage();
@@ -1062,6 +1083,7 @@ export default function UploadPage() {
             notes: '',
           });
           setExtractedItems(convertOcrItemsToLineItems(nextFile.ocrData.items || []));
+          setUserHasEditedForm(false); // Reset edit tracking for new file
         }
       } else {
         setSuccessMessage('Receipt saved! Redirecting...');
@@ -1079,6 +1101,12 @@ export default function UploadPage() {
 
   // Track which file ID we've already populated the form for
   const [populatedForFileId, setPopulatedForFileId] = useState<string | null>(null);
+
+  // Track if user has manually edited the form (prevent OCR from overwriting)
+  const [userHasEditedForm, setUserHasEditedForm] = useState(false);
+
+  // Track if amount field is being edited (to show raw value during editing)
+  const [isEditingAmount, setIsEditingAmount] = useState(false);
 
   // When selected file changes (user selects different file), update form and extracted items
   // Only populate once per file to allow user edits
@@ -1387,11 +1415,10 @@ export default function UploadPage() {
                   <label className="block text-xs sm:text-sm font-medium text-slate-700 mb-1">
                     Date <span className="text-red-500">*</span>
                   </label>
-                  <input
+                  <Input
                     type="date"
                     value={formData.date}
                     onChange={(e) => handleFormChange('date', e.target.value)}
-                    className="w-full px-3 sm:px-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
                   />
                 </div>
 
@@ -1400,12 +1427,11 @@ export default function UploadPage() {
                   <label className="block text-xs sm:text-sm font-medium text-slate-700 mb-1">
                     Vendor/Merchant <span className="text-red-500">*</span>
                   </label>
-                  <input
+                  <Input
                     type="text"
                     value={formData.merchant}
                     onChange={(e) => handleFormChange('merchant', e.target.value)}
                     placeholder="Enter store or vendor name"
-                    className="w-full px-3 sm:px-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
                   />
                 </div>
 
@@ -1415,36 +1441,38 @@ export default function UploadPage() {
                     Total <span className="text-red-500">*</span>
                   </label>
                   <div className="flex">
-                    <div className="relative">
-                      <select
-                        value={formData.currency}
-                        onChange={(e) => handleFormChange('currency', e.target.value)}
-                        className="appearance-none px-3 pr-7 py-2 border border-r-0 border-gray-300 rounded-l-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-cyan-500 text-sm font-medium min-h-[44px] sm:min-h-0"
-                      >
+                    <Select
+                      value={formData.currency}
+                      onValueChange={(value) => handleFormChange('currency', value)}
+                    >
+                      <SelectTrigger className="w-auto rounded-r-none border-r-0">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
                         {CURRENCY_OPTIONS.map((curr) => (
-                          <option key={curr.value} value={curr.value}>
+                          <SelectItem key={curr.value} value={curr.value}>
                             {curr.symbol}
-                          </option>
+                          </SelectItem>
                         ))}
-                      </select>
-                      <div className="pointer-events-none absolute inset-y-0 right-1 flex items-center">
-                        <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                        </svg>
-                      </div>
-                    </div>
-                    <input
+                      </SelectContent>
+                    </Select>
+                    <Input
                       type="text"
                       inputMode="decimal"
-                      value={formatNumberWithCommas(formData.amount)}
-                      onChange={(e) => handleFormChange('amount', parseFormattedNumber(e.target.value))}
+                      value={isEditingAmount ? formData.amount : formatNumberWithCommas(formData.amount)}
+                      onChange={(e) => {
+                        // Allow raw input during editing (remove non-numeric chars except . and ,)
+                        const value = e.target.value.replace(/[^0-9.,]/g, '');
+                        handleFormChange('amount', value.replace(/,/g, ''));
+                      }}
+                      onFocus={() => setIsEditingAmount(true)}
                       onBlur={(e) => {
-                        // Re-format on blur to ensure proper formatting
+                        setIsEditingAmount(false);
                         const parsed = parseFormattedNumber(e.target.value);
                         if (parsed) handleFormChange('amount', parsed);
                       }}
                       placeholder="0.00"
-                      className="flex-1 min-w-0 px-3 sm:px-4 py-2 text-sm border border-gray-300 rounded-r-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                      className="flex-1 min-w-0 rounded-l-none"
                     />
                   </div>
                 </div>
@@ -1466,14 +1494,13 @@ export default function UploadPage() {
                   <label className="block text-xs sm:text-sm font-medium text-slate-700 mb-1">
                     Business Purpose <span className="text-red-500">*</span>
                   </label>
-                  <input
+                  <Input
                     type="text"
                     value={formData.businessPurpose}
                     onChange={(e) =>
                       handleFormChange('businessPurpose', e.target.value)
                     }
                     placeholder="e.g., Client meeting, Office supplies, Travel expense"
-                    className="w-full px-3 sm:px-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
                   />
                 </div>
 
@@ -1482,26 +1509,23 @@ export default function UploadPage() {
                   <label className="block text-xs sm:text-sm font-medium text-slate-700 mb-1">
                     Payment Method
                   </label>
-                  <div className="relative">
-                    <select
-                      value={formData.paymentMethod}
-                      onChange={(e) =>
-                        handleFormChange('paymentMethod', e.target.value)
-                      }
-                      className="appearance-none w-full px-3 sm:px-4 pr-10 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 bg-white"
-                    >
-                      {PAYMENT_METHODS.map((method) => (
-                        <option key={method.value} value={method.value}>
+                  <Select
+                    value={formData.paymentMethod || undefined}
+                    onValueChange={(value) =>
+                      handleFormChange('paymentMethod', value)
+                    }
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Select payment method" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {PAYMENT_METHODS.filter(m => m.value !== '').map((method) => (
+                        <SelectItem key={method.value} value={method.value}>
                           {method.label}
-                        </option>
+                        </SelectItem>
                       ))}
-                    </select>
-                    <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
-                      <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                      </svg>
-                    </div>
-                  </div>
+                    </SelectContent>
+                  </Select>
                 </div>
 
                 {/* Notes - Full width */}
@@ -1509,12 +1533,12 @@ export default function UploadPage() {
                   <label className="block text-xs sm:text-sm font-medium text-slate-700 mb-1">
                     Notes
                   </label>
-                  <textarea
+                  <Textarea
                     value={formData.notes}
                     onChange={(e) => handleFormChange('notes', e.target.value)}
                     rows={2}
                     placeholder="Add any additional notes (optional)"
-                    className="w-full px-3 sm:px-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 resize-none"
+                    className="resize-none"
                   />
                 </div>
 
@@ -1746,7 +1770,7 @@ export default function UploadPage() {
 
                   {/* Add new item */}
                   <div className="flex items-center gap-2">
-                    <input
+                    <Input
                       type="text"
                       value={newItemName}
                       onChange={(e) => setNewItemName(e.target.value)}
@@ -1757,7 +1781,7 @@ export default function UploadPage() {
                         }
                       }}
                       placeholder="Add new item..."
-                      className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 text-sm"
+                      className="flex-1"
                     />
                     <button
                       type="button"
@@ -1860,14 +1884,14 @@ export default function UploadPage() {
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Item Name
                 </label>
-                <textarea
+                <Textarea
                   value={selectedItemForModal.name}
                   onChange={(e) => {
                     handleUpdateItem(selectedItemForModal.id, 'name', e.target.value);
                     setSelectedItemForModal({ ...selectedItemForModal, name: e.target.value });
                   }}
                   rows={3}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 text-sm resize-none"
+                  className="resize-none"
                   placeholder="Item name"
                 />
               </div>
@@ -1877,23 +1901,23 @@ export default function UploadPage() {
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Quantity
                   </label>
-                  <input
+                  <Input
                     type="number"
-                    min="1"
+                    min={1}
                     value={selectedItemForModal.qty}
                     onChange={(e) => {
                       const qty = parseInt(e.target.value) || 1;
                       handleUpdateItem(selectedItemForModal.id, 'qty', qty);
                       setSelectedItemForModal({ ...selectedItemForModal, qty, amount: qty * selectedItemForModal.unitPrice });
                     }}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 text-sm text-center"
+                    className="text-center"
                   />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Unit Price
                   </label>
-                  <input
+                  <Input
                     type="number"
                     step="0.01"
                     value={selectedItemForModal.unitPrice.toFixed(2)}
@@ -1902,7 +1926,7 @@ export default function UploadPage() {
                       handleUpdateItem(selectedItemForModal.id, 'unitPrice', unitPrice);
                       setSelectedItemForModal({ ...selectedItemForModal, unitPrice, amount: selectedItemForModal.qty * unitPrice });
                     }}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 text-sm text-right"
+                    className="text-right"
                     placeholder="0.00"
                   />
                 </div>

@@ -21,6 +21,14 @@ import {
   Calendar,
 } from 'lucide-react';
 import { getSubcategoryLabel } from '@/constants/irs-categories';
+import { Input } from '@/components/ui/input';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 // Category colors mapping
 const CATEGORY_COLORS: Record<string, string> = {
@@ -310,56 +318,62 @@ export default function ReceiptsPage() {
             {/* Year Filter */}
             <div>
               <label className="block text-xs sm:text-sm font-medium text-slate-700 mb-1">Year</label>
-              <select
+              <Select
                 value={yearFilter}
-                onChange={(e) => setYearFilter(e.target.value)}
-                className="w-full px-2 sm:px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                onValueChange={(value) => setYearFilter(value)}
               >
-                <option value="all">All Years</option>
-                {availableYears.map((year) => (
-                  <option key={year} value={year}>
-                    {year}
-                  </option>
-                ))}
-              </select>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="All Years" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Years</SelectItem>
+                  {availableYears.map((year) => (
+                    <SelectItem key={year} value={String(year)}>
+                      {year}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
 
             {/* Category Filter */}
             <div>
               <label className="block text-xs sm:text-sm font-medium text-slate-700 mb-1">Category</label>
-              <select
+              <Select
                 value={categoryFilter}
-                onChange={(e) => setCategoryFilter(e.target.value)}
-                className="w-full px-2 sm:px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                onValueChange={(value) => setCategoryFilter(value)}
               >
-                <option value="all">All</option>
-                {Object.entries(CATEGORY_LABELS).map(([value, label]) => (
-                  <option key={value} value={value}>
-                    {label}
-                  </option>
-                ))}
-              </select>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="All" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All</SelectItem>
+                  {Object.entries(CATEGORY_LABELS).map(([value, label]) => (
+                    <SelectItem key={value} value={value}>
+                      {label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
 
             {/* Start Date */}
             <div>
               <label className="block text-xs sm:text-sm font-medium text-slate-700 mb-1">Start Date</label>
-              <input
+              <Input
                 type="date"
                 value={startDate}
                 onChange={(e) => setStartDate(e.target.value)}
-                className="w-full min-w-0 px-2 sm:px-3 py-2 text-xs sm:text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
               />
             </div>
 
             {/* End Date */}
             <div>
               <label className="block text-xs sm:text-sm font-medium text-slate-700 mb-1">End Date</label>
-              <input
+              <Input
                 type="date"
                 value={endDate}
                 onChange={(e) => setEndDate(e.target.value)}
-                className="w-full min-w-0 px-2 sm:px-3 py-2 text-xs sm:text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
               />
             </div>
           </div>
@@ -368,16 +382,15 @@ export default function ReceiptsPage() {
           <div className="mt-3 sm:mt-4">
             <label className="block text-xs sm:text-sm font-medium text-slate-700 mb-1">Search Vendor</label>
             <div className="relative">
-              <div className="absolute top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" style={{ left: '14px' }}>
+              <div className="absolute top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none z-10" style={{ left: '14px' }}>
                 <Search className="w-4 h-4 sm:w-5 sm:h-5" />
               </div>
-              <input
+              <Input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search by vendor name..."
-                className="w-full pr-4 py-2.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
-                style={{ paddingLeft: '44px' }}
+                className="pl-11"
               />
             </div>
           </div>

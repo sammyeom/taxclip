@@ -5,6 +5,15 @@ import Image from 'next/image';
 import { ArrowLeft, Mail, MessageSquare, Clock, Send } from 'lucide-react';
 import { useState } from 'react';
 import { motion } from 'framer-motion';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({
@@ -157,13 +166,12 @@ export default function ContactPage() {
                     <label htmlFor="name" className="block text-xs sm:text-sm font-medium text-slate-700 mb-1.5 sm:mb-2">
                       Name
                     </label>
-                    <input
+                    <Input
                       type="text"
                       id="name"
                       required
                       value={formData.name}
                       onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                      className="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all"
                       placeholder="Your name"
                     />
                   </div>
@@ -172,13 +180,12 @@ export default function ContactPage() {
                     <label htmlFor="email" className="block text-xs sm:text-sm font-medium text-slate-700 mb-1.5 sm:mb-2">
                       Email
                     </label>
-                    <input
+                    <Input
                       type="email"
                       id="email"
                       required
                       value={formData.email}
                       onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                      className="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all"
                       placeholder="your@email.com"
                     />
                   </div>
@@ -187,34 +194,36 @@ export default function ContactPage() {
                     <label htmlFor="subject" className="block text-xs sm:text-sm font-medium text-slate-700 mb-1.5 sm:mb-2">
                       Subject
                     </label>
-                    <select
-                      id="subject"
+                    <Select
+                      value={formData.subject || undefined}
+                      onValueChange={(value) => setFormData({ ...formData, subject: value })}
                       required
-                      value={formData.subject}
-                      onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
-                      className="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all"
                     >
-                      <option value="">Select a topic</option>
-                      <option value="general">General Inquiry</option>
-                      <option value="support">Technical Support</option>
-                      <option value="billing">Billing Question</option>
-                      <option value="feature">Feature Request</option>
-                      <option value="partnership">Partnership</option>
-                      <option value="other">Other</option>
-                    </select>
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Select a topic" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="general">General Inquiry</SelectItem>
+                        <SelectItem value="support">Technical Support</SelectItem>
+                        <SelectItem value="billing">Billing Question</SelectItem>
+                        <SelectItem value="feature">Feature Request</SelectItem>
+                        <SelectItem value="partnership">Partnership</SelectItem>
+                        <SelectItem value="other">Other</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
 
                   <div>
                     <label htmlFor="message" className="block text-xs sm:text-sm font-medium text-slate-700 mb-1.5 sm:mb-2">
                       Message
                     </label>
-                    <textarea
+                    <Textarea
                       id="message"
                       required
                       rows={4}
                       value={formData.message}
                       onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                      className="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all resize-none"
+                      className="resize-none"
                       placeholder="How can we help you?"
                     />
                   </div>

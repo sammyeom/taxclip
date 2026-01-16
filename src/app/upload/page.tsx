@@ -216,6 +216,7 @@ export default function UploadPage() {
   const [extractedItems, setExtractedItems] = useState<LineItem[]>([]);
   const [selectedItemForModal, setSelectedItemForModal] = useState<LineItem | null>(null);
   const [newItemName, setNewItemName] = useState('');
+  const [editingUnitPrice, setEditingUnitPrice] = useState<{id: string, value: string} | null>(null);
 
   // Item management functions
   const handleAddItem = () => {
@@ -1696,10 +1697,17 @@ export default function UploadPage() {
                                 <input
                                   type="text"
                                   inputMode="decimal"
-                                  value={item.unitPrice.toFixed(2)}
+                                  value={editingUnitPrice?.id === item.id ? editingUnitPrice.value : item.unitPrice.toFixed(2)}
+                                  onFocus={() => setEditingUnitPrice({ id: item.id, value: item.unitPrice.toFixed(2) })}
                                   onChange={(e) => {
                                     const val = e.target.value.replace(/[^0-9.]/g, '');
-                                    handleUpdateItem(item.id, 'unitPrice', parseFloat(val) || 0);
+                                    setEditingUnitPrice({ id: item.id, value: val });
+                                  }}
+                                  onBlur={() => {
+                                    if (editingUnitPrice?.id === item.id) {
+                                      handleUpdateItem(item.id, 'unitPrice', parseFloat(editingUnitPrice.value) || 0);
+                                      setEditingUnitPrice(null);
+                                    }
                                   }}
                                   className="w-full px-2 py-1 border border-gray-200 rounded focus:outline-none focus:ring-1 focus:ring-cyan-500 text-sm text-right"
                                   placeholder="0.00"

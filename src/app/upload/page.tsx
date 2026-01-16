@@ -401,22 +401,23 @@ export default function UploadPage() {
       );
 
       // Always populate the form when OCR completes (for the first completed file or selected file)
-      if (result.data) {
+      const ocrData = result.data;
+      if (ocrData) {
         setFormData((prev) => ({
-          date: result.data.date || prev.date || '',
-          merchant: result.data.vendor || prev.merchant || '',
-          amount: result.data.amount ? result.data.amount.toFixed(2) : prev.amount || '',
-          currency: result.data.currency || prev.currency || 'USD',
-          category: result.data.category || prev.category || 'other',
+          date: ocrData.date || prev.date || '',
+          merchant: ocrData.vendor || prev.merchant || '',
+          amount: ocrData.amount ? ocrData.amount.toFixed(2) : prev.amount || '',
+          currency: ocrData.currency || prev.currency || 'USD',
+          category: ocrData.category || prev.category || 'other',
           subcategory: prev.subcategory || '',
           businessPurpose: prev.businessPurpose || '',
-          paymentMethod: result.data.paymentMethod || prev.paymentMethod || '',
+          paymentMethod: ocrData.paymentMethod || prev.paymentMethod || '',
           notes: prev.notes || '',
         }));
-        setExtractedItems(convertOcrItemsToLineItems(result.data.items || []));
+        setExtractedItems(convertOcrItemsToLineItems(ocrData.items || []));
         setUploadedImageUrl(result.imageUrl);
         setUploadedImageUrls(result.imageUrls || [result.imageUrl]);
-        setUploadedDocumentTypes(result.data.documentType ? [result.data.documentType] : []);
+        setUploadedDocumentTypes(ocrData.documentType ? [ocrData.documentType] : []);
         setUploadedRawText(result.rawText || null);
 
         // Auto-select this file if no file is currently selected
@@ -753,19 +754,20 @@ export default function UploadPage() {
       setUploadedRawText(result.rawText || null);
 
       // Populate form with OCR data (preserve user-entered values)
-      if (result.data) {
+      const groupOcrData = result.data;
+      if (groupOcrData) {
         setFormData((prev) => ({
-          date: result.data.date || prev.date || '',
-          merchant: result.data.vendor || prev.merchant || '',
-          amount: result.data.amount ? result.data.amount.toFixed(2) : prev.amount || '',
-          currency: result.data.currency || prev.currency || 'USD',
-          category: result.data.category || prev.category || 'other',
+          date: groupOcrData.date || prev.date || '',
+          merchant: groupOcrData.vendor || prev.merchant || '',
+          amount: groupOcrData.amount ? groupOcrData.amount.toFixed(2) : prev.amount || '',
+          currency: groupOcrData.currency || prev.currency || 'USD',
+          category: groupOcrData.category || prev.category || 'other',
           subcategory: prev.subcategory || '',
           businessPurpose: prev.businessPurpose || '',
-          paymentMethod: result.data.paymentMethod || prev.paymentMethod || '',
+          paymentMethod: groupOcrData.paymentMethod || prev.paymentMethod || '',
           notes: prev.notes || '',
         }));
-        setExtractedItems(convertOcrItemsToLineItems(result.data.items || []));
+        setExtractedItems(convertOcrItemsToLineItems(groupOcrData.items || []));
       }
 
       // Select the first file for editing
@@ -1081,23 +1083,24 @@ export default function UploadPage() {
   // When selected file changes (user selects different file), update form and extracted items
   // Only populate once per file to allow user edits
   useEffect(() => {
-    if (selectedFileId && selectedFileId !== populatedForFileId && selectedFile?.ocrData) {
+    const fileOcrData = selectedFile?.ocrData;
+    if (selectedFileId && selectedFileId !== populatedForFileId && fileOcrData) {
       setFormData((prev) => ({
         ...prev,
-        date: selectedFile.ocrData?.date || prev.date || '',
-        merchant: selectedFile.ocrData?.vendor || prev.merchant || '',
-        amount: selectedFile.ocrData?.amount
-          ? selectedFile.ocrData.amount.toFixed(2)
+        date: fileOcrData.date || prev.date || '',
+        merchant: fileOcrData.vendor || prev.merchant || '',
+        amount: fileOcrData.amount
+          ? fileOcrData.amount.toFixed(2)
           : prev.amount || '',
-        currency: selectedFile.ocrData?.currency || prev.currency || 'USD',
-        category: selectedFile.ocrData?.category || prev.category || 'other',
+        currency: fileOcrData.currency || prev.currency || 'USD',
+        category: fileOcrData.category || prev.category || 'other',
         subcategory: prev.subcategory || '',
         businessPurpose: prev.businessPurpose || '',
-        paymentMethod: selectedFile.ocrData?.paymentMethod || prev.paymentMethod || '',
+        paymentMethod: fileOcrData.paymentMethod || prev.paymentMethod || '',
         notes: prev.notes || '',
       }));
       // Also update extracted items for Split View
-      setExtractedItems(convertOcrItemsToLineItems(selectedFile.ocrData.items || []));
+      setExtractedItems(convertOcrItemsToLineItems(fileOcrData.items || []));
       setPopulatedForFileId(selectedFileId);
     }
   }, [selectedFileId, selectedFile?.ocrData, populatedForFileId]);

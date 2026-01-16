@@ -5,7 +5,9 @@ import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/hooks/useAuth';
 import { getReceipts, deleteReceipt, getUserSettings, updateUserSettings, resetUserSettings } from '@/lib/supabase';
+import { getReceiptImages, Receipt } from '@/types/database';
 import Navigation from '@/components/Navigation';
+import JSZip from 'jszip';
 import {
   Save,
   Loader2,
@@ -117,6 +119,8 @@ export default function SettingsPage() {
   const [resetSettingsDialog, setResetSettingsDialog] = useState(false);
   const [deleteAccountDialog, setDeleteAccountDialog] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [archiveDownloading, setArchiveDownloading] = useState(false);
+  const [archiveProgress, setArchiveProgress] = useState('');
 
   // Redirect if not authenticated
   useEffect(() => {
@@ -259,9 +263,128 @@ export default function SettingsPage() {
   };
 
   // Download receipts archive
-  const handleDownloadArchive = () => {
-    setError('Receipt archive download coming soon!');
-    setTimeout(() => setError(null), 3000);
+  const handleDownloadArchive = async () => {
+    setArchiveDownloading(true);
+    setArchiveProgress('Fetching receipts...');
+    setError(null);
+
+    try {
+      const { data: receipts, error: fetchError } = await getReceipts();
+
+      if (fetchError || !receipts || receipts.length === 0) {
+        setError(receipts?.length === 0 ? 'No receipts to download.' : 'Failed to fetch receipts.');
+        setArchiveDownloading(false);
+        return;
+      }
+
+      const zip = new JSZip();
+      const imagesFolder = zip.folder('images');
+
+      // Create CSV content for receipt data
+      const csvHeaders = ['ID', 'Date', 'Merchant', 'Total', 'Category', 'Business Purpose', 'Payment Method', 'Notes', 'Email Text', 'Image Files'];
+      const csvRows = [csvHeaders.join(',')];
+
+      let processedCount = 0;
+      const totalCount = receipts.length;
+
+      for (const receipt of receipts as Receipt[]) {
+        processedCount++;
+        setArchiveProgress(`Processing ${processedCount}/${totalCount} receipts...`);
+
+        // Get all images for this receipt
+        const imageUrls = getReceiptImages(receipt);
+        const imageFileNames: string[] = [];
+
+        // Download each image
+        for (let i = 0; i < imageUrls.length; i++) {
+          const imageUrl = imageUrls[i];
+          try {
+            const response = await fetch(imageUrl);
+            if (response.ok) {
+              const blob = await response.blob();
+              const ext = imageUrl.split('.').pop()?.split('?')[0] || 'jpg';
+              const fileName = `${receipt.id}_${i + 1}.${ext}`;
+              imageFileNames.push(fileName);
+              imagesFolder?.file(fileName, blob);
+            }
+          } catch {
+            console.error(`Failed to download image: ${imageUrl}`);
+          }
+        }
+
+        // Escape CSV fields
+        const escapeCSV = (field: string | null | undefined): string => {
+          if (field === null || field === undefined) return '';
+          const str = String(field);
+          if (str.includes(',') || str.includes('"') || str.includes('\n')) {
+            return `"${str.replace(/"/g, '""')}"`;
+          }
+          return str;
+        };
+
+        // Add row to CSV
+        const row = [
+          escapeCSV(receipt.id),
+          escapeCSV(receipt.date),
+          escapeCSV(receipt.merchant),
+          receipt.total?.toString() || '0',
+          escapeCSV(receipt.category),
+          escapeCSV(receipt.business_purpose),
+          escapeCSV(receipt.payment_method),
+          escapeCSV(receipt.notes),
+          escapeCSV(receipt.email_text),
+          escapeCSV(imageFileNames.join('; ')),
+        ];
+        csvRows.push(row.join(','));
+
+        // If there's email text, save it as a separate file
+        if (receipt.email_text) {
+          const emailFileName = `emails/${receipt.id}_email.txt`;
+          zip.file(emailFileName, `Receipt: ${receipt.merchant}\nDate: ${receipt.date}\nTotal: $${receipt.total}\n\n--- Email Content ---\n\n${receipt.email_text}`);
+        }
+      }
+
+      // Add CSV file to zip
+      zip.file('receipts_data.csv', csvRows.join('\n'));
+
+      // Add summary text file
+      const summaryContent = `TaxClip Receipt Archive
+Generated: ${new Date().toLocaleDateString()}
+
+Total Receipts: ${receipts.length}
+Total Amount: $${receipts.reduce((sum: number, r: Receipt) => sum + (r.total || 0), 0).toFixed(2)}
+
+Files included:
+- receipts_data.csv: All receipt data in CSV format
+- images/: Receipt images organized by receipt ID
+- emails/: Email text content (if available)
+
+For tax filing assistance, please consult a qualified tax professional.
+`;
+      zip.file('README.txt', summaryContent);
+
+      setArchiveProgress('Creating ZIP file...');
+
+      // Generate and download the ZIP
+      const content = await zip.generateAsync({ type: 'blob' });
+      const url = URL.createObjectURL(content);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `taxclip_archive_${new Date().toISOString().split('T')[0]}.zip`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+
+      setShowSuccess(true);
+      setTimeout(() => setShowSuccess(false), 3000);
+    } catch (err) {
+      console.error('Archive download error:', err);
+      setError('Failed to create archive. Please try again.');
+    } finally {
+      setArchiveDownloading(false);
+      setArchiveProgress('');
+    }
   };
 
   // Clear cache
@@ -607,15 +730,27 @@ export default function SettingsPage() {
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between py-3 border-t gap-2">
               <div className="flex-1">
                 <Label className="text-xs sm:text-sm font-semibold">Download Archive</Label>
-                <p className="text-xs text-muted-foreground mt-0.5">Download receipt images as ZIP</p>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  {archiveProgress || 'Download receipt images and data as ZIP'}
+                </p>
               </div>
               <Button
                 variant="secondary"
                 onClick={handleDownloadArchive}
+                disabled={archiveDownloading}
                 className="w-full sm:w-auto"
               >
-                <Archive className="w-4 h-4 mr-2" />
-                Download
+                {archiveDownloading ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Downloading...
+                  </>
+                ) : (
+                  <>
+                    <Archive className="w-4 h-4 mr-2" />
+                    Download
+                  </>
+                )}
               </Button>
             </div>
 

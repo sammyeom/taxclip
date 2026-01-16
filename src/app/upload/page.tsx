@@ -402,17 +402,17 @@ export default function UploadPage() {
 
       // Always populate the form when OCR completes (for the first completed file or selected file)
       if (result.data) {
-        setFormData({
-          date: result.data.date || '',
-          merchant: result.data.vendor || '',
-          amount: result.data.amount ? result.data.amount.toFixed(2) : '',
-          currency: result.data.currency || 'USD',
-          category: result.data.category || 'other',
-          subcategory: '',
-          businessPurpose: '',
-          paymentMethod: result.data.paymentMethod || '',
-          notes: '',
-        });
+        setFormData((prev) => ({
+          date: result.data.date || prev.date || '',
+          merchant: result.data.vendor || prev.merchant || '',
+          amount: result.data.amount ? result.data.amount.toFixed(2) : prev.amount || '',
+          currency: result.data.currency || prev.currency || 'USD',
+          category: result.data.category || prev.category || 'other',
+          subcategory: prev.subcategory || '',
+          businessPurpose: prev.businessPurpose || '',
+          paymentMethod: result.data.paymentMethod || prev.paymentMethod || '',
+          notes: prev.notes || '',
+        }));
         setExtractedItems(convertOcrItemsToLineItems(result.data.items || []));
         setUploadedImageUrl(result.imageUrl);
         setUploadedImageUrls(result.imageUrls || [result.imageUrl]);
@@ -752,19 +752,19 @@ export default function UploadPage() {
       setUploadedDocumentTypes(result.documentTypes || []);
       setUploadedRawText(result.rawText || null);
 
-      // Populate form with OCR data
+      // Populate form with OCR data (preserve user-entered values)
       if (result.data) {
-        setFormData({
-          date: result.data.date || '',
-          merchant: result.data.vendor || '',
-          amount: result.data.amount ? result.data.amount.toFixed(2) : '',
-          currency: result.data.currency || 'USD',
-          category: result.data.category || 'other',
-          subcategory: '',
-          businessPurpose: '',
-          paymentMethod: result.data.paymentMethod || '',
-          notes: '',
-        });
+        setFormData((prev) => ({
+          date: result.data.date || prev.date || '',
+          merchant: result.data.vendor || prev.merchant || '',
+          amount: result.data.amount ? result.data.amount.toFixed(2) : prev.amount || '',
+          currency: result.data.currency || prev.currency || 'USD',
+          category: result.data.category || prev.category || 'other',
+          subcategory: prev.subcategory || '',
+          businessPurpose: prev.businessPurpose || '',
+          paymentMethod: result.data.paymentMethod || prev.paymentMethod || '',
+          notes: prev.notes || '',
+        }));
         setExtractedItems(convertOcrItemsToLineItems(result.data.items || []));
       }
 
@@ -1075,26 +1075,32 @@ export default function UploadPage() {
     }
   };
 
-  // When selected file changes, update form and extracted items
+  // Track which file ID we've already populated the form for
+  const [populatedForFileId, setPopulatedForFileId] = useState<string | null>(null);
+
+  // When selected file changes (user selects different file), update form and extracted items
+  // Only populate once per file to allow user edits
   useEffect(() => {
-    if (selectedFile?.ocrData) {
-      setFormData({
-        date: selectedFile.ocrData.date || '',
-        merchant: selectedFile.ocrData.vendor || '',
-        amount: selectedFile.ocrData.amount
+    if (selectedFileId && selectedFileId !== populatedForFileId && selectedFile?.ocrData) {
+      setFormData((prev) => ({
+        ...prev,
+        date: selectedFile.ocrData?.date || prev.date || '',
+        merchant: selectedFile.ocrData?.vendor || prev.merchant || '',
+        amount: selectedFile.ocrData?.amount
           ? selectedFile.ocrData.amount.toFixed(2)
-          : '',
-        currency: selectedFile.ocrData.currency || 'USD',
-        category: selectedFile.ocrData.category || 'other',
-        subcategory: '',
-        businessPurpose: '',
-        paymentMethod: selectedFile.ocrData.paymentMethod || '',
-        notes: '',
-      });
+          : prev.amount || '',
+        currency: selectedFile.ocrData?.currency || prev.currency || 'USD',
+        category: selectedFile.ocrData?.category || prev.category || 'other',
+        subcategory: prev.subcategory || '',
+        businessPurpose: prev.businessPurpose || '',
+        paymentMethod: selectedFile.ocrData?.paymentMethod || prev.paymentMethod || '',
+        notes: prev.notes || '',
+      }));
       // Also update extracted items for Split View
       setExtractedItems(convertOcrItemsToLineItems(selectedFile.ocrData.items || []));
+      setPopulatedForFileId(selectedFileId);
     }
-  }, [selectedFileId, selectedFile?.ocrData]);
+  }, [selectedFileId, selectedFile?.ocrData, populatedForFileId]);
 
   // Loading state
   if (authLoading) {

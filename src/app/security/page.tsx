@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { ArrowLeft, Shield, Lock, Server, Eye, Key, RefreshCw, AlertTriangle, CheckCircle2 } from 'lucide-react';
+import { ArrowLeft, Shield, Lock, Server, Eye, Key, RefreshCw, AlertTriangle } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
@@ -60,19 +60,10 @@ export default function SecurityPage() {
                 <h2 className="text-xl font-bold text-slate-900">1. Encryption</h2>
               </div>
               <p className="text-slate-600 mb-4">All data is encrypted both in transit and at rest:</p>
-              <ul className="space-y-3">
-                <li className="flex items-start gap-3">
-                  <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
-                  <span className="text-slate-600"><strong>In Transit:</strong> All communications between your browser and our servers are encrypted using TLS 1.3 (Transport Layer Security).</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
-                  <span className="text-slate-600"><strong>At Rest:</strong> Your receipt images and extracted data are encrypted using AES-256 encryption in our database and storage systems.</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
-                  <span className="text-slate-600"><strong>Passwords:</strong> User passwords are hashed using bcrypt with salt, ensuring they cannot be reversed or decrypted.</span>
-                </li>
+              <ul className="list-disc list-inside text-slate-600 space-y-2 ml-4">
+                <li><strong>In Transit:</strong> All communications between your browser and our servers are encrypted using TLS 1.3 (Transport Layer Security).</li>
+                <li><strong>At Rest:</strong> Your receipt images and extracted data are encrypted using AES-256 encryption in our database and storage systems.</li>
+                <li><strong>Passwords:</strong> User passwords are hashed using bcrypt with salt, ensuring they cannot be reversed or decrypted.</li>
               </ul>
             </section>
 
@@ -85,19 +76,10 @@ export default function SecurityPage() {
                 <h2 className="text-xl font-bold text-slate-900">2. Infrastructure Security</h2>
               </div>
               <p className="text-slate-600 mb-4">We use trusted, enterprise-grade infrastructure providers:</p>
-              <ul className="space-y-3">
-                <li className="flex items-start gap-3">
-                  <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
-                  <span className="text-slate-600"><strong>Cloud Hosting:</strong> Our application is hosted on Vercel with automatic DDoS protection and global CDN.</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
-                  <span className="text-slate-600"><strong>Database:</strong> We use Supabase (built on AWS) with automated backups, point-in-time recovery, and row-level security.</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
-                  <span className="text-slate-600"><strong>File Storage:</strong> Receipt images are stored in isolated, encrypted storage buckets with strict access controls.</span>
-                </li>
+              <ul className="list-disc list-inside text-slate-600 space-y-2 ml-4">
+                <li><strong>Cloud Hosting:</strong> Our application is hosted on Vercel with automatic DDoS protection and global CDN.</li>
+                <li><strong>Database:</strong> We use Supabase (built on AWS) with automated backups, point-in-time recovery, and row-level security.</li>
+                <li><strong>File Storage:</strong> Receipt images are stored in isolated, encrypted storage buckets with strict access controls.</li>
               </ul>
             </section>
 
@@ -109,23 +91,11 @@ export default function SecurityPage() {
                 </div>
                 <h2 className="text-xl font-bold text-slate-900">3. Authentication & Access Control</h2>
               </div>
-              <ul className="space-y-3">
-                <li className="flex items-start gap-3">
-                  <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
-                  <span className="text-slate-600"><strong>Secure Authentication:</strong> We support email/password and Google OAuth for secure sign-in.</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
-                  <span className="text-slate-600"><strong>Session Management:</strong> Sessions are securely managed with automatic expiration and secure cookie handling.</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
-                  <span className="text-slate-600"><strong>Row-Level Security:</strong> Database policies ensure users can only access their own data—no exceptions.</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
-                  <span className="text-slate-600"><strong>API Security:</strong> All API endpoints are authenticated and rate-limited to prevent abuse.</span>
-                </li>
+              <ul className="list-disc list-inside text-slate-600 space-y-2 ml-4">
+                <li><strong>Secure Authentication:</strong> We support email/password and Google OAuth for secure sign-in.</li>
+                <li><strong>Session Management:</strong> Sessions are securely managed with automatic expiration and secure cookie handling.</li>
+                <li><strong>Row-Level Security:</strong> Database policies ensure users can only access their own data—no exceptions.</li>
+                <li><strong>API Security:</strong> All API endpoints are authenticated and rate-limited to prevent abuse.</li>
               </ul>
             </section>
 
@@ -137,23 +107,11 @@ export default function SecurityPage() {
                 </div>
                 <h2 className="text-xl font-bold text-slate-900">4. Data Privacy</h2>
               </div>
-              <ul className="space-y-3">
-                <li className="flex items-start gap-3">
-                  <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
-                  <span className="text-slate-600"><strong>Data Isolation:</strong> Each user's data is logically separated and inaccessible to other users.</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
-                  <span className="text-slate-600"><strong>No Data Selling:</strong> We never sell your personal information or receipt data to third parties.</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
-                  <span className="text-slate-600"><strong>Minimal Access:</strong> Only essential personnel have access to production systems, and all access is logged.</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
-                  <span className="text-slate-600"><strong>AI Processing:</strong> Receipt data sent to AI services for OCR is processed in real-time and not stored by third-party providers.</span>
-                </li>
+              <ul className="list-disc list-inside text-slate-600 space-y-2 ml-4">
+                <li><strong>Data Isolation:</strong> Each user's data is logically separated and inaccessible to other users.</li>
+                <li><strong>No Data Selling:</strong> We never sell your personal information or receipt data to third parties.</li>
+                <li><strong>Minimal Access:</strong> Only essential personnel have access to production systems, and all access is logged.</li>
+                <li><strong>AI Processing:</strong> Receipt data sent to AI services for OCR is processed in real-time and not stored by third-party providers.</li>
               </ul>
             </section>
 
@@ -165,19 +123,10 @@ export default function SecurityPage() {
                 </div>
                 <h2 className="text-xl font-bold text-slate-900">5. Backup & Recovery</h2>
               </div>
-              <ul className="space-y-3">
-                <li className="flex items-start gap-3">
-                  <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
-                  <span className="text-slate-600"><strong>Automated Backups:</strong> Your data is automatically backed up daily with point-in-time recovery capability.</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
-                  <span className="text-slate-600"><strong>Geographic Redundancy:</strong> Backups are stored in multiple geographic locations to ensure data durability.</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
-                  <span className="text-slate-600"><strong>Disaster Recovery:</strong> We have documented procedures to restore service quickly in case of any incident.</span>
-                </li>
+              <ul className="list-disc list-inside text-slate-600 space-y-2 ml-4">
+                <li><strong>Automated Backups:</strong> Your data is automatically backed up daily with point-in-time recovery capability.</li>
+                <li><strong>Geographic Redundancy:</strong> Backups are stored in multiple geographic locations to ensure data durability.</li>
+                <li><strong>Disaster Recovery:</strong> We have documented procedures to restore service quickly in case of any incident.</li>
               </ul>
             </section>
 
@@ -189,19 +138,10 @@ export default function SecurityPage() {
                 </div>
                 <h2 className="text-xl font-bold text-slate-900">6. Security Monitoring</h2>
               </div>
-              <ul className="space-y-3">
-                <li className="flex items-start gap-3">
-                  <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
-                  <span className="text-slate-600"><strong>24/7 Monitoring:</strong> Our infrastructure is continuously monitored for security threats and anomalies.</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
-                  <span className="text-slate-600"><strong>Logging:</strong> All system access and API calls are logged and retained for security analysis.</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
-                  <span className="text-slate-600"><strong>Incident Response:</strong> We have established procedures to respond to and communicate about any security incidents.</span>
-                </li>
+              <ul className="list-disc list-inside text-slate-600 space-y-2 ml-4">
+                <li><strong>24/7 Monitoring:</strong> Our infrastructure is continuously monitored for security threats and anomalies.</li>
+                <li><strong>Logging:</strong> All system access and API calls are logged and retained for security analysis.</li>
+                <li><strong>Incident Response:</strong> We have established procedures to respond to and communicate about any security incidents.</li>
               </ul>
             </section>
 
@@ -213,19 +153,10 @@ export default function SecurityPage() {
                 </div>
                 <h2 className="text-xl font-bold text-slate-900">7. Payment Security</h2>
               </div>
-              <ul className="space-y-3">
-                <li className="flex items-start gap-3">
-                  <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
-                  <span className="text-slate-600"><strong>PCI Compliance:</strong> All payment processing is handled by PCI-DSS compliant providers (Lemon Squeezy, Stripe).</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
-                  <span className="text-slate-600"><strong>No Card Storage:</strong> We never store your full credit card numbers on our servers.</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
-                  <span className="text-slate-600"><strong>Secure Checkout:</strong> All payment pages are served over HTTPS with additional fraud prevention measures.</span>
-                </li>
+              <ul className="list-disc list-inside text-slate-600 space-y-2 ml-4">
+                <li><strong>PCI Compliance:</strong> All payment processing is handled by PCI-DSS compliant providers (Lemon Squeezy, Stripe).</li>
+                <li><strong>No Card Storage:</strong> We never store your full credit card numbers on our servers.</li>
+                <li><strong>Secure Checkout:</strong> All payment pages are served over HTTPS with additional fraud prevention measures.</li>
               </ul>
             </section>
 
@@ -233,27 +164,12 @@ export default function SecurityPage() {
             <section>
               <h2 className="text-xl font-bold text-slate-900 mb-4">8. Your Security Responsibilities</h2>
               <p className="text-slate-600 mb-4">To help keep your account secure, we recommend:</p>
-              <ul className="space-y-3">
-                <li className="flex items-start gap-3">
-                  <CheckCircle2 className="w-5 h-5 text-cyan-500 flex-shrink-0 mt-0.5" />
-                  <span className="text-slate-600">Use a strong, unique password for your TaxClip account</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <CheckCircle2 className="w-5 h-5 text-cyan-500 flex-shrink-0 mt-0.5" />
-                  <span className="text-slate-600">Don't share your login credentials with others</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <CheckCircle2 className="w-5 h-5 text-cyan-500 flex-shrink-0 mt-0.5" />
-                  <span className="text-slate-600">Log out when using shared or public computers</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <CheckCircle2 className="w-5 h-5 text-cyan-500 flex-shrink-0 mt-0.5" />
-                  <span className="text-slate-600">Keep your browser and devices updated with the latest security patches</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <CheckCircle2 className="w-5 h-5 text-cyan-500 flex-shrink-0 mt-0.5" />
-                  <span className="text-slate-600">Report any suspicious activity to us immediately</span>
-                </li>
+              <ul className="list-disc list-inside text-slate-600 space-y-2 ml-4">
+                <li>Use a strong, unique password for your TaxClip account</li>
+                <li>Don't share your login credentials with others</li>
+                <li>Log out when using shared or public computers</li>
+                <li>Keep your browser and devices updated with the latest security patches</li>
+                <li>Report any suspicious activity to us immediately</li>
               </ul>
             </section>
 

@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Restaurant Receipt</title>
+  <style>
+    body {
+      font-family: 'Courier New', monospace;
+      max-width: 300px;
+      margin: 20px auto;
+      padding: 20px;
+      background: #fff;
+      border: 1px dashed #ccc;
+    }
+    .header {
+      text-align: center;
+      border-bottom: 2px double #333;
+      padding-bottom: 12px;
+      margin-bottom: 15px;
+    }
+    .logo {
+      font-size: 22px;
+      font-weight: bold;
+      letter-spacing: 2px;
+    }
+    .tagline {
+      font-size: 10px;
+      font-style: italic;
+      color: #666;
+      margin-top: 3px;
+    }
+    .info {
+      font-size: 11px;
+      color: #666;
+      margin-top: 4px;
+    }
+    .table-info {
+      text-align: center;
+      font-size: 12px;
+      margin: 10px 0;
+      padding: 8px;
+      background: #f5f5f5;
+    }
+    .line-item {
+      display: flex;
+      justify-content: space-between;
+      margin: 6px 0;
+      font-size: 12px;
+    }
+    .item-qty {
+      font-size: 10px;
+      color: #888;
+    }
+    .divider {
+      border-top: 1px dashed #000;
+      margin: 12px 0;
+    }
+    .divider-double {
+      border-top: 2px double #000;
+      margin: 12px 0;
+    }
+    .total {
+      font-weight: bold;
+      font-size: 16px;
+    }
+    .tip-line {
+      margin: 8px 0;
+      font-size: 12px;
+    }
+    .tip-line span {
+      display: inline-block;
+      border-bottom: 1px solid #000;
+      width: 80px;
+    }
+    .footer {
+      text-align: center;
+      font-size: 10px;
+      color: #666;
+      margin-top: 15px;
+    }
+    .signature {
+      margin-top: 20px;
+      border-top: 1px solid #000;
+      padding-top: 5px;
+      font-size: 10px;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="logo">THE GOLDEN FORK</div>
+    <div class="tagline">~ Fine American Cuisine ~</div>
+    <div class="info">456 Union Square</div>
+    <div class="info">San Francisco, CA 94108</div>
+    <div class="info">(415) 555-0287</div>
+  </div>
+
+  <div class="table-info">
+    <div>Table 12 | Server: Jessica</div>
+    <div>01/14/2026 | 12:45 PM</div>
+    <div>Guests: 2</div>
+  </div>
+
+  <div class="line-item">
+    <span>Grilled Salmon</span>
+    <span>$24.00</span>
+  </div>
+  <div class="item-qty">1 x $24.00</div>
+
+  <div class="line-item">
+    <span>Caesar Salad</span>
+    <span>$12.00</span>
+  </div>
+  <div class="item-qty">1 x $12.00</div>
+
+  <div class="line-item">
+    <span>Iced Tea</span>
+    <span>$4.00</span>
+  </div>
+  <div class="item-qty">2 x $2.00</div>
+
+  <div class="line-item">
+    <span>Chocolate Cake</span>
+    <span>$9.00</span>
+  </div>
+  <div class="item-qty">1 x $9.00</div>
+
+  <div class="divider"></div>
+
+  <div class="line-item">
+    <span>Subtotal</span>
+    <span>$49.00</span>
+  </div>
+  <div class="line-item">
+    <span>Tax (8.625%)</span>
+    <span>$4.23</span>
+  </div>
+
+  <div class="divider-double"></div>
+
+  <div class="line-item total">
+    <span>TOTAL</span>
+    <span>$53.23</span>
+  </div>
+
+  <div style="margin-top: 15px; font-size: 11px;">
+    <div class="tip-line">Tip (15%): $7.98</div>
+    <div class="tip-line">Tip (18%): $9.58</div>
+    <div class="tip-line">Tip (20%): $10.65</div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="line-item">
+    <span>Tip Added:</span>
+    <span>$1.77</span>
+  </div>
+
+  <div class="line-item total" style="margin-top: 8px;">
+    <span>GRAND TOTAL</span>
+    <span>$55.00</span>
+  </div>
+
+  <div class="line-item" style="margin-top: 10px; font-size: 11px;">
+    <span>AMEX ****3456</span>
+    <span>$55.00</span>
+  </div>
+
+  <div class="signature">
+    x_________________________<br>
+    Customer Signature
+  </div>
+
+  <div class="footer">
+    <div style="margin-top: 10px;">Thank you for dining with us!</div>
+    <div>Follow us @thegoldenfork</div>
+    <div style="margin-top: 5px;">Check #: 847291</div>
+  </div>
+</body>
+</html>

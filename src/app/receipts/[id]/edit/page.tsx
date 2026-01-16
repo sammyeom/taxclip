@@ -42,6 +42,13 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetFooter,
+} from '@/components/ui/sheet';
 
 const PAYMENT_METHODS = [
   { value: '', label: 'Select payment method' },
@@ -811,7 +818,7 @@ export default function ReceiptEditPage() {
                   {formData.items.map((item) => (
                     <div
                       key={item.id}
-                      className={`border rounded-lg p-3 cursor-pointer transition-colors ${
+                      className={`border rounded-lg p-2.5 cursor-pointer transition-colors ${
                         item.selected ? 'bg-white border-gray-200' : 'bg-gray-50 border-gray-100 opacity-60'
                       }`}
                       onClick={() => setSelectedItemForModal(item)}
@@ -820,7 +827,7 @@ export default function ReceiptEditPage() {
                       tabIndex={0}
                       aria-label={`Edit item: ${item.name}`}
                     >
-                      <div className="flex items-start gap-3">
+                      <div className="flex items-center gap-2">
                         <input
                           type="checkbox"
                           checked={item.selected}
@@ -829,31 +836,26 @@ export default function ReceiptEditPage() {
                             handleToggleItemSelection(item.id);
                           }}
                           onClick={(e) => e.stopPropagation()}
-                          className="mt-1 rounded border-gray-300 text-cyan-500 focus:ring-cyan-500"
+                          className="rounded border-gray-300 text-cyan-500 focus:ring-cyan-500 flex-shrink-0"
                         />
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-gray-900 line-clamp-2">{item.name}</p>
-                          <div className="flex items-center gap-3 mt-1 text-xs text-gray-500">
-                            <span>Qty: {item.qty}</span>
-                            <span>@ {formatAmount(item.unitPrice, formData.currency)}</span>
-                          </div>
+                        <div className="flex-1 min-w-0 flex items-center gap-2">
+                          <p className="text-xs font-medium text-gray-900 truncate flex-1" title={item.name}>{item.name}</p>
+                          <span className="text-[10px] text-gray-400 flex-shrink-0">{item.qty}x</span>
                         </div>
-                        <div className="text-right flex-shrink-0">
-                          <p className="text-sm font-semibold text-gray-900">
-                            {formatAmount(item.amount, formData.currency)}
-                          </p>
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleRemoveItem(item.id);
-                            }}
-                            className="mt-1 p-1 text-red-500 hover:bg-red-50 rounded transition-colors"
-                            title="Remove item"
-                          >
-                            <X className="w-4 h-4" />
-                          </button>
-                        </div>
+                        <p className="text-xs font-semibold text-gray-900 flex-shrink-0 ml-1">
+                          {formatAmount(item.amount, formData.currency)}
+                        </p>
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleRemoveItem(item.id);
+                          }}
+                          className="p-1 text-red-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors flex-shrink-0"
+                          title="Remove item"
+                        >
+                          <X className="w-3.5 h-3.5" />
+                        </button>
                       </div>
                     </div>
                   ))}
@@ -972,138 +974,120 @@ export default function ReceiptEditPage() {
         </AlertDialog>
 
         {/* Item Detail Bottom Sheet - Mobile */}
-        {selectedItemForModal && (
-          <div
-            className="fixed inset-0 z-50 sm:hidden"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="item-detail-title"
-          >
-            {/* Backdrop */}
-            <div
-              className="absolute inset-0 bg-black/50"
-              onClick={() => setSelectedItemForModal(null)}
-            />
-            {/* Bottom Sheet */}
-            <div className="absolute bottom-0 left-0 right-0 bg-white rounded-t-2xl shadow-xl animate-slide-up">
-              {/* Handle */}
-              <div className="flex justify-center pt-3 pb-2">
-                <div className="w-10 h-1 bg-gray-300 rounded-full" />
-              </div>
-              {/* Header */}
-              <div className="flex items-center justify-between px-4 pb-3 border-b border-gray-100">
-                <h3 id="item-detail-title" className="text-lg font-semibold text-gray-900">
-                  Edit Item
-                </h3>
-                <button
-                  onClick={() => setSelectedItemForModal(null)}
-                  className="p-2 text-gray-500 hover:bg-gray-100 rounded-full transition-colors"
-                  aria-label="Close"
-                >
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
-              {/* Content */}
-              <div className="p-4 space-y-4 max-h-[60vh] overflow-y-auto">
-                {/* Item Name */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Item Name
-                  </label>
-                  <Textarea
-                    value={selectedItemForModal.name}
-                    onChange={(e) => {
-                      handleUpdateItem(selectedItemForModal.id, 'name', e.target.value);
-                      setSelectedItemForModal({ ...selectedItemForModal, name: e.target.value });
-                    }}
-                    rows={3}
-                    className="resize-none"
-                    placeholder="Item name"
-                  />
+        <Sheet open={!!selectedItemForModal} onOpenChange={(open) => !open && setSelectedItemForModal(null)}>
+          <SheetContent side="bottom" className="sm:hidden rounded-t-2xl px-0 pb-0">
+            {selectedItemForModal && (
+              <>
+                {/* Handle */}
+                <div className="flex justify-center -mt-2 mb-2">
+                  <div className="w-10 h-1 bg-gray-300 rounded-full" />
                 </div>
-                {/* Quantity & Unit Price */}
-                <div className="grid grid-cols-2 gap-3">
+                <SheetHeader className="px-4 pb-3 border-b border-gray-100">
+                  <SheetTitle className="text-lg font-semibold">Edit Item</SheetTitle>
+                </SheetHeader>
+                {/* Content */}
+                <div className="p-4 space-y-4 max-h-[50vh] overflow-y-auto">
+                  {/* Item Name */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Quantity
+                      Item Name
                     </label>
-                    <Input
-                      type="number"
-                      min={1}
-                      value={selectedItemForModal.qty}
+                    <Textarea
+                      value={selectedItemForModal.name}
                       onChange={(e) => {
-                        const qty = parseInt(e.target.value) || 1;
-                        handleUpdateItem(selectedItemForModal.id, 'qty', qty);
-                        setSelectedItemForModal({ ...selectedItemForModal, qty, amount: qty * selectedItemForModal.unitPrice });
+                        handleUpdateItem(selectedItemForModal.id, 'name', e.target.value);
+                        setSelectedItemForModal({ ...selectedItemForModal, name: e.target.value });
                       }}
-                      className="text-center"
+                      rows={2}
+                      className="resize-none"
+                      placeholder="Item name"
                     />
                   </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Unit Price
-                    </label>
-                    <Input
-                      type="number"
-                      step="0.01"
-                      value={selectedItemForModal.unitPrice.toFixed(2)}
-                      onChange={(e) => {
-                        const unitPrice = parseFloat(e.target.value) || 0;
-                        handleUpdateItem(selectedItemForModal.id, 'unitPrice', unitPrice);
-                        setSelectedItemForModal({ ...selectedItemForModal, unitPrice, amount: selectedItemForModal.qty * unitPrice });
+                  {/* Quantity & Unit Price */}
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Quantity
+                      </label>
+                      <Input
+                        type="number"
+                        min={1}
+                        value={selectedItemForModal.qty}
+                        onChange={(e) => {
+                          const qty = parseInt(e.target.value) || 1;
+                          handleUpdateItem(selectedItemForModal.id, 'qty', qty);
+                          setSelectedItemForModal({ ...selectedItemForModal, qty, amount: qty * selectedItemForModal.unitPrice });
+                        }}
+                        className="text-center"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Unit Price
+                      </label>
+                      <Input
+                        type="number"
+                        step="0.01"
+                        value={selectedItemForModal.unitPrice.toFixed(2)}
+                        onChange={(e) => {
+                          const unitPrice = parseFloat(e.target.value) || 0;
+                          handleUpdateItem(selectedItemForModal.id, 'unitPrice', unitPrice);
+                          setSelectedItemForModal({ ...selectedItemForModal, unitPrice, amount: selectedItemForModal.qty * unitPrice });
+                        }}
+                        className="text-right"
+                        placeholder="0.00"
+                      />
+                    </div>
+                  </div>
+                  {/* Total Amount */}
+                  <div className="bg-gray-50 rounded-lg p-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-gray-600">Total Amount</span>
+                      <span className="text-lg font-bold text-gray-900">
+                        {formatAmount(selectedItemForModal.qty * selectedItemForModal.unitPrice, formData.currency)}
+                      </span>
+                    </div>
+                  </div>
+                  {/* Selected checkbox */}
+                  <div className="flex items-center gap-3">
+                    <input
+                      type="checkbox"
+                      id="item-selected-edit"
+                      checked={selectedItemForModal.selected}
+                      onChange={() => {
+                        handleToggleItemSelection(selectedItemForModal.id);
+                        setSelectedItemForModal({ ...selectedItemForModal, selected: !selectedItemForModal.selected });
                       }}
-                      className="text-right"
-                      placeholder="0.00"
+                      className="w-5 h-5 rounded border-gray-300 text-cyan-500 focus:ring-cyan-500"
                     />
+                    <label htmlFor="item-selected-edit" className="text-sm text-gray-700">
+                      Include in total calculation
+                    </label>
                   </div>
                 </div>
-                {/* Total Amount */}
-                <div className="bg-gray-50 rounded-lg p-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-gray-600">Total Amount</span>
-                    <span className="text-lg font-bold text-gray-900">
-                      {formatAmount(selectedItemForModal.qty * selectedItemForModal.unitPrice, formData.currency)}
-                    </span>
-                  </div>
-                </div>
-                {/* Selected checkbox */}
-                <div className="flex items-center gap-3 pt-2">
-                  <input
-                    type="checkbox"
-                    id="item-selected-edit"
-                    checked={selectedItemForModal.selected}
-                    onChange={() => {
-                      handleToggleItemSelection(selectedItemForModal.id);
-                      setSelectedItemForModal({ ...selectedItemForModal, selected: !selectedItemForModal.selected });
+                {/* Footer Actions */}
+                <SheetFooter className="flex-row gap-3 p-4 border-t border-gray-100">
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      handleRemoveItem(selectedItemForModal.id);
+                      setSelectedItemForModal(null);
                     }}
-                    className="w-5 h-5 rounded border-gray-300 text-cyan-500 focus:ring-cyan-500"
-                  />
-                  <label htmlFor="item-selected-edit" className="text-sm text-gray-700">
-                    Include in total calculation
-                  </label>
-                </div>
-              </div>
-              {/* Footer Actions */}
-              <div className="flex gap-3 p-4 border-t border-gray-100">
-                <button
-                  onClick={() => {
-                    handleRemoveItem(selectedItemForModal.id);
-                    setSelectedItemForModal(null);
-                  }}
-                  className="flex-1 px-4 py-3 bg-red-50 text-red-600 rounded-lg font-medium hover:bg-red-100 transition-colors"
-                >
-                  Delete Item
-                </button>
-                <button
-                  onClick={() => setSelectedItemForModal(null)}
-                  className="flex-1 px-4 py-3 bg-cyan-500 text-white rounded-lg font-medium hover:bg-cyan-600 transition-colors"
-                >
-                  Done
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
+                    className="flex-1 h-11 bg-red-50 text-red-600 border-red-200 hover:bg-red-100 hover:text-red-700"
+                  >
+                    Delete
+                  </Button>
+                  <Button
+                    onClick={() => setSelectedItemForModal(null)}
+                    className="flex-1 h-11 bg-cyan-500 hover:bg-cyan-600"
+                  >
+                    Done
+                  </Button>
+                </SheetFooter>
+              </>
+            )}
+          </SheetContent>
+        </Sheet>
       </div>
     </div>
   );

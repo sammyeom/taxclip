@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Office Depot Receipt</title>
+  <style>
+    body {
+      font-family: 'Courier New', monospace;
+      max-width: 320px;
+      margin: 20px auto;
+      padding: 20px;
+      background: #fff;
+      border: 1px dashed #ccc;
+    }
+    .header {
+      text-align: center;
+      border-bottom: 2px solid #c8102e;
+      padding-bottom: 10px;
+      margin-bottom: 15px;
+    }
+    .logo {
+      font-size: 20px;
+      font-weight: bold;
+      color: #c8102e;
+    }
+    .store-info {
+      font-size: 11px;
+      color: #666;
+      margin-top: 5px;
+    }
+    .line-item {
+      display: flex;
+      justify-content: space-between;
+      margin: 6px 0;
+      font-size: 12px;
+    }
+    .item-detail {
+      font-size: 10px;
+      color: #888;
+      margin-left: 10px;
+    }
+    .divider {
+      border-top: 1px dashed #000;
+      margin: 12px 0;
+    }
+    .total {
+      font-weight: bold;
+      font-size: 15px;
+    }
+    .footer {
+      text-align: center;
+      font-size: 10px;
+      color: #666;
+      margin-top: 15px;
+      border-top: 1px dashed #000;
+      padding-top: 10px;
+    }
+    .barcode {
+      text-align: center;
+      font-family: 'Libre Barcode 39', cursive;
+      font-size: 40px;
+      margin: 10px 0;
+      letter-spacing: -2px;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="logo">OFFICE DEPOT</div>
+    <div class="store-info">Store #2847</div>
+    <div class="store-info">1250 Market Street</div>
+    <div class="store-info">San Francisco, CA 94102</div>
+    <div class="store-info">(415) 555-0192</div>
+  </div>
+
+  <div class="store-info" style="text-align: center; margin-bottom: 12px;">
+    <div>01/14/2026  2:34 PM</div>
+    <div>Cashier: MIKE  Register: 03</div>
+  </div>
+
+  <div class="line-item">
+    <span>HP Printer Paper 500ct</span>
+    <span>$12.99</span>
+  </div>
+  <div class="item-detail">SKU: 847291038</div>
+
+  <div class="line-item">
+    <span>Pilot G2 Pens 12pk</span>
+    <span>$14.99</span>
+  </div>
+  <div class="item-detail">SKU: 293847561</div>
+
+  <div class="line-item">
+    <span>Post-it Notes 3x3 6pk</span>
+    <span>$7.02</span>
+  </div>
+  <div class="item-detail">SKU: 182736450</div>
+
+  <div class="divider"></div>
+
+  <div class="line-item">
+    <span>Subtotal (3 items)</span>
+    <span>$35.00</span>
+  </div>
+  <div class="line-item">
+    <span>Sales Tax (0%)</span>
+    <span>$0.00</span>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="line-item total">
+    <span>TOTAL</span>
+    <span>$35.00</span>
+  </div>
+
+  <div class="line-item" style="margin-top: 10px;">
+    <span>VISA ****1234</span>
+    <span>$35.00</span>
+  </div>
+  <div class="store-info" style="text-align: left;">Auth: 847291</div>
+
+  <div class="barcode">*48729103847*</div>
+
+  <div class="footer">
+    <div>REWARDS MEMBER: SAMMY E.</div>
+    <div>Points Earned: 35</div>
+    <div style="margin-top: 8px;">Return within 30 days with receipt</div>
+    <div>officedepot.com</div>
+  </div>
+</body>
+</html>

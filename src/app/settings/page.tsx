@@ -546,16 +546,18 @@ For tax filing assistance, please consult a qualified tax professional.
               </Select>
             </div>
 
-            <div className="flex items-center justify-between gap-2 py-3 sm:py-4">
+            <div className="flex items-start justify-between gap-3 py-3 sm:py-4">
               <div className="flex-1 min-w-0 overflow-hidden">
                 <Label className="text-xs sm:text-sm font-semibold block truncate">Auto-categorize</Label>
                 <p className="text-[10px] sm:text-xs text-muted-foreground mt-0.5 truncate">AI category suggestions</p>
               </div>
-              <Switch
-                checked={settings.autoCategorize}
-                onCheckedChange={(checked) => updateSetting('autoCategorize', checked)}
-                className="data-[state=checked]:bg-cyan-500 shrink-0"
-              />
+              <div className="flex items-center h-5 mt-0.5">
+                <Switch
+                  checked={settings.autoCategorize}
+                  onCheckedChange={(checked) => updateSetting('autoCategorize', checked)}
+                  className="data-[state=checked]:bg-cyan-500"
+                />
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -569,52 +571,60 @@ For tax filing assistance, please consult a qualified tax professional.
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-0 divide-y divide-border">
-            <div className="flex items-center justify-between gap-2 py-3 sm:py-4">
+            <div className="flex items-start justify-between gap-3 py-3 sm:py-4">
               <div className="flex-1 min-w-0 overflow-hidden">
                 <Label className="text-xs sm:text-sm font-semibold block truncate">Email Notifications</Label>
                 <p className="text-[10px] sm:text-xs text-muted-foreground mt-0.5 truncate">Receive email updates</p>
               </div>
-              <Switch
-                checked={settings.emailNotifications}
-                onCheckedChange={(checked) => updateSetting('emailNotifications', checked)}
-                className="data-[state=checked]:bg-cyan-500 shrink-0"
-              />
+              <div className="flex items-center h-5 mt-0.5">
+                <Switch
+                  checked={settings.emailNotifications}
+                  onCheckedChange={(checked) => updateSetting('emailNotifications', checked)}
+                  className="data-[state=checked]:bg-cyan-500"
+                />
+              </div>
             </div>
 
-            <div className="flex items-center justify-between gap-2 py-3 sm:py-4">
+            <div className="flex items-start justify-between gap-3 py-3 sm:py-4">
               <div className="flex-1 min-w-0 overflow-hidden">
                 <Label className="text-xs sm:text-sm font-semibold block truncate">Monthly Summary</Label>
                 <p className="text-[10px] sm:text-xs text-muted-foreground mt-0.5 truncate">Monthly expense reports</p>
               </div>
-              <Switch
-                checked={settings.monthlySummary}
-                onCheckedChange={(checked) => updateSetting('monthlySummary', checked)}
-                className="data-[state=checked]:bg-cyan-500 shrink-0"
-              />
+              <div className="flex items-center h-5 mt-0.5">
+                <Switch
+                  checked={settings.monthlySummary}
+                  onCheckedChange={(checked) => updateSetting('monthlySummary', checked)}
+                  className="data-[state=checked]:bg-cyan-500"
+                />
+              </div>
             </div>
 
-            <div className="flex items-center justify-between gap-2 py-3 sm:py-4">
+            <div className="flex items-start justify-between gap-3 py-3 sm:py-4">
               <div className="flex-1 min-w-0 overflow-hidden">
                 <Label className="text-xs sm:text-sm font-semibold block truncate">Upload Reminders</Label>
                 <p className="text-[10px] sm:text-xs text-muted-foreground mt-0.5 truncate">Weekly upload reminders</p>
               </div>
-              <Switch
-                checked={settings.uploadReminders}
-                onCheckedChange={(checked) => updateSetting('uploadReminders', checked)}
-                className="data-[state=checked]:bg-cyan-500 shrink-0"
-              />
+              <div className="flex items-center h-5 mt-0.5">
+                <Switch
+                  checked={settings.uploadReminders}
+                  onCheckedChange={(checked) => updateSetting('uploadReminders', checked)}
+                  className="data-[state=checked]:bg-cyan-500"
+                />
+              </div>
             </div>
 
-            <div className="flex items-center justify-between gap-2 py-3 sm:py-4">
+            <div className="flex items-start justify-between gap-3 py-3 sm:py-4">
               <div className="flex-1 min-w-0 overflow-hidden">
                 <Label className="text-xs sm:text-sm font-semibold block truncate">Tax Reminders</Label>
                 <p className="text-[10px] sm:text-xs text-muted-foreground mt-0.5 truncate">Important date alerts</p>
               </div>
-              <Switch
-                checked={settings.taxDeadlineReminders}
-                onCheckedChange={(checked) => updateSetting('taxDeadlineReminders', checked)}
-                className="data-[state=checked]:bg-cyan-500 shrink-0"
-              />
+              <div className="flex items-center h-5 mt-0.5">
+                <Switch
+                  checked={settings.taxDeadlineReminders}
+                  onCheckedChange={(checked) => updateSetting('taxDeadlineReminders', checked)}
+                  className="data-[state=checked]:bg-cyan-500"
+                />
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -672,16 +682,18 @@ For tax filing assistance, please consult a qualified tax professional.
               />
             </div>
 
-            <div className="flex items-center justify-between gap-2 py-3 sm:py-4">
+            <div className="flex items-start justify-between gap-3 py-3 sm:py-4">
               <div className="flex-1 min-w-0 overflow-hidden">
                 <Label className="text-xs sm:text-sm font-semibold block truncate">Mileage Tracking</Label>
                 <p className="text-[10px] sm:text-xs text-muted-foreground mt-0.5 truncate">Track business mileage</p>
               </div>
-              <Switch
-                checked={settings.mileageTracking}
-                onCheckedChange={(checked) => updateSetting('mileageTracking', checked)}
-                className="data-[state=checked]:bg-cyan-500 shrink-0"
-              />
+              <div className="flex items-center h-5 mt-0.5">
+                <Switch
+                  checked={settings.mileageTracking}
+                  onCheckedChange={(checked) => updateSetting('mileageTracking', checked)}
+                  className="data-[state=checked]:bg-cyan-500"
+                />
+              </div>
             </div>
 
             {settings.mileageTracking && (

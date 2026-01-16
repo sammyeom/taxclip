@@ -1643,8 +1643,8 @@ export default function UploadPage() {
 
                   {/* Items Table - Desktop */}
                   {extractedItems.length > 0 && (
-                    <div className="hidden sm:block border border-gray-200 rounded-lg overflow-x-auto mb-3">
-                      <table className="w-full text-sm min-w-[500px]">
+                    <div className="hidden sm:block border border-gray-200 rounded-lg overflow-hidden mb-3">
+                      <table className="w-full text-sm table-fixed">
                         <thead className="bg-gray-50">
                           <tr>
                             <th className="px-3 py-2 text-left w-10">
@@ -1656,9 +1656,9 @@ export default function UploadPage() {
                               />
                             </th>
                             <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Item Name</th>
-                            <th className="px-3 py-2 text-center text-xs font-medium text-gray-500 uppercase w-20">Qty</th>
-                            <th className="px-3 py-2 text-right text-xs font-medium text-gray-500 uppercase w-28">Unit Price</th>
-                            <th className="px-3 py-2 text-right text-xs font-medium text-gray-500 uppercase w-28">Amount</th>
+                            <th className="px-3 py-2 text-center text-xs font-medium text-gray-500 uppercase w-16">Qty</th>
+                            <th className="px-3 py-2 text-right text-xs font-medium text-gray-500 uppercase w-24">Unit Price</th>
+                            <th className="px-3 py-2 text-right text-xs font-medium text-gray-500 uppercase w-24">Amount</th>
                             <th className="px-3 py-2 w-10"></th>
                           </tr>
                         </thead>
@@ -1678,8 +1678,9 @@ export default function UploadPage() {
                                   type="text"
                                   value={item.name}
                                   onChange={(e) => handleUpdateItem(item.id, 'name', e.target.value)}
-                                  className="w-full px-2 py-1 border border-gray-200 rounded focus:outline-none focus:ring-1 focus:ring-cyan-500 text-sm"
+                                  className="w-full px-2 py-1 border border-gray-200 rounded focus:outline-none focus:ring-1 focus:ring-cyan-500 text-sm truncate"
                                   placeholder="Item name"
+                                  title={item.name}
                                 />
                               </td>
                               <td className="px-3 py-2">
@@ -1701,7 +1702,7 @@ export default function UploadPage() {
                                   placeholder="0.00"
                                 />
                               </td>
-                              <td className="px-3 py-2 text-right font-medium text-gray-900">
+                              <td className="px-3 py-2 text-right font-medium text-gray-900 truncate">
                                 {formatAmount(item.amount, formData.currency)}
                               </td>
                               <td className="px-3 py-2">
@@ -1873,9 +1874,13 @@ export default function UploadPage() {
 
       {/* Item Detail Bottom Sheet - Mobile */}
       <Sheet open={!!selectedItemForModal} onOpenChange={(open) => !open && setSelectedItemForModal(null)}>
-        <SheetContent side="bottom" className="sm:hidden rounded-t-2xl px-0 pb-[env(safe-area-inset-bottom)] h-auto max-h-[60vh]">
+        <SheetContent
+          side="bottom"
+          className="sm:hidden rounded-t-2xl px-0 pb-[env(safe-area-inset-bottom)] h-auto max-h-[90dvh]"
+          onOpenAutoFocus={(e) => e.preventDefault()}
+        >
           {selectedItemForModal && (
-            <div className="flex flex-col h-full max-h-[60vh]">
+            <div className="flex flex-col h-full max-h-[90dvh]">
               {/* Handle */}
               <div className="flex justify-center py-2 flex-shrink-0">
                 <div className="w-10 h-1 bg-gray-300 rounded-full" />
@@ -1885,8 +1890,8 @@ export default function UploadPage() {
                   {selectedItemForModal.name ? 'Edit Item' : 'New Item'}
                 </SheetTitle>
               </SheetHeader>
-              {/* Content - scrollable area */}
-              <div className="p-4 space-y-4 overflow-y-auto flex-1">
+              {/* Content - scrollable area with keyboard-aware padding */}
+              <div className="p-4 space-y-4 overflow-y-auto flex-1 overscroll-contain">
                 {/* Item Name */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -1901,6 +1906,12 @@ export default function UploadPage() {
                     rows={2}
                     className="resize-none"
                     placeholder="Item name"
+                    onFocus={(e) => {
+                      // Scroll input into view when focused (keyboard opens)
+                      setTimeout(() => {
+                        e.target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                      }, 300);
+                    }}
                   />
                 </div>
                 {/* Quantity & Unit Price */}
@@ -1919,6 +1930,11 @@ export default function UploadPage() {
                         setSelectedItemForModal({ ...selectedItemForModal, qty, amount: qty * selectedItemForModal.unitPrice });
                       }}
                       className="text-center"
+                      onFocus={(e) => {
+                        setTimeout(() => {
+                          e.target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        }, 300);
+                      }}
                     />
                   </div>
                   <div>
@@ -1936,6 +1952,11 @@ export default function UploadPage() {
                       }}
                       className="text-right"
                       placeholder="0.00"
+                      onFocus={(e) => {
+                        setTimeout(() => {
+                          e.target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        }, 300);
+                      }}
                     />
                   </div>
                 </div>

@@ -2,11 +2,15 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { ArrowLeft, Mail, MessageSquare, Clock, Send } from 'lucide-react';
+import { ArrowLeft, Mail, MessageSquare, Clock, Send, Loader2 } from 'lucide-react';
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Label } from '@/components/ui/label';
 import {
   Select,
   SelectContent,
@@ -127,15 +131,17 @@ export default function ContactPage() {
                 </div>
               </div>
 
-              <div className="bg-gradient-to-br from-cyan-50 to-sky-50 rounded-xl p-4 sm:p-6 border border-cyan-100">
-                <h3 className="text-sm sm:text-base font-semibold text-slate-900 mb-2">FAQ</h3>
-                <p className="text-slate-600 text-xs sm:text-sm mb-3">
-                  Check out our frequently asked questions.
-                </p>
-                <Link href="/#features" className="text-cyan-600 hover:text-cyan-700 text-xs sm:text-sm font-medium transition-colors">
-                  View FAQ &rarr;
-                </Link>
-              </div>
+              <Card className="bg-gradient-to-br from-cyan-50 to-sky-50 border-cyan-100">
+                <CardContent className="p-4 sm:p-6">
+                  <h3 className="text-sm sm:text-base font-semibold text-slate-900 mb-2">FAQ</h3>
+                  <p className="text-slate-600 text-xs sm:text-sm mb-3">
+                    Check out our frequently asked questions.
+                  </p>
+                  <Link href="/#faq" className="text-cyan-600 hover:text-cyan-700 text-xs sm:text-sm font-medium transition-colors">
+                    View FAQ &rarr;
+                  </Link>
+                </CardContent>
+              </Card>
             </div>
 
             {/* Contact Form */}
@@ -162,10 +168,10 @@ export default function ContactPage() {
                 </motion.div>
               ) : (
                 <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
-                  <div>
-                    <label htmlFor="name" className="block text-xs sm:text-sm font-medium text-slate-700 mb-1.5 sm:mb-2">
+                  <div className="space-y-1.5 sm:space-y-2">
+                    <Label htmlFor="name" className="text-xs sm:text-sm font-medium">
                       Name
-                    </label>
+                    </Label>
                     <Input
                       type="text"
                       id="name"
@@ -176,10 +182,10 @@ export default function ContactPage() {
                     />
                   </div>
 
-                  <div>
-                    <label htmlFor="email" className="block text-xs sm:text-sm font-medium text-slate-700 mb-1.5 sm:mb-2">
+                  <div className="space-y-1.5 sm:space-y-2">
+                    <Label htmlFor="email" className="text-xs sm:text-sm font-medium">
                       Email
-                    </label>
+                    </Label>
                     <Input
                       type="email"
                       id="email"
@@ -190,10 +196,10 @@ export default function ContactPage() {
                     />
                   </div>
 
-                  <div>
-                    <label htmlFor="subject" className="block text-xs sm:text-sm font-medium text-slate-700 mb-1.5 sm:mb-2">
+                  <div className="space-y-1.5 sm:space-y-2">
+                    <Label htmlFor="subject" className="text-xs sm:text-sm font-medium">
                       Subject
-                    </label>
+                    </Label>
                     <Select
                       value={formData.subject || undefined}
                       onValueChange={(value) => setFormData({ ...formData, subject: value })}
@@ -213,10 +219,10 @@ export default function ContactPage() {
                     </Select>
                   </div>
 
-                  <div>
-                    <label htmlFor="message" className="block text-xs sm:text-sm font-medium text-slate-700 mb-1.5 sm:mb-2">
+                  <div className="space-y-1.5 sm:space-y-2">
+                    <Label htmlFor="message" className="text-xs sm:text-sm font-medium">
                       Message
-                    </label>
+                    </Label>
                     <Textarea
                       id="message"
                       required
@@ -229,30 +235,28 @@ export default function ContactPage() {
                   </div>
 
                   {error && (
-                    <div className="bg-red-50 border border-red-200 rounded-lg p-3 sm:p-4 text-red-700 text-xs sm:text-sm">
-                      {error}
-                    </div>
+                    <Alert variant="destructive">
+                      <AlertDescription className="text-xs sm:text-sm">{error}</AlertDescription>
+                    </Alert>
                   )}
 
-                  <motion.button
+                  <Button
                     type="submit"
                     disabled={isSubmitting}
-                    whileHover={{ scale: isSubmitting ? 1 : 1.02 }}
-                    whileTap={{ scale: isSubmitting ? 1 : 0.98 }}
-                    className="w-full bg-gradient-to-r from-cyan-500 to-sky-500 text-white px-4 sm:px-6 py-3 sm:py-4 rounded-lg text-sm sm:text-base font-semibold shadow-lg hover:shadow-xl transition-all disabled:opacity-70 flex items-center justify-center gap-2"
+                    className="w-full bg-gradient-to-r from-cyan-500 to-sky-500 hover:from-cyan-600 hover:to-sky-600 text-white h-11 sm:h-12 text-sm sm:text-base font-semibold shadow-lg"
                   >
                     {isSubmitting ? (
                       <>
-                        <div className="w-4 h-4 sm:w-5 sm:h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                        <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin mr-2" />
                         Sending...
                       </>
                     ) : (
                       <>
-                        <Send className="w-4 h-4 sm:w-5 sm:h-5" />
+                        <Send className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
                         Send Message
                       </>
                     )}
-                  </motion.button>
+                  </Button>
                 </form>
               )}
             </div>

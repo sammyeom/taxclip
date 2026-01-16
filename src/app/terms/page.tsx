@@ -3,6 +3,8 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { ArrowLeft } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 export default function TermsPage() {
   return (
@@ -18,8 +20,9 @@ export default function TermsPage() {
       </header>
 
       {/* Content */}
-      <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="bg-white rounded-2xl shadow-xl p-8 sm:p-12">
+      <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+        <Card className="shadow-xl">
+          <CardContent className="p-6 sm:p-8 lg:p-12">
           {/* Title */}
           <div className="text-center mb-12">
             <div className="flex items-center justify-center gap-2 mb-4">
@@ -65,16 +68,18 @@ export default function TermsPage() {
             {/* Section 2 */}
             <section>
               <h2 className="text-xl font-bold text-slate-900 mb-4">2. No Tax, Legal, or Financial Advice</h2>
-              <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-4">
-                <p className="text-amber-800 font-medium mb-3">TaxClip does NOT provide:</p>
-                <ul className="list-disc list-inside text-amber-800 space-y-1 ml-2">
-                  <li>Tax advice or recommendations,</li>
-                  <li>Legal advice,</li>
-                  <li>Accounting services,</li>
-                  <li>Tax preparation or filing services,</li>
-                  <li>Financial planning or investment advice.</li>
-                </ul>
-              </div>
+              <Alert className="bg-amber-50 border-amber-200 mb-4">
+                <AlertDescription>
+                  <p className="text-amber-800 font-medium mb-3">TaxClip does NOT provide:</p>
+                  <ul className="list-disc list-inside text-amber-800 space-y-1 ml-2">
+                    <li>Tax advice or recommendations,</li>
+                    <li>Legal advice,</li>
+                    <li>Accounting services,</li>
+                    <li>Tax preparation or filing services,</li>
+                    <li>Financial planning or investment advice.</li>
+                  </ul>
+                </AlertDescription>
+              </Alert>
               <p className="text-slate-600 mb-4">
                 Any information provided within the Service (including tips, examples, or educational content) is for general informational purposes only and should not be considered tax, legal, or financial advice.
               </p>
@@ -147,7 +152,8 @@ export default function TermsPage() {
               </p>
             </section>
           </div>
-        </div>
+          </CardContent>
+        </Card>
       </main>
 
       {/* Footer */}

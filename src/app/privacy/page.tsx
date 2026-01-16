@@ -3,6 +3,8 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { ArrowLeft } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 export default function PrivacyPage() {
   return (
@@ -18,8 +20,9 @@ export default function PrivacyPage() {
       </header>
 
       {/* Content */}
-      <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="bg-white rounded-2xl shadow-xl p-8 sm:p-12">
+      <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+        <Card className="shadow-xl">
+          <CardContent className="p-6 sm:p-8 lg:p-12">
           {/* Title */}
           <div className="text-center mb-12">
             <div className="flex items-center justify-center gap-2 mb-4">
@@ -86,11 +89,11 @@ export default function PrivacyPage() {
             {/* Section 3 */}
             <section>
               <h2 className="text-xl font-bold text-slate-900 mb-4">3. How We Share Your Information</h2>
-              <div className="bg-cyan-50 border border-cyan-200 rounded-lg p-4 mb-4">
-                <p className="text-cyan-800 font-medium">
+              <Alert className="bg-cyan-50 border-cyan-200 mb-4">
+                <AlertDescription className="text-cyan-800 font-medium">
                   We do NOT sell your personal information to third parties.
-                </p>
-              </div>
+                </AlertDescription>
+              </Alert>
               <p className="text-slate-600 mb-4">We may share your information in the following limited circumstances:</p>
 
               <h3 className="text-lg font-semibold text-slate-800 mb-3">A. Service Providers</h3>
@@ -185,19 +188,22 @@ export default function PrivacyPage() {
             <section>
               <h2 className="text-xl font-bold text-slate-900 mb-4">11. Contact Us</h2>
               <p className="text-slate-600 mb-4">If you have any questions about this Privacy Policy or how we handle your data, please contact us:</p>
-              <div className="bg-slate-50 rounded-lg p-4">
-                <p className="text-slate-600 mb-2">
-                  <strong>Email:</strong>{' '}
-                  <a href="mailto:support@taxclip.co" className="text-cyan-600 hover:text-cyan-700">support@taxclip.co</a>
-                </p>
-                <p className="text-slate-600">
-                  <strong>Website:</strong>{' '}
-                  <a href="https://taxclip.co" className="text-cyan-600 hover:text-cyan-700">https://taxclip.co</a>
-                </p>
-              </div>
+              <Card className="bg-slate-50">
+                <CardContent className="p-4">
+                  <p className="text-slate-600 mb-2">
+                    <strong>Email:</strong>{' '}
+                    <a href="mailto:support@taxclip.co" className="text-cyan-600 hover:text-cyan-700">support@taxclip.co</a>
+                  </p>
+                  <p className="text-slate-600">
+                    <strong>Website:</strong>{' '}
+                    <a href="https://taxclip.co" className="text-cyan-600 hover:text-cyan-700">https://taxclip.co</a>
+                  </p>
+                </CardContent>
+              </Card>
             </section>
           </div>
-        </div>
+          </CardContent>
+        </Card>
       </main>
 
       {/* Footer */}

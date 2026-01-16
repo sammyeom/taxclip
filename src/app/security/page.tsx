@@ -3,6 +3,8 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { ArrowLeft, Shield, Lock, Server, Eye, Key, RefreshCw, AlertTriangle, CheckCircle2 } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 export default function SecurityPage() {
   return (
@@ -18,8 +20,9 @@ export default function SecurityPage() {
       </header>
 
       {/* Content */}
-      <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="bg-white rounded-2xl shadow-xl p-8 sm:p-12">
+      <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+        <Card className="shadow-xl">
+          <CardContent className="p-6 sm:p-8 lg:p-12">
           {/* Title */}
           <div className="text-center mb-12">
             <div className="flex items-center justify-center gap-2 mb-4">
@@ -37,17 +40,13 @@ export default function SecurityPage() {
 
           {/* Intro */}
           <div className="mb-10">
-            <div className="bg-cyan-50 border border-cyan-200 rounded-lg p-6 mb-6">
-              <div className="flex items-start gap-4">
-                <Shield className="w-8 h-8 text-cyan-600 flex-shrink-0" />
-                <div>
-                  <h2 className="text-lg font-bold text-slate-900 mb-2">Your Data Security is Our Priority</h2>
-                  <p className="text-slate-600">
-                    At TaxClip, we understand that you're trusting us with sensitive financial information. We take this responsibility seriously and implement industry-leading security measures to protect your data.
-                  </p>
-                </div>
-              </div>
-            </div>
+            <Alert className="bg-cyan-50 border-cyan-200">
+              <Shield className="w-6 h-6 text-cyan-600" />
+              <AlertTitle className="text-lg font-bold text-slate-900">Your Data Security is Our Priority</AlertTitle>
+              <AlertDescription className="text-slate-600 mt-2">
+                At TaxClip, we understand that you're trusting us with sensitive financial information. We take this responsibility seriously and implement industry-leading security measures to protect your data.
+              </AlertDescription>
+            </Alert>
           </div>
 
           {/* Security Content */}
@@ -264,15 +263,17 @@ export default function SecurityPage() {
               <p className="text-slate-600 mb-4">
                 If you discover a security vulnerability or have concerns about the security of TaxClip, please contact us immediately:
               </p>
-              <div className="bg-slate-50 rounded-lg p-4">
-                <p className="text-slate-600 mb-2">
-                  <strong>Email:</strong>{' '}
-                  <a href="mailto:security@taxclip.co" className="text-cyan-600 hover:text-cyan-700">security@taxclip.co</a>
-                </p>
-                <p className="text-slate-600">
-                  We take all security reports seriously and will respond promptly.
-                </p>
-              </div>
+              <Card className="bg-slate-50">
+                <CardContent className="p-4">
+                  <p className="text-slate-600 mb-2">
+                    <strong>Email:</strong>{' '}
+                    <a href="mailto:security@taxclip.co" className="text-cyan-600 hover:text-cyan-700">security@taxclip.co</a>
+                  </p>
+                  <p className="text-slate-600">
+                    We take all security reports seriously and will respond promptly.
+                  </p>
+                </CardContent>
+              </Card>
             </section>
 
             {/* Section 10 */}
@@ -281,19 +282,22 @@ export default function SecurityPage() {
               <p className="text-slate-600 mb-4">
                 If you have any questions about our security practices, please don't hesitate to reach out:
               </p>
-              <div className="bg-slate-50 rounded-lg p-4">
-                <p className="text-slate-600 mb-2">
-                  <strong>General Support:</strong>{' '}
-                  <a href="mailto:support@taxclip.co" className="text-cyan-600 hover:text-cyan-700">support@taxclip.co</a>
-                </p>
-                <p className="text-slate-600">
-                  <strong>Website:</strong>{' '}
-                  <a href="https://taxclip.co" className="text-cyan-600 hover:text-cyan-700">https://taxclip.co</a>
-                </p>
-              </div>
+              <Card className="bg-slate-50">
+                <CardContent className="p-4">
+                  <p className="text-slate-600 mb-2">
+                    <strong>General Support:</strong>{' '}
+                    <a href="mailto:support@taxclip.co" className="text-cyan-600 hover:text-cyan-700">support@taxclip.co</a>
+                  </p>
+                  <p className="text-slate-600">
+                    <strong>Website:</strong>{' '}
+                    <a href="https://taxclip.co" className="text-cyan-600 hover:text-cyan-700">https://taxclip.co</a>
+                  </p>
+                </CardContent>
+              </Card>
             </section>
           </div>
-        </div>
+          </CardContent>
+        </Card>
       </main>
 
       {/* Footer */}

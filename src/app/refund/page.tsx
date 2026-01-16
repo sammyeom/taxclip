@@ -3,6 +3,8 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { ArrowLeft } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 export default function RefundPolicyPage() {
   return (
@@ -18,8 +20,9 @@ export default function RefundPolicyPage() {
       </header>
 
       {/* Content */}
-      <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="bg-white rounded-2xl shadow-xl p-8 sm:p-12">
+      <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+        <Card className="shadow-xl">
+          <CardContent className="p-6 sm:p-8 lg:p-12">
           {/* Title */}
           <div className="text-center mb-12">
             <div className="flex items-center justify-center gap-2 mb-4">
@@ -57,12 +60,12 @@ export default function RefundPolicyPage() {
               <h2 className="text-xl font-bold text-slate-900 mb-4">2. Refund Eligibility</h2>
 
               <div className="space-y-4">
-                <div className="bg-cyan-50 border border-cyan-200 rounded-lg p-4">
-                  <p className="text-cyan-800 font-medium mb-2">14-Day Money-Back Guarantee</p>
-                  <p className="text-cyan-700">
+                <Alert className="bg-cyan-50 border-cyan-200">
+                  <AlertTitle className="text-cyan-800 font-medium">14-Day Money-Back Guarantee</AlertTitle>
+                  <AlertDescription className="text-cyan-700">
                     If you are a new subscriber and are not satisfied with TaxClip, you may request a full refund within 14 days of your initial purchase.
-                  </p>
-                </div>
+                  </AlertDescription>
+                </Alert>
 
                 <div>
                   <p className="text-slate-600 mb-2">
@@ -111,7 +114,8 @@ export default function RefundPolicyPage() {
               </p>
             </section>
           </div>
-        </div>
+          </CardContent>
+        </Card>
       </main>
 
       {/* Footer */}

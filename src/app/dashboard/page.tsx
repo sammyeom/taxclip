@@ -148,18 +148,40 @@ function StatCard({
   const isPositive = trend ? trend.value >= 0 : true;
 
   return (
-    <Card className="@container/card bg-gradient-to-t from-cyan-500/5 to-card shadow-sm">
-      {/* Mobile compact header */}
-      <CardHeader className="p-3 sm:p-6 pb-2 sm:pb-4">
-        <CardDescription className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-base">
-          <Icon className="w-4 h-4 sm:w-6 sm:h-6 text-cyan-500" />
+    <Card className="@container/card bg-gradient-to-t from-cyan-500/5 to-card shadow-sm overflow-hidden">
+      {/* Mobile compact layout */}
+      <div className="sm:hidden p-2.5">
+        <div className="flex items-center gap-1 mb-1">
+          <Icon className="w-3.5 h-3.5 text-cyan-500 flex-shrink-0" />
+          <span className="text-[10px] font-medium text-muted-foreground truncate">{label}</span>
+        </div>
+        <div className="text-base font-bold tabular-nums text-foreground truncate">
+          {value}
+        </div>
+        {subLabel && (
+          <div className="text-[9px] text-muted-foreground truncate mt-0.5">
+            {subLabel}
+          </div>
+        )}
+        {trend && (
+          <div className="mt-1">
+            <span className={`text-[9px] font-medium ${isPositive ? 'text-green-600' : 'text-red-600'}`}>
+              {isPositive ? '+' : ''}{trend.value.toFixed(1)}%
+            </span>
+          </div>
+        )}
+      </div>
+      {/* Desktop layout */}
+      <CardHeader className="hidden sm:block p-6 pb-4">
+        <CardDescription className="flex items-center gap-2 text-base">
+          <Icon className="w-6 h-6 text-cyan-500" />
           <span className="font-medium truncate">{label}</span>
         </CardDescription>
-        <CardTitle className="text-lg sm:text-3xl font-bold tabular-nums @[250px]/card:text-4xl truncate">
+        <CardTitle className="text-3xl font-bold tabular-nums @[250px]/card:text-4xl truncate">
           {value}
         </CardTitle>
         {trend && (
-          <CardAction className="hidden sm:block">
+          <CardAction>
             <Badge variant="outline" className={isPositive ? 'text-green-600 border-green-200' : 'text-red-600 border-red-200'}>
               {isPositive ? <TrendingUp className="w-3 h-3 mr-1" /> : <TrendingUp className="w-3 h-3 mr-1 rotate-180" />}
               {isPositive ? '+' : ''}{trend.value.toFixed(1)}%
@@ -167,7 +189,7 @@ function StatCard({
           </CardAction>
         )}
       </CardHeader>
-      {/* Footer - hidden on mobile for compact 2x2 layout */}
+      {/* Footer - desktop only */}
       <CardFooter className="hidden sm:flex flex-col items-start gap-1.5 text-sm">
         {trend && (
           <div className="line-clamp-1 flex gap-2 font-medium">
@@ -186,20 +208,6 @@ function StatCard({
           </div>
         )}
       </CardFooter>
-      {/* Mobile-only subLabel */}
-      {subLabel && (
-        <div className="sm:hidden px-3 pb-3 text-[10px] text-muted-foreground truncate">
-          {subLabel}
-        </div>
-      )}
-      {/* Mobile-only trend indicator */}
-      {trend && (
-        <div className="sm:hidden px-3 pb-3">
-          <span className={`text-[10px] font-medium ${isPositive ? 'text-green-600' : 'text-red-600'}`}>
-            {isPositive ? '+' : ''}{trend.value.toFixed(1)}%
-          </span>
-        </div>
-      )}
     </Card>
   );
 }

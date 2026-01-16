@@ -847,13 +847,13 @@ export default function ReceiptEditPage() {
                             handleToggleItemSelection(item.id);
                           }}
                           onClick={(e) => e.stopPropagation()}
-                          className="rounded border-gray-300 text-cyan-500 focus:ring-cyan-500 flex-shrink-0"
+                          className="rounded border-gray-300 text-cyan-500 focus:ring-cyan-500 shrink-0"
                         />
-                        <div className="flex-1 min-w-0 flex items-center gap-2">
-                          <p className="text-xs font-medium text-gray-900 truncate flex-1" title={item.name}>{item.name}</p>
-                          <span className="text-[10px] text-gray-400 flex-shrink-0">{item.qty}x</span>
+                        <div className="flex-1 min-w-0 overflow-hidden">
+                          <p className="text-xs font-medium text-gray-900 truncate" title={item.name}>{item.name}</p>
                         </div>
-                        <p className="text-xs font-semibold text-gray-900 flex-shrink-0 ml-1">
+                        <span className="text-[10px] text-gray-400 shrink-0">{item.qty}x</span>
+                        <p className="text-xs font-semibold text-gray-900 shrink-0">
                           {formatAmount(item.amount, formData.currency)}
                         </p>
                         <button
@@ -862,7 +862,7 @@ export default function ReceiptEditPage() {
                             e.stopPropagation();
                             handleRemoveItem(item.id);
                           }}
-                          className="p-1 text-red-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors flex-shrink-0"
+                          className="p-1 text-red-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors shrink-0"
                           title="Remove item"
                         >
                           <X className="w-3.5 h-3.5" />
@@ -995,20 +995,20 @@ export default function ReceiptEditPage() {
 
         {/* Item Detail Bottom Sheet - Mobile */}
         <Sheet open={!!selectedItemForModal} onOpenChange={(open) => !open && setSelectedItemForModal(null)}>
-          <SheetContent side="bottom" className="sm:hidden rounded-t-2xl px-0 pb-0 max-h-[85vh]">
+          <SheetContent side="bottom" className="sm:hidden rounded-t-2xl px-0 pb-[env(safe-area-inset-bottom)] h-auto max-h-[60vh]">
             {selectedItemForModal && (
-              <>
+              <div className="flex flex-col h-full max-h-[60vh]">
                 {/* Handle */}
-                <div className="flex justify-center -mt-2 mb-2">
+                <div className="flex justify-center py-2 flex-shrink-0">
                   <div className="w-10 h-1 bg-gray-300 rounded-full" />
                 </div>
-                <SheetHeader className="px-4 pb-3 border-b border-gray-100">
+                <SheetHeader className="px-4 pb-3 border-b border-gray-100 flex-shrink-0">
                   <SheetTitle className="text-lg font-semibold">
                     {selectedItemForModal.name ? 'Edit Item' : 'New Item'}
                   </SheetTitle>
                 </SheetHeader>
-                {/* Content - extra padding at bottom for keyboard */}
-                <div className="p-4 space-y-4 max-h-[50vh] overflow-y-auto pb-8">
+                {/* Content - scrollable area */}
+                <div className="p-4 space-y-4 overflow-y-auto flex-1">
                   {/* Item Name */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -1087,8 +1087,8 @@ export default function ReceiptEditPage() {
                     </label>
                   </div>
                 </div>
-                {/* Footer Actions - with safe area padding for keyboard */}
-                <SheetFooter className="flex-row gap-3 p-4 pb-8 border-t border-gray-100 sticky bottom-0 bg-white">
+                {/* Footer Actions */}
+                <SheetFooter className="flex-row gap-3 p-4 border-t border-gray-100 flex-shrink-0 bg-white">
                   <Button
                     variant="outline"
                     onClick={() => {
@@ -1106,7 +1106,7 @@ export default function ReceiptEditPage() {
                     Done
                   </Button>
                 </SheetFooter>
-              </>
+              </div>
             )}
           </SheetContent>
         </Sheet>

@@ -417,43 +417,75 @@ export default function SplitView({
                   </div>
 
                   {normalizedItems.length > 0 ? (
-                    <div className="max-h-[300px] overflow-auto">
-                      <table className="w-full text-sm">
-                        <thead className="bg-gray-50 sticky top-0">
-                          <tr>
-                            <th className="px-3 py-2 text-center text-xs font-medium text-gray-500 uppercase w-10"></th>
-                            <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Item</th>
-                            <th className="px-3 py-2 text-center text-xs font-medium text-gray-500 uppercase w-16">Qty</th>
-                            <th className="px-3 py-2 text-right text-xs font-medium text-gray-500 uppercase w-24">Unit Price</th>
-                            <th className="px-3 py-2 text-right text-xs font-medium text-gray-500 uppercase w-24">Amount</th>
-                          </tr>
-                        </thead>
-                        <tbody className="divide-y divide-gray-100">
-                          {normalizedItems.map((item, index) => (
-                            <tr
-                              key={item.id || index}
-                              className={`transition-colors ${item.selected ? 'hover:bg-cyan-50' : 'bg-gray-50 opacity-60'}`}
-                            >
-                              <td className="px-3 py-2 text-center">
-                                {item.selected ? (
-                                  <Check className="w-4 h-4 text-green-500 mx-auto" />
-                                ) : (
-                                  <span className="text-gray-300">-</span>
-                                )}
-                              </td>
-                              <td className="px-3 py-2 text-gray-900">{item.name}</td>
-                              <td className="px-3 py-2 text-center text-gray-600">{item.qty}</td>
-                              <td className="px-3 py-2 text-right text-gray-600">
-                                {formatAmount(item.unitPrice, extractedData.currency)}
-                              </td>
-                              <td className="px-3 py-2 text-right font-medium text-gray-900">
-                                {formatAmount(item.amount, extractedData.currency)}
-                              </td>
+                    <>
+                      {/* Desktop Table */}
+                      <div className="hidden sm:block max-h-[300px] overflow-auto">
+                        <table className="w-full text-sm">
+                          <thead className="bg-gray-50 sticky top-0">
+                            <tr>
+                              <th className="px-3 py-2 text-center text-xs font-medium text-gray-500 uppercase w-10"></th>
+                              <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Item</th>
+                              <th className="px-3 py-2 text-center text-xs font-medium text-gray-500 uppercase w-16">Qty</th>
+                              <th className="px-3 py-2 text-right text-xs font-medium text-gray-500 uppercase w-24">Unit Price</th>
+                              <th className="px-3 py-2 text-right text-xs font-medium text-gray-500 uppercase w-24">Amount</th>
                             </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
+                          </thead>
+                          <tbody className="divide-y divide-gray-100">
+                            {normalizedItems.map((item, index) => (
+                              <tr
+                                key={item.id || index}
+                                className={`transition-colors ${item.selected ? 'hover:bg-cyan-50' : 'bg-gray-50 opacity-60'}`}
+                              >
+                                <td className="px-3 py-2 text-center">
+                                  {item.selected ? (
+                                    <Check className="w-4 h-4 text-green-500 mx-auto" />
+                                  ) : (
+                                    <span className="text-gray-300">-</span>
+                                  )}
+                                </td>
+                                <td className="px-3 py-2 text-gray-900">{item.name}</td>
+                                <td className="px-3 py-2 text-center text-gray-600">{item.qty}</td>
+                                <td className="px-3 py-2 text-right text-gray-600">
+                                  {formatAmount(item.unitPrice, extractedData.currency)}
+                                </td>
+                                <td className="px-3 py-2 text-right font-medium text-gray-900">
+                                  {formatAmount(item.amount, extractedData.currency)}
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+
+                      {/* Mobile Cards */}
+                      <div className="sm:hidden max-h-[300px] overflow-auto p-2 space-y-2">
+                        {normalizedItems.map((item, index) => (
+                          <div
+                            key={item.id || index}
+                            className={`border rounded-lg p-3 ${
+                              item.selected ? 'bg-white border-gray-200' : 'bg-gray-50 border-gray-100 opacity-60'
+                            }`}
+                          >
+                            <div className="flex items-center gap-2">
+                              <div className="shrink-0">
+                                {item.selected ? (
+                                  <Check className="w-4 h-4 text-green-500" />
+                                ) : (
+                                  <span className="text-gray-300 text-sm">-</span>
+                                )}
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <p className="text-sm font-medium text-gray-900 truncate" title={item.name}>{item.name}</p>
+                              </div>
+                              <span className="text-xs text-gray-400 shrink-0">{item.qty}x</span>
+                              <p className="text-sm font-semibold text-gray-900 shrink-0">
+                                {formatAmount(item.amount, extractedData.currency)}
+                              </p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </>
                   ) : (
                     <div className="px-4 py-8 text-center text-gray-400">
                       <List className="w-8 h-8 mx-auto mb-2 opacity-50" />

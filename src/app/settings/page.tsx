@@ -500,7 +500,7 @@ For tax filing assistance, please consult a qualified tax professional.
           </CardHeader>
           <CardContent className="space-y-0 divide-y divide-border">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between py-3 sm:py-4 gap-2">
-              <Label className="text-xs sm:text-sm font-semibold">Default Currency</Label>
+              <Label className="text-sm font-semibold">Default Currency</Label>
               <Select value={settings.currency} onValueChange={(value) => updateSetting('currency', value)}>
                 <SelectTrigger className="w-full sm:w-48 lg:w-64 h-9 sm:h-10">
                   <SelectValue placeholder="Select currency" />
@@ -517,7 +517,7 @@ For tax filing assistance, please consult a qualified tax professional.
             </div>
 
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between py-3 sm:py-4 gap-2">
-              <Label className="text-xs sm:text-sm font-semibold">Date Format</Label>
+              <Label className="text-sm font-semibold">Date Format</Label>
               <Select value={settings.dateFormat} onValueChange={(value) => updateSetting('dateFormat', value)}>
                 <SelectTrigger className="w-full sm:w-48 lg:w-64 h-9 sm:h-10">
                   <SelectValue placeholder="Select format" />
@@ -531,7 +531,7 @@ For tax filing assistance, please consult a qualified tax professional.
             </div>
 
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between py-3 sm:py-4 gap-2">
-              <Label className="text-xs sm:text-sm font-semibold">Default Tax Category</Label>
+              <Label className="text-sm font-semibold">Default Tax Category</Label>
               <Select value={settings.defaultCategory} onValueChange={(value) => updateSetting('defaultCategory', value)}>
                 <SelectTrigger className="w-full sm:w-48 lg:w-64 h-9 sm:h-10">
                   <SelectValue placeholder="Select category" />
@@ -546,18 +546,16 @@ For tax filing assistance, please consult a qualified tax professional.
               </Select>
             </div>
 
-            <div className="flex items-start justify-between gap-3 py-3 sm:py-4">
-              <div className="flex-1 min-w-0 overflow-hidden">
-                <Label className="text-xs sm:text-sm font-semibold block truncate">Auto-categorize</Label>
-                <p className="text-[10px] sm:text-xs text-muted-foreground mt-0.5 truncate">AI category suggestions</p>
+            <div className="flex items-center justify-between gap-3 py-3 sm:py-4">
+              <div className="flex-1 min-w-0">
+                <Label className="text-sm font-semibold block">Auto-categorize</Label>
+                <p className="text-xs text-muted-foreground mt-0.5">AI category suggestions</p>
               </div>
-              <div className="flex items-center h-5 mt-0.5">
-                <Switch
-                  checked={settings.autoCategorize}
-                  onCheckedChange={(checked) => updateSetting('autoCategorize', checked)}
-                  className="data-[state=checked]:bg-cyan-500"
-                />
-              </div>
+              <Switch
+                checked={settings.autoCategorize}
+                onCheckedChange={(checked) => updateSetting('autoCategorize', checked)}
+                className="data-[state=checked]:bg-cyan-500"
+              />
             </div>
           </CardContent>
         </Card>
@@ -571,60 +569,52 @@ For tax filing assistance, please consult a qualified tax professional.
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-0 divide-y divide-border">
-            <div className="flex items-start justify-between gap-3 py-3 sm:py-4">
-              <div className="flex-1 min-w-0 overflow-hidden">
-                <Label className="text-xs sm:text-sm font-semibold block truncate">Email Notifications</Label>
-                <p className="text-[10px] sm:text-xs text-muted-foreground mt-0.5 truncate">Receive email updates</p>
+            <div className="flex items-center justify-between gap-3 py-3 sm:py-4">
+              <div className="flex-1 min-w-0">
+                <Label className="text-sm font-semibold block">Email Notifications</Label>
+                <p className="text-xs text-muted-foreground mt-0.5">Receive email updates</p>
               </div>
-              <div className="flex items-center h-5 mt-0.5">
-                <Switch
-                  checked={settings.emailNotifications}
-                  onCheckedChange={(checked) => updateSetting('emailNotifications', checked)}
-                  className="data-[state=checked]:bg-cyan-500"
-                />
-              </div>
+              <Switch
+                checked={settings.emailNotifications}
+                onCheckedChange={(checked) => updateSetting('emailNotifications', checked)}
+                className="data-[state=checked]:bg-cyan-500"
+              />
             </div>
 
-            <div className="flex items-start justify-between gap-3 py-3 sm:py-4">
-              <div className="flex-1 min-w-0 overflow-hidden">
-                <Label className="text-xs sm:text-sm font-semibold block truncate">Monthly Summary</Label>
-                <p className="text-[10px] sm:text-xs text-muted-foreground mt-0.5 truncate">Monthly expense reports</p>
+            <div className="flex items-center justify-between gap-3 py-3 sm:py-4">
+              <div className="flex-1 min-w-0">
+                <Label className="text-sm font-semibold block">Monthly Summary</Label>
+                <p className="text-xs text-muted-foreground mt-0.5">Monthly expense reports</p>
               </div>
-              <div className="flex items-center h-5 mt-0.5">
-                <Switch
-                  checked={settings.monthlySummary}
-                  onCheckedChange={(checked) => updateSetting('monthlySummary', checked)}
-                  className="data-[state=checked]:bg-cyan-500"
-                />
-              </div>
+              <Switch
+                checked={settings.monthlySummary}
+                onCheckedChange={(checked) => updateSetting('monthlySummary', checked)}
+                className="data-[state=checked]:bg-cyan-500"
+              />
             </div>
 
-            <div className="flex items-start justify-between gap-3 py-3 sm:py-4">
-              <div className="flex-1 min-w-0 overflow-hidden">
-                <Label className="text-xs sm:text-sm font-semibold block truncate">Upload Reminders</Label>
-                <p className="text-[10px] sm:text-xs text-muted-foreground mt-0.5 truncate">Weekly upload reminders</p>
+            <div className="flex items-center justify-between gap-3 py-3 sm:py-4">
+              <div className="flex-1 min-w-0">
+                <Label className="text-sm font-semibold block">Upload Reminders</Label>
+                <p className="text-xs text-muted-foreground mt-0.5">Weekly upload reminders</p>
               </div>
-              <div className="flex items-center h-5 mt-0.5">
-                <Switch
-                  checked={settings.uploadReminders}
-                  onCheckedChange={(checked) => updateSetting('uploadReminders', checked)}
-                  className="data-[state=checked]:bg-cyan-500"
-                />
-              </div>
+              <Switch
+                checked={settings.uploadReminders}
+                onCheckedChange={(checked) => updateSetting('uploadReminders', checked)}
+                className="data-[state=checked]:bg-cyan-500"
+              />
             </div>
 
-            <div className="flex items-start justify-between gap-3 py-3 sm:py-4">
-              <div className="flex-1 min-w-0 overflow-hidden">
-                <Label className="text-xs sm:text-sm font-semibold block truncate">Tax Reminders</Label>
-                <p className="text-[10px] sm:text-xs text-muted-foreground mt-0.5 truncate">Important date alerts</p>
+            <div className="flex items-center justify-between gap-3 py-3 sm:py-4">
+              <div className="flex-1 min-w-0">
+                <Label className="text-sm font-semibold block">Tax Reminders</Label>
+                <p className="text-xs text-muted-foreground mt-0.5">Important date alerts</p>
               </div>
-              <div className="flex items-center h-5 mt-0.5">
-                <Switch
-                  checked={settings.taxDeadlineReminders}
-                  onCheckedChange={(checked) => updateSetting('taxDeadlineReminders', checked)}
-                  className="data-[state=checked]:bg-cyan-500"
-                />
-              </div>
+              <Switch
+                checked={settings.taxDeadlineReminders}
+                onCheckedChange={(checked) => updateSetting('taxDeadlineReminders', checked)}
+                className="data-[state=checked]:bg-cyan-500"
+              />
             </div>
           </CardContent>
         </Card>
@@ -639,7 +629,7 @@ For tax filing assistance, please consult a qualified tax professional.
           </CardHeader>
           <CardContent className="space-y-0 divide-y divide-border">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between py-3 sm:py-4 gap-2">
-              <Label className="text-xs sm:text-sm font-semibold">Business Type</Label>
+              <Label className="text-sm font-semibold">Business Type</Label>
               <Select value={settings.businessType} onValueChange={(value) => updateSetting('businessType', value)}>
                 <SelectTrigger className="w-full sm:w-48 lg:w-64 h-9 sm:h-10">
                   <SelectValue placeholder="Select business type" />
@@ -655,7 +645,7 @@ For tax filing assistance, please consult a qualified tax professional.
             </div>
 
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between py-3 sm:py-4 gap-2">
-              <Label className="text-xs sm:text-sm font-semibold">Tax Year</Label>
+              <Label className="text-sm font-semibold">Tax Year</Label>
               <Select value={settings.taxYear} onValueChange={(value) => updateSetting('taxYear', value)}>
                 <SelectTrigger className="w-full sm:w-48 lg:w-64 h-9 sm:h-10">
                   <SelectValue placeholder="Select tax year" />
@@ -669,7 +659,7 @@ For tax filing assistance, please consult a qualified tax professional.
 
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between py-3 sm:py-4 gap-2">
               <div className="flex-1">
-                <Label className="text-xs sm:text-sm font-semibold">Meals Deduction (%)</Label>
+                <Label className="text-sm font-semibold">Meals Deduction (%)</Label>
                 <p className="text-xs text-muted-foreground mt-0.5">IRS standard is 50%</p>
               </div>
               <Input
@@ -682,24 +672,22 @@ For tax filing assistance, please consult a qualified tax professional.
               />
             </div>
 
-            <div className="flex items-start justify-between gap-3 py-3 sm:py-4">
-              <div className="flex-1 min-w-0 overflow-hidden">
-                <Label className="text-xs sm:text-sm font-semibold block truncate">Mileage Tracking</Label>
-                <p className="text-[10px] sm:text-xs text-muted-foreground mt-0.5 truncate">Track business mileage</p>
+            <div className="flex items-center justify-between gap-3 py-3 sm:py-4">
+              <div className="flex-1 min-w-0">
+                <Label className="text-sm font-semibold block">Mileage Tracking</Label>
+                <p className="text-xs text-muted-foreground mt-0.5">Track business mileage</p>
               </div>
-              <div className="flex items-center h-5 mt-0.5">
-                <Switch
-                  checked={settings.mileageTracking}
-                  onCheckedChange={(checked) => updateSetting('mileageTracking', checked)}
-                  className="data-[state=checked]:bg-cyan-500"
-                />
-              </div>
+              <Switch
+                checked={settings.mileageTracking}
+                onCheckedChange={(checked) => updateSetting('mileageTracking', checked)}
+                className="data-[state=checked]:bg-cyan-500"
+              />
             </div>
 
             {settings.mileageTracking && (
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between py-3 sm:py-4 gap-2">
                 <div className="flex-1">
-                  <Label className="text-xs sm:text-sm font-semibold">Mileage Rate ($/mile)</Label>
+                  <Label className="text-sm font-semibold">Mileage Rate ($/mile)</Label>
                   <p className="text-xs text-muted-foreground mt-0.5">2026: $0.67/mile</p>
                 </div>
                 <Input
@@ -726,7 +714,7 @@ For tax filing assistance, please consult a qualified tax professional.
           <CardContent className="space-y-3 sm:space-y-4">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between py-3 gap-2">
               <div className="flex-1">
-                <Label className="text-xs sm:text-sm font-semibold">Export All Data</Label>
+                <Label className="text-sm font-semibold">Export All Data</Label>
                 <p className="text-xs text-muted-foreground mt-0.5">Download your data as CSV</p>
               </div>
               <Button
@@ -741,7 +729,7 @@ For tax filing assistance, please consult a qualified tax professional.
 
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between py-3 border-t gap-2">
               <div className="flex-1">
-                <Label className="text-xs sm:text-sm font-semibold">Download Archive</Label>
+                <Label className="text-sm font-semibold">Download Archive</Label>
                 <p className="text-xs text-muted-foreground mt-0.5">
                   {archiveProgress || 'Download receipt images and data as ZIP'}
                 </p>
@@ -768,7 +756,7 @@ For tax filing assistance, please consult a qualified tax professional.
 
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between py-3 sm:py-4 border-t gap-2">
               <div className="flex-1">
-                <Label className="text-xs sm:text-sm font-semibold">Data Retention</Label>
+                <Label className="text-sm font-semibold">Data Retention</Label>
                 <p className="text-xs text-muted-foreground mt-0.5">IRS recommends 7 years</p>
               </div>
               <Select value={String(settings.dataRetention)} onValueChange={(value) => updateSetting('dataRetention', Number(value))}>
@@ -786,7 +774,7 @@ For tax filing assistance, please consult a qualified tax professional.
 
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between py-3 border-t gap-2">
               <div className="flex-1">
-                <Label className="text-xs sm:text-sm font-semibold">Clear Cache</Label>
+                <Label className="text-sm font-semibold">Clear Cache</Label>
                 <p className="text-xs text-muted-foreground mt-0.5">Clear local browser data</p>
               </div>
               <Button
@@ -809,7 +797,7 @@ For tax filing assistance, please consult a qualified tax professional.
           <CardContent className="space-y-2 sm:space-y-3">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between py-2 sm:py-3 border-b gap-2">
               <div className="flex-1">
-                <Label className="text-xs sm:text-sm font-semibold">Delete All Receipts</Label>
+                <Label className="text-sm font-semibold">Delete All Receipts</Label>
                 <p className="text-xs text-muted-foreground">Permanently delete all receipts</p>
               </div>
               <Button
@@ -823,7 +811,7 @@ For tax filing assistance, please consult a qualified tax professional.
 
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between py-2 sm:py-3 border-b gap-2">
               <div className="flex-1">
-                <Label className="text-xs sm:text-sm font-semibold">Reset All Settings</Label>
+                <Label className="text-sm font-semibold">Reset All Settings</Label>
                 <p className="text-xs text-muted-foreground">Restore default settings</p>
               </div>
               <Button
@@ -837,7 +825,7 @@ For tax filing assistance, please consult a qualified tax professional.
 
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between py-2 sm:py-3 gap-2">
               <div className="flex-1">
-                <Label className="text-xs sm:text-sm font-semibold">Delete Account</Label>
+                <Label className="text-sm font-semibold">Delete Account</Label>
                 <p className="text-xs text-muted-foreground">Permanently delete account and data</p>
               </div>
               <Button

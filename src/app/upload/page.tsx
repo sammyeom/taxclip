@@ -313,6 +313,11 @@ export default function UploadPage() {
   // Get selected file data
   const selectedFile = files.find((f) => f.id === selectedFileId);
 
+  // Count receipts available to save (either from batchResults or completed files)
+  const savableReceiptsCount = batchResults.length > 0
+    ? batchResults.length
+    : files.filter(f => f.status === 'complete' && f.uploadedUrl && f.ocrData).length;
+
   // Process a single file (upload + OCR)
   const processFile = useCallback(async (fileId: string, file: File, preview: string | null) => {
     // Create abort controller for this file
@@ -396,6 +401,7 @@ export default function UploadPage() {
                   ...f,
                   status: 'complete' as FileStatus,
                   progress: 100,
+                  uploadedUrl: result.imageUrl, // Store the URL even if OCR failed
                   error: result.error || 'OCR analysis failed - please fill in details manually',
                 }
               : f
@@ -428,7 +434,7 @@ export default function UploadPage() {
         ? mapDocTypeToEvidenceType(result.data.documentType)
         : EvidenceType.RECEIPT;
 
-      // Update file with OCR data and auto-detected evidence type
+      // Update file with OCR data, uploaded URL, and auto-detected evidence type
       setFiles((prev) =>
         prev.map((f) => {
           if (f.id !== fileId) return f;
@@ -437,6 +443,7 @@ export default function UploadPage() {
             ...f,
             status: 'complete' as FileStatus,
             progress: 100,
+            uploadedUrl: result.imageUrl, // Store the Supabase storage URL
             evidenceType: detectedEvidenceType, // Auto-set from OCR
             ocrData: result.data
               ? {
@@ -785,7 +792,7 @@ export default function UploadPage() {
       if (result.batchMode && result.batchResults) {
         console.log('Batch mode results:', result.batchResults);
 
-        // Update each file with its own OCR data
+        // Update each file with its own OCR data and uploaded URL
         setFiles((prev) =>
           prev.map((f) => {
             if (!selectedForGrouping.includes(f.id)) return f;
@@ -794,12 +801,13 @@ export default function UploadPage() {
             const fileIndex = selectedFiles.findIndex((sf) => sf.id === f.id);
             const batchResult = result.batchResults[fileIndex];
 
-            if (batchResult && batchResult.data) {
+            if (batchResult) {
               return {
                 ...f,
                 status: 'complete' as FileStatus,
                 progress: 100,
-                ocrData: {
+                uploadedUrl: batchResult.imageUrl, // Store the Supabase storage URL
+                ocrData: batchResult.data ? {
                   date: batchResult.data.date,
                   vendor: batchResult.data.vendor,
                   amount: batchResult.data.amount,
@@ -810,7 +818,7 @@ export default function UploadPage() {
                   category: batchResult.data.category,
                   items: batchResult.data.items || [],
                   paymentMethod: batchResult.data.paymentMethod,
-                },
+                } : undefined,
               };
             }
             return { ...f, status: 'complete' as FileStatus, progress: 100 };
@@ -1076,13 +1084,21 @@ export default function UploadPage() {
 
       const taxYear = calculateTaxYear(formData.date);
 
+      // Determine the image URL to use:
+      // 1. If selectedFile has uploadedUrl, use it (most reliable for individually processed files)
+      // 2. Fall back to uploadedImageUrl state
+      const imageUrlToSave = selectedFile?.uploadedUrl || uploadedImageUrl;
+      const imageUrlsToSave = selectedFile?.uploadedUrl
+        ? [selectedFile.uploadedUrl]
+        : (uploadedImageUrls.length > 0 ? uploadedImageUrls : (uploadedImageUrl ? [uploadedImageUrl] : []));
+
       // Build evidence items from files
       const evidenceItems: EvidenceItem[] = [];
-      const relevantFiles = uploadedImageUrls.length > 1
+      const relevantFiles = imageUrlsToSave.length > 1
         ? files.filter(f => selectedForGrouping.includes(f.id) || (selectedFile && f.id === selectedFile.id))
         : selectedFile ? [selectedFile] : [];
 
-      uploadedImageUrls.forEach((url, index) => {
+      imageUrlsToSave.forEach((url, index) => {
         const fileData = relevantFiles[index];
         evidenceItems.push({
           id: `evidence_${Date.now()}_${index}`,
@@ -1121,8 +1137,8 @@ export default function UploadPage() {
         category: formData.category,
         // Note: subcategory is stored in notes until DB column is added
         items: receiptItems,
-        image_url: uploadedImageUrl, // Legacy single image
-        image_urls: uploadedImageUrls.length > 0 ? uploadedImageUrls : (uploadedImageUrl ? [uploadedImageUrl] : []),
+        image_url: imageUrlToSave, // Use the file's uploadedUrl
+        image_urls: imageUrlsToSave,
         evidence_items: evidenceItems, // IRS audit-ready evidence
         email_text: emailText || null,
         parsed_email_data: parsedEmailData,
@@ -1153,8 +1169,8 @@ export default function UploadPage() {
         total: totalAmount,
         irs_category: formData.category,
         // Note: irs_subcategory column doesn't exist yet - store in notes if needed
-        file_urls: uploadedImageUrls.length > 0 ? uploadedImageUrls : (uploadedImageUrl ? [uploadedImageUrl] : []),
-        document_types: uploadedDocumentTypes.length > 0 ? uploadedDocumentTypes : uploadedImageUrls.map(() => 'receipt'),
+        file_urls: imageUrlsToSave,
+        document_types: uploadedDocumentTypes.length > 0 ? uploadedDocumentTypes : imageUrlsToSave.map(() => 'receipt'),
         raw_text: uploadedRawText,
         business_purpose: formData.businessPurpose || null,
         payment_method: formData.paymentMethod || null,
@@ -1260,10 +1276,55 @@ export default function UploadPage() {
     }
   };
 
-  // Save all receipts from batch processing
+  // Save all receipts from batch processing or individually processed files
   const handleSaveAllReceipts = async () => {
-    if (batchResults.length === 0) {
-      setError('No batch results to save');
+    // Build items to save from either batchResults or files with uploadedUrl
+    let itemsToSave: Array<{
+      fileId: string;
+      imageUrl: string;
+      data: {
+        date: string;
+        vendor: string;
+        amount: number;
+        subtotal?: number;
+        tax?: number;
+        tip?: number;
+        currency: string;
+        category: string;
+        items: LineItem[];
+        paymentMethod?: string;
+      } | null;
+    }> = [];
+
+    if (batchResults.length > 0) {
+      // Use batch results if available (from processGroupedImages)
+      itemsToSave = batchResults;
+    } else {
+      // Build from files that have uploadedUrl and ocrData (individually processed)
+      const completedFiles = files.filter(f =>
+        f.status === 'complete' && f.uploadedUrl && f.ocrData
+      );
+
+      itemsToSave = completedFiles.map(f => ({
+        fileId: f.id,
+        imageUrl: f.uploadedUrl!,
+        data: f.ocrData ? {
+          date: f.ocrData.date,
+          vendor: f.ocrData.vendor,
+          amount: f.ocrData.amount,
+          subtotal: f.ocrData.subtotal,
+          tax: f.ocrData.tax,
+          tip: f.ocrData.tip,
+          currency: f.ocrData.currency,
+          category: f.ocrData.category,
+          items: convertOcrItemsToLineItems(f.ocrData.items || []),
+          paymentMethod: f.ocrData.paymentMethod,
+        } : null,
+      }));
+    }
+
+    if (itemsToSave.length === 0) {
+      setError('No receipts to save');
       return;
     }
 
@@ -1274,7 +1335,7 @@ export default function UploadPage() {
     const errors: string[] = [];
 
     try {
-      for (const batchItem of batchResults) {
+      for (const batchItem of itemsToSave) {
         if (!batchItem.data) {
           errors.push(`Skipped: No data for file`);
           continue;
@@ -2250,8 +2311,8 @@ export default function UploadPage() {
 
                 {/* Save button - Full width */}
                 <div className="md:col-span-2 pt-2 space-y-2">
-                  {/* Save All button - shown when batch results exist */}
-                  {batchResults.length > 1 && (
+                  {/* Save All button - shown when multiple receipts available to save */}
+                  {savableReceiptsCount > 1 && (
                     <Button
                       onClick={handleSaveAllReceipts}
                       disabled={saving}
@@ -2265,7 +2326,7 @@ export default function UploadPage() {
                       ) : (
                         <>
                           <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
-                          Save All {batchResults.length} Receipts
+                          Save All {savableReceiptsCount} Receipts
                         </>
                       )}
                     </Button>
@@ -2281,7 +2342,7 @@ export default function UploadPage() {
                       !formData.amount ||
                       !formData.businessPurpose
                     }
-                    className={`w-full h-11 sm:h-12 ${batchResults.length > 1 ? 'bg-slate-500 hover:bg-slate-600' : 'bg-cyan-500 hover:bg-cyan-600'} text-white`}
+                    className={`w-full h-11 sm:h-12 ${savableReceiptsCount > 1 ? 'bg-slate-500 hover:bg-slate-600' : 'bg-cyan-500 hover:bg-cyan-600'} text-white`}
                   >
                     {saving ? (
                       <>
@@ -2291,8 +2352,8 @@ export default function UploadPage() {
                     ) : (
                       <>
                         <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
-                        {batchResults.length > 1 ? 'Save This Receipt Only' : 'Save Receipt'}
-                        {completedCount > 1 && batchResults.length <= 1 && (
+                        {savableReceiptsCount > 1 ? 'Save This Receipt Only' : 'Save Receipt'}
+                        {completedCount > 1 && savableReceiptsCount <= 1 && (
                           <Badge variant="secondary" className="ml-2 bg-cyan-400 text-white">
                             +{completedCount - 1}
                           </Badge>

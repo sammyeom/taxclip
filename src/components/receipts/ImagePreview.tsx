@@ -58,6 +58,7 @@ export interface FileWithPreview {
   };
   evidenceType: EvidenceType; // Tag for IRS audit: receipt, invoice, payment_proof, etc.
   extractedPdfText?: string;  // Text extracted from PDF files
+  uploadedUrl?: string;       // URL from Supabase storage after upload
 }
 
 interface ImagePreviewProps {

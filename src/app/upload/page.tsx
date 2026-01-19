@@ -1948,12 +1948,13 @@ export default function UploadPage() {
                   </label>
                   <Select
                     value={formData.paymentMethod || 'credit'}
+                    defaultValue="credit"
                     onValueChange={(value) =>
                       handleFormChange('paymentMethod', value)
                     }
                   >
                     <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Select payment method" />
+                      <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
                       {PAYMENT_METHODS.filter(m => m.value !== '').map((method) => (

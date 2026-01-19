@@ -723,12 +723,12 @@ export default function ReceiptEditPage() {
                 Payment Method
               </label>
               <Select
-                value={formData.payment_method && formData.payment_method !== '' ? formData.payment_method : 'credit'}
+                value={formData.payment_method || 'credit'}
                 defaultValue="credit"
                 onValueChange={(value) => handleFormChange('payment_method', value)}
               >
                 <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Credit Card" />
+                  <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
                   {PAYMENT_METHODS.filter(m => m.value !== '').map((method) => (

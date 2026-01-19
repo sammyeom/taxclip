@@ -149,23 +149,23 @@ function StatCard({
 
   return (
     <Card className="@container/card bg-gradient-to-t from-cyan-500/5 to-card shadow-sm overflow-hidden">
-      {/* Mobile compact layout */}
-      <div className="sm:hidden p-2.5">
-        <div className="flex items-center gap-1 mb-1">
-          <Icon className="w-3.5 h-3.5 text-cyan-500 flex-shrink-0" />
-          <span className="text-[10px] font-medium text-muted-foreground truncate">{label}</span>
+      {/* Mobile layout - matching Account Statistics style */}
+      <div className="sm:hidden p-3">
+        <div className="flex items-center gap-2 text-muted-foreground mb-1.5">
+          <Icon className="w-5 h-5 text-cyan-500 flex-shrink-0" />
+          <span className="text-xs font-medium truncate">{label}</span>
         </div>
-        <div className="text-base font-bold tabular-nums text-foreground truncate">
+        <div className="text-xl font-bold tabular-nums text-foreground truncate">
           {value}
         </div>
         {subLabel && (
-          <div className="text-[9px] text-muted-foreground truncate mt-0.5">
+          <div className="text-[10px] text-muted-foreground truncate mt-1">
             {subLabel}
           </div>
         )}
         {trend && (
-          <div className="mt-1">
-            <span className={`text-[9px] font-medium ${isPositive ? 'text-green-600' : 'text-red-600'}`}>
+          <div className="mt-1.5">
+            <span className={`text-xs font-medium ${isPositive ? 'text-green-600' : 'text-red-600'}`}>
               {isPositive ? '+' : ''}{trend.value.toFixed(1)}%
             </span>
           </div>

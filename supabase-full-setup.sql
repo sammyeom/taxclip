@@ -13,6 +13,9 @@ CREATE TABLE IF NOT EXISTS public.receipts (
   merchant TEXT NOT NULL,
   date DATE NOT NULL,
   total NUMERIC NOT NULL,
+  subtotal NUMERIC,                    -- Subtotal before tax
+  tax NUMERIC,                         -- Tax amount (separate from items)
+  tip NUMERIC,                         -- Tip amount (separate from items)
   category TEXT DEFAULT 'other',
   items JSONB DEFAULT '[]'::jsonb,
   image_url TEXT,

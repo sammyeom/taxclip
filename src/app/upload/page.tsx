@@ -474,7 +474,7 @@ export default function UploadPage() {
             category: prev.category !== 'other' ? prev.category : (ocrData.category || 'other'),
             subcategory: prev.subcategory || '',
             businessPurpose: prev.businessPurpose || '',
-            paymentMethod: prev.paymentMethod || ocrData.paymentMethod || '',
+            paymentMethod: prev.paymentMethod || ocrData.paymentMethod || 'credit',
             notes: prev.notes || '',
           };
         });
@@ -1240,7 +1240,7 @@ export default function UploadPage() {
             category: nextFile.ocrData.category || 'other',
             subcategory: '',
             businessPurpose: '',
-            paymentMethod: nextFile.ocrData.paymentMethod || '',
+            paymentMethod: nextFile.ocrData.paymentMethod || 'credit',
             notes: '',
           });
           setExtractedItems(convertOcrItemsToLineItems(nextFile.ocrData.items || []));
@@ -1435,7 +1435,7 @@ export default function UploadPage() {
         category: fileOcrData.category || prev.category || 'other',
         subcategory: prev.subcategory || '',
         businessPurpose: prev.businessPurpose || '',
-        paymentMethod: fileOcrData.paymentMethod || prev.paymentMethod || '',
+        paymentMethod: fileOcrData.paymentMethod || prev.paymentMethod || 'credit',
         notes: prev.notes || '',
       }));
       // Also update extracted items for Split View

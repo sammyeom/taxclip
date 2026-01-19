@@ -252,6 +252,9 @@ Extract and return this JSON format:
   "date": "YYYY-MM-DD format",
   "vendor": "merchant/store name",
   "amount": final total amount as number (NOT subtotal),
+  "subtotal": subtotal before tax as number (null if not visible),
+  "tax": tax amount as number (null if not visible),
+  "tip": tip/gratuity amount as number (null if not visible),
   "currency": "3-letter currency code (USD, KRW, EUR, GBP, JPY, CNY, CAD, AUD, etc.) - detect from currency symbol ($=USD, ₩=KRW, €=EUR, £=GBP, ¥=JPY or CNY, etc.)",
   "items": [
     {"name": "item1", "qty": 1, "unitPrice": 10.00, "amount": 10.00},
@@ -262,6 +265,8 @@ Extract and return this JSON format:
   "documentType": "one of: receipt, invoice, payment_proof, online_order, other",
   "confidence": confidence percentage 0-100 for document type classification
 }
+
+IMPORTANT: Extract tax and tip separately - do NOT include them in the items array. They will be added separately.
 
 Make sure to:
 1. Extract ALL line items from every image with their quantities and prices
@@ -281,6 +286,9 @@ Return this JSON format:
   "date": "YYYY-MM-DD format",
   "vendor": "merchant/store name",
   "amount": total amount as number,
+  "subtotal": subtotal before tax as number (null if not visible),
+  "tax": tax amount as number (null if not visible),
+  "tip": tip/gratuity amount as number (null if not visible),
   "currency": "3-letter currency code (USD, KRW, EUR, GBP, JPY, CNY, CAD, AUD, etc.) - detect from currency symbol ($=USD, ₩=KRW, €=EUR, £=GBP, ¥=JPY or CNY, etc.)",
   "items": [
     {"name": "item1", "qty": 1, "unitPrice": 10.00, "amount": 10.00},
@@ -291,6 +299,8 @@ Return this JSON format:
   "documentType": "one of: receipt, invoice, payment_proof, online_order, other",
   "confidence": confidence percentage 0-100 for document type classification
 }
+
+IMPORTANT: Extract tax and tip separately - do NOT include them in the items array. They will be added separately.
 
 IMPORTANT RULES:
 1. CAREFULLY read the IRS Schedule C category guide above
@@ -361,6 +371,30 @@ IMPORTANT RULES:
             selected: true,
           });
         }
+      });
+    }
+
+    // Add Tax as a line item if present
+    if (data.tax && typeof data.tax === 'number' && data.tax > 0) {
+      lineItems.push({
+        id: `tax_${Date.now()}`,
+        name: 'Tax',
+        qty: 1,
+        unitPrice: data.tax,
+        amount: data.tax,
+        selected: true,
+      });
+    }
+
+    // Add Tip as a line item if present
+    if (data.tip && typeof data.tip === 'number' && data.tip > 0) {
+      lineItems.push({
+        id: `tip_${Date.now()}`,
+        name: 'Tip',
+        qty: 1,
+        unitPrice: data.tip,
+        amount: data.tip,
+        selected: true,
       });
     }
 

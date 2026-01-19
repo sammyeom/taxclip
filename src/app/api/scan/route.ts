@@ -81,6 +81,7 @@ Extract the following:
   - Look for indicators: table numbers, server names, tips = restaurant
   - Look for indicators: SKU codes, produce codes, aisle numbers = grocery (NOT meals)
 
+- tip: Tip/gratuity amount as a number if visible (null if not shown)
 - items: ARRAY of ALL line items - EXTRACT EVERY SINGLE ITEM VISIBLE. Each item must have:
   * name: Full item description (include size, variant, SKU if shown)
   * quantity: Number of units (default 1 if not shown)
@@ -94,6 +95,7 @@ Extract the following:
   - For retail: include all SKUs, product codes, descriptions
   - Include modifiers, add-ons, or customizations as separate items if priced
   - If item appears multiple times, keep as separate entries or set quantity > 1
+  - DO NOT include Tax or Tip in items array - they are extracted separately
 
 - itemCount: Total number of distinct line items on the receipt (integer)
 - rawText: ALL visible text from the document (for audit trail)
@@ -143,6 +145,28 @@ Return ONLY valid JSON. Use null for missing fields (not empty string). Items ar
       amount: Number(item.amount) || (Number(item.quantity || 1) * Number(item.unitPrice || item.price || 0)),
     }));
 
+    // Add Tax as a line item if present
+    const taxAmount = Number(extractedData.tax) || 0;
+    if (taxAmount > 0) {
+      processedItems.push({
+        name: 'Tax',
+        quantity: 1,
+        unitPrice: taxAmount,
+        amount: taxAmount,
+      });
+    }
+
+    // Add Tip as a line item if present
+    const tipAmount = Number(extractedData.tip) || 0;
+    if (tipAmount > 0) {
+      processedItems.push({
+        name: 'Tip',
+        quantity: 1,
+        unitPrice: tipAmount,
+        amount: tipAmount,
+      });
+    }
+
     return NextResponse.json({
       merchant: extractedData.merchant || '',
       merchantType: extractedData.merchantType || 'other',
@@ -150,6 +174,7 @@ Return ONLY valid JSON. Use null for missing fields (not empty string). Items ar
       total: extractedData.total || '',
       subtotal: extractedData.subtotal || null,
       tax: extractedData.tax || null,
+      tip: extractedData.tip || null,
       currency: extractedData.currency || 'USD',
       paymentMethod: extractedData.paymentMethod || '',
       category: extractedData.category || '',

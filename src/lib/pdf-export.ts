@@ -256,18 +256,20 @@ async function addSummaryPage(
       fontStyle: 'bold',
       fontSize: 9,
       cellPadding: 4,
+      valign: 'middle',
     },
     bodyStyles: {
       fontSize: 9,
       textColor: COLORS.text,
       cellPadding: 3,
+      valign: 'middle',
     },
     alternateRowStyles: {
       fillColor: COLORS.tableAlt,
     },
     columnStyles: {
-      0: { cellWidth: 25 },
-      1: { cellWidth: 70 },
+      0: { cellWidth: 25, halign: 'left' },
+      1: { cellWidth: 70, halign: 'left' },
       2: { cellWidth: 35, halign: 'right' },
       3: { cellWidth: 20, halign: 'center' },
       4: { cellWidth: 30, halign: 'right' },
@@ -566,15 +568,15 @@ function addEmailTextBlock(
 
   // Header bar - minimal, dark (fits within rounded corners)
   doc.setFillColor(...COLORS.primary);
-  doc.roundedRect(x, y, width, 8, 2, 2, 'F');
+  doc.roundedRect(x, y, width, 9, 2, 2, 'F');
   doc.setFillColor(...COLORS.card);
-  doc.rect(x, y + 5, width, 4, 'F');
+  doc.rect(x, y + 6, width, 4, 'F');
 
-  // Header text
+  // Header text - positioned higher to avoid cut-off
   doc.setTextColor(...COLORS.primaryForeground);
   doc.setFontSize(7);
   doc.setFont('helvetica', 'bold');
-  doc.text('Email Evidence', x + width / 2, y + 5.5, { align: 'center' });
+  doc.text('Email Evidence', x + width / 2, y + 5, { align: 'center' });
 
   // Email content area
   doc.setTextColor(...COLORS.text);
@@ -583,9 +585,9 @@ function addEmailTextBlock(
 
   const padding = 3;
   const textX = x + padding;
-  const textY = y + 12;
+  const textY = y + 13;
   const textWidth = width - padding * 2;
-  const maxHeight = height - 14;
+  const maxHeight = height - 15;
 
   // Split text into lines that fit the width
   const lines = doc.splitTextToSize(emailText, textWidth);

@@ -1655,7 +1655,7 @@ export default function UploadPage() {
                     Payment Method
                   </label>
                   <Select
-                    value={formData.paymentMethod || undefined}
+                    value={formData.paymentMethod || 'credit'}
                     onValueChange={(value) =>
                       handleFormChange('paymentMethod', value)
                     }

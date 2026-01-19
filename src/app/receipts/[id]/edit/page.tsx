@@ -292,7 +292,7 @@ export default function ReceiptEditPage() {
         subcategory: data.subcategory || '',
         currency: 'USD',
         business_purpose: data.business_purpose || '',
-        payment_method: data.payment_method || 'credit',
+        payment_method: (data.payment_method && data.payment_method !== '') ? data.payment_method : 'credit',
         notes: data.notes || '',
         items: parsedItems,
       });
@@ -723,11 +723,12 @@ export default function ReceiptEditPage() {
                 Payment Method
               </label>
               <Select
-                value={formData.payment_method || 'credit'}
+                value={formData.payment_method && formData.payment_method !== '' ? formData.payment_method : 'credit'}
+                defaultValue="credit"
                 onValueChange={(value) => handleFormChange('payment_method', value)}
               >
                 <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Select payment method" />
+                  <SelectValue placeholder="Credit Card" />
                 </SelectTrigger>
                 <SelectContent>
                   {PAYMENT_METHODS.filter(m => m.value !== '').map((method) => (

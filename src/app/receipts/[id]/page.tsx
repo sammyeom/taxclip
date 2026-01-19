@@ -616,10 +616,42 @@ export default function ReceiptDetailPage() {
                           <span className="text-cyan-600">•</span>
                           <span>
                             {item.name} {item.quantity > 1 && `(x${item.quantity})`}
+                            {item.price > 0 && (
+                              <span className="text-slate-500 ml-2">
+                                {formatCurrency(item.price * item.quantity)}
+                              </span>
+                            )}
                           </span>
                         </li>
                       ))}
                     </ul>
+                    {/* Subtotal, Tax, Tip breakdown */}
+                    {(receipt.subtotal || receipt.tax || receipt.tip) && (
+                      <div className="mt-4 pt-3 border-t border-slate-200 space-y-2">
+                        {receipt.subtotal && receipt.subtotal > 0 && (
+                          <div className="flex justify-between text-sm">
+                            <span className="text-slate-500">Subtotal</span>
+                            <span className="text-slate-700">{formatCurrency(receipt.subtotal)}</span>
+                          </div>
+                        )}
+                        {receipt.tax && receipt.tax > 0 && (
+                          <div className="flex justify-between text-sm">
+                            <span className="text-slate-500">Tax</span>
+                            <span className="text-slate-700">{formatCurrency(receipt.tax)}</span>
+                          </div>
+                        )}
+                        {receipt.tip && receipt.tip > 0 && (
+                          <div className="flex justify-between text-sm">
+                            <span className="text-slate-500">Tip</span>
+                            <span className="text-slate-700">{formatCurrency(receipt.tip)}</span>
+                          </div>
+                        )}
+                        <div className="flex justify-between font-semibold pt-2 border-t border-slate-100">
+                          <span className="text-slate-700">Total</span>
+                          <span className="text-green-600">{formatCurrency(receipt.total)}</span>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )}
 

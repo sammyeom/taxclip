@@ -523,6 +523,9 @@ export default function ReceiptEditPage() {
                 date: formData.date,
                 vendor: formData.merchant,
                 amount: parseFloat(formData.total) || 0,
+                subtotal: formData.subtotal ? parseFloat(formData.subtotal) : undefined,
+                tax: formData.tax ? parseFloat(formData.tax) : undefined,
+                tip: formData.tip ? parseFloat(formData.tip) : undefined,
                 currency: formData.currency,
                 items: formData.items.filter((item) => item.selected),
                 category: formData.category,
@@ -605,6 +608,87 @@ export default function ReceiptEditPage() {
                   placeholder="0.00"
                   className="flex-1 min-w-0 rounded-l-none"
                 />
+              </div>
+            </div>
+
+            {/* Subtotal, Tax, Tip - Editable breakdown */}
+            <div className="md:col-span-2 grid grid-cols-3 gap-3">
+              {/* Subtotal */}
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="block text-xs sm:text-sm font-medium text-slate-700">
+                    Subtotal
+                  </label>
+                  {formData.items.length > 0 && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const itemsTotal = formData.items
+                          .filter((item) => item.selected)
+                          .reduce((sum, item) => sum + item.amount, 0);
+                        handleFormChange('subtotal', itemsTotal.toFixed(2));
+                      }}
+                      className="text-[10px] px-1.5 py-0.5 bg-cyan-100 hover:bg-cyan-200 text-cyan-700 rounded transition-colors"
+                      title="Calculate from line items"
+                    >
+                      Auto
+                    </button>
+                  )}
+                </div>
+                <div className="relative">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">$</span>
+                  <Input
+                    type="text"
+                    inputMode="decimal"
+                    value={formData.subtotal}
+                    onChange={(e) => {
+                      const value = e.target.value.replace(/[^0-9.]/g, '');
+                      handleFormChange('subtotal', value);
+                    }}
+                    placeholder="0.00"
+                    className="pl-7"
+                  />
+                </div>
+              </div>
+              {/* Tax */}
+              <div>
+                <label className="block text-xs sm:text-sm font-medium text-slate-700 mb-1">
+                  Tax
+                </label>
+                <div className="relative">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">$</span>
+                  <Input
+                    type="text"
+                    inputMode="decimal"
+                    value={formData.tax}
+                    onChange={(e) => {
+                      const value = e.target.value.replace(/[^0-9.]/g, '');
+                      handleFormChange('tax', value);
+                    }}
+                    placeholder="0.00"
+                    className="pl-7"
+                  />
+                </div>
+              </div>
+              {/* Tip */}
+              <div>
+                <label className="block text-xs sm:text-sm font-medium text-slate-700 mb-1">
+                  Tip
+                </label>
+                <div className="relative">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">$</span>
+                  <Input
+                    type="text"
+                    inputMode="decimal"
+                    value={formData.tip}
+                    onChange={(e) => {
+                      const value = e.target.value.replace(/[^0-9.]/g, '');
+                      handleFormChange('tip', value);
+                    }}
+                    placeholder="0.00"
+                    className="pl-7"
+                  />
+                </div>
               </div>
             </div>
 

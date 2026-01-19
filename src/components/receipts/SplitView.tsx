@@ -24,6 +24,9 @@ export interface ExtractedData {
   date: string;
   vendor: string;
   amount: number;
+  subtotal?: number;
+  tax?: number;
+  tip?: number;
   currency?: string;
   items: LineItem[] | string[];
   category: string;
@@ -490,6 +493,50 @@ export default function SplitView({
                     <div className="px-4 py-8 text-center text-gray-400">
                       <List className="w-8 h-8 mx-auto mb-2 opacity-50" />
                       <p className="text-sm">No line items extracted</p>
+                    </div>
+                  )}
+
+                  {/* Subtotal, Tax, Tip Section */}
+                  {(extractedData.subtotal !== undefined || extractedData.tax !== undefined || extractedData.tip !== undefined) && (
+                    <div className="border-t border-gray-200 bg-gray-50 px-4 py-3">
+                      <div className="space-y-2">
+                        {/* Subtotal */}
+                        {extractedData.subtotal !== undefined && extractedData.subtotal > 0 && (
+                          <div className="flex justify-between items-center text-sm">
+                            <span className="text-gray-600">Subtotal</span>
+                            <span className="text-gray-900 font-medium">
+                              {formatAmount(extractedData.subtotal, extractedData.currency)}
+                            </span>
+                          </div>
+                        )}
+                        {/* Tax */}
+                        {extractedData.tax !== undefined && extractedData.tax > 0 && (
+                          <div className="flex justify-between items-center text-sm">
+                            <span className="text-gray-600">Tax</span>
+                            <span className="text-gray-900 font-medium">
+                              {formatAmount(extractedData.tax, extractedData.currency)}
+                            </span>
+                          </div>
+                        )}
+                        {/* Tip */}
+                        {extractedData.tip !== undefined && extractedData.tip > 0 && (
+                          <div className="flex justify-between items-center text-sm">
+                            <span className="text-gray-600">Tip</span>
+                            <span className="text-gray-900 font-medium">
+                              {formatAmount(extractedData.tip, extractedData.currency)}
+                            </span>
+                          </div>
+                        )}
+                        {/* Separator line */}
+                        <div className="border-t border-gray-300 my-2"></div>
+                        {/* Total */}
+                        <div className="flex justify-between items-center">
+                          <span className="text-gray-900 font-semibold">Total</span>
+                          <span className="text-lg text-green-600 font-bold">
+                            {formatAmount(extractedData.amount, extractedData.currency)}
+                          </span>
+                        </div>
+                      </div>
                     </div>
                   )}
                 </div>

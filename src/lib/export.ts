@@ -30,6 +30,8 @@ export interface ExportMetadata {
   totalReceipts: number;
   totalAmount: number;
   totalDeductible: number;
+  totalTax: number;
+  totalTips: number;
 }
 
 /**
@@ -88,6 +90,8 @@ export function generateExportMetadata(
     const rate = getDeductionRate(r.category || 'other');
     return sum + (r.total || 0) * rate;
   }, 0);
+  const totalTax = receipts.reduce((sum, r) => sum + (r.tax || 0), 0);
+  const totalTips = receipts.reduce((sum, r) => sum + (r.tip || 0), 0);
 
   return {
     taxYear,
@@ -95,6 +99,8 @@ export function generateExportMetadata(
     totalReceipts: receipts.length,
     totalAmount,
     totalDeductible,
+    totalTax,
+    totalTips,
   };
 }
 
@@ -184,7 +190,10 @@ export function generateBusinessReceiptCSV(
   const headers = [
     'Date',
     'Vendor',
-    'Amount',
+    'Subtotal',
+    'Tax',
+    'Tip',
+    'Total Amount',
     'Category (IRS)',
     'Subcategory',
     'Schedule C Line',
@@ -204,10 +213,19 @@ export function generateBusinessReceiptCSV(
     const cleanEmailText = receipt.email_text
       ? receipt.email_text.replace(/\s+/g, ' ').trim()
       : '';
+    // Calculate subtotal, tax, tip with data integrity check
+    const subtotal = receipt.subtotal ?? (receipt.total || 0) - (receipt.tax || 0) - (receipt.tip || 0);
+    const tax = receipt.tax ?? 0;
+    const tip = receipt.tip ?? 0;
+    // Ensure total = subtotal + tax + tip
+    const total = subtotal + tax + tip;
     return [
       escapeCSVField(formatDate(receipt.date)),
       escapeCSVField(receipt.merchant),
-      escapeCSVField(receipt.total?.toFixed(2)),
+      escapeCSVField(subtotal.toFixed(2)),
+      escapeCSVField(tax.toFixed(2)),
+      escapeCSVField(tip.toFixed(2)),
+      escapeCSVField(total.toFixed(2)),
       escapeCSVField(getCategoryLabel(category)),
       escapeCSVField(subcategory),
       escapeCSVField(`Line ${getScheduleCLine(category)}`),

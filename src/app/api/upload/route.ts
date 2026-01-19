@@ -67,6 +67,10 @@ export async function POST(request: NextRequest) {
             ? JSON.parse(evidenceTypesJson)
             : {};
 
+        // Check if batch mode (process each file as separate receipt)
+        const batchMode = formData.get('batchMode') === 'true';
+        console.log(`Batch mode: ${batchMode}`);
+
         // 2. Upload all files to Supabase Storage
         const uploadedUrls: string[] = [];
         const uploadErrors: string[] = [];
@@ -139,8 +143,46 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        // 3. OCR 실행 (single or multi-image based on count)
+        // 3. OCR 실행
         console.log('Starting OCR...');
+
+        // BATCH MODE: Process each file as a separate receipt
+        if (batchMode && uploadedUrls.length > 1) {
+            console.log(`Batch mode: Processing ${uploadedUrls.length} receipts individually`);
+            const batchResults = [];
+
+            for (let i = 0; i < uploadedUrls.length; i++) {
+                const url = uploadedUrls[i];
+                console.log(`Processing receipt ${i + 1}/${uploadedUrls.length}: ${url}`);
+
+                try {
+                    const receiptData = await extractReceiptData(url);
+                    batchResults.push({
+                        imageUrl: url,
+                        documentType: documentTypes[i] || 'receipt',
+                        data: receiptData,
+                        error: null,
+                    });
+                } catch (ocrError) {
+                    console.error(`OCR error for receipt ${i + 1}:`, ocrError);
+                    batchResults.push({
+                        imageUrl: url,
+                        documentType: documentTypes[i] || 'receipt',
+                        data: null,
+                        error: 'Failed to extract receipt data',
+                    });
+                }
+            }
+
+            return NextResponse.json({
+                batchMode: true,
+                batchResults: batchResults,
+                imageUrls: uploadedUrls,
+                uploadErrors: uploadErrors.length > 0 ? uploadErrors : undefined,
+            });
+        }
+
+        // SINGLE/MULTI-PAGE MODE: Process as one receipt (existing behavior)
         let receiptData;
         try {
             if (uploadedUrls.length === 1) {

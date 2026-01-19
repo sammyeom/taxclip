@@ -191,6 +191,8 @@ export default function UploadPage() {
   const [multiSelectMode, setMultiSelectMode] = useState(false);
   const [selectedForGrouping, setSelectedForGrouping] = useState<string[]>([]);
   const [processingGroup, setProcessingGroup] = useState(false);
+  // Batch mode: true = separate receipts, false = multi-page single receipt
+  const [batchMode, setBatchMode] = useState(true);
 
   // Email text input for IRS evidence
   const [emailText, setEmailText] = useState('');
@@ -721,6 +723,9 @@ export default function UploadPage() {
         formDataToSend.append('files', fileEntry.file);
       });
 
+      // Add batch mode flag (true = separate receipts, false = multi-page single receipt)
+      formDataToSend.append('batchMode', batchMode.toString());
+
       // Simulate progress
       const progressInterval = setInterval(() => {
         setFiles((prev) =>
@@ -757,76 +762,156 @@ export default function UploadPage() {
         throw new Error(errorData.error || 'Failed to process receipt');
       }
 
-      const result: OCRResponse = await response.json();
+      const result = await response.json();
 
-      // Update the first file with all OCR data, mark others as complete
-      const firstFileId = selectedForGrouping[0];
-      setFiles((prev) =>
-        prev.map((f) => {
-          if (!selectedForGrouping.includes(f.id)) return f;
+      // Handle BATCH MODE results (each file has its own OCR data)
+      if (result.batchMode && result.batchResults) {
+        console.log('Batch mode results:', result.batchResults);
 
-          if (f.id === firstFileId) {
-            return {
-              ...f,
-              status: 'complete' as FileStatus,
-              progress: 100,
-              ocrData: result.data
-                ? {
-                    date: result.data.date,
-                    vendor: result.data.vendor,
-                    amount: result.data.amount,
-                    subtotal: result.data.subtotal,
-                    tax: result.data.tax,
-                    tip: result.data.tip,
-                    currency: result.data.currency || 'USD',
-                    category: result.data.category,
-                    items: result.data.items || [],
-                    paymentMethod: result.data.paymentMethod,
-                  }
-                : undefined,
-            };
+        // Update each file with its own OCR data
+        setFiles((prev) =>
+          prev.map((f) => {
+            if (!selectedForGrouping.includes(f.id)) return f;
+
+            // Find the corresponding batch result by index
+            const fileIndex = selectedFiles.findIndex((sf) => sf.id === f.id);
+            const batchResult = result.batchResults[fileIndex];
+
+            if (batchResult && batchResult.data) {
+              return {
+                ...f,
+                status: 'complete' as FileStatus,
+                progress: 100,
+                ocrData: {
+                  date: batchResult.data.date,
+                  vendor: batchResult.data.vendor,
+                  amount: batchResult.data.amount,
+                  subtotal: batchResult.data.subtotal,
+                  tax: batchResult.data.tax,
+                  tip: batchResult.data.tip,
+                  currency: batchResult.data.currency || 'USD',
+                  category: batchResult.data.category,
+                  items: batchResult.data.items || [],
+                  paymentMethod: batchResult.data.paymentMethod,
+                },
+              };
+            }
+            return { ...f, status: 'complete' as FileStatus, progress: 100 };
+          })
+        );
+
+        // In batch mode, select the first file to show its data
+        if (selectedForGrouping.length > 0) {
+          const firstFileId = selectedForGrouping[0];
+          setSelectedFileId(firstFileId);
+
+          // Set form data for the first receipt
+          const firstResult = result.batchResults[0];
+          if (firstResult && firstResult.data) {
+            setFormData((prev) => ({
+              ...prev,
+              date: firstResult.data.date || '',
+              merchant: firstResult.data.vendor || '',
+              amount: firstResult.data.amount?.toString() || '',
+              subtotal: firstResult.data.subtotal?.toString() || '',
+              tax: firstResult.data.tax?.toString() || '',
+              tip: firstResult.data.tip?.toString() || '',
+              category: firstResult.data.category || 'other',
+              currency: firstResult.data.currency || 'USD',
+              paymentMethod: firstResult.data.paymentMethod || 'credit',
+            }));
+            setExtractedItems(
+              (firstResult.data.items || []).map((item: LineItem, idx: number) => ({
+                ...item,
+                id: item.id || `item_${Date.now()}_${idx}`,
+                selected: true,
+              }))
+            );
           }
-          return { ...f, status: 'complete' as FileStatus, progress: 100 };
-        })
-      );
 
-      // Set the grouped image URLs and document types
-      if (result.imageUrls) {
-        setUploadedImageUrls(result.imageUrls);
-        setUploadedImageUrl(result.imageUrls[0]);
-      } else if (result.imageUrl) {
-        setUploadedImageUrls([result.imageUrl]);
-        setUploadedImageUrl(result.imageUrl);
+          // Set first image URL
+          if (result.imageUrls && result.imageUrls.length > 0) {
+            setUploadedImageUrl(result.imageUrls[0]);
+            setUploadedImageUrls([result.imageUrls[0]]);
+          }
+        }
+
+        // Clear multi-select mode after batch processing
+        setMultiSelectMode(false);
+        setSelectedForGrouping([]);
+        setShowSplitView(true);
+
+      } else {
+        // Handle SINGLE/MULTI-PAGE MODE results (existing behavior)
+        // Update the first file with all OCR data, mark others as complete
+        const firstFileId = selectedForGrouping[0];
+        setFiles((prev) =>
+          prev.map((f) => {
+            if (!selectedForGrouping.includes(f.id)) return f;
+
+            if (f.id === firstFileId) {
+              return {
+                ...f,
+                status: 'complete' as FileStatus,
+                progress: 100,
+                ocrData: result.data
+                  ? {
+                      date: result.data.date,
+                      vendor: result.data.vendor,
+                      amount: result.data.amount,
+                      subtotal: result.data.subtotal,
+                      tax: result.data.tax,
+                      tip: result.data.tip,
+                      currency: result.data.currency || 'USD',
+                      category: result.data.category,
+                      items: result.data.items || [],
+                      paymentMethod: result.data.paymentMethod,
+                    }
+                  : undefined,
+              };
+            }
+            return { ...f, status: 'complete' as FileStatus, progress: 100 };
+          })
+        );
+
+        // Set the grouped image URLs and document types
+        if (result.imageUrls) {
+          setUploadedImageUrls(result.imageUrls);
+          setUploadedImageUrl(result.imageUrls[0]);
+        } else if (result.imageUrl) {
+          setUploadedImageUrls([result.imageUrl]);
+          setUploadedImageUrl(result.imageUrl);
+        }
+        setUploadedDocumentTypes(result.documentTypes || []);
+        setUploadedRawText(result.rawText || null);
+
+        // Populate form with OCR data (preserve user-entered values)
+        const groupOcrData = result.data;
+        if (groupOcrData) {
+          setFormData((prev) => ({
+            date: prev.date || groupOcrData.date || '',
+            merchant: prev.merchant || groupOcrData.vendor || '',
+            amount: prev.amount || (groupOcrData.amount ? groupOcrData.amount.toFixed(2) : ''),
+            subtotal: prev.subtotal || (groupOcrData.subtotal ? groupOcrData.subtotal.toFixed(2) : ''),
+            tax: prev.tax || (groupOcrData.tax ? groupOcrData.tax.toFixed(2) : ''),
+            tip: prev.tip || (groupOcrData.tip ? groupOcrData.tip.toFixed(2) : ''),
+            currency: prev.currency || groupOcrData.currency || 'USD',
+            category: prev.category !== 'other' ? prev.category : (groupOcrData.category || 'other'),
+            subcategory: prev.subcategory || '',
+            businessPurpose: prev.businessPurpose || '',
+            paymentMethod: prev.paymentMethod || groupOcrData.paymentMethod || '',
+            notes: prev.notes || '',
+          }));
+          setExtractedItems((prev) => prev.length > 0 ? prev : convertOcrItemsToLineItems(groupOcrData.items || []));
+        }
+
+        // Select the first file for editing
+        setSelectedFileId(firstFileId);
+
+        // Exit multi-select mode
+        setMultiSelectMode(false);
+        setSelectedForGrouping([]);
       }
-      setUploadedDocumentTypes(result.documentTypes || []);
-      setUploadedRawText(result.rawText || null);
-
-      // Populate form with OCR data (preserve user-entered values)
-      const groupOcrData = result.data;
-      if (groupOcrData) {
-        setFormData((prev) => ({
-          date: prev.date || groupOcrData.date || '',
-          merchant: prev.merchant || groupOcrData.vendor || '',
-          amount: prev.amount || (groupOcrData.amount ? groupOcrData.amount.toFixed(2) : ''),
-          subtotal: prev.subtotal || (groupOcrData.subtotal ? groupOcrData.subtotal.toFixed(2) : ''),
-          tax: prev.tax || (groupOcrData.tax ? groupOcrData.tax.toFixed(2) : ''),
-          tip: prev.tip || (groupOcrData.tip ? groupOcrData.tip.toFixed(2) : ''),
-          currency: prev.currency || groupOcrData.currency || 'USD',
-          category: prev.category !== 'other' ? prev.category : (groupOcrData.category || 'other'),
-          subcategory: prev.subcategory || '',
-          businessPurpose: prev.businessPurpose || '',
-          paymentMethod: prev.paymentMethod || groupOcrData.paymentMethod || '',
-          notes: prev.notes || '',
-        }));
-        setExtractedItems((prev) => prev.length > 0 ? prev : convertOcrItemsToLineItems(groupOcrData.items || []));
-      }
-
-      // Select the first file for editing
-      setSelectedFileId(firstFileId);
-
-      // Exit multi-select mode
-      setMultiSelectMode(false);
-      setSelectedForGrouping([]);
 
     } catch (err) {
       console.error('Group processing error:', err);
@@ -1368,10 +1453,51 @@ export default function UploadPage() {
               )}
             </div>
 
+            {multiSelectMode && selectedForGrouping.length > 1 && (
+              <div className="mt-3 flex flex-col sm:flex-row gap-2 items-start sm:items-center">
+                <span className="text-xs sm:text-sm text-slate-600 font-medium">Processing Mode:</span>
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setBatchMode(true)}
+                    className={`px-3 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition-colors ${
+                      batchMode
+                        ? 'bg-cyan-500 text-white'
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-300'
+                    }`}
+                  >
+                    Separate Receipts
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setBatchMode(false)}
+                    className={`px-3 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition-colors ${
+                      !batchMode
+                        ? 'bg-cyan-500 text-white'
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-300'
+                    }`}
+                  >
+                    Multi-Page Receipt
+                  </button>
+                </div>
+              </div>
+            )}
+
             {multiSelectMode && (
-              <div className="mt-3 p-2 sm:p-3 bg-amber-50 border border-amber-200 rounded-lg text-xs sm:text-sm text-amber-800">
-                <strong>Tip:</strong> Select multiple images that belong to the same long receipt.
-                The AI will analyze all images together.
+              <div className={`mt-3 p-2 sm:p-3 rounded-lg text-xs sm:text-sm ${
+                batchMode
+                  ? 'bg-cyan-50 border border-cyan-200 text-cyan-800'
+                  : 'bg-amber-50 border border-amber-200 text-amber-800'
+              }`}>
+                {batchMode ? (
+                  <>
+                    <strong>Separate Receipts:</strong> Each image will be processed as a different receipt with its own data.
+                  </>
+                ) : (
+                  <>
+                    <strong>Multi-Page Receipt:</strong> All images will be analyzed together as parts of one receipt.
+                  </>
+                )}
               </div>
             )}
           </div>

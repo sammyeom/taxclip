@@ -193,6 +193,23 @@ export default function UploadPage() {
   const [processingGroup, setProcessingGroup] = useState(false);
   // Batch mode: true = separate receipts, false = multi-page single receipt
   const [batchMode, setBatchMode] = useState(true);
+  // Store batch results for saving all receipts
+  const [batchResults, setBatchResults] = useState<Array<{
+    fileId: string;
+    imageUrl: string;
+    data: {
+      date: string;
+      vendor: string;
+      amount: number;
+      subtotal?: number;
+      tax?: number;
+      tip?: number;
+      currency: string;
+      category: string;
+      items: LineItem[];
+      paymentMethod?: string;
+    } | null;
+  }>>([]);
 
   // Email text input for IRS evidence
   const [emailText, setEmailText] = useState('');
@@ -836,6 +853,14 @@ export default function UploadPage() {
           }
         }
 
+        // Store batch results for "Save All" functionality
+        const storedBatchResults = selectedFiles.map((sf, index) => ({
+          fileId: sf.id,
+          imageUrl: result.batchResults[index]?.imageUrl || '',
+          data: result.batchResults[index]?.data || null,
+        }));
+        setBatchResults(storedBatchResults);
+
         // Clear multi-select mode after batch processing
         setMultiSelectMode(false);
         setSelectedForGrouping([]);
@@ -1230,6 +1255,147 @@ export default function UploadPage() {
     } catch (err) {
       console.error('Save error:', err);
       setError(err instanceof Error ? err.message : 'Failed to save receipt');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  // Save all receipts from batch processing
+  const handleSaveAllReceipts = async () => {
+    if (batchResults.length === 0) {
+      setError('No batch results to save');
+      return;
+    }
+
+    setSaving(true);
+    setError(null);
+
+    let savedCount = 0;
+    const errors: string[] = [];
+
+    try {
+      for (const batchItem of batchResults) {
+        if (!batchItem.data) {
+          errors.push(`Skipped: No data for file`);
+          continue;
+        }
+
+        const data = batchItem.data;
+
+        // Validate required fields
+        if (!data.date || !data.vendor || !data.amount) {
+          errors.push(`Skipped: Missing required fields for ${data.vendor || 'unknown'}`);
+          continue;
+        }
+
+        const taxYear = calculateTaxYear(data.date);
+
+        // Find the file to get additional info
+        const file = files.find(f => f.id === batchItem.fileId);
+
+        // Build evidence item
+        const evidenceItems: EvidenceItem[] = [{
+          id: `evidence_${Date.now()}_${savedCount}`,
+          file_url: batchItem.imageUrl,
+          file_name: file?.file.name || `receipt_${savedCount}`,
+          file_type: file?.file.type || 'image/jpeg',
+          file_size: file?.file.size || 0,
+          evidence_type: file?.evidenceType || EvidenceType.RECEIPT,
+          extracted_text: file?.extractedPdfText,
+          upload_date: new Date().toISOString(),
+          order: 0,
+        }];
+
+        // Convert items
+        const receiptItems = (data.items || []).map(item => ({
+          name: item.name,
+          price: item.unitPrice,
+          quantity: item.qty,
+        }));
+
+        const receiptData = {
+          merchant: data.vendor,
+          date: data.date,
+          total: data.amount,
+          subtotal: data.subtotal || null,
+          tax: data.tax || null,
+          tip: data.tip || null,
+          category: data.category || 'other',
+          items: receiptItems,
+          image_url: batchItem.imageUrl,
+          image_urls: [batchItem.imageUrl],
+          evidence_items: evidenceItems,
+          email_text: null,
+          parsed_email_data: null,
+          business_purpose: null,
+          payment_method: data.paymentMethod || 'credit',
+          notes: null,
+          tax_year: taxYear,
+          description: null,
+        };
+
+        const { data: savedReceipt, error: saveError } = await createReceipt(receiptData);
+
+        if (saveError) {
+          errors.push(`Failed to save ${data.vendor}: ${saveError.message}`);
+          continue;
+        }
+
+        // Add to store for immediate UI update
+        if (savedReceipt) {
+          addReceipt(savedReceipt);
+        }
+
+        savedCount++;
+
+        // Mark file as saved
+        setFiles((prev) =>
+          prev.map((f) =>
+            f.id === batchItem.fileId
+              ? { ...f, status: 'complete' as FileStatus }
+              : f
+          )
+        );
+      }
+
+      // Clear batch results after saving
+      setBatchResults([]);
+
+      // Refetch usage
+      refetchUsage();
+
+      if (savedCount > 0) {
+        setSuccessMessage(`${savedCount} receipt(s) saved successfully!${errors.length > 0 ? ` (${errors.length} skipped)` : ''}`);
+
+        // Reset state
+        setFiles([]);
+        setSelectedFileId(null);
+        setFormData({
+          date: '',
+          merchant: '',
+          amount: '',
+          subtotal: '',
+          tax: '',
+          tip: '',
+          currency: 'USD',
+          category: 'other',
+          subcategory: '',
+          businessPurpose: '',
+          paymentMethod: 'credit',
+          notes: '',
+        });
+        setExtractedItems([]);
+
+        // Redirect after delay
+        setTimeout(() => {
+          router.push('/receipts');
+        }, 1500);
+      } else {
+        setError(`No receipts were saved. ${errors.join('; ')}`);
+      }
+    } catch (err) {
+      console.error('Batch save error:', err);
+      setError(err instanceof Error ? err.message : 'Failed to save receipts');
     } finally {
       setSaving(false);
     }
@@ -2082,7 +2248,29 @@ export default function UploadPage() {
                 </div>
 
                 {/* Save button - Full width */}
-                <div className="md:col-span-2 pt-2">
+                <div className="md:col-span-2 pt-2 space-y-2">
+                  {/* Save All button - shown when batch results exist */}
+                  {batchResults.length > 1 && (
+                    <Button
+                      onClick={handleSaveAllReceipts}
+                      disabled={saving}
+                      className="w-full h-11 sm:h-12 bg-green-500 hover:bg-green-600 text-white"
+                    >
+                      {saving ? (
+                        <>
+                          <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin mr-2" />
+                          Saving All...
+                        </>
+                      ) : (
+                        <>
+                          <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
+                          Save All {batchResults.length} Receipts
+                        </>
+                      )}
+                    </Button>
+                  )}
+
+                  {/* Single save button */}
                   <Button
                     onClick={handleSaveReceipt}
                     disabled={
@@ -2092,7 +2280,7 @@ export default function UploadPage() {
                       !formData.amount ||
                       !formData.businessPurpose
                     }
-                    className="w-full h-11 sm:h-12 bg-cyan-500 hover:bg-cyan-600 text-white"
+                    className={`w-full h-11 sm:h-12 ${batchResults.length > 1 ? 'bg-slate-500 hover:bg-slate-600' : 'bg-cyan-500 hover:bg-cyan-600'} text-white`}
                   >
                     {saving ? (
                       <>
@@ -2102,8 +2290,8 @@ export default function UploadPage() {
                     ) : (
                       <>
                         <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
-                        Save Receipt
-                        {completedCount > 1 && (
+                        {batchResults.length > 1 ? 'Save This Receipt Only' : 'Save Receipt'}
+                        {completedCount > 1 && batchResults.length <= 1 && (
                           <Badge variant="secondary" className="ml-2 bg-cyan-400 text-white">
                             +{completedCount - 1}
                           </Badge>

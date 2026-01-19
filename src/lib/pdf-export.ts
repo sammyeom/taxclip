@@ -279,8 +279,14 @@ async function addSummaryPage(
     tableLineColor: COLORS.tableBorder,
     tableLineWidth: 0.2,
     didParseCell: (data) => {
+      // Apply alignment to header cells to match body
+      if (data.section === 'head') {
+        if (data.column.index === 2) data.cell.styles.halign = 'right';      // Amount
+        if (data.column.index === 3) data.cell.styles.halign = 'center';     // Count
+        if (data.column.index === 4) data.cell.styles.halign = 'right';      // Deductible
+      }
       // Style total row
-      if (data.row.index === tableData.length - 1) {
+      if (data.section === 'body' && data.row.index === tableData.length - 1) {
         data.cell.styles.fontStyle = 'bold';
         data.cell.styles.fillColor = COLORS.tableHeader;
       }

@@ -121,6 +121,9 @@ export default function ReceiptEditPage() {
     date: '',
     merchant: '',
     total: '',
+    subtotal: '',
+    tax: '',
+    tip: '',
     category: 'other',
     subcategory: '',
     currency: 'USD',
@@ -282,6 +285,9 @@ export default function ReceiptEditPage() {
         date: data.date || '',
         merchant: data.merchant || '',
         total: data.total?.toString() || '',
+        subtotal: data.subtotal?.toString() || '',
+        tax: data.tax?.toString() || '',
+        tip: data.tip?.toString() || '',
         category: data.category || 'other',
         subcategory: data.subcategory || '',
         currency: 'USD',
@@ -343,10 +349,18 @@ export default function ReceiptEditPage() {
         selected: item.selected,
       }));
 
+      // Parse subtotal, tax, and tip
+      const subtotalAmount = formData.subtotal ? parseFloat(formData.subtotal) : null;
+      const taxAmount = formData.tax ? parseFloat(formData.tax) : null;
+      const tipAmount = formData.tip ? parseFloat(formData.tip) : null;
+
       const updatedData = {
         date: formData.date,
         merchant: formData.merchant,
         total: totalAmount,
+        subtotal: subtotalAmount,
+        tax: taxAmount,
+        tip: tipAmount,
         category: formData.category,
         // Note: subcategory column doesn't exist in database - store in notes if needed
         business_purpose: formData.business_purpose || null,

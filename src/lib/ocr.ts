@@ -20,8 +20,11 @@ export interface ReceiptData {
   date: string;
   vendor: string;
   amount: number;
+  subtotal?: number;           // Subtotal before tax
+  tax?: number;                // Tax amount (separate field)
+  tip?: number;                // Tip amount (separate field)
   currency: string;            // Currency code (USD, KRW, EUR, etc.)
-  items: LineItem[];
+  items: LineItem[];           // Only purchased items (no tax/tip)
   category: string;
   paymentMethod?: string;
   documentType: DocumentType;  // Auto-classified document type
@@ -374,34 +377,18 @@ IMPORTANT RULES:
       });
     }
 
-    // Add Tax as a line item if present
-    if (data.tax && typeof data.tax === 'number' && data.tax > 0) {
-      lineItems.push({
-        id: `tax_${Date.now()}`,
-        name: 'Tax',
-        qty: 1,
-        unitPrice: data.tax,
-        amount: data.tax,
-        selected: true,
-      });
-    }
-
-    // Add Tip as a line item if present
-    if (data.tip && typeof data.tip === 'number' && data.tip > 0) {
-      lineItems.push({
-        id: `tip_${Date.now()}`,
-        name: 'Tip',
-        qty: 1,
-        unitPrice: data.tip,
-        amount: data.tip,
-        selected: true,
-      });
-    }
+    // Extract tax and tip as separate fields (not in items array)
+    const taxAmount = (data.tax && typeof data.tax === 'number' && data.tax > 0) ? data.tax : undefined;
+    const tipAmount = (data.tip && typeof data.tip === 'number' && data.tip > 0) ? data.tip : undefined;
+    const subtotalAmount = (data.subtotal && typeof data.subtotal === 'number') ? data.subtotal : undefined;
 
     return {
       date: data.date || new Date().toISOString().split('T')[0],
       vendor: data.vendor || 'Unknown Vendor',
       amount: parseFloat(data.amount) || 0,
+      subtotal: subtotalAmount,
+      tax: taxAmount,
+      tip: tipAmount,
       currency: data.currency || 'USD',
       items: lineItems,
       category,

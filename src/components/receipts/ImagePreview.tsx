@@ -48,6 +48,9 @@ export interface FileWithPreview {
     date: string;
     vendor: string;
     amount: number;
+    subtotal?: number;
+    tax?: number;
+    tip?: number;
     currency: string;
     category: string;
     items?: (string | OCRItem)[];

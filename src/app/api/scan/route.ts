@@ -137,7 +137,7 @@ Return ONLY valid JSON. Use null for missing fields (not empty string). Items ar
       );
     }
 
-    // Process items to ensure proper format
+    // Process items to ensure proper format (only purchased items, no tax/tip)
     const processedItems = (extractedData.items || []).map((item: { name?: string; quantity?: number; unitPrice?: number; amount?: number; price?: string | number }) => ({
       name: item.name || '',
       quantity: Number(item.quantity) || 1,
@@ -145,27 +145,7 @@ Return ONLY valid JSON. Use null for missing fields (not empty string). Items ar
       amount: Number(item.amount) || (Number(item.quantity || 1) * Number(item.unitPrice || item.price || 0)),
     }));
 
-    // Add Tax as a line item if present
-    const taxAmount = Number(extractedData.tax) || 0;
-    if (taxAmount > 0) {
-      processedItems.push({
-        name: 'Tax',
-        quantity: 1,
-        unitPrice: taxAmount,
-        amount: taxAmount,
-      });
-    }
-
-    // Add Tip as a line item if present
-    const tipAmount = Number(extractedData.tip) || 0;
-    if (tipAmount > 0) {
-      processedItems.push({
-        name: 'Tip',
-        quantity: 1,
-        unitPrice: tipAmount,
-        amount: tipAmount,
-      });
-    }
+    // Tax and tip are returned as separate fields (not in items array)
 
     return NextResponse.json({
       merchant: extractedData.merchant || '',

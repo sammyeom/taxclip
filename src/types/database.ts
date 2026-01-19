@@ -90,9 +90,12 @@ export type Receipt = {
   merchant: string;
   date: string;
   total: number;
+  subtotal: number | null;         // Subtotal before tax
+  tax: number | null;              // Tax amount (separate from items)
+  tip: number | null;              // Tip amount (separate from items)
   category: string;
   subcategory?: string | null;     // IRS Schedule C subcategory (optional - not in DB yet)
-  items: ReceiptItem[];
+  items: ReceiptItem[];            // Only purchased items (no tax/tip)
   image_url: string | null;        // Legacy single image (for backward compatibility)
   image_urls: string[];            // New: Array of image URLs for multi-image support
   evidence_items: EvidenceItem[];  // IRS audit-ready evidence items with tags

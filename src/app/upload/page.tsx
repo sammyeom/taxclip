@@ -72,6 +72,9 @@ interface OCRData {
   date: string;
   vendor: string;
   amount: number;
+  subtotal?: number;
+  tax?: number;
+  tip?: number;
   currency: string;
   items: (string | OCRItem)[];
   category: string;
@@ -204,6 +207,9 @@ export default function UploadPage() {
     date: '',
     merchant: '',
     amount: '',
+    subtotal: '',
+    tax: '',
+    tip: '',
     currency: 'USD',
     category: 'other',
     subcategory: '',
@@ -418,6 +424,9 @@ export default function UploadPage() {
                   date: result.data.date,
                   vendor: result.data.vendor,
                   amount: result.data.amount,
+                  subtotal: result.data.subtotal,
+                  tax: result.data.tax,
+                  tip: result.data.tip,
                   currency: result.data.currency || 'USD',
                   category: result.data.category,
                   items: result.data.items || [],
@@ -439,6 +448,9 @@ export default function UploadPage() {
             date: prev.date || ocrData.date || '',
             merchant: prev.merchant || ocrData.vendor || '',
             amount: prev.amount || (ocrData.amount ? ocrData.amount.toFixed(2) : ''),
+            subtotal: prev.subtotal || (ocrData.subtotal ? ocrData.subtotal.toFixed(2) : ''),
+            tax: prev.tax || (ocrData.tax ? ocrData.tax.toFixed(2) : ''),
+            tip: prev.tip || (ocrData.tip ? ocrData.tip.toFixed(2) : ''),
             currency: prev.currency || ocrData.currency || 'USD',
             category: prev.category !== 'other' ? prev.category : (ocrData.category || 'other'),
             subcategory: prev.subcategory || '',
@@ -763,6 +775,9 @@ export default function UploadPage() {
                     date: result.data.date,
                     vendor: result.data.vendor,
                     amount: result.data.amount,
+                    subtotal: result.data.subtotal,
+                    tax: result.data.tax,
+                    tip: result.data.tip,
                     currency: result.data.currency || 'USD',
                     category: result.data.category,
                     items: result.data.items || [],
@@ -793,6 +808,9 @@ export default function UploadPage() {
           date: prev.date || groupOcrData.date || '',
           merchant: prev.merchant || groupOcrData.vendor || '',
           amount: prev.amount || (groupOcrData.amount ? groupOcrData.amount.toFixed(2) : ''),
+          subtotal: prev.subtotal || (groupOcrData.subtotal ? groupOcrData.subtotal.toFixed(2) : ''),
+          tax: prev.tax || (groupOcrData.tax ? groupOcrData.tax.toFixed(2) : ''),
+          tip: prev.tip || (groupOcrData.tip ? groupOcrData.tip.toFixed(2) : ''),
           currency: prev.currency || groupOcrData.currency || 'USD',
           category: prev.category !== 'other' ? prev.category : (groupOcrData.category || 'other'),
           subcategory: prev.subcategory || '',
@@ -978,10 +996,18 @@ export default function UploadPage() {
         quantity: item.qty,
       }));
 
+      // Parse subtotal, tax, and tip
+      const subtotalAmount = formData.subtotal ? parseFloat(formData.subtotal) : null;
+      const taxAmount = formData.tax ? parseFloat(formData.tax) : null;
+      const tipAmount = formData.tip ? parseFloat(formData.tip) : null;
+
       const receiptData = {
         merchant: formData.merchant,
         date: formData.date,
         total: totalAmount,
+        subtotal: subtotalAmount,
+        tax: taxAmount,
+        tip: tipAmount,
         category: formData.category,
         // Note: subcategory is stored in notes until DB column is added
         items: receiptItems,
@@ -1069,6 +1095,9 @@ export default function UploadPage() {
         date: '',
         merchant: '',
         amount: '',
+        subtotal: '',
+        tax: '',
+        tip: '',
         currency: 'USD',
         category: 'other',
         subcategory: '',
@@ -1094,6 +1123,9 @@ export default function UploadPage() {
             date: nextFile.ocrData.date || '',
             merchant: nextFile.ocrData.vendor || '',
             amount: nextFile.ocrData.amount ? nextFile.ocrData.amount.toFixed(2) : '',
+            subtotal: nextFile.ocrData.subtotal ? nextFile.ocrData.subtotal.toFixed(2) : '',
+            tax: nextFile.ocrData.tax ? nextFile.ocrData.tax.toFixed(2) : '',
+            tip: nextFile.ocrData.tip ? nextFile.ocrData.tip.toFixed(2) : '',
             currency: nextFile.ocrData.currency || 'USD',
             category: nextFile.ocrData.category || 'other',
             subcategory: '',
@@ -1139,6 +1171,15 @@ export default function UploadPage() {
         amount: fileOcrData.amount
           ? fileOcrData.amount.toFixed(2)
           : prev.amount || '',
+        subtotal: fileOcrData.subtotal
+          ? fileOcrData.subtotal.toFixed(2)
+          : prev.subtotal || '',
+        tax: fileOcrData.tax
+          ? fileOcrData.tax.toFixed(2)
+          : prev.tax || '',
+        tip: fileOcrData.tip
+          ? fileOcrData.tip.toFixed(2)
+          : prev.tip || '',
         currency: fileOcrData.currency || prev.currency || 'USD',
         category: fileOcrData.category || prev.category || 'other',
         subcategory: prev.subcategory || '',

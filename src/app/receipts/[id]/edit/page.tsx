@@ -723,7 +723,7 @@ export default function ReceiptEditPage() {
                 Payment Method
               </label>
               <Select
-                value={formData.payment_method || undefined}
+                value={formData.payment_method || 'credit'}
                 onValueChange={(value) => handleFormChange('payment_method', value)}
               >
                 <SelectTrigger className="w-full">

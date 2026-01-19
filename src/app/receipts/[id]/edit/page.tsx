@@ -614,9 +614,9 @@ export default function ReceiptEditPage() {
             {/* Subtotal, Tax, Tip - Editable breakdown */}
             <div className="md:col-span-2 grid grid-cols-1 min-[400px]:grid-cols-3 gap-2 sm:gap-3">
               {/* Subtotal */}
-              <div>
-                <div className="flex items-center justify-between mb-1">
-                  <label className="block text-xs sm:text-sm font-medium text-slate-700">
+              <div className="flex flex-col">
+                <div className="flex items-center justify-between mb-1 h-5">
+                  <label className="text-xs sm:text-sm font-medium text-slate-700">
                     Subtotal
                   </label>
                   {formData.items.length > 0 && (
@@ -651,10 +651,12 @@ export default function ReceiptEditPage() {
                 </div>
               </div>
               {/* Tax */}
-              <div>
-                <label className="block text-xs sm:text-sm font-medium text-slate-700 mb-1">
-                  Tax
-                </label>
+              <div className="flex flex-col">
+                <div className="flex items-center mb-1 h-5">
+                  <label className="text-xs sm:text-sm font-medium text-slate-700">
+                    Tax
+                  </label>
+                </div>
                 <div className="relative">
                   <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">$</span>
                   <Input
@@ -671,10 +673,12 @@ export default function ReceiptEditPage() {
                 </div>
               </div>
               {/* Tip */}
-              <div>
-                <label className="block text-xs sm:text-sm font-medium text-slate-700 mb-1">
-                  Tip
-                </label>
+              <div className="flex flex-col">
+                <div className="flex items-center mb-1 h-5">
+                  <label className="text-xs sm:text-sm font-medium text-slate-700">
+                    Tip
+                  </label>
+                </div>
                 <div className="relative">
                   <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">$</span>
                   <Input

@@ -36,13 +36,34 @@ const PDF_CONFIG = {
   receiptsPerPage: 2, // Reduced from 3 to give more space for images
 };
 
-// Colors
+// shadcn/ui inspired colors (slate/zinc palette)
 const COLORS = {
-  primary: [59, 130, 246] as [number, number, number], // blue-500
-  secondary: [107, 114, 128] as [number, number, number], // gray-500
-  accent: [16, 185, 129] as [number, number, number], // green-500
-  text: [31, 41, 55] as [number, number, number], // gray-800
-  lightGray: [243, 244, 246] as [number, number, number], // gray-100
+  // Primary colors
+  primary: [15, 23, 42] as [number, number, number], // slate-900 (dark, sophisticated)
+  primaryForeground: [248, 250, 252] as [number, number, number], // slate-50
+
+  // Secondary/muted colors
+  secondary: [100, 116, 139] as [number, number, number], // slate-500
+  muted: [148, 163, 184] as [number, number, number], // slate-400
+  mutedForeground: [71, 85, 105] as [number, number, number], // slate-600
+
+  // Text colors
+  text: [15, 23, 42] as [number, number, number], // slate-900
+  textMuted: [100, 116, 139] as [number, number, number], // slate-500
+
+  // Background colors
+  background: [255, 255, 255] as [number, number, number], // white
+  card: [248, 250, 252] as [number, number, number], // slate-50
+  cardBorder: [226, 232, 240] as [number, number, number], // slate-200
+
+  // Accent colors (subtle)
+  accent: [34, 197, 94] as [number, number, number], // green-500 (for success/amounts)
+  accentMuted: [220, 252, 231] as [number, number, number], // green-100
+
+  // Table
+  tableHeader: [241, 245, 249] as [number, number, number], // slate-100
+  tableAlt: [248, 250, 252] as [number, number, number], // slate-50
+  tableBorder: [226, 232, 240] as [number, number, number], // slate-200
 };
 
 /**
@@ -89,7 +110,7 @@ export async function generateAuditPDF(
 }
 
 /**
- * Add Summary Page (Page 1)
+ * Add Summary Page (Page 1) - shadcn/ui inspired design
  */
 async function addSummaryPage(
   doc: jsPDF,
@@ -102,99 +123,111 @@ async function addSummaryPage(
 
   // Calculate header height based on business info
   const hasBusinessInfo = options.businessName || options.ein || options.cpaName;
-  const headerHeight = hasBusinessInfo ? 55 : 45;
+  const headerHeight = hasBusinessInfo ? 50 : 40;
 
-  // Header Section
+  // Header Section - minimal shadcn style with subtle background
   doc.setFillColor(...COLORS.primary);
   doc.rect(0, 0, pageWidth, headerHeight, 'F');
 
-  // Title
-  doc.setTextColor(255, 255, 255);
-  doc.setFontSize(24);
+  // Title - clean, bold typography
+  doc.setTextColor(...COLORS.primaryForeground);
+  doc.setFontSize(22);
   doc.setFont('helvetica', 'bold');
-  doc.text('TaxClip Expense Report', margin, yPos + 12);
+  doc.text('Expense Report', margin, yPos + 12);
 
-  // Subtitle - Left side
-  doc.setFontSize(10);
+  // Subtitle - muted, smaller
+  doc.setFontSize(9);
   doc.setFont('helvetica', 'normal');
-  doc.text(`Tax Year: FY${metadata.taxYear}`, margin, yPos + 22);
+  doc.setTextColor(203, 213, 225); // slate-300
+  doc.text(`Tax Year ${metadata.taxYear}`, margin, yPos + 20);
   doc.text(
-    `Generated: ${new Date(metadata.generatedAt).toLocaleDateString('en-US', {
+    new Date(metadata.generatedAt).toLocaleDateString('en-US', {
       year: 'numeric',
-      month: 'long',
+      month: 'short',
       day: 'numeric',
-    })}`,
+    }),
     margin,
-    yPos + 29
+    yPos + 26
   );
 
-  // Business Info - Right side
+  // Business Info - Right side, subtle
   if (hasBusinessInfo) {
     const rightX = pageWidth - margin;
-    let infoY = yPos + 22;
+    let infoY = yPos + 12;
     doc.setFontSize(9);
+    doc.setTextColor(203, 213, 225); // slate-300
 
     if (options.businessName) {
+      doc.setFont('helvetica', 'bold');
       doc.text(options.businessName, rightX, infoY, { align: 'right' });
-      infoY += 6;
+      infoY += 5;
+      doc.setFont('helvetica', 'normal');
     }
     if (options.ein) {
       doc.text(`EIN: ${options.ein}`, rightX, infoY, { align: 'right' });
-      infoY += 6;
+      infoY += 5;
     }
     if (options.cpaName) {
-      doc.text(`Prepared for: ${options.cpaName}`, rightX, infoY, { align: 'right' });
+      doc.text(`For: ${options.cpaName}`, rightX, infoY, { align: 'right' });
     }
   }
 
-  yPos = headerHeight + 10;
+  yPos = headerHeight + 12;
 
-  // Summary Cards
-  doc.setTextColor(...COLORS.text);
-  doc.setFontSize(11);
+  // Summary Section Label - uppercase, tracking
+  doc.setTextColor(...COLORS.textMuted);
+  doc.setFontSize(9);
   doc.setFont('helvetica', 'bold');
-  doc.text('EXPENSE SUMMARY', margin, yPos);
+  doc.text('SUMMARY', margin, yPos);
 
-  yPos += 8;
+  yPos += 6;
 
-  // Summary Box
-  doc.setFillColor(...COLORS.lightGray);
-  doc.roundedRect(margin, yPos, pageWidth - margin * 2, 30, 3, 3, 'F');
-
-  doc.setFontSize(10);
-  doc.setFont('helvetica', 'normal');
-  doc.setTextColor(...COLORS.secondary);
+  // Summary Cards - shadcn card style with border
+  const cardWidth = (pageWidth - margin * 2 - 8) / 3; // 3 cards with gaps
+  const cardHeight = 28;
 
   const summaryItems = [
     { label: 'Total Receipts', value: metadata.totalReceipts.toString() },
     { label: 'Total Expenses', value: formatCurrency(metadata.totalAmount) },
-    { label: 'Total Deductible', value: formatCurrency(metadata.totalDeductible) },
+    { label: 'Deductible', value: formatCurrency(metadata.totalDeductible) },
   ];
 
-  const colWidth = (pageWidth - margin * 2) / 3;
   summaryItems.forEach((item, index) => {
-    const xPos = margin + colWidth * index + colWidth / 2;
-    doc.text(item.label, xPos, yPos + 10, { align: 'center' });
-    doc.setFont('helvetica', 'bold');
+    const cardX = margin + (cardWidth + 4) * index;
+
+    // Card background
+    doc.setFillColor(...COLORS.card);
+    doc.roundedRect(cardX, yPos, cardWidth, cardHeight, 2, 2, 'F');
+
+    // Card border
+    doc.setDrawColor(...COLORS.cardBorder);
+    doc.setLineWidth(0.3);
+    doc.roundedRect(cardX, yPos, cardWidth, cardHeight, 2, 2, 'S');
+
+    // Label
+    doc.setTextColor(...COLORS.textMuted);
+    doc.setFontSize(8);
+    doc.setFont('helvetica', 'normal');
+    doc.text(item.label, cardX + cardWidth / 2, yPos + 9, { align: 'center' });
+
+    // Value
     doc.setTextColor(...COLORS.text);
     doc.setFontSize(14);
-    doc.text(item.value, xPos, yPos + 20, { align: 'center' });
-    doc.setFont('helvetica', 'normal');
-    doc.setTextColor(...COLORS.secondary);
-    doc.setFontSize(10);
+    doc.setFont('helvetica', 'bold');
+    doc.text(item.value, cardX + cardWidth / 2, yPos + 20, { align: 'center' });
   });
 
-  yPos += 45;
+  yPos += cardHeight + 15;
 
   // Schedule C Category Breakdown Table
-  doc.setTextColor(...COLORS.text);
-  doc.setFontSize(11);
+  doc.setTextColor(...COLORS.textMuted);
+  doc.setFontSize(9);
   doc.setFont('helvetica', 'bold');
-  doc.text('SCHEDULE C CATEGORY BREAKDOWN', margin, yPos);
+  doc.text('SCHEDULE C BREAKDOWN', margin, yPos);
 
   yPos += 5;
 
-  // Table using autoTable
+  // Table using autoTable - shadcn style
   const tableData = summaries.map((s) => [
     `Line ${s.line}`,
     s.label,
@@ -206,7 +239,7 @@ async function addSummaryPage(
   // Add total row
   tableData.push([
     '',
-    'TOTAL',
+    'Total',
     formatCurrency(summaries.reduce((sum, s) => sum + s.amount, 0)),
     summaries.reduce((sum, s) => sum + s.count, 0).toString(),
     formatCurrency(summaries.reduce((sum, s) => sum + s.deductibleAmount, 0)),
@@ -216,34 +249,38 @@ async function addSummaryPage(
     startY: yPos,
     head: [['Line #', 'Category', 'Amount', 'Count', 'Deductible']],
     body: tableData,
-    theme: 'striped',
+    theme: 'plain',
     headStyles: {
-      fillColor: COLORS.primary,
-      textColor: [255, 255, 255],
+      fillColor: COLORS.tableHeader,
+      textColor: COLORS.text,
       fontStyle: 'bold',
       fontSize: 9,
+      cellPadding: 4,
     },
     bodyStyles: {
       fontSize: 9,
       textColor: COLORS.text,
+      cellPadding: 3,
     },
     alternateRowStyles: {
-      fillColor: COLORS.lightGray,
+      fillColor: COLORS.tableAlt,
     },
     columnStyles: {
-      0: { cellWidth: 25 },      // Line #
-      1: { cellWidth: 70 },      // Category (wider for long names)
-      2: { cellWidth: 35, halign: 'right' },  // Amount
-      3: { cellWidth: 20, halign: 'center' }, // Count
-      4: { cellWidth: 30, halign: 'right' },  // Deductible
+      0: { cellWidth: 25 },
+      1: { cellWidth: 70 },
+      2: { cellWidth: 35, halign: 'right' },
+      3: { cellWidth: 20, halign: 'center' },
+      4: { cellWidth: 30, halign: 'right' },
     },
-    tableWidth: 180, // Match page width minus margins (210 - 15*2)
+    tableWidth: 180,
     margin: { left: margin, right: margin },
+    tableLineColor: COLORS.tableBorder,
+    tableLineWidth: 0.2,
     didParseCell: (data) => {
       // Style total row
       if (data.row.index === tableData.length - 1) {
         data.cell.styles.fontStyle = 'bold';
-        data.cell.styles.fillColor = [229, 231, 235]; // gray-200
+        data.cell.styles.fillColor = COLORS.tableHeader;
       }
     },
   });
@@ -269,7 +306,7 @@ async function addSummaryPage(
 }
 
 /**
- * Add Receipt Detail Pages
+ * Add Receipt Detail Pages - shadcn/ui inspired design
  */
 async function addReceiptPages(
   doc: jsPDF,
@@ -292,15 +329,20 @@ async function addReceiptPages(
   while (receiptIndex < sortedReceipts.length) {
     doc.addPage();
 
-    // Page Header
+    // Page Header - minimal shadcn style
     doc.setFillColor(...COLORS.primary);
-    doc.rect(0, 0, pageWidth, 20, 'F');
-    doc.setTextColor(255, 255, 255);
-    doc.setFontSize(12);
+    doc.rect(0, 0, pageWidth, 18, 'F');
+    doc.setTextColor(...COLORS.primaryForeground);
+    doc.setFontSize(11);
     doc.setFont('helvetica', 'bold');
-    doc.text(`Receipt Details - FY${taxYear}`, margin, 13);
+    doc.text('Receipt Details', margin, 12);
 
-    let yPos = 30;
+    // Year badge on right
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'normal');
+    doc.text(`FY ${taxYear}`, pageWidth - margin, 12, { align: 'right' });
+
+    let yPos = 26;
 
     // Add receipts to this page
     for (let i = 0; i < receiptsPerPage && receiptIndex < sortedReceipts.length; i++) {
@@ -320,8 +362,8 @@ async function addReceiptPages(
 }
 
 /**
- * Add single receipt block with image and details
- * Layout: Details on top, larger image below
+ * Add single receipt block with image and details - shadcn/ui inspired
+ * Layout: Image/Email on LEFT, Details on RIGHT
  */
 async function addReceiptBlock(
   doc: jsPDF,
@@ -333,110 +375,51 @@ async function addReceiptBlock(
   const { margin, pageWidth } = PDF_CONFIG;
   const contentWidth = pageWidth - margin * 2;
 
-  // New layout: details section (top) + image section (bottom)
-  const detailsHeight = 55; // Fixed height for details
-  const imageHeight = blockHeight - detailsHeight - 10; // Remaining space for image
+  // Side-by-side layout: LEFT (image/email) + RIGHT (details)
+  const leftColumnWidth = contentWidth * 0.45;
+  const rightColumnWidth = contentWidth * 0.50;
+  const columnGap = contentWidth * 0.05;
 
-  // Background for receipt block
-  doc.setFillColor(250, 250, 250);
-  doc.roundedRect(margin, yPos, contentWidth, blockHeight - 5, 2, 2, 'F');
+  const leftX = margin;
+  const rightX = margin + leftColumnWidth + columnGap;
 
-  // Receipt number badge
+  // Card background - shadcn style
+  doc.setFillColor(...COLORS.card);
+  doc.roundedRect(margin, yPos, contentWidth, blockHeight - 5, 3, 3, 'F');
+
+  // Card border
+  doc.setDrawColor(...COLORS.cardBorder);
+  doc.setLineWidth(0.3);
+  doc.roundedRect(margin, yPos, contentWidth, blockHeight - 5, 3, 3, 'S');
+
+  // Receipt number badge - minimal circle
   doc.setFillColor(...COLORS.primary);
-  doc.circle(margin + 8, yPos + 8, 5, 'F');
-  doc.setTextColor(255, 255, 255);
-  doc.setFontSize(8);
-  doc.setFont('helvetica', 'bold');
-  doc.text(index.toString(), margin + 8, yPos + 10, { align: 'center' });
-
-  // Receipt Details (top section - full width)
-  let detailY = yPos + 8;
-  const detailsXPos = margin + 18;
-  const detailsWidth = contentWidth - 20;
-
-  // Vendor (Title)
-  doc.setTextColor(...COLORS.text);
-  doc.setFontSize(12);
-  doc.setFont('helvetica', 'bold');
-  doc.text(receipt.merchant || 'Unknown Vendor', detailsXPos, detailY);
-  detailY += 8;
-
-  // Details in two columns for better space usage
-  const categoryText = receipt.subcategory
-    ? `${getCategoryLabel(receipt.category || 'other')} (Line ${getScheduleCLine(receipt.category || 'other')}) - ${getSubcategoryLabel(receipt.category || 'other', receipt.subcategory)}`
-    : `${getCategoryLabel(receipt.category || 'other')} (Line ${getScheduleCLine(receipt.category || 'other')})`;
-
-  const leftDetails = [
-    { label: 'Date', value: formatDate(receipt.date) },
-    { label: 'Amount', value: formatCurrency(receipt.total || 0) },
-    { label: 'Category', value: categoryText },
-  ];
-
-  const rightDetails = [
-    { label: 'Payment', value: receipt.payment_method || '-' },
-    { label: 'Purpose', value: receipt.business_purpose || '-' },
-  ];
-
+  doc.circle(margin + 10, yPos + 10, 6, 'F');
+  doc.setTextColor(...COLORS.primaryForeground);
   doc.setFontSize(9);
+  doc.setFont('helvetica', 'bold');
+  doc.text(index.toString(), margin + 10, yPos + 12, { align: 'center' });
 
-  // Left column
-  let leftY = detailY;
-  leftDetails.forEach((detail) => {
-    doc.setFont('helvetica', 'bold');
-    doc.setTextColor(...COLORS.secondary);
-    doc.text(`${detail.label}:`, detailsXPos, leftY);
-
-    doc.setFont('helvetica', 'normal');
-    doc.setTextColor(...COLORS.text);
-
-    let value = detail.value;
-    const maxWidth = detailsWidth / 2 - 40;
-    while (doc.getTextWidth(value) > maxWidth && value.length > 3) {
-      value = value.slice(0, -4) + '...';
-    }
-    doc.text(value, detailsXPos + 28, leftY);
-    leftY += 6;
-  });
-
-  // Right column
-  const rightXPos = margin + contentWidth / 2;
-  let rightY = detailY;
-  rightDetails.forEach((detail) => {
-    doc.setFont('helvetica', 'bold');
-    doc.setTextColor(...COLORS.secondary);
-    doc.text(`${detail.label}:`, rightXPos, rightY);
-
-    doc.setFont('helvetica', 'normal');
-    doc.setTextColor(...COLORS.text);
-
-    let value = detail.value;
-    const maxWidth = detailsWidth / 2 - 35;
-    while (doc.getTextWidth(value) > maxWidth && value.length > 3) {
-      value = value.slice(0, -4) + '...';
-    }
-    doc.text(value, rightXPos + 25, rightY);
-    rightY += 6;
-  });
-
-  // Receipt Image or Email Text (bottom section - larger, centered)
-  const imageYPos = yPos + detailsHeight;
-  const maxImgWidth = Math.min(contentWidth - 20, 120); // Max 120mm wide
-  const maxImgHeight = imageHeight - 5;
+  // LEFT COLUMN: Image or Email Text
+  const imageYPos = yPos + 8;
+  const maxImgWidth = leftColumnWidth - 12;
+  const maxImgHeight = blockHeight - 20;
 
   if (receipt.image_url) {
     try {
       const base64 = await imageUrlToBase64(receipt.image_url);
       if (base64) {
-        // Optimized for 800x600 as requested
         const compressed = await compressImageForPDF(base64, 800, 600, 0.85);
 
-        // Center the image horizontally
-        const imgX = margin + (contentWidth - maxImgWidth) / 2;
+        // Image container with subtle border
+        doc.setDrawColor(...COLORS.cardBorder);
+        doc.setLineWidth(0.2);
+        doc.roundedRect(leftX + 6, imageYPos, maxImgWidth, maxImgHeight, 2, 2, 'S');
 
         doc.addImage(
           compressed,
           'JPEG',
-          imgX,
+          leftX + 6,
           imageYPos,
           maxImgWidth,
           maxImgHeight,
@@ -444,40 +427,98 @@ async function addReceiptBlock(
           'SLOW'
         );
       } else {
-        const placeholderX = margin + (contentWidth - maxImgWidth) / 2;
-        addNoImagePlaceholder(doc, placeholderX, imageYPos, maxImgWidth, maxImgHeight);
+        addNoImagePlaceholder(doc, leftX + 6, imageYPos, maxImgWidth, maxImgHeight);
       }
     } catch (error) {
       console.error('Error adding image to PDF:', error);
-      const placeholderX = margin + (contentWidth - maxImgWidth) / 2;
-      addNoImagePlaceholder(doc, placeholderX, imageYPos, maxImgWidth, maxImgHeight);
+      addNoImagePlaceholder(doc, leftX + 6, imageYPos, maxImgWidth, maxImgHeight);
     }
   } else if (receipt.email_text) {
-    // Show email text when no image is available
-    addEmailTextBlock(doc, receipt.email_text, margin + 5, imageYPos, contentWidth - 10, maxImgHeight);
+    addEmailTextBlock(doc, receipt.email_text, leftX + 6, imageYPos, maxImgWidth, maxImgHeight);
   } else {
-    const placeholderX = margin + (contentWidth - maxImgWidth) / 2;
-    addNoImagePlaceholder(doc, placeholderX, imageYPos, maxImgWidth, maxImgHeight);
+    addNoImagePlaceholder(doc, leftX + 6, imageYPos, maxImgWidth, maxImgHeight);
   }
 
-  // Notes (if any)
+  // RIGHT COLUMN: Receipt Details
+  let detailY = yPos + 12;
+
+  // Vendor (Title) - bold, prominent
+  doc.setTextColor(...COLORS.text);
+  doc.setFontSize(13);
+  doc.setFont('helvetica', 'bold');
+
+  let vendorName = receipt.merchant || 'Unknown Vendor';
+  const maxVendorWidth = rightColumnWidth - 10;
+  while (doc.getTextWidth(vendorName) > maxVendorWidth && vendorName.length > 3) {
+    vendorName = vendorName.slice(0, -4) + '...';
+  }
+  doc.text(vendorName, rightX, detailY);
+  detailY += 10;
+
+  // Amount - large, accent color for emphasis
+  doc.setFontSize(18);
+  doc.setTextColor(...COLORS.accent);
+  doc.setFont('helvetica', 'bold');
+  doc.text(formatCurrency(receipt.total || 0), rightX, detailY);
+  detailY += 14;
+
+  // Separator line
+  doc.setDrawColor(...COLORS.cardBorder);
+  doc.setLineWidth(0.2);
+  doc.line(rightX, detailY - 4, rightX + rightColumnWidth - 10, detailY - 4);
+
+  // Category with line number
+  const categoryText = receipt.subcategory
+    ? `${getCategoryLabel(receipt.category || 'other')} (Line ${getScheduleCLine(receipt.category || 'other')}) - ${getSubcategoryLabel(receipt.category || 'other', receipt.subcategory)}`
+    : `${getCategoryLabel(receipt.category || 'other')} (Line ${getScheduleCLine(receipt.category || 'other')})`;
+
+  // Details list - clean layout
+  const details = [
+    { label: 'Date', value: formatDate(receipt.date) },
+    { label: 'Category', value: categoryText },
+    { label: 'Payment', value: receipt.payment_method || '-' },
+    { label: 'Purpose', value: receipt.business_purpose || '-' },
+  ];
+
+  doc.setFontSize(9);
+
+  details.forEach((detail) => {
+    // Label
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(...COLORS.textMuted);
+    doc.text(`${detail.label}`, rightX, detailY);
+
+    // Value
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(...COLORS.text);
+
+    let value = detail.value;
+    const maxWidth = rightColumnWidth - 35;
+    while (doc.getTextWidth(value) > maxWidth && value.length > 3) {
+      value = value.slice(0, -4) + '...';
+    }
+    doc.text(value, rightX + 28, detailY);
+    detailY += 7;
+  });
+
+  // Notes (if any) - muted, italic
   if (receipt.notes) {
-    detailY += 2;
+    detailY += 3;
     doc.setFont('helvetica', 'italic');
-    doc.setTextColor(...COLORS.secondary);
+    doc.setTextColor(...COLORS.muted);
     doc.setFontSize(8);
 
-    let notes = `Notes: ${receipt.notes}`;
-    const maxNotesWidth = detailsWidth;
+    let notes = `Note: ${receipt.notes}`;
+    const maxNotesWidth = rightColumnWidth - 10;
     while (doc.getTextWidth(notes) > maxNotesWidth && notes.length > 10) {
       notes = notes.slice(0, -4) + '...';
     }
-    doc.text(notes, detailsXPos, detailY);
+    doc.text(notes, rightX, detailY);
   }
 }
 
 /**
- * Add placeholder for missing images
+ * Add placeholder for missing images - shadcn/ui style
  */
 function addNoImagePlaceholder(
   doc: jsPDF,
@@ -486,15 +527,32 @@ function addNoImagePlaceholder(
   width: number,
   height: number
 ): void {
-  doc.setFillColor(229, 231, 235); // gray-200
-  doc.roundedRect(x, y, width, height, 2, 2, 'F');
-  doc.setTextColor(...COLORS.secondary);
-  doc.setFontSize(10);
-  doc.text('No Image', x + width / 2, y + height / 2, { align: 'center' });
+  // Muted background
+  doc.setFillColor(...COLORS.card);
+  doc.roundedRect(x, y, width, height, 3, 3, 'F');
+
+  // Dashed border
+  doc.setDrawColor(...COLORS.cardBorder);
+  doc.setLineWidth(0.3);
+  doc.roundedRect(x, y, width, height, 3, 3, 'S');
+
+  // Icon placeholder (simple square)
+  const iconSize = 12;
+  const iconX = x + width / 2 - iconSize / 2;
+  const iconY = y + height / 2 - iconSize;
+  doc.setDrawColor(...COLORS.muted);
+  doc.setLineWidth(0.5);
+  doc.roundedRect(iconX, iconY, iconSize, iconSize, 1, 1, 'S');
+
+  // Text
+  doc.setTextColor(...COLORS.muted);
+  doc.setFontSize(9);
+  doc.setFont('helvetica', 'normal');
+  doc.text('No image available', x + width / 2, y + height / 2 + 10, { align: 'center' });
 }
 
 /**
- * Add email text block when no image is available
+ * Add email text block when no image is available - shadcn/ui style
  * Displays the original email/text content in place of the receipt image
  */
 function addEmailTextBlock(
@@ -505,48 +563,49 @@ function addEmailTextBlock(
   width: number,
   height: number
 ): void {
-  // Background with light blue tint to distinguish from image
-  doc.setFillColor(240, 249, 255); // sky-50
-  doc.roundedRect(x, y, width, height, 2, 2, 'F');
+  // Card background - subtle slate tint
+  doc.setFillColor(...COLORS.card);
+  doc.roundedRect(x, y, width, height, 3, 3, 'F');
 
-  // Border
-  doc.setDrawColor(186, 230, 253); // sky-200
-  doc.setLineWidth(0.5);
-  doc.roundedRect(x, y, width, height, 2, 2, 'S');
+  // Card border
+  doc.setDrawColor(...COLORS.cardBorder);
+  doc.setLineWidth(0.3);
+  doc.roundedRect(x, y, width, height, 3, 3, 'S');
 
-  // Header label
-  doc.setFillColor(14, 165, 233); // sky-500
-  doc.roundedRect(x, y, width, 8, 2, 2, 'F');
-  doc.setFillColor(240, 249, 255); // Cover bottom corners
-  doc.rect(x, y + 6, width, 4, 'F');
+  // Header bar - minimal, dark
+  doc.setFillColor(...COLORS.primary);
+  doc.roundedRect(x, y, width, 10, 3, 3, 'F');
+  doc.setFillColor(...COLORS.card);
+  doc.rect(x, y + 7, width, 5, 'F');
 
-  doc.setTextColor(255, 255, 255);
+  // Header text
+  doc.setTextColor(...COLORS.primaryForeground);
   doc.setFontSize(8);
   doc.setFont('helvetica', 'bold');
-  doc.text('EMAIL / TEXT EVIDENCE', x + width / 2, y + 5.5, { align: 'center' });
+  doc.text('Email Evidence', x + width / 2, y + 6.5, { align: 'center' });
 
   // Email content
   doc.setTextColor(...COLORS.text);
   doc.setFontSize(7);
-  doc.setFont('courier', 'normal'); // Monospace font for email text
+  doc.setFont('courier', 'normal');
 
-  const padding = 4;
+  const padding = 5;
   const textX = x + padding;
-  const textY = y + 14;
+  const textY = y + 16;
   const textWidth = width - padding * 2;
-  const maxHeight = height - 18; // Account for header and padding
+  const maxHeight = height - 20;
 
   // Split text into lines that fit the width
   const lines = doc.splitTextToSize(emailText, textWidth);
 
-  // Calculate how many lines can fit in the available height
-  const lineHeight = 3; // Approximate line height for font size 7
+  // Calculate how many lines can fit
+  const lineHeight = 3;
   const maxLines = Math.floor(maxHeight / lineHeight);
 
   // Display lines that fit
   const displayLines = lines.slice(0, maxLines);
 
-  // Add ellipsis if text is truncated
+  // Add ellipsis if truncated
   if (lines.length > maxLines && displayLines.length > 0) {
     displayLines[displayLines.length - 1] = displayLines[displayLines.length - 1].substring(0, 50) + '...';
   }
@@ -555,7 +614,7 @@ function addEmailTextBlock(
 }
 
 /**
- * Add page number footer
+ * Add page number footer - shadcn/ui style
  */
 function addPageNumber(doc: jsPDF, pageNum: number): void {
   const { pageWidth, pageHeight, margin } = PDF_CONFIG;
@@ -701,7 +760,7 @@ export async function generateIRSAuditPDF(
 }
 
 /**
- * Add Expense Overview Page
+ * Add Expense Overview Page - shadcn/ui style
  * Shows summary of expense with list of attached evidence
  */
 async function addExpenseOverviewPage(
@@ -712,38 +771,44 @@ async function addExpenseOverviewPage(
   const { margin, pageWidth } = PDF_CONFIG;
   let yPos = margin;
 
-  // Header
-  doc.setFillColor(...COLORS.accent);
-  doc.rect(0, 0, pageWidth, 35, 'F');
+  // Header - minimal dark style
+  doc.setFillColor(...COLORS.primary);
+  doc.rect(0, 0, pageWidth, 30, 'F');
 
-  doc.setTextColor(255, 255, 255);
-  doc.setFontSize(18);
-  doc.setFont('helvetica', 'bold');
-  doc.text('Expense Documentation', margin, yPos + 15);
-
-  doc.setFontSize(10);
-  doc.setFont('helvetica', 'normal');
-  doc.text('IRS Audit-Ready Evidence Bundle', margin, yPos + 24);
-
-  yPos = 45;
-
-  // Expense Details Card
-  doc.setFillColor(...COLORS.lightGray);
-  doc.roundedRect(margin, yPos, pageWidth - margin * 2, 55, 3, 3, 'F');
-
-  doc.setTextColor(...COLORS.text);
+  doc.setTextColor(...COLORS.primaryForeground);
   doc.setFontSize(16);
+  doc.setFont('helvetica', 'bold');
+  doc.text('Expense Documentation', margin, yPos + 12);
+
+  doc.setFontSize(9);
+  doc.setFont('helvetica', 'normal');
+  doc.setTextColor(203, 213, 225); // slate-300
+  doc.text('IRS Audit-Ready Evidence Bundle', margin, yPos + 20);
+
+  yPos = 40;
+
+  // Expense Details Card with border
+  doc.setFillColor(...COLORS.card);
+  doc.roundedRect(margin, yPos, pageWidth - margin * 2, 55, 3, 3, 'F');
+  doc.setDrawColor(...COLORS.cardBorder);
+  doc.setLineWidth(0.3);
+  doc.roundedRect(margin, yPos, pageWidth - margin * 2, 55, 3, 3, 'S');
+
+  // Vendor name
+  doc.setTextColor(...COLORS.text);
+  doc.setFontSize(15);
   doc.setFont('helvetica', 'bold');
   doc.text(receipt.merchant || 'Unknown Vendor', margin + 10, yPos + 15);
 
-  doc.setFontSize(24);
-  doc.setTextColor(...COLORS.primary);
+  // Amount - accent color
+  doc.setFontSize(22);
+  doc.setTextColor(...COLORS.accent);
   doc.text(formatCurrency(receipt.total || 0), pageWidth - margin - 10, yPos + 18, {
     align: 'right',
   });
 
-  doc.setFontSize(10);
-  doc.setTextColor(...COLORS.secondary);
+  doc.setFontSize(9);
+  doc.setTextColor(...COLORS.textMuted);
   doc.setFont('helvetica', 'normal');
 
   const detailsY = yPos + 28;
@@ -754,22 +819,22 @@ async function addExpenseOverviewPage(
   doc.text(`Category: ${overviewCategoryText}`, margin + 10, detailsY + 7);
 
   if (receipt.business_purpose) {
-    doc.text(`Business Purpose: ${receipt.business_purpose}`, margin + 10, detailsY + 14);
+    doc.text(`Purpose: ${receipt.business_purpose}`, margin + 10, detailsY + 14);
   }
 
   if (receipt.payment_method) {
-    doc.text(`Payment Method: ${receipt.payment_method}`, margin + 10, detailsY + 21);
+    doc.text(`Payment: ${receipt.payment_method}`, margin + 10, detailsY + 21);
   }
 
-  yPos = 110;
+  yPos = 105;
 
-  // Evidence Summary
-  doc.setTextColor(...COLORS.text);
-  doc.setFontSize(12);
+  // Evidence Summary Label
+  doc.setTextColor(...COLORS.textMuted);
+  doc.setFontSize(9);
   doc.setFont('helvetica', 'bold');
   doc.text('ATTACHED EVIDENCE', margin, yPos);
 
-  yPos += 8;
+  yPos += 6;
 
   const evidenceItems = receipt.evidence_items || [];
   const grouped = groupEvidenceByType(evidenceItems);
@@ -810,16 +875,21 @@ async function addExpenseOverviewPage(
     startY: yPos,
     head: [['Evidence Type', 'Count', 'Purpose']],
     body: evidenceData,
-    theme: 'grid',
+    theme: 'plain',
     headStyles: {
-      fillColor: COLORS.primary,
-      textColor: [255, 255, 255],
+      fillColor: COLORS.tableHeader,
+      textColor: COLORS.text,
       fontStyle: 'bold',
-      fontSize: 10,
+      fontSize: 9,
+      cellPadding: 4,
     },
     bodyStyles: {
-      fontSize: 10,
+      fontSize: 9,
       textColor: COLORS.text,
+      cellPadding: 3,
+    },
+    alternateRowStyles: {
+      fillColor: COLORS.tableAlt,
     },
     columnStyles: {
       0: { cellWidth: 50 },
@@ -827,6 +897,8 @@ async function addExpenseOverviewPage(
       2: { cellWidth: 85 },
     },
     margin: { left: margin, right: margin },
+    tableLineColor: COLORS.tableBorder,
+    tableLineWidth: 0.2,
   });
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -869,7 +941,7 @@ async function addExpenseOverviewPage(
 }
 
 /**
- * Add Evidence Page
+ * Add Evidence Page - shadcn/ui style
  * Full-page display of evidence document with context header
  */
 async function addEvidencePage(
@@ -881,28 +953,43 @@ async function addEvidencePage(
 ): Promise<void> {
   const { margin, pageWidth, pageHeight } = PDF_CONFIG;
 
-  // Header with evidence type
-  const evidenceColor = getEvidenceTypeColor(evidence.evidence_type);
-  doc.setFillColor(...evidenceColor);
-  doc.rect(0, 0, pageWidth, 28, 'F');
+  // Header - minimal dark style
+  doc.setFillColor(...COLORS.primary);
+  doc.rect(0, 0, pageWidth, 24, 'F');
 
-  doc.setTextColor(255, 255, 255);
-  doc.setFontSize(11);
+  doc.setTextColor(...COLORS.primaryForeground);
+  doc.setFontSize(10);
   doc.setFont('helvetica', 'bold');
-  doc.text(sectionLabel.toUpperCase(), margin, 12);
+  doc.text(sectionLabel.toUpperCase(), margin, 10);
 
-  doc.setFontSize(9);
+  doc.setFontSize(8);
   doc.setFont('helvetica', 'normal');
+  doc.setTextColor(203, 213, 225); // slate-300
   doc.text(
     `${EVIDENCE_TYPE_LABELS[evidence.evidence_type]} | ${receipt.merchant} | ${formatDate(receipt.date)}`,
     margin,
-    20
+    17
   );
 
-  // Evidence image - large display
-  const imageY = 35;
+  // Evidence type badge on right
+  const evidenceColor = getEvidenceTypeColor(evidence.evidence_type);
+  doc.setFillColor(...evidenceColor);
+  const badgeText = EVIDENCE_TYPE_LABELS[evidence.evidence_type];
+  const badgeWidth = doc.getTextWidth(badgeText) + 8;
+  doc.roundedRect(pageWidth - margin - badgeWidth, 6, badgeWidth, 12, 2, 2, 'F');
+  doc.setTextColor(255, 255, 255);
+  doc.setFontSize(7);
+  doc.text(badgeText, pageWidth - margin - badgeWidth / 2, 13, { align: 'center' });
+
+  // Evidence image - large display with border
+  const imageY = 32;
   const imageMaxWidth = pageWidth - margin * 2;
-  const imageMaxHeight = pageHeight - imageY - 40;
+  const imageMaxHeight = pageHeight - imageY - 35;
+
+  // Image container border
+  doc.setDrawColor(...COLORS.cardBorder);
+  doc.setLineWidth(0.3);
+  doc.roundedRect(margin, imageY, imageMaxWidth, imageMaxHeight, 3, 3, 'S');
 
   if (evidence.file_url) {
     try {
@@ -930,14 +1017,14 @@ async function addEvidencePage(
     addNoImagePlaceholder(doc, margin, imageY, imageMaxWidth, imageMaxHeight);
   }
 
-  // Footer with file info
-  doc.setFontSize(8);
-  doc.setTextColor(...COLORS.secondary);
-  doc.text(`File: ${evidence.file_name}`, margin, pageHeight - 15);
+  // Footer with file info - muted
+  doc.setFontSize(7);
+  doc.setTextColor(...COLORS.muted);
+  doc.text(`File: ${evidence.file_name}`, margin, pageHeight - 12);
   doc.text(
     `Uploaded: ${new Date(evidence.upload_date).toLocaleDateString()}`,
     pageWidth - margin,
-    pageHeight - 15,
+    pageHeight - 12,
     { align: 'right' }
   );
 
@@ -945,7 +1032,7 @@ async function addEvidencePage(
 }
 
 /**
- * Add Comparison Page
+ * Add Comparison Page - shadcn/ui style
  * Side-by-side: Invoice/Order (what) vs Payment Proof (how)
  */
 async function addComparisonPage(
@@ -958,42 +1045,50 @@ async function addComparisonPage(
   const { margin, pageWidth, pageHeight } = PDF_CONFIG;
   const halfWidth = (pageWidth - margin * 3) / 2;
 
-  // Header
+  // Header - minimal dark
   doc.setFillColor(...COLORS.primary);
-  doc.rect(0, 0, pageWidth, 25, 'F');
+  doc.rect(0, 0, pageWidth, 22, 'F');
 
-  doc.setTextColor(255, 255, 255);
-  doc.setFontSize(14);
+  doc.setTextColor(...COLORS.primaryForeground);
+  doc.setFontSize(12);
   doc.setFont('helvetica', 'bold');
-  doc.text('Evidence Comparison', margin, 16);
+  doc.text('Evidence Comparison', margin, 14);
 
   // Expense info bar
-  doc.setFillColor(...COLORS.lightGray);
-  doc.rect(0, 25, pageWidth, 15, 'F');
+  doc.setFillColor(...COLORS.card);
+  doc.rect(0, 22, pageWidth, 14, 'F');
+  doc.setDrawColor(...COLORS.cardBorder);
+  doc.setLineWidth(0.2);
+  doc.line(0, 36, pageWidth, 36);
 
   doc.setTextColor(...COLORS.text);
-  doc.setFontSize(10);
+  doc.setFontSize(9);
   doc.setFont('helvetica', 'normal');
   doc.text(
     `${receipt.merchant} | ${formatCurrency(receipt.total || 0)} | ${formatDate(receipt.date)}`,
     pageWidth / 2,
-    33,
+    31,
     { align: 'center' }
   );
 
-  const contentY = 50;
-  const imageHeight = pageHeight - contentY - 50;
+  const contentY = 48;
+  const imageHeight = pageHeight - contentY - 45;
 
   // Left side: What was purchased
-  doc.setTextColor(...COLORS.accent);
-  doc.setFontSize(10);
+  doc.setTextColor(...COLORS.text);
+  doc.setFontSize(9);
   doc.setFont('helvetica', 'bold');
   doc.text('WHAT WAS PURCHASED', margin, contentY - 5);
 
-  doc.setFontSize(8);
-  doc.setTextColor(...COLORS.secondary);
+  doc.setFontSize(7);
+  doc.setTextColor(...COLORS.muted);
   doc.setFont('helvetica', 'normal');
-  doc.text(EVIDENCE_TYPE_LABELS[purchaseDoc.evidence_type], margin, contentY + 2);
+  doc.text(EVIDENCE_TYPE_LABELS[purchaseDoc.evidence_type], margin, contentY + 1);
+
+  // Left image container
+  doc.setDrawColor(...COLORS.cardBorder);
+  doc.setLineWidth(0.3);
+  doc.roundedRect(margin, contentY + 5, halfWidth, imageHeight, 2, 2, 'S');
 
   if (purchaseDoc.file_url) {
     try {
@@ -1004,7 +1099,7 @@ async function addComparisonPage(
           compressed,
           'JPEG',
           margin,
-          contentY + 8,
+          contentY + 5,
           halfWidth,
           imageHeight,
           undefined,
@@ -1012,21 +1107,26 @@ async function addComparisonPage(
         );
       }
     } catch (error) {
-      addNoImagePlaceholder(doc, margin, contentY + 8, halfWidth, imageHeight);
+      addNoImagePlaceholder(doc, margin, contentY + 5, halfWidth, imageHeight);
     }
   }
 
   // Right side: How it was paid
   const rightX = margin * 2 + halfWidth;
-  doc.setTextColor(139, 92, 246); // purple-500
-  doc.setFontSize(10);
+  doc.setTextColor(...COLORS.text);
+  doc.setFontSize(9);
   doc.setFont('helvetica', 'bold');
   doc.text('HOW IT WAS PAID', rightX, contentY - 5);
 
-  doc.setFontSize(8);
-  doc.setTextColor(...COLORS.secondary);
+  doc.setFontSize(7);
+  doc.setTextColor(...COLORS.muted);
   doc.setFont('helvetica', 'normal');
-  doc.text(EVIDENCE_TYPE_LABELS[paymentProof.evidence_type], rightX, contentY + 2);
+  doc.text(EVIDENCE_TYPE_LABELS[paymentProof.evidence_type], rightX, contentY + 1);
+
+  // Right image container
+  doc.setDrawColor(...COLORS.cardBorder);
+  doc.setLineWidth(0.3);
+  doc.roundedRect(rightX, contentY + 5, halfWidth, imageHeight, 2, 2, 'S');
 
   if (paymentProof.file_url) {
     try {
@@ -1037,7 +1137,7 @@ async function addComparisonPage(
           compressed,
           'JPEG',
           rightX,
-          contentY + 8,
+          contentY + 5,
           halfWidth,
           imageHeight,
           undefined,
@@ -1045,17 +1145,17 @@ async function addComparisonPage(
         );
       }
     } catch (error) {
-      addNoImagePlaceholder(doc, rightX, contentY + 8, halfWidth, imageHeight);
+      addNoImagePlaceholder(doc, rightX, contentY + 5, halfWidth, imageHeight);
     }
   }
 
-  // Footer explanation
-  doc.setFontSize(8);
-  doc.setTextColor(...COLORS.secondary);
+  // Footer explanation - muted
+  doc.setFontSize(7);
+  doc.setTextColor(...COLORS.muted);
   doc.text(
     'This comparison shows what was purchased alongside proof of payment for IRS audit verification.',
     pageWidth / 2,
-    pageHeight - 20,
+    pageHeight - 18,
     { align: 'center' }
   );
 
@@ -1063,15 +1163,15 @@ async function addComparisonPage(
 }
 
 /**
- * Get color for evidence type
+ * Get color for evidence type - shadcn/ui inspired muted colors
  */
 function getEvidenceTypeColor(type: EvidenceType): [number, number, number] {
   const colors: Record<EvidenceType, [number, number, number]> = {
-    [EvidenceType.RECEIPT]: [16, 185, 129], // green-500
+    [EvidenceType.RECEIPT]: [34, 197, 94], // green-500
     [EvidenceType.INVOICE]: [59, 130, 246], // blue-500
-    [EvidenceType.PAYMENT_PROOF]: [139, 92, 246], // purple-500
-    [EvidenceType.ONLINE_ORDER]: [245, 158, 11], // amber-500
-    [EvidenceType.OTHER]: [107, 114, 128], // gray-500
+    [EvidenceType.PAYMENT_PROOF]: [168, 85, 247], // violet-500
+    [EvidenceType.ONLINE_ORDER]: [249, 115, 22], // orange-500
+    [EvidenceType.OTHER]: [100, 116, 139], // slate-500
   };
   return colors[type] || colors[EvidenceType.OTHER];
 }

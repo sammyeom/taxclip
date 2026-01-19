@@ -121,9 +121,9 @@ async function addSummaryPage(
   const { margin, pageWidth } = PDF_CONFIG;
   let yPos = margin;
 
-  // Calculate header height based on business info
+  // Calculate header height based on business info (increased to cover date text)
   const hasBusinessInfo = options.businessName || options.ein || options.cpaName;
-  const headerHeight = hasBusinessInfo ? 50 : 40;
+  const headerHeight = hasBusinessInfo ? 58 : 48;
 
   // Header Section - minimal shadcn style with subtle background
   doc.setFillColor(...COLORS.primary);
@@ -370,15 +370,15 @@ async function addReceiptBlock(
   receipt: Receipt,
   yPos: number,
   blockHeight: number,
-  index: number
+  _index: number
 ): Promise<void> {
   const { margin, pageWidth } = PDF_CONFIG;
   const contentWidth = pageWidth - margin * 2;
 
-  // Side-by-side layout: LEFT (image/email) + RIGHT (details)
-  const leftColumnWidth = contentWidth * 0.45;
-  const rightColumnWidth = contentWidth * 0.50;
-  const columnGap = contentWidth * 0.05;
+  // Side-by-side layout: LEFT (image/email 50%) + RIGHT (details 47%)
+  const leftColumnWidth = contentWidth * 0.50;
+  const rightColumnWidth = contentWidth * 0.47;
+  const columnGap = contentWidth * 0.03;
 
   const leftX = margin;
   const rightX = margin + leftColumnWidth + columnGap;
@@ -392,18 +392,10 @@ async function addReceiptBlock(
   doc.setLineWidth(0.3);
   doc.roundedRect(margin, yPos, contentWidth, blockHeight - 5, 3, 3, 'S');
 
-  // Receipt number badge - minimal circle
-  doc.setFillColor(...COLORS.primary);
-  doc.circle(margin + 10, yPos + 10, 6, 'F');
-  doc.setTextColor(...COLORS.primaryForeground);
-  doc.setFontSize(9);
-  doc.setFont('helvetica', 'bold');
-  doc.text(index.toString(), margin + 10, yPos + 12, { align: 'center' });
-
-  // LEFT COLUMN: Image or Email Text
-  const imageYPos = yPos + 8;
-  const maxImgWidth = leftColumnWidth - 12;
-  const maxImgHeight = blockHeight - 20;
+  // LEFT COLUMN: Image or Email Text (no badge)
+  const imageYPos = yPos + 5;
+  const maxImgWidth = leftColumnWidth - 8;
+  const maxImgHeight = blockHeight - 15;
 
   if (receipt.image_url) {
     try {
@@ -414,12 +406,12 @@ async function addReceiptBlock(
         // Image container with subtle border
         doc.setDrawColor(...COLORS.cardBorder);
         doc.setLineWidth(0.2);
-        doc.roundedRect(leftX + 6, imageYPos, maxImgWidth, maxImgHeight, 2, 2, 'S');
+        doc.roundedRect(leftX + 4, imageYPos, maxImgWidth, maxImgHeight, 2, 2, 'S');
 
         doc.addImage(
           compressed,
           'JPEG',
-          leftX + 6,
+          leftX + 4,
           imageYPos,
           maxImgWidth,
           maxImgHeight,
@@ -427,20 +419,20 @@ async function addReceiptBlock(
           'SLOW'
         );
       } else {
-        addNoImagePlaceholder(doc, leftX + 6, imageYPos, maxImgWidth, maxImgHeight);
+        addNoImagePlaceholder(doc, leftX + 4, imageYPos, maxImgWidth, maxImgHeight);
       }
     } catch (error) {
       console.error('Error adding image to PDF:', error);
-      addNoImagePlaceholder(doc, leftX + 6, imageYPos, maxImgWidth, maxImgHeight);
+      addNoImagePlaceholder(doc, leftX + 4, imageYPos, maxImgWidth, maxImgHeight);
     }
   } else if (receipt.email_text) {
-    addEmailTextBlock(doc, receipt.email_text, leftX + 6, imageYPos, maxImgWidth, maxImgHeight);
+    addEmailTextBlock(doc, receipt.email_text, leftX + 4, imageYPos, maxImgWidth, maxImgHeight);
   } else {
-    addNoImagePlaceholder(doc, leftX + 6, imageYPos, maxImgWidth, maxImgHeight);
+    addNoImagePlaceholder(doc, leftX + 4, imageYPos, maxImgWidth, maxImgHeight);
   }
 
   // RIGHT COLUMN: Receipt Details
-  let detailY = yPos + 12;
+  let detailY = yPos + 10;
 
   // Vendor (Title) - bold, prominent
   doc.setTextColor(...COLORS.text);
@@ -565,41 +557,41 @@ function addEmailTextBlock(
 ): void {
   // Card background - subtle slate tint
   doc.setFillColor(...COLORS.card);
-  doc.roundedRect(x, y, width, height, 3, 3, 'F');
+  doc.roundedRect(x, y, width, height, 2, 2, 'F');
 
   // Card border
   doc.setDrawColor(...COLORS.cardBorder);
   doc.setLineWidth(0.3);
-  doc.roundedRect(x, y, width, height, 3, 3, 'S');
+  doc.roundedRect(x, y, width, height, 2, 2, 'S');
 
-  // Header bar - minimal, dark
+  // Header bar - minimal, dark (fits within rounded corners)
   doc.setFillColor(...COLORS.primary);
-  doc.roundedRect(x, y, width, 10, 3, 3, 'F');
+  doc.roundedRect(x, y, width, 8, 2, 2, 'F');
   doc.setFillColor(...COLORS.card);
-  doc.rect(x, y + 7, width, 5, 'F');
+  doc.rect(x, y + 5, width, 4, 'F');
 
   // Header text
   doc.setTextColor(...COLORS.primaryForeground);
-  doc.setFontSize(8);
-  doc.setFont('helvetica', 'bold');
-  doc.text('Email Evidence', x + width / 2, y + 6.5, { align: 'center' });
-
-  // Email content
-  doc.setTextColor(...COLORS.text);
   doc.setFontSize(7);
+  doc.setFont('helvetica', 'bold');
+  doc.text('Email Evidence', x + width / 2, y + 5.5, { align: 'center' });
+
+  // Email content area
+  doc.setTextColor(...COLORS.text);
+  doc.setFontSize(6);
   doc.setFont('courier', 'normal');
 
-  const padding = 5;
+  const padding = 3;
   const textX = x + padding;
-  const textY = y + 16;
+  const textY = y + 12;
   const textWidth = width - padding * 2;
-  const maxHeight = height - 20;
+  const maxHeight = height - 14;
 
   // Split text into lines that fit the width
   const lines = doc.splitTextToSize(emailText, textWidth);
 
-  // Calculate how many lines can fit
-  const lineHeight = 3;
+  // Calculate how many lines can fit (font size 6 = ~2.5mm line height)
+  const lineHeight = 2.5;
   const maxLines = Math.floor(maxHeight / lineHeight);
 
   // Display lines that fit
@@ -607,7 +599,7 @@ function addEmailTextBlock(
 
   // Add ellipsis if truncated
   if (lines.length > maxLines && displayLines.length > 0) {
-    displayLines[displayLines.length - 1] = displayLines[displayLines.length - 1].substring(0, 50) + '...';
+    displayLines[displayLines.length - 1] = displayLines[displayLines.length - 1].substring(0, 40) + '...';
   }
 
   doc.text(displayLines, textX, textY);

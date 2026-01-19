@@ -208,7 +208,7 @@ export default function UploadPage() {
     category: 'other',
     subcategory: '',
     businessPurpose: '',
-    paymentMethod: '',
+    paymentMethod: 'credit',
     notes: '',
   });
 
@@ -1073,7 +1073,7 @@ export default function UploadPage() {
         category: 'other',
         subcategory: '',
         businessPurpose: '',
-        paymentMethod: '',
+        paymentMethod: 'credit',
         notes: '',
       });
       setUserHasEditedForm(false); // Reset edit tracking for next receipt

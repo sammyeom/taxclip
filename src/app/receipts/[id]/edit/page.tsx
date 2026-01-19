@@ -125,7 +125,7 @@ export default function ReceiptEditPage() {
     subcategory: '',
     currency: 'USD',
     business_purpose: '',
-    payment_method: '',
+    payment_method: 'credit',
     notes: '',
     items: [] as LineItem[],
   });
@@ -286,7 +286,7 @@ export default function ReceiptEditPage() {
         subcategory: data.subcategory || '',
         currency: 'USD',
         business_purpose: data.business_purpose || '',
-        payment_method: data.payment_method || '',
+        payment_method: data.payment_method || 'credit',
         notes: data.notes || '',
         items: parsedItems,
       });

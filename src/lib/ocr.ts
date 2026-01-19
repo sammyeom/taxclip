@@ -264,7 +264,7 @@ Extract and return this JSON format:
     {"name": "item2", "qty": 2, "unitPrice": 5.00, "amount": 10.00}
   ],
   "category": "one of: ${IRS_CATEGORIES.join(', ')}",
-  "paymentMethod": "credit card, cash, debit, check, etc.",
+  "paymentMethod": "one of: credit, debit, cash, check (detect from payment info on receipt)",
   "documentType": "one of: receipt, invoice, payment_proof, online_order, other",
   "confidence": confidence percentage 0-100 for document type classification
 }
@@ -298,7 +298,7 @@ Return this JSON format:
     {"name": "item2", "qty": 2, "unitPrice": 5.00, "amount": 10.00}
   ],
   "category": "one of: ${IRS_CATEGORIES.join(', ')}",
-  "paymentMethod": "credit card, cash, debit, check, etc.",
+  "paymentMethod": "one of: credit, debit, cash, check (detect from payment info on receipt)",
   "documentType": "one of: receipt, invoice, payment_proof, online_order, other",
   "confidence": confidence percentage 0-100 for document type classification
 }
@@ -382,6 +382,17 @@ IMPORTANT RULES:
     const tipAmount = (data.tip && typeof data.tip === 'number' && data.tip > 0) ? data.tip : undefined;
     const subtotalAmount = (data.subtotal && typeof data.subtotal === 'number') ? data.subtotal : undefined;
 
+    // Normalize payment method to match our values: credit, debit, cash, check
+    const normalizePaymentMethod = (method?: string): string => {
+      if (!method) return 'credit';
+      const lower = method.toLowerCase().trim();
+      if (lower.includes('credit') || lower.includes('visa') || lower.includes('mastercard') || lower.includes('amex') || lower.includes('discover')) return 'credit';
+      if (lower.includes('debit')) return 'debit';
+      if (lower.includes('cash')) return 'cash';
+      if (lower.includes('check') || lower.includes('cheque')) return 'check';
+      return 'credit'; // Default to credit
+    };
+
     return {
       date: data.date || new Date().toISOString().split('T')[0],
       vendor: data.vendor || 'Unknown Vendor',
@@ -392,7 +403,7 @@ IMPORTANT RULES:
       currency: data.currency || 'USD',
       items: lineItems,
       category,
-      paymentMethod: data.paymentMethod,
+      paymentMethod: normalizePaymentMethod(data.paymentMethod),
       documentType,
       confidence: typeof data.confidence === 'number' ? data.confidence : undefined,
     };

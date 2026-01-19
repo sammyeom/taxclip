@@ -1895,7 +1895,7 @@ export default function UploadPage() {
                 </div>
 
                 {/* Subtotal, Tax, Tip - Editable breakdown */}
-                <div className="md:col-span-2 grid grid-cols-3 gap-3">
+                <div className="md:col-span-2 grid grid-cols-1 min-[400px]:grid-cols-3 gap-2 sm:gap-3">
                   {/* Subtotal */}
                   <div>
                     <div className="flex items-center justify-between mb-1">

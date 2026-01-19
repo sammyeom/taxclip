@@ -428,36 +428,42 @@ export default function ReceiptsPage() {
         </div>
 
         {/* Stats Bar */}
-        <div className="grid grid-cols-3 gap-2 sm:gap-4 mb-4 sm:mb-6">
+        <div className="grid grid-cols-1 min-[400px]:grid-cols-3 gap-2 sm:gap-4 mb-4 sm:mb-6">
           <Card className="bg-gradient-to-t from-cyan-500/5 to-card shadow-sm">
-            <CardContent className="p-4 sm:p-6">
-              <div className="flex items-center gap-2 text-muted-foreground mb-2">
-                <ReceiptIcon className="w-5 h-5 sm:w-6 sm:h-6 text-cyan-500" />
-                <span className="text-sm sm:text-base font-medium">Total</span>
+            <CardContent className="p-3 sm:p-6">
+              <div className="flex items-center justify-between min-[400px]:flex-col min-[400px]:items-start min-[400px]:justify-start">
+                <div className="flex items-center gap-2 text-muted-foreground min-[400px]:mb-2">
+                  <ReceiptIcon className="w-5 h-5 sm:w-6 sm:h-6 text-cyan-500" />
+                  <span className="text-sm sm:text-base font-medium">Total</span>
+                </div>
+                <p className="text-xl sm:text-4xl font-bold text-slate-900">{stats.totalCount}</p>
               </div>
-              <p className="text-2xl sm:text-4xl font-bold text-slate-900">{stats.totalCount}</p>
             </CardContent>
           </Card>
 
           <Card className="bg-gradient-to-t from-green-500/5 to-card shadow-sm">
-            <CardContent className="p-4 sm:p-6">
-              <div className="flex items-center gap-2 text-muted-foreground mb-2">
-                <DollarSign className="w-5 h-5 sm:w-6 sm:h-6 text-green-500" />
-                <span className="text-sm sm:text-base font-medium">Amount</span>
+            <CardContent className="p-3 sm:p-6">
+              <div className="flex items-center justify-between min-[400px]:flex-col min-[400px]:items-start min-[400px]:justify-start">
+                <div className="flex items-center gap-2 text-muted-foreground min-[400px]:mb-2">
+                  <DollarSign className="w-5 h-5 sm:w-6 sm:h-6 text-green-500" />
+                  <span className="text-sm sm:text-base font-medium">Amount</span>
+                </div>
+                <p className="text-lg sm:text-4xl font-bold text-slate-900 truncate">{formatCurrency(stats.totalAmount)}</p>
               </div>
-              <p className="text-xl sm:text-4xl font-bold text-slate-900 truncate">{formatCurrency(stats.totalAmount)}</p>
             </CardContent>
           </Card>
 
           <Card className="bg-gradient-to-t from-sky-500/5 to-card shadow-sm">
-            <CardContent className="p-4 sm:p-6">
-              <div className="flex items-center gap-2 text-muted-foreground mb-2">
-                <FileText className="w-5 h-5 sm:w-6 sm:h-6 text-sky-500" />
-                <span className="text-sm sm:text-base font-medium">Filtered</span>
+            <CardContent className="p-3 sm:p-6">
+              <div className="flex items-center justify-between min-[400px]:flex-col min-[400px]:items-start min-[400px]:justify-start">
+                <div className="flex items-center gap-2 text-muted-foreground min-[400px]:mb-2">
+                  <FileText className="w-5 h-5 sm:w-6 sm:h-6 text-sky-500" />
+                  <span className="text-sm sm:text-base font-medium">Filtered</span>
+                </div>
+                <p className="text-xl sm:text-4xl font-bold text-slate-900">
+                  {stats.filteredCount}/{stats.totalCount}
+                </p>
               </div>
-              <p className="text-2xl sm:text-4xl font-bold text-slate-900">
-                {stats.filteredCount}/{stats.totalCount}
-              </p>
             </CardContent>
           </Card>
         </div>
@@ -600,9 +606,9 @@ export default function ReceiptsPage() {
         <Button
           onClick={() => router.push('/upload')}
           size="icon"
-          className="fixed bottom-8 right-8 bg-cyan-500 hover:bg-cyan-600 text-white w-14 h-14 rounded-full shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-110"
+          className="fixed bottom-4 right-4 sm:bottom-8 sm:right-8 bg-cyan-500 hover:bg-cyan-600 text-white w-12 h-12 sm:w-14 sm:h-14 rounded-full shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-110 z-50"
         >
-          <Upload className="w-6 h-6" />
+          <Upload className="w-5 h-5 sm:w-6 sm:h-6" />
         </Button>
 
         {/* Detail Modal */}

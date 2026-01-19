@@ -230,7 +230,7 @@ export default function SplitView({
           {/* Content Container */}
           <div
             ref={imageContainerRef}
-            className={`relative flex-1 overflow-auto bg-gray-100 ${isFullscreen ? 'h-[calc(100vh-120px)]' : 'h-[400px] lg:h-[500px]'}`}
+            className={`relative flex-1 overflow-auto bg-gray-100 ${isFullscreen ? 'h-[calc(100vh-120px)]' : 'h-[280px] sm:h-[400px] lg:h-[500px]'}`}
           >
             {images.length > 0 ? (
               <div

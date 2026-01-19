@@ -612,11 +612,11 @@ export default function ReceiptEditPage() {
             </div>
 
             {/* Subtotal, Tax, Tip - Editable breakdown */}
-            <div className="md:col-span-2 grid grid-cols-1 min-[400px]:grid-cols-3 gap-2 sm:gap-3">
+            <div className="md:col-span-2 grid grid-cols-3 gap-2 sm:gap-3">
               {/* Subtotal */}
               <div className="flex flex-col">
-                <div className="flex items-center justify-between mb-1 h-5">
-                  <label className="text-xs sm:text-sm font-medium text-slate-700">
+                <div className="flex items-center justify-between gap-1 mb-1 min-h-[20px]">
+                  <label className="text-xs sm:text-sm font-medium text-slate-700 shrink-0">
                     Subtotal
                   </label>
                   {formData.items.length > 0 && (
@@ -628,7 +628,7 @@ export default function ReceiptEditPage() {
                           .reduce((sum, item) => sum + item.amount, 0);
                         handleFormChange('subtotal', itemsTotal.toFixed(2));
                       }}
-                      className="text-[10px] px-1.5 py-0.5 bg-cyan-100 hover:bg-cyan-200 text-cyan-700 rounded transition-colors"
+                      className="text-[9px] sm:text-[10px] px-1 sm:px-1.5 py-0.5 bg-cyan-100 hover:bg-cyan-200 text-cyan-700 rounded transition-colors shrink-0"
                       title="Calculate from line items"
                     >
                       Auto
@@ -636,7 +636,7 @@ export default function ReceiptEditPage() {
                   )}
                 </div>
                 <div className="relative">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">$</span>
+                  <span className="absolute left-2 sm:left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs sm:text-sm">$</span>
                   <Input
                     type="text"
                     inputMode="decimal"
@@ -646,19 +646,19 @@ export default function ReceiptEditPage() {
                       handleFormChange('subtotal', value);
                     }}
                     placeholder="0.00"
-                    className="pl-7"
+                    className="pl-5 sm:pl-7 text-sm"
                   />
                 </div>
               </div>
               {/* Tax */}
               <div className="flex flex-col">
-                <div className="flex items-center mb-1 h-5">
+                <div className="flex items-center mb-1 min-h-[20px]">
                   <label className="text-xs sm:text-sm font-medium text-slate-700">
                     Tax
                   </label>
                 </div>
                 <div className="relative">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">$</span>
+                  <span className="absolute left-2 sm:left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs sm:text-sm">$</span>
                   <Input
                     type="text"
                     inputMode="decimal"
@@ -668,19 +668,19 @@ export default function ReceiptEditPage() {
                       handleFormChange('tax', value);
                     }}
                     placeholder="0.00"
-                    className="pl-7"
+                    className="pl-5 sm:pl-7 text-sm"
                   />
                 </div>
               </div>
               {/* Tip */}
               <div className="flex flex-col">
-                <div className="flex items-center mb-1 h-5">
+                <div className="flex items-center mb-1 min-h-[20px]">
                   <label className="text-xs sm:text-sm font-medium text-slate-700">
                     Tip
                   </label>
                 </div>
                 <div className="relative">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">$</span>
+                  <span className="absolute left-2 sm:left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs sm:text-sm">$</span>
                   <Input
                     type="text"
                     inputMode="decimal"
@@ -690,7 +690,7 @@ export default function ReceiptEditPage() {
                       handleFormChange('tip', value);
                     }}
                     placeholder="0.00"
-                    className="pl-7"
+                    className="pl-5 sm:pl-7 text-sm"
                   />
                 </div>
               </div>

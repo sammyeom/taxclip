@@ -273,7 +273,7 @@ export function generateBusinessReceiptCSV(
       ].join(',')
     ),
     '',
-    `TOTAL,,$${receipts.reduce((sum, r) => sum + (r.total || 0), 0).toFixed(2)},${receipts.length}`,
+    `TOTAL,,$${summaries.reduce((sum, s) => sum + s.amount, 0).toFixed(2)},${receipts.length},$${summaries.reduce((sum, s) => sum + s.deductibleAmount, 0).toFixed(2)}`,
   ];
 
   return BOM + [...headerInfo, headers, ...rows, ...summarySection].join('\n');

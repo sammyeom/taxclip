@@ -335,6 +335,20 @@ export default function ReceiptDetailPage() {
     }).format(amount);
   };
 
+  // Calculate total from subtotal + tax + tip
+  const getCalculatedTotal = (r: Receipt): number => {
+    const subtotal = r.subtotal ?? 0;
+    const tax = r.tax ?? 0;
+    const tip = r.tip ?? 0;
+
+    // If subtotal, tax, or tip exists, calculate total from them
+    if (subtotal > 0 || tax > 0 || tip > 0) {
+      return subtotal + tax + tip;
+    }
+    // Otherwise use the original total
+    return r.total ?? 0;
+  };
+
   // Download image
   const handleDownloadImage = () => {
     if (!receipt?.image_url) return;
@@ -566,7 +580,7 @@ export default function ReceiptDetailPage() {
                     <span>Amount</span>
                   </div>
                   <p className="text-4xl font-bold text-green-600">
-                    {formatCurrency(receipt.total)}
+                    {formatCurrency(getCalculatedTotal(receipt))}
                   </p>
                 </div>
 
@@ -648,7 +662,7 @@ export default function ReceiptDetailPage() {
                         )}
                         <div className="flex justify-between font-semibold pt-2 border-t border-slate-100">
                           <span className="text-slate-700">Total</span>
-                          <span className="text-green-600">{formatCurrency(receipt.total)}</span>
+                          <span className="text-green-600">{formatCurrency(getCalculatedTotal(receipt))}</span>
                         </div>
                       </div>
                     )}
@@ -872,7 +886,7 @@ export default function ReceiptDetailPage() {
                   <AlertDialogDescription className="mt-2">
                     Are you sure you want to delete this receipt? This action cannot be undone.
                     <span className="block mt-2 text-slate-900 font-semibold">
-                      {receipt.merchant} - {formatCurrency(receipt.total)}
+                      {receipt.merchant} - {formatCurrency(getCalculatedTotal(receipt))}
                     </span>
                   </AlertDialogDescription>
                 </div>

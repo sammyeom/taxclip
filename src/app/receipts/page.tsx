@@ -175,7 +175,16 @@ export default function ReceiptsPage() {
   const stats = useMemo(() => {
     const totalCount = receipts.length;
     const filteredCount = filteredReceipts.length;
-    const totalAmount = filteredReceipts.reduce((sum, r) => sum + (r.total || 0), 0);
+    const totalAmount = filteredReceipts.reduce((sum, r) => {
+      const subtotal = r.subtotal ?? 0;
+      const tax = r.tax ?? 0;
+      const tip = r.tip ?? 0;
+      // If subtotal, tax, or tip exists, calculate total from them
+      if (subtotal > 0 || tax > 0 || tip > 0) {
+        return sum + subtotal + tax + tip;
+      }
+      return sum + (r.total || 0);
+    }, 0);
 
     return { totalCount, filteredCount, totalAmount };
   }, [receipts, filteredReceipts]);
@@ -234,6 +243,20 @@ export default function ReceiptsPage() {
       style: 'currency',
       currency: 'USD',
     }).format(amount);
+  };
+
+  // Calculate total from subtotal + tax + tip
+  const getCalculatedTotal = (r: Receipt): number => {
+    const subtotal = r.subtotal ?? 0;
+    const tax = r.tax ?? 0;
+    const tip = r.tip ?? 0;
+
+    // If subtotal, tax, or tip exists, calculate total from them
+    if (subtotal > 0 || tax > 0 || tip > 0) {
+      return subtotal + tax + tip;
+    }
+    // Otherwise use the original total
+    return r.total ?? 0;
   };
 
   // Get available years
@@ -531,7 +554,7 @@ export default function ReceiptsPage() {
                         {receipt.merchant}
                       </h3>
                       <p className="text-xl sm:text-2xl font-bold text-green-600">
-                        {formatCurrency(receipt.total)}
+                        {formatCurrency(getCalculatedTotal(receipt))}
                       </p>
                     </div>
                   </div>
@@ -646,7 +669,7 @@ export default function ReceiptsPage() {
                   <div>
                     <label className="text-sm font-medium text-slate-500">Amount</label>
                     <p className="text-2xl font-bold text-green-600">
-                      {formatCurrency(selectedReceipt.total)}
+                      {formatCurrency(getCalculatedTotal(selectedReceipt))}
                     </p>
                   </div>
 
@@ -745,7 +768,7 @@ export default function ReceiptsPage() {
                     {deleteConfirmReceipt && (
                       <span className="block mt-2 text-slate-900">
                         <span className="font-semibold">{deleteConfirmReceipt.merchant}</span> -{' '}
-                        {formatCurrency(deleteConfirmReceipt.total)}
+                        {formatCurrency(getCalculatedTotal(deleteConfirmReceipt))}
                       </span>
                     )}
                   </AlertDialogDescription>

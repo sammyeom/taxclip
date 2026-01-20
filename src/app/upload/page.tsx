@@ -969,7 +969,23 @@ export default function UploadPage() {
 
   // Handle form field changes
   const handleFormChange = (field: string, value: string) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
+    setFormData((prev) => {
+      const updated = { ...prev, [field]: value };
+
+      // Auto-calculate Total when subtotal, tax, or tip changes
+      if (field === 'subtotal' || field === 'tax' || field === 'tip') {
+        const subtotal = parseFloat(field === 'subtotal' ? value : prev.subtotal) || 0;
+        const tax = parseFloat(field === 'tax' ? value : prev.tax) || 0;
+        const tip = parseFloat(field === 'tip' ? value : prev.tip) || 0;
+
+        // Only auto-calculate if at least one value exists
+        if (subtotal > 0 || tax > 0 || tip > 0) {
+          updated.amount = (subtotal + tax + tip).toFixed(2);
+        }
+      }
+
+      return updated;
+    });
     // Mark that user has manually edited the form
     setUserHasEditedForm(true);
   };

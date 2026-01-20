@@ -152,6 +152,22 @@ export default function SplitView({
     return `${info.symbol}${formattedNumber}`;
   };
 
+  // Calculate total from subtotal + tax + tip
+  const getCalculatedTotal = (): number => {
+    const subtotal = extractedData.subtotal ?? 0;
+    const tax = extractedData.tax ?? 0;
+    const tip = extractedData.tip ?? 0;
+
+    // If subtotal exists, calculate total from subtotal + tax + tip
+    if (subtotal > 0 || tax > 0 || tip > 0) {
+      return subtotal + tax + tip;
+    }
+    // Otherwise use the original amount
+    return extractedData.amount;
+  };
+
+  const calculatedTotal = getCalculatedTotal();
+
   // Category label mapping
   const categoryLabels: Record<string, string> = {
     advertising: 'Advertising',
@@ -345,7 +361,7 @@ export default function SplitView({
                   <span className="text-xs font-medium uppercase tracking-wide">Total</span>
                 </div>
                 <p className="text-xl font-bold text-gray-900">
-                  {formatCurrency(extractedData.amount, extractedData.currency)}
+                  {formatCurrency(calculatedTotal, extractedData.currency)}
                 </p>
               </div>
 
@@ -533,7 +549,7 @@ export default function SplitView({
                         <div className="flex justify-between items-center">
                           <span className="text-gray-900 font-semibold">Total</span>
                           <span className="text-lg text-green-600 font-bold">
-                            {formatAmount(extractedData.amount, extractedData.currency)}
+                            {formatAmount(calculatedTotal, extractedData.currency)}
                           </span>
                         </div>
                       </div>

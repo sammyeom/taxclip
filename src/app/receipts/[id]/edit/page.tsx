@@ -306,7 +306,23 @@ export default function ReceiptEditPage() {
 
   // Handle form changes
   const handleFormChange = (field: string, value: string) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
+    setFormData((prev) => {
+      const updated = { ...prev, [field]: value };
+
+      // Auto-calculate Total when subtotal, tax, or tip changes
+      if (field === 'subtotal' || field === 'tax' || field === 'tip') {
+        const subtotal = parseFloat(field === 'subtotal' ? value : prev.subtotal) || 0;
+        const tax = parseFloat(field === 'tax' ? value : prev.tax) || 0;
+        const tip = parseFloat(field === 'tip' ? value : prev.tip) || 0;
+
+        // Only auto-calculate if at least one value exists
+        if (subtotal > 0 || tax > 0 || tip > 0) {
+          updated.total = (subtotal + tax + tip).toFixed(2);
+        }
+      }
+
+      return updated;
+    });
   };
 
   // Handle save
@@ -1079,7 +1095,15 @@ export default function ReceiptEditPage() {
                   <AlertDialogDescription className="mt-2">
                     Are you sure you want to delete this receipt? This action cannot be undone.
                     <span className="block mt-2 text-slate-900 font-semibold">
-                      {receipt.merchant} - ${parseFloat(formData.total || '0').toFixed(2)}
+                      {receipt.merchant} - ${(() => {
+                        const subtotal = parseFloat(formData.subtotal || '0');
+                        const tax = parseFloat(formData.tax || '0');
+                        const tip = parseFloat(formData.tip || '0');
+                        if (subtotal > 0 || tax > 0 || tip > 0) {
+                          return (subtotal + tax + tip).toFixed(2);
+                        }
+                        return parseFloat(formData.total || '0').toFixed(2);
+                      })()}
                     </span>
                   </AlertDialogDescription>
                 </div>

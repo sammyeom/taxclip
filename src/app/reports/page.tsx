@@ -166,10 +166,14 @@ export default function ReportsPage() {
   const summaryStats = useMemo(() => {
     if (!stats) return null;
 
-    const largestExpense = recentReceipts.reduce(
-      (max, receipt) => (getReceiptTotal(receipt) > getReceiptTotal(max) ? receipt : max),
-      recentReceipts[0] || { total: 0, merchant: 'N/A' } as Receipt
-    );
+    // Find largest expense safely
+    let largestExpense: Receipt | null = null;
+    if (recentReceipts.length > 0) {
+      largestExpense = recentReceipts.reduce(
+        (max, receipt) => (getReceiptTotal(receipt) > getReceiptTotal(max) ? receipt : max),
+        recentReceipts[0]
+      );
+    }
 
     const mostUsedCategory = Object.entries(stats.categoryTotals).reduce(
       (max, [category, amount]) => {
@@ -359,7 +363,7 @@ export default function ReportsPage() {
                       : 'N/A'}
                   </p>
                   <p className="text-xs sm:text-sm text-muted-foreground truncate hidden sm:block">
-                    {summaryStats?.largestExpense.merchant || 'N/A'}
+                    {summaryStats?.largestExpense?.merchant || 'N/A'}
                   </p>
                 </CardContent>
               </Card>

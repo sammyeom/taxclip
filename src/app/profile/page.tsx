@@ -36,6 +36,18 @@ interface UserMetadata {
   avatarUrl?: string;
 }
 
+// Calculate total from subtotal + tax + tip
+const getReceiptTotal = (r: Receipt): number => {
+  const subtotal = r.subtotal ?? 0;
+  const tax = r.tax ?? 0;
+  const tip = r.tip ?? 0;
+  // If subtotal, tax, or tip exists, calculate total from them
+  if (subtotal > 0 || tax > 0 || tip > 0) {
+    return subtotal + tax + tip;
+  }
+  return r.total ?? 0;
+};
+
 export default function ProfilePage() {
   const { user, loading: authLoading } = useAuth();
   const router = useRouter();
@@ -105,7 +117,7 @@ export default function ProfilePage() {
   // Calculate statistics
   const stats = useMemo(() => {
     const totalReceipts = receipts.length;
-    const totalExpenses = receipts.reduce((sum, r) => sum + (r.total || 0), 0);
+    const totalExpenses = receipts.reduce((sum, r) => sum + getReceiptTotal(r), 0);
 
     // Calculate account age
     const createdAt = userMetadata?.created_at ? new Date(userMetadata.created_at) : null;

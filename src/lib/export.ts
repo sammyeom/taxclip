@@ -35,6 +35,17 @@ export interface ExportMetadata {
 }
 
 /**
+ * Calculate the full amount for a receipt (subtotal + tax + tip)
+ * This is the true business expense amount for IRS purposes
+ */
+export function getFullReceiptAmount(receipt: Receipt): number {
+  const subtotal = receipt.subtotal ?? receipt.total ?? 0;
+  const tax = receipt.tax ?? 0;
+  const tip = receipt.tip ?? 0;
+  return subtotal + tax + tip;
+}
+
+/**
  * Calculate category summaries from receipts
  */
 export function calculateCategorySummaries(receipts: Receipt[]): CategorySummary[] {
@@ -54,17 +65,20 @@ export function calculateCategorySummaries(receipts: Receipt[]): CategorySummary
   });
 
   // Aggregate receipts by category
+  // Use full amount (subtotal + tax + tip) for IRS deduction calculations
+  // Tax and tip are fully deductible business expenses
   receipts.forEach((receipt) => {
     const cat = receipt.category || 'other';
+    const fullAmount = getFullReceiptAmount(receipt);
     if (summaries[cat]) {
-      summaries[cat].amount += receipt.total || 0;
+      summaries[cat].amount += fullAmount;
       summaries[cat].count += 1;
-      summaries[cat].deductibleAmount += (receipt.total || 0) * getDeductionRate(cat);
+      summaries[cat].deductibleAmount += fullAmount * getDeductionRate(cat);
     } else {
       // Unknown category goes to 'other'
-      summaries['other'].amount += receipt.total || 0;
+      summaries['other'].amount += fullAmount;
       summaries['other'].count += 1;
-      summaries['other'].deductibleAmount += receipt.total || 0;
+      summaries['other'].deductibleAmount += fullAmount;
     }
   });
 
@@ -85,11 +99,17 @@ export function generateExportMetadata(
   receipts: Receipt[],
   taxYear: number
 ): ExportMetadata {
-  const totalAmount = receipts.reduce((sum, r) => sum + (r.total || 0), 0);
+  // Calculate total amount as sum of all full amounts (subtotal + tax + tip)
+  // This represents the true total business expense for IRS purposes
+  const totalAmount = receipts.reduce((sum, r) => sum + getFullReceiptAmount(r), 0);
+
+  // Deductible is calculated on the full amount (including tax and tip)
+  // Tax and tip paid for business purposes are fully deductible expenses
   const totalDeductible = receipts.reduce((sum, r) => {
     const rate = getDeductionRate(r.category || 'other');
-    return sum + (r.total || 0) * rate;
+    return sum + getFullReceiptAmount(r) * rate;
   }, 0);
+
   const totalTax = receipts.reduce((sum, r) => sum + (r.tax || 0), 0);
   const totalTips = receipts.reduce((sum, r) => sum + (r.tip || 0), 0);
 

@@ -13,6 +13,7 @@ import {
   formatDate,
   imageUrlToBase64,
   compressImageForPDF,
+  getFullReceiptAmount,
   CategorySummary,
   ExportOptions,
 } from './export';
@@ -940,10 +941,10 @@ async function addExpenseOverviewPage(
   doc.setFont('helvetica', 'bold');
   doc.text(receipt.merchant || 'Unknown Vendor', margin + 10, yPos + 15);
 
-  // Amount - accent color
+  // Amount - accent color (use full amount: subtotal + tax + tip)
   doc.setFontSize(22);
   doc.setTextColor(...COLORS.accent);
-  doc.text(formatCurrency(receipt.total || 0), pageWidth - margin - 10, yPos + 18, {
+  doc.text(formatCurrency(getFullReceiptAmount(receipt)), pageWidth - margin - 10, yPos + 18, {
     align: 'right',
   });
 
@@ -1205,7 +1206,7 @@ async function addComparisonPage(
   doc.setFontSize(9);
   doc.setFont('helvetica', 'normal');
   doc.text(
-    `${receipt.merchant} | ${formatCurrency(receipt.total || 0)} | ${formatDate(receipt.date)}`,
+    `${receipt.merchant} | ${formatCurrency(getFullReceiptAmount(receipt))} | ${formatDate(receipt.date)}`,
     pageWidth / 2,
     31,
     { align: 'center' }

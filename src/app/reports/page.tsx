@@ -155,8 +155,8 @@ export default function ReportsPage() {
     if (!stats) return null;
 
     const largestExpense = recentReceipts.reduce(
-      (max, receipt) => (receipt.total > max.total ? receipt : max),
-      recentReceipts[0] || { total: 0, merchant: 'N/A' }
+      (max, receipt) => (getReceiptTotal(receipt) > getReceiptTotal(max) ? receipt : max),
+      recentReceipts[0] || { total: 0, merchant: 'N/A' } as Receipt
     );
 
     const mostUsedCategory = Object.entries(stats.categoryTotals).reduce(
@@ -226,6 +226,18 @@ export default function ReportsPage() {
       style: 'currency',
       currency: 'USD',
     }).format(amount);
+  };
+
+  // Calculate total from subtotal + tax + tip
+  const getReceiptTotal = (r: Receipt): number => {
+    const subtotal = r.subtotal ?? 0;
+    const tax = r.tax ?? 0;
+    const tip = r.tip ?? 0;
+    // If subtotal, tax, or tip exists, calculate total from them
+    if (subtotal > 0 || tax > 0 || tip > 0) {
+      return subtotal + tax + tip;
+    }
+    return r.total ?? 0;
   };
 
   // Format date
@@ -342,8 +354,8 @@ export default function ReportsPage() {
                     <span className="text-sm sm:text-base font-medium">Largest</span>
                   </div>
                   <p className="text-lg sm:text-3xl font-bold text-slate-900 truncate">
-                    {summaryStats?.largestExpense.total
-                      ? formatCurrency(summaryStats.largestExpense.total)
+                    {summaryStats?.largestExpense
+                      ? formatCurrency(getReceiptTotal(summaryStats.largestExpense))
                       : 'N/A'}
                   </p>
                   <p className="text-xs sm:text-sm text-muted-foreground truncate hidden sm:block">
@@ -641,7 +653,7 @@ export default function ReportsPage() {
                             {receipt.merchant}
                           </td>
                           <td className="py-2 sm:py-3 px-3 sm:px-4 text-xs sm:text-sm text-right font-semibold text-green-600">
-                            {formatCurrency(receipt.total)}
+                            {formatCurrency(getReceiptTotal(receipt))}
                           </td>
                           <td className="py-2 sm:py-3 px-3 sm:px-4 text-xs sm:text-sm text-slate-700 hidden sm:table-cell">
                             {CATEGORIES[receipt.category] || receipt.category}

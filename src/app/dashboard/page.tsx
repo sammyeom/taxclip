@@ -131,6 +131,18 @@ const formatDate = (dateString: string) => {
   });
 };
 
+// Calculate total from subtotal + tax + tip
+const getReceiptTotal = (r: Receipt): number => {
+  const subtotal = r.subtotal ?? 0;
+  const tax = r.tax ?? 0;
+  const tip = r.tip ?? 0;
+  // If subtotal, tax, or tip exists, calculate total from them
+  if (subtotal > 0 || tax > 0 || tip > 0) {
+    return subtotal + tax + tip;
+  }
+  return r.total ?? 0;
+};
+
 // Stat Card Component using shadcn Card (new design)
 function StatCard({
   icon: Icon,
@@ -308,7 +320,7 @@ export default function DashboardPage() {
       return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
     });
     return {
-      total: receipts.reduce((sum, r) => sum + (r.total || 0), 0),
+      total: receipts.reduce((sum, r) => sum + getReceiptTotal(r), 0),
       count: receipts.length,
     };
   }, [allReceipts]);
@@ -322,7 +334,7 @@ export default function DashboardPage() {
       const d = new Date(r.date);
       return d.getMonth() === lastMonth && d.getFullYear() === year;
     });
-    return { total: receipts.reduce((sum, r) => sum + (r.total || 0), 0) };
+    return { total: receipts.reduce((sum, r) => sum + getReceiptTotal(r), 0) };
   }, [allReceipts]);
 
   // Month comparison percentage
@@ -336,7 +348,7 @@ export default function DashboardPage() {
     const year = new Date().getFullYear();
     const receipts = allReceipts.filter((r) => new Date(r.date).getFullYear() === year);
     return {
-      total: receipts.reduce((sum, r) => sum + (r.total || 0), 0),
+      total: receipts.reduce((sum, r) => sum + getReceiptTotal(r), 0),
       count: receipts.length,
     };
   }, [allReceipts]);
@@ -371,7 +383,7 @@ export default function DashboardPage() {
       data.push({
         month: date.toLocaleDateString('en-US', { month: 'short' }),
         monthFull: date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' }),
-        amount: receipts.reduce((sum, r) => sum + (r.total || 0), 0),
+        amount: receipts.reduce((sum, r) => sum + getReceiptTotal(r), 0),
         monthIndex: date.getMonth(),
         year: date.getFullYear(),
       });
@@ -570,7 +582,7 @@ export default function DashboardPage() {
                                 {receipt.merchant}
                               </p>
                               <p className="text-green-600 font-bold text-sm ml-2">
-                                {formatCurrency(receipt.total)}
+                                {formatCurrency(getReceiptTotal(receipt))}
                               </p>
                             </div>
                             <div className="flex items-center gap-2">

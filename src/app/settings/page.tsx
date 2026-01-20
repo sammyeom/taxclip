@@ -104,6 +104,18 @@ const IRS_CATEGORIES = [
   { value: 'other', label: 'Other' },
 ];
 
+// Calculate total from subtotal + tax + tip
+const getReceiptTotal = (r: Receipt): number => {
+  const subtotal = r.subtotal ?? 0;
+  const tax = r.tax ?? 0;
+  const tip = r.tip ?? 0;
+  // If subtotal, tax, or tip exists, calculate total from them
+  if (subtotal > 0 || tax > 0 || tip > 0) {
+    return subtotal + tax + tip;
+  }
+  return r.total ?? 0;
+};
+
 export default function SettingsPage() {
   const { user, loading: authLoading } = useAuth();
   const router = useRouter();
@@ -237,7 +249,7 @@ export default function SettingsPage() {
         .map((r) => {
           const date = r.date || '';
           const vendor = (r.merchant || '').replace(/,/g, ';');
-          const amount = r.total || 0;
+          const amount = getReceiptTotal(r);
           const category = r.category || '';
           const businessPurpose = (r.business_purpose || '').replace(/,/g, ';');
           const paymentMethod = r.payment_method || '';
@@ -323,11 +335,12 @@ export default function SettingsPage() {
         };
 
         // Add row to CSV
+        const receiptTotal = getReceiptTotal(receipt);
         const row = [
           escapeCSV(receipt.id),
           escapeCSV(receipt.date),
           escapeCSV(receipt.merchant),
-          receipt.total?.toString() || '0',
+          receiptTotal.toString(),
           escapeCSV(receipt.category),
           escapeCSV(receipt.business_purpose),
           escapeCSV(receipt.payment_method),
@@ -340,7 +353,7 @@ export default function SettingsPage() {
         // If there's email text, save it as a separate file
         if (receipt.email_text) {
           const emailFileName = `emails/${receipt.id}_email.txt`;
-          zip.file(emailFileName, `Receipt: ${receipt.merchant}\nDate: ${receipt.date}\nTotal: $${receipt.total}\n\n--- Email Content ---\n\n${receipt.email_text}`);
+          zip.file(emailFileName, `Receipt: ${receipt.merchant}\nDate: ${receipt.date}\nTotal: $${receiptTotal}\n\n--- Email Content ---\n\n${receipt.email_text}`);
         }
       }
 
@@ -352,7 +365,7 @@ export default function SettingsPage() {
 Generated: ${new Date().toLocaleDateString()}
 
 Total Receipts: ${receipts.length}
-Total Amount: $${receipts.reduce((sum: number, r: Receipt) => sum + (r.total || 0), 0).toFixed(2)}
+Total Amount: $${receipts.reduce((sum: number, r: Receipt) => sum + getReceiptTotal(r), 0).toFixed(2)}
 
 Files included:
 - receipts_data.csv: All receipt data in CSV format

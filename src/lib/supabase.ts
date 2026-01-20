@@ -275,15 +275,27 @@ export const getReceiptStats = async (year?: number) => {
     if (error) throw error;
     if (!data) return { data: null, error: new Error('No data returned') };
 
+    // Helper function to calculate total from subtotal + tax + tip
+    const getReceiptTotal = (r: { total?: number | null; subtotal?: number | null; tax?: number | null; tip?: number | null }) => {
+      const subtotal = r.subtotal ?? 0;
+      const tax = r.tax ?? 0;
+      const tip = r.tip ?? 0;
+      // If subtotal, tax, or tip exists, calculate total from them
+      if (subtotal > 0 || tax > 0 || tip > 0) {
+        return subtotal + tax + tip;
+      }
+      return r.total ?? 0;
+    };
+
     // Calculate statistics
     const totalCount = data.length;
-    const totalAmount = data.reduce((sum, r) => sum + (r.total || 0), 0);
+    const totalAmount = data.reduce((sum, r) => sum + getReceiptTotal(r), 0);
 
     // Category totals
     const categoryTotals: Record<string, number> = {};
     data.forEach(receipt => {
       const cat = receipt.category || 'other';
-      categoryTotals[cat] = (categoryTotals[cat] || 0) + (receipt.total || 0);
+      categoryTotals[cat] = (categoryTotals[cat] || 0) + getReceiptTotal(receipt);
     });
 
     // Monthly totals (Jan=0, Dec=11)
@@ -291,7 +303,7 @@ export const getReceiptStats = async (year?: number) => {
     data.forEach(receipt => {
       if (receipt.date) {
         const month = new Date(receipt.date).getMonth();
-        monthlyTotals[month] += receipt.total || 0;
+        monthlyTotals[month] += getReceiptTotal(receipt);
       }
     });
 

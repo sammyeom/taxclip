@@ -95,6 +95,18 @@ interface StatsData {
   monthlyTotals: number[];
 }
 
+// Calculate total from subtotal + tax + tip (moved outside component)
+const getReceiptTotal = (r: Receipt): number => {
+  const subtotal = r.subtotal ?? 0;
+  const tax = r.tax ?? 0;
+  const tip = r.tip ?? 0;
+  // If subtotal, tax, or tip exists, calculate total from them
+  if (subtotal > 0 || tax > 0 || tip > 0) {
+    return subtotal + tax + tip;
+  }
+  return r.total ?? 0;
+};
+
 export default function ReportsPage() {
   const { user, loading: authLoading } = useAuth();
   const router = useRouter();
@@ -226,18 +238,6 @@ export default function ReportsPage() {
       style: 'currency',
       currency: 'USD',
     }).format(amount);
-  };
-
-  // Calculate total from subtotal + tax + tip
-  const getReceiptTotal = (r: Receipt): number => {
-    const subtotal = r.subtotal ?? 0;
-    const tax = r.tax ?? 0;
-    const tip = r.tip ?? 0;
-    // If subtotal, tax, or tip exists, calculate total from them
-    if (subtotal > 0 || tax > 0 || tip > 0) {
-      return subtotal + tax + tip;
-    }
-    return r.total ?? 0;
   };
 
   // Format date

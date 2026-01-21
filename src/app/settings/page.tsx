@@ -365,7 +365,7 @@ export default function SettingsPage() {
 Generated: ${new Date().toLocaleDateString()}
 
 Total Receipts: ${receipts.length}
-Total Amount: $${receipts.reduce((sum: number, r: Receipt) => sum + getReceiptTotal(r), 0).toFixed(2)}
+Total Amount: $${receipts.reduce((sum: number, r: Receipt) => sum + (r.total || 0), 0).toFixed(2)}
 
 Files included:
 - receipts_data.csv: All receipt data in CSV format

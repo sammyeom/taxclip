@@ -40,55 +40,55 @@ export const metadata: Metadata = {
   authors: [{ name: "TaxClip" }],
   creator: "TaxClip",
   publisher: "TaxClip",
-  manifest: "/manifest.json?v=4",
+  manifest: "/manifest.json?v=5",
   icons: {
     icon: [
       {
-        url: "/favicon.ico?v=4",
+        url: "/favicon.ico?v=5",
         sizes: "48x48",
         type: "image/x-icon",
       },
       {
-        url: "/favicon-16x16.png?v=4",
+        url: "/favicon-16x16.png?v=5",
         sizes: "16x16",
         type: "image/png",
       },
       {
-        url: "/favicon-32x32.png?v=4",
+        url: "/favicon-32x32.png?v=5",
         sizes: "32x32",
         type: "image/png",
       },
       {
-        url: "/icon-48.png?v=4",
+        url: "/icon-48.png?v=5",
         sizes: "48x48",
         type: "image/png",
       },
       {
-        url: "/icon-96.png?v=4",
+        url: "/icon-96.png?v=5",
         sizes: "96x96",
         type: "image/png",
       },
       {
-        url: "/icon-192.png?v=4",
+        url: "/icon-192.png?v=5",
         sizes: "192x192",
         type: "image/png",
       },
       {
-        url: "/icon-512.png?v=4",
+        url: "/icon-512.png?v=5",
         sizes: "512x512",
         type: "image/png",
       },
     ],
     apple: [
       {
-        url: "/apple-touch-icon.png?v=4",
+        url: "/apple-touch-icon.png?v=5",
         sizes: "180x180",
         type: "image/png",
       },
     ],
     shortcut: [
       {
-        url: "/favicon.ico?v=4",
+        url: "/favicon.ico?v=5",
         type: "image/x-icon",
       },
     ],
@@ -99,7 +99,7 @@ export const metadata: Metadata = {
     title: "TaxClip",
     startupImage: [
       {
-        url: "/apple-touch-icon.png?v=4",
+        url: "/apple-touch-icon.png?v=5",
       },
     ],
   },
@@ -203,17 +203,17 @@ export default function RootLayout({
     <html lang="en">
       <head>
         {/* Explicit favicon links for maximum browser compatibility */}
-        <link rel="icon" type="image/x-icon" href="/favicon.ico?v=4" />
-        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png?v=4" />
-        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png?v=4" />
-        <link rel="icon" type="image/png" sizes="48x48" href="/icon-48.png?v=4" />
-        <link rel="icon" type="image/png" sizes="96x96" href="/icon-96.png?v=4" />
-        <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png?v=4" />
+        <link rel="icon" type="image/x-icon" href="/favicon.ico?v=5" />
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png?v=5" />
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png?v=5" />
+        <link rel="icon" type="image/png" sizes="48x48" href="/icon-48.png?v=5" />
+        <link rel="icon" type="image/png" sizes="96x96" href="/icon-96.png?v=5" />
+        <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png?v=5" />
 
         {/* Apple Touch Icons for iOS Safari */}
-        <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=4" />
-        <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png?v=4" />
-        <link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png?v=4" />
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=5" />
+        <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png?v=5" />
+        <link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png?v=5" />
 
         {/* Safari Pinned Tab */}
         <link rel="mask-icon" href="/favicon.svg" color="#06b6d4" />

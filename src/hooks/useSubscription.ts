@@ -98,49 +98,19 @@ export function useSubscription() {
 
   // Create checkout session
   const createCheckout = async (plan: 'monthly' | 'yearly'): Promise<string | null> => {
-    if (!SUBSCRIPTIONS_ENABLED) {
-      console.log('Subscriptions are currently disabled');
-      return null;
+    // LemonSqueezy checkout URLs
+    const checkoutUrls = {
+      monthly: 'https://taxclip.lemonsqueezy.com/checkout/buy/1d738928-55d4-4c09-9c8d-e7a451234a1c',
+      yearly: 'https://taxclip.lemonsqueezy.com/checkout/buy/ffab2a3d-9fca-4af3-a381-666bf7fdcdbb',
+    };
+
+    // Add user email as prefill if logged in
+    let checkoutUrl = checkoutUrls[plan];
+    if (user?.email) {
+      checkoutUrl += `?checkout[email]=${encodeURIComponent(user.email)}`;
     }
 
-    if (!user) {
-      setError('Please sign in to subscribe');
-      return null;
-    }
-
-    // TODO: Uncomment when LemonSqueezy is approved
-    /*
-    try {
-      const { data: { session } } = await supabase.auth.getSession();
-
-      if (!session?.access_token) {
-        setError('Please sign in to subscribe');
-        return null;
-      }
-
-      const response = await fetch('/api/checkout', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${session.access_token}`,
-        },
-        body: JSON.stringify({ plan }),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to create checkout');
-      }
-
-      const { checkoutUrl } = await response.json();
-      return checkoutUrl;
-    } catch (err) {
-      console.error('Checkout error:', err);
-      setError(err instanceof Error ? err.message : 'Failed to create checkout');
-      return null;
-    }
-    */
-    return null;
+    return checkoutUrl;
   };
 
   // Open customer portal

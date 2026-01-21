@@ -1033,48 +1033,26 @@ export default function Home() {
             exit={{ scale: 0.9, opacity: 0 }}
             transition={{ type: "spring", duration: 0.5 }}
             onClick={(e) => e.stopPropagation()}
-            className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8 relative"
+            className="bg-black rounded-2xl shadow-2xl max-w-4xl w-full relative overflow-hidden"
           >
             {/* Close button */}
             <button
               onClick={() => setDemoModalOpen(false)}
-              className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 transition-colors"
+              className="absolute top-4 right-4 z-10 bg-black/50 hover:bg-black/70 text-white rounded-full p-2 transition-colors"
             >
               <X className="w-6 h-6" />
             </button>
 
-            {/* Content */}
-            <div className="text-center">
-              <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-cyan-100 to-sky-100 rounded-full mb-6">
-                <Sparkles className="w-8 h-8 text-cyan-600" />
-              </div>
-
-              <h3 className="text-2xl font-bold text-slate-900 mb-3">
-                Demo Coming Soon!
-              </h3>
-
-              <p className="text-slate-600 mb-6">
-                We're preparing an amazing demo video. Leave your email to be notified when it's ready.
-              </p>
-
-              {/* Email form */}
-              <div className="space-y-4">
-                <Input
-                  type="email"
-                  placeholder="Enter your email"
-                />
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  className="w-full gradient-btn text-white px-6 py-3 rounded-lg font-semibold shadow-lg"
-                >
-                  Notify me when ready
-                </motion.button>
-              </div>
-
-              <p className="text-xs text-slate-500 mt-4">
-                We'll only email you about the demo. No spam.
-              </p>
+            {/* YouTube Video */}
+            <div className="relative w-full" style={{ paddingBottom: "56.25%" }}>
+              <iframe
+                className="absolute inset-0 w-full h-full"
+                src="https://www.youtube.com/embed/fsadkGHAaW8?autoplay=1&rel=0"
+                title="TaxClip Demo"
+                frameBorder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              />
             </div>
           </motion.div>
         </motion.div>

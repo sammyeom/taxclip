@@ -496,36 +496,30 @@ export default function DashboardPage() {
 
         {/* Usage Banner for Free Users */}
         {!isPro && (
-          <div className="mb-6 bg-gradient-to-r from-slate-50 to-cyan-50 border border-cyan-200 rounded-xl p-4 sm:p-6">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-              <div className="flex-1">
-                <div className="flex items-center gap-2 mb-2">
-                  <span className="text-sm font-semibold text-slate-700">Monthly Usage</span>
-                  <span className="bg-slate-200 text-slate-700 px-2 py-0.5 rounded-full text-xs font-medium">
-                    Free Plan
+          <div className="mb-6 bg-gradient-to-r from-slate-50 to-cyan-50 border border-cyan-200 rounded-lg p-3 sm:p-4">
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center gap-3 flex-1 min-w-0">
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-semibold text-slate-700">Monthly Usage</span>
+                  <span className="bg-slate-200 text-slate-600 px-1.5 py-0.5 rounded text-[10px] font-medium">
+                    Free
                   </span>
                 </div>
-                <div className="flex items-center gap-3">
-                  <Progress
-                    value={monthlyLimit === Infinity ? 0 : (monthlyCount / monthlyLimit) * 100}
-                    className="h-2 flex-1 max-w-xs"
-                  />
-                  <span className="text-sm font-bold text-slate-900">
-                    {monthlyCount} / {monthlyLimit === Infinity ? '∞' : monthlyLimit}
-                  </span>
-                </div>
-                <p className="text-xs text-slate-500 mt-1">
-                  {remainingUploads === Infinity
-                    ? 'Unlimited uploads'
-                    : remainingUploads === 0
-                    ? 'Upload limit reached'
-                    : `${remainingUploads} uploads remaining this month`}
-                </p>
+                <Progress
+                  value={monthlyLimit === Infinity ? 0 : (monthlyCount / monthlyLimit) * 100}
+                  className="h-1.5 w-24 sm:w-32"
+                />
+                <span className="text-xs font-semibold text-slate-700">
+                  {monthlyCount}/{monthlyLimit === Infinity ? '∞' : monthlyLimit}
+                </span>
+                <span className="text-[10px] text-slate-500 hidden sm:inline">
+                  ({remainingUploads === 0 ? 'Limit reached' : `${remainingUploads} left`})
+                </span>
               </div>
               <Link href="/settings?tab=billing">
-                <Button className="bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white whitespace-nowrap">
-                  <Zap className="w-4 h-4 mr-2" />
-                  Upgrade to Pro
+                <Button size="sm" className="bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white text-xs h-8">
+                  <Zap className="w-3 h-3 mr-1" />
+                  Upgrade
                 </Button>
               </Link>
             </div>

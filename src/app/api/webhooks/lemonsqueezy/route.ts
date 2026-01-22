@@ -17,9 +17,18 @@ console.log('[Webhook Init] SUPABASE_URL exists:', !!supabaseUrl);
 console.log('[Webhook Init] SUPABASE_SERVICE_ROLE_KEY exists:', !!supabaseServiceKey);
 console.log('[Webhook Init] WEBHOOK_SECRET exists:', !!WEBHOOK_SECRET);
 
-// Use service role key for bypassing RLS, fallback to anon key
+if (!supabaseServiceKey) {
+  console.error('[Webhook Init] WARNING: SUPABASE_SERVICE_ROLE_KEY is not set! Using anon key instead.');
+}
+
+// Use service role key for bypassing RLS
 const supabaseKey = supabaseServiceKey || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-const supabase = createClient(supabaseUrl, supabaseKey);
+const supabase = createClient(supabaseUrl, supabaseKey, {
+  auth: {
+    autoRefreshToken: false,
+    persistSession: false
+  }
+});
 
 // Verify webhook signature
 function verifySignature(payload: string, signature: string): boolean {
@@ -78,6 +87,38 @@ function mapPlanType(productId: string): string {
   return 'pro';
 }
 
+// Helper function to update user_settings with subscription info
+async function updateUserSettings(userId: string, subscriptionData: {
+  status: string;
+  plan_type: string;
+  ends_at?: string | null;
+  lemon_squeezy_customer_id?: string | null;
+  lemon_squeezy_subscription_id?: string | null;
+}) {
+  console.log('[Webhook] Updating user_settings for user:', userId);
+
+  const { data, error } = await supabase
+    .from('user_settings')
+    .update({
+      subscription_status: subscriptionData.status,
+      subscription_plan: subscriptionData.plan_type,
+      subscription_ends_at: subscriptionData.ends_at,
+      lemon_squeezy_customer_id: subscriptionData.lemon_squeezy_customer_id,
+      lemon_squeezy_subscription_id: subscriptionData.lemon_squeezy_subscription_id,
+      updated_at: new Date().toISOString(),
+    })
+    .eq('user_id', userId)
+    .select();
+
+  if (error) {
+    console.error('[Webhook] Error updating user_settings:', error);
+  } else {
+    console.log('[Webhook] Successfully updated user_settings:', data);
+  }
+
+  return { data, error };
+}
+
 // GET handler for testing the route is accessible
 export async function GET() {
   console.log('[Webhook] GET request received - route is accessible');
@@ -96,12 +137,11 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   console.log('[Webhook] ========== POST request received ==========');
   console.log('[Webhook] Time:', new Date().toISOString());
-  console.log('[Webhook] Headers:', Object.fromEntries(request.headers.entries()));
 
   try {
     const rawBody = await request.text();
     console.log('[Webhook] Raw body length:', rawBody.length);
-    console.log('[Webhook] Raw body preview:', rawBody.substring(0, 500));
+    console.log('[Webhook] Raw body preview:', rawBody.substring(0, 1000));
 
     const signature = request.headers.get('x-signature');
     console.log('[Webhook] X-Signature header:', signature);
@@ -120,7 +160,6 @@ export async function POST(request: NextRequest) {
     console.log('[Webhook] Signature verified successfully');
 
     const payload = JSON.parse(rawBody);
-    console.log('[Webhook] Parsed payload:', JSON.stringify(payload, null, 2));
 
     const eventName = payload.meta?.event_name;
     const data = payload.data;
@@ -128,14 +167,15 @@ export async function POST(request: NextRequest) {
     // Lemon Squeezy sends custom_data in meta.custom_data
     const customData = payload.meta?.custom_data || {};
     const userId = customData.user_id;
-    const userEmail = customData.user_email;
+    const userEmail = customData.user_email || data?.attributes?.user_email;
 
+    console.log('[Webhook] ===== PARSED DATA =====');
     console.log('[Webhook] Event name:', eventName);
+    console.log('[Webhook] Full meta object:', JSON.stringify(payload.meta, null, 2));
     console.log('[Webhook] Custom data:', JSON.stringify(customData));
     console.log('[Webhook] User ID from custom_data:', userId);
-    console.log('[Webhook] User email from custom_data:', userEmail);
+    console.log('[Webhook] User email:', userEmail);
     console.log('[Webhook] Data ID:', data?.id);
-    console.log('[Webhook] Data attributes:', JSON.stringify(data?.attributes, null, 2));
 
     if (!eventName) {
       console.error('[Webhook] ERROR: No event_name in payload');
@@ -149,10 +189,10 @@ export async function POST(request: NextRequest) {
         const attrs = data.attributes;
 
         console.log('[Webhook] Processing subscription_created/updated');
-        console.log('[Webhook] Attributes status:', attrs?.status);
-        console.log('[Webhook] Attributes user_email:', attrs?.user_email);
-        console.log('[Webhook] Attributes customer_id:', attrs?.customer_id);
-        console.log('[Webhook] Attributes product_id:', attrs?.product_id);
+        console.log('[Webhook] Attributes:', JSON.stringify(attrs, null, 2));
+
+        const status = mapStatus(attrs?.status || 'inactive');
+        const planType = mapPlanType(attrs?.product_id?.toString() || '');
 
         const subscriptionData = {
           user_id: userId,
@@ -162,8 +202,8 @@ export async function POST(request: NextRequest) {
           lemon_squeezy_order_id: attrs?.order_id?.toString(),
           lemon_squeezy_product_id: attrs?.product_id?.toString(),
           lemon_squeezy_variant_id: attrs?.variant_id?.toString(),
-          status: mapStatus(attrs?.status || 'inactive'),
-          plan_type: mapPlanType(attrs?.product_id?.toString() || ''),
+          status: status,
+          plan_type: planType,
           billing_anchor: attrs?.billing_anchor,
           current_period_start: attrs?.current_period_start,
           current_period_end: attrs?.current_period_end,
@@ -174,64 +214,49 @@ export async function POST(request: NextRequest) {
           customer_portal_url: attrs?.urls?.customer_portal,
         };
 
-        console.log('[Webhook] Subscription data to upsert:', JSON.stringify(subscriptionData, null, 2));
+        console.log('[Webhook] Subscription data to save:', JSON.stringify(subscriptionData, null, 2));
 
         if (!userId) {
-          console.error('[Webhook] ERROR: No user_id in custom_data');
-          console.log('[Webhook] Attempting to update by subscription_id instead');
+          console.error('[Webhook] ERROR: No user_id in custom_data!');
+          console.log('[Webhook] This means the checkout URL did not include user_id parameter.');
+          console.log('[Webhook] Make sure checkout URL includes: ?checkout[custom][user_id]=USER_ID');
 
-          // Try to find existing subscription by lemon_squeezy_subscription_id
-          const { data: existingData, error: existingError } = await supabase
-            .from('subscriptions')
-            .select('user_id')
-            .eq('lemon_squeezy_subscription_id', data.id?.toString())
-            .single();
-
-          if (existingError) {
-            console.error('[Webhook] No existing subscription found:', existingError);
-            // Cannot create without user_id
-            return NextResponse.json({
-              error: 'No user_id provided and no existing subscription found',
-              received: true
-            });
-          }
-
-          // Update existing subscription
-          const { error: updateError } = await supabase
-            .from('subscriptions')
-            .update({
-              ...subscriptionData,
-              user_id: existingData.user_id, // Keep existing user_id
-            })
-            .eq('lemon_squeezy_subscription_id', data.id?.toString());
-
-          if (updateError) {
-            console.error('[Webhook] ERROR updating subscription:', updateError);
-            return NextResponse.json({ error: 'Database update failed', details: updateError }, { status: 500 });
-          }
-
-          console.log('[Webhook] Successfully updated existing subscription');
-        } else {
-          // Upsert subscription with user_id
-          console.log('[Webhook] Upserting subscription for user:', userId);
-
-          const { data: upsertData, error: upsertError } = await supabase
-            .from('subscriptions')
-            .upsert(subscriptionData, {
-              onConflict: 'user_id',
-            })
-            .select();
-
-          if (upsertError) {
-            console.error('[Webhook] ERROR upserting subscription:', upsertError);
-            console.error('[Webhook] Error code:', upsertError.code);
-            console.error('[Webhook] Error message:', upsertError.message);
-            console.error('[Webhook] Error details:', upsertError.details);
-            return NextResponse.json({ error: 'Database upsert failed', details: upsertError }, { status: 500 });
-          }
-
-          console.log('[Webhook] Successfully upserted subscription:', upsertData);
+          // Still return 200 to prevent retries, but log the issue
+          return NextResponse.json({
+            received: true,
+            warning: 'No user_id provided in custom_data. Subscription not saved.',
+            event: eventName
+          });
         }
+
+        // 1. Upsert to subscriptions table
+        console.log('[Webhook] Upserting to subscriptions table...');
+        const { data: upsertData, error: upsertError } = await supabase
+          .from('subscriptions')
+          .upsert(subscriptionData, {
+            onConflict: 'user_id',
+          })
+          .select();
+
+        if (upsertError) {
+          console.error('[Webhook] ERROR upserting to subscriptions:', upsertError);
+          console.error('[Webhook] Error code:', upsertError.code);
+          console.error('[Webhook] Error message:', upsertError.message);
+          console.error('[Webhook] Error details:', upsertError.details);
+          console.error('[Webhook] Error hint:', upsertError.hint);
+        } else {
+          console.log('[Webhook] Successfully upserted to subscriptions:', upsertData);
+        }
+
+        // 2. Also update user_settings table
+        await updateUserSettings(userId, {
+          status: status,
+          plan_type: planType,
+          ends_at: attrs?.ends_at,
+          lemon_squeezy_customer_id: attrs?.customer_id?.toString(),
+          lemon_squeezy_subscription_id: data.id?.toString(),
+        });
+
         break;
       }
 
@@ -239,6 +264,7 @@ export async function POST(request: NextRequest) {
         const attrs = data.attributes;
         console.log('[Webhook] Processing subscription_cancelled');
 
+        // Update subscriptions table
         const { error } = await supabase
           .from('subscriptions')
           .update({
@@ -249,9 +275,25 @@ export async function POST(request: NextRequest) {
 
         if (error) {
           console.error('[Webhook] ERROR cancelling subscription:', error);
-          return NextResponse.json({ error: 'Database update failed', details: error }, { status: 500 });
+        } else {
+          console.log('[Webhook] Subscription cancelled:', data.id);
         }
-        console.log('[Webhook] Subscription cancelled:', data.id);
+
+        // Also update user_settings if we can find the user
+        const { data: subData } = await supabase
+          .from('subscriptions')
+          .select('user_id')
+          .eq('lemon_squeezy_subscription_id', data.id?.toString())
+          .single();
+
+        if (subData?.user_id) {
+          await updateUserSettings(subData.user_id, {
+            status: 'cancelled',
+            plan_type: 'free',
+            ends_at: attrs?.ends_at,
+          });
+        }
+
         break;
       }
 
@@ -259,10 +301,12 @@ export async function POST(request: NextRequest) {
         const attrs = data.attributes;
         console.log('[Webhook] Processing subscription_resumed');
 
+        const status = mapStatus(attrs?.status || 'active');
+
         const { error } = await supabase
           .from('subscriptions')
           .update({
-            status: mapStatus(attrs?.status || 'active'),
+            status: status,
             ends_at: null,
             renews_at: attrs?.renews_at,
           })
@@ -270,9 +314,25 @@ export async function POST(request: NextRequest) {
 
         if (error) {
           console.error('[Webhook] ERROR resuming subscription:', error);
-          return NextResponse.json({ error: 'Database update failed', details: error }, { status: 500 });
+        } else {
+          console.log('[Webhook] Subscription resumed:', data.id);
         }
-        console.log('[Webhook] Subscription resumed:', data.id);
+
+        // Also update user_settings
+        const { data: subData } = await supabase
+          .from('subscriptions')
+          .select('user_id, plan_type')
+          .eq('lemon_squeezy_subscription_id', data.id?.toString())
+          .single();
+
+        if (subData?.user_id) {
+          await updateUserSettings(subData.user_id, {
+            status: status,
+            plan_type: subData.plan_type || 'pro',
+            ends_at: null,
+          });
+        }
+
         break;
       }
 
@@ -289,9 +349,24 @@ export async function POST(request: NextRequest) {
 
         if (error) {
           console.error('[Webhook] ERROR expiring subscription:', error);
-          return NextResponse.json({ error: 'Database update failed', details: error }, { status: 500 });
+        } else {
+          console.log('[Webhook] Subscription expired:', data.id);
         }
-        console.log('[Webhook] Subscription expired:', data.id);
+
+        // Also update user_settings
+        const { data: subData } = await supabase
+          .from('subscriptions')
+          .select('user_id')
+          .eq('lemon_squeezy_subscription_id', data.id?.toString())
+          .single();
+
+        if (subData?.user_id) {
+          await updateUserSettings(subData.user_id, {
+            status: 'expired',
+            plan_type: 'free',
+          });
+        }
+
         break;
       }
 
@@ -312,9 +387,24 @@ export async function POST(request: NextRequest) {
 
         if (error) {
           console.error('[Webhook] ERROR updating failed payment:', error);
-          return NextResponse.json({ error: 'Database update failed', details: error }, { status: 500 });
+        } else {
+          console.log('[Webhook] Payment failed for subscription:', data.id);
         }
-        console.log('[Webhook] Payment failed for subscription:', data.id);
+
+        // Also update user_settings
+        const { data: subData } = await supabase
+          .from('subscriptions')
+          .select('user_id, plan_type')
+          .eq('lemon_squeezy_subscription_id', data.id?.toString())
+          .single();
+
+        if (subData?.user_id) {
+          await updateUserSettings(subData.user_id, {
+            status: 'past_due',
+            plan_type: subData.plan_type || 'pro',
+          });
+        }
+
         break;
       }
 
@@ -332,7 +422,6 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('[Webhook] ========== FATAL ERROR ==========');
     console.error('[Webhook] Error:', error);
-    console.error('[Webhook] Error name:', (error as Error).name);
     console.error('[Webhook] Error message:', (error as Error).message);
     console.error('[Webhook] Error stack:', (error as Error).stack);
     return NextResponse.json(

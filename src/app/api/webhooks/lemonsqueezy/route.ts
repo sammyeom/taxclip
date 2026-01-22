@@ -2,6 +2,10 @@ import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'crypto';
 import { createClient } from '@supabase/supabase-js';
 
+// Force dynamic rendering for webhook endpoint
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
+
 const WEBHOOK_SECRET = process.env.LEMON_SQUEEZY_WEBHOOK_SECRET;
 
 // Create Supabase client with service role for server-side operations

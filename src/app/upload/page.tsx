@@ -576,6 +576,12 @@ export default function UploadPage() {
     setError(null);
     setSuccessMessage(null);
 
+    // Check upload limit for free users
+    if (!canUpload) {
+      setError('Monthly upload limit reached. Upgrade to Pro for unlimited uploads.');
+      return;
+    }
+
     // Separate EML files from other files
     const emlFiles = newFiles.filter(f => isEmlFile(f));
     let regularFiles = newFiles.filter(f => !isEmlFile(f));
@@ -662,7 +668,7 @@ export default function UploadPage() {
     fileEntries.forEach((entry) => {
       processFile(entry.id, entry.file, entry.preview);
     });
-  }, [selectedFileId, processFile]);
+  }, [selectedFileId, processFile, canUpload]);
 
   // Handle file removal
   const handleRemoveFile = useCallback((fileId: string) => {
@@ -1588,7 +1594,7 @@ export default function UploadPage() {
               </div>
             </div>
             <button
-              onClick={() => router.push('/#pricing')}
+              onClick={() => router.push('/settings?tab=billing')}
               className="flex items-center gap-2 bg-gradient-to-r from-cyan-500 to-blue-500 text-white px-4 py-2 rounded-lg font-medium hover:from-cyan-600 hover:to-blue-600 transition-colors"
             >
               <Crown className="w-4 h-4" />

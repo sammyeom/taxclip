@@ -1,9 +1,10 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { supabase } from '@/lib/supabase';
+import { useState, useEffect, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
+import { useSubscription } from '@/hooks/useSubscription';
+import { useUsageLimit } from '@/hooks/useUsageLimit';
 import { getReceipts, deleteReceipt, getUserSettings, updateUserSettings, resetUserSettings } from '@/lib/supabase';
 import { getReceiptImages, Receipt } from '@/types/database';
 import Navigation from '@/components/Navigation';
@@ -13,7 +14,6 @@ import {
   Loader2,
   CheckCircle,
   AlertCircle,
-  DollarSign,
   Calendar,
   Bell,
   Shield,
@@ -23,6 +23,11 @@ import {
   RotateCcw,
   FileText,
   Archive,
+  CreditCard,
+  Crown,
+  Zap,
+  ExternalLink,
+  Check,
 } from 'lucide-react';
 import {
   Select,
@@ -47,6 +52,16 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { Progress } from '@/components/ui/progress';
 
 interface AppSettings {
   // General
@@ -116,15 +131,25 @@ const getReceiptTotal = (r: Receipt): number => {
   return r.total ?? 0;
 };
 
-export default function SettingsPage() {
+// Wrapper component to handle Suspense for useSearchParams
+function SettingsContent({ defaultTab }: { defaultTab: string }) {
   const { user, loading: authLoading } = useAuth();
   const router = useRouter();
+
+  // Subscription and usage hooks
+  const { subscription, isPro, createCheckout, openCustomerPortal } = useSubscription();
+  const { monthlyCount, monthlyLimit, remainingUploads } = useUsageLimit();
 
   const [settings, setSettings] = useState<AppSettings>(DEFAULT_SETTINGS);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Billing state
+  const [upgradeDialogOpen, setUpgradeDialogOpen] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState<'monthly' | 'yearly'>('monthly');
+  const [checkoutLoading, setCheckoutLoading] = useState(false);
 
   // Confirmation dialogs
   const [deleteReceiptsDialog, setDeleteReceiptsDialog] = useState(false);
@@ -457,6 +482,32 @@ For tax filing assistance, please consult a qualified tax professional.
     setDeleteAccountDialog(false);
   };
 
+  // Handle checkout
+  const handleCheckout = async () => {
+    setCheckoutLoading(true);
+    try {
+      const checkoutUrl = await createCheckout(selectedPlan);
+      if (checkoutUrl) {
+        window.location.href = checkoutUrl;
+      }
+    } catch (err) {
+      console.error('Checkout error:', err);
+      setError('Failed to start checkout. Please try again.');
+    } finally {
+      setCheckoutLoading(false);
+    }
+  };
+
+  // Format date for display
+  const formatDate = (dateString: string | null) => {
+    if (!dateString) return '-';
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    });
+  };
+
   if (authLoading || loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-cyan-50 via-blue-50 to-sky-50 flex items-center justify-center">
@@ -494,6 +545,21 @@ For tax filing assistance, please consult a qualified tax professional.
           <p className="text-sm sm:text-base text-slate-600">Manage your app preferences and configurations</p>
         </div>
 
+        {/* Tabs */}
+        <Tabs defaultValue={defaultTab} className="w-full">
+          <TabsList className="mb-6 w-full sm:w-auto">
+            <TabsTrigger value="settings" className="flex items-center gap-2">
+              <SettingsIcon className="w-4 h-4" />
+              Settings
+            </TabsTrigger>
+            <TabsTrigger value="billing" className="flex items-center gap-2">
+              <CreditCard className="w-4 h-4" />
+              Billing
+            </TabsTrigger>
+          </TabsList>
+
+          {/* Settings Tab Content */}
+          <TabsContent value="settings">
         {/* Error Alert */}
         {error && (
           <Alert variant="destructive" className="mb-6">
@@ -871,7 +937,280 @@ For tax filing assistance, please consult a qualified tax professional.
             </>
           )}
         </Button>
+          </TabsContent>
+
+          {/* Billing Tab Content */}
+          <TabsContent value="billing">
+            {/* Current Plan Card */}
+            <Card className="mb-6">
+              <CardHeader className="pb-3 sm:pb-6">
+                <CardTitle className="flex items-center gap-2 sm:gap-3 text-lg sm:text-xl">
+                  {isPro ? (
+                    <Crown className="w-5 h-5 sm:w-6 sm:h-6 text-amber-500" />
+                  ) : (
+                    <CreditCard className="w-5 h-5 sm:w-6 sm:h-6 text-cyan-600" />
+                  )}
+                  Current Plan
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-center justify-between mb-4">
+                  <div>
+                    <h3 className="text-2xl font-bold text-slate-900">
+                      {isPro ? 'Pro' : 'Free'} Plan
+                    </h3>
+                    {isPro && subscription?.plan_type === 'annual' && (
+                      <span className="text-sm text-amber-600 font-medium">Annual subscription</span>
+                    )}
+                    {isPro && subscription?.plan_type === 'pro' && (
+                      <span className="text-sm text-cyan-600 font-medium">Monthly subscription</span>
+                    )}
+                  </div>
+                  {isPro && (
+                    <div className="bg-gradient-to-r from-amber-400 to-amber-500 text-white px-4 py-2 rounded-full text-sm font-semibold flex items-center gap-2">
+                      <Crown className="w-4 h-4" />
+                      PRO
+                    </div>
+                  )}
+                </div>
+
+                {/* Usage Display */}
+                {!isPro && (
+                  <div className="bg-slate-50 rounded-lg p-4 mb-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-sm font-medium text-slate-700">Monthly Usage</span>
+                      <span className="text-sm font-bold text-slate-900">
+                        {monthlyCount} / {monthlyLimit === Infinity ? 'Unlimited' : monthlyLimit} receipts
+                      </span>
+                    </div>
+                    <Progress
+                      value={monthlyLimit === Infinity ? 0 : (monthlyCount / monthlyLimit) * 100}
+                      className="h-3"
+                    />
+                    <p className="text-xs text-slate-500 mt-2">
+                      {remainingUploads === Infinity
+                        ? 'Unlimited uploads'
+                        : `${remainingUploads} uploads remaining this month`}
+                    </p>
+                  </div>
+                )}
+
+                {/* Pro Benefits */}
+                {isPro ? (
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-3 text-green-600">
+                      <Check className="w-5 h-5" />
+                      <span className="text-slate-700">Unlimited receipt uploads</span>
+                    </div>
+                    <div className="flex items-center gap-3 text-green-600">
+                      <Check className="w-5 h-5" />
+                      <span className="text-slate-700">Priority AI processing</span>
+                    </div>
+                    <div className="flex items-center gap-3 text-green-600">
+                      <Check className="w-5 h-5" />
+                      <span className="text-slate-700">Advanced tax reports</span>
+                    </div>
+
+                    {/* Next billing date */}
+                    {(subscription?.renews_at || subscription?.ends_at) && (
+                      <div className="border-t pt-4 mt-4">
+                        <div className="flex items-center gap-2 text-slate-600">
+                          <Calendar className="w-4 h-4" />
+                          <span className="text-sm">
+                            {subscription?.status === 'cancelled'
+                              ? `Access until: ${formatDate(subscription?.ends_at)}`
+                              : `Next billing: ${formatDate(subscription?.renews_at)}`
+                            }
+                          </span>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Manage Subscription Button */}
+                    <Button
+                      onClick={openCustomerPortal}
+                      variant="outline"
+                      className="w-full mt-4"
+                      disabled={!subscription?.customer_portal_url}
+                    >
+                      <ExternalLink className="w-4 h-4 mr-2" />
+                      Manage Subscription
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    <p className="text-slate-600 text-sm">
+                      Upgrade to Pro for unlimited uploads and premium features.
+                    </p>
+                    <Button
+                      onClick={() => setUpgradeDialogOpen(true)}
+                      className="w-full bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white"
+                      size="lg"
+                    >
+                      <Zap className="w-5 h-5 mr-2" />
+                      Upgrade to Pro
+                    </Button>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Plan Comparison Card (for free users) */}
+            {!isPro && (
+              <Card>
+                <CardHeader className="pb-3 sm:pb-6">
+                  <CardTitle className="text-lg sm:text-xl">Plan Comparison</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {/* Free Plan */}
+                    <div className="border rounded-lg p-4">
+                      <h4 className="font-semibold text-lg mb-2">Free</h4>
+                      <p className="text-2xl font-bold mb-4">$0<span className="text-sm font-normal text-slate-500">/month</span></p>
+                      <ul className="space-y-2 text-sm">
+                        <li className="flex items-center gap-2">
+                          <Check className="w-4 h-4 text-green-500" />
+                          10 receipts per month
+                        </li>
+                        <li className="flex items-center gap-2">
+                          <Check className="w-4 h-4 text-green-500" />
+                          AI-powered scanning
+                        </li>
+                        <li className="flex items-center gap-2">
+                          <Check className="w-4 h-4 text-green-500" />
+                          Basic reports
+                        </li>
+                      </ul>
+                    </div>
+
+                    {/* Pro Plan */}
+                    <div className="border-2 border-cyan-500 rounded-lg p-4 relative">
+                      <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-cyan-500 text-white px-3 py-0.5 rounded-full text-xs font-semibold">
+                        RECOMMENDED
+                      </div>
+                      <h4 className="font-semibold text-lg mb-2 flex items-center gap-2">
+                        Pro <Crown className="w-4 h-4 text-amber-500" />
+                      </h4>
+                      <p className="text-2xl font-bold mb-4">
+                        $9.99<span className="text-sm font-normal text-slate-500">/month</span>
+                      </p>
+                      <ul className="space-y-2 text-sm">
+                        <li className="flex items-center gap-2">
+                          <Check className="w-4 h-4 text-green-500" />
+                          <strong>Unlimited</strong> receipts
+                        </li>
+                        <li className="flex items-center gap-2">
+                          <Check className="w-4 h-4 text-green-500" />
+                          Priority AI processing
+                        </li>
+                        <li className="flex items-center gap-2">
+                          <Check className="w-4 h-4 text-green-500" />
+                          Advanced tax reports
+                        </li>
+                        <li className="flex items-center gap-2">
+                          <Check className="w-4 h-4 text-green-500" />
+                          Email support
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+          </TabsContent>
+        </Tabs>
       </div>
+
+      {/* Upgrade Plan Dialog */}
+      <Dialog open={upgradeDialogOpen} onOpenChange={setUpgradeDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Crown className="w-5 h-5 text-amber-500" />
+              Upgrade to Pro
+            </DialogTitle>
+            <DialogDescription>
+              Choose your billing cycle and unlock unlimited uploads.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-3 py-4">
+            {/* Monthly Option */}
+            <button
+              onClick={() => setSelectedPlan('monthly')}
+              className={`w-full p-4 rounded-lg border-2 text-left transition-all ${
+                selectedPlan === 'monthly'
+                  ? 'border-cyan-500 bg-cyan-50'
+                  : 'border-slate-200 hover:border-slate-300'
+              }`}
+            >
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="font-semibold">Monthly</p>
+                  <p className="text-sm text-slate-500">Billed monthly</p>
+                </div>
+                <div className="text-right">
+                  <p className="text-xl font-bold">$9.99</p>
+                  <p className="text-xs text-slate-500">/month</p>
+                </div>
+              </div>
+            </button>
+
+            {/* Yearly Option */}
+            <button
+              onClick={() => setSelectedPlan('yearly')}
+              className={`w-full p-4 rounded-lg border-2 text-left transition-all ${
+                selectedPlan === 'yearly'
+                  ? 'border-cyan-500 bg-cyan-50'
+                  : 'border-slate-200 hover:border-slate-300'
+              }`}
+            >
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="font-semibold flex items-center gap-2">
+                    Yearly
+                    <span className="bg-green-100 text-green-700 px-2 py-0.5 rounded-full text-xs font-medium">
+                      Save 17%
+                    </span>
+                  </p>
+                  <p className="text-sm text-slate-500">Billed annually</p>
+                </div>
+                <div className="text-right">
+                  <p className="text-xl font-bold">$99.99</p>
+                  <p className="text-xs text-slate-500">/year</p>
+                </div>
+              </div>
+            </button>
+          </div>
+
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setUpgradeDialogOpen(false)}
+              disabled={checkoutLoading}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleCheckout}
+              disabled={checkoutLoading}
+              className="bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600"
+            >
+              {checkoutLoading ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Processing...
+                </>
+              ) : (
+                <>
+                  <Zap className="w-4 h-4 mr-2" />
+                  Continue to Checkout
+                </>
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Confirmation Dialogs */}
       <AlertDialog open={deleteReceiptsDialog} onOpenChange={setDeleteReceiptsDialog}>
@@ -953,5 +1292,28 @@ For tax filing assistance, please consult a qualified tax professional.
         </AlertDialogContent>
       </AlertDialog>
     </div>
+  );
+}
+
+// Component that reads searchParams (needs Suspense boundary)
+function SettingsPageWithParams() {
+  const searchParams = useSearchParams();
+  const defaultTab = searchParams.get('tab') === 'billing' ? 'billing' : 'settings';
+  return <SettingsContent defaultTab={defaultTab} />;
+}
+
+// Main export with Suspense wrapper
+export default function SettingsPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gradient-to-br from-cyan-50 via-blue-50 to-sky-50 flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="w-12 h-12 text-cyan-600 animate-spin mx-auto mb-4" />
+          <p className="text-slate-600">Loading settings...</p>
+        </div>
+      </div>
+    }>
+      <SettingsPageWithParams />
+    </Suspense>
   );
 }

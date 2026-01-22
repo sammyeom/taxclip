@@ -61,9 +61,9 @@ export function useUsageLimit() {
   };
 
   // Determine limits based on subscription
-  const monthlyLimit = isPro || isActive ? Infinity : FREE_MONTHLY_LIMIT;
-  const remainingUploads = isPro || isActive ? Infinity : Math.max(0, FREE_MONTHLY_LIMIT - monthlyCount);
-  const canUpload = isPro || isActive || monthlyCount < FREE_MONTHLY_LIMIT;
+  const monthlyLimit = isPro ? Infinity : FREE_MONTHLY_LIMIT;
+  const remainingUploads = isPro ? Infinity : Math.max(0, FREE_MONTHLY_LIMIT - monthlyCount);
+  const canUpload = isPro || monthlyCount < FREE_MONTHLY_LIMIT;
 
   return {
     monthlyCount,

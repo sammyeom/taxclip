@@ -2,9 +2,10 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from './useAuth';
+import { supabase } from '@/lib/supabase';
 
-// TODO: Enable subscription features when LemonSqueezy is approved
-const SUBSCRIPTIONS_ENABLED = false;
+// Subscription features enabled
+const SUBSCRIPTIONS_ENABLED = true;
 
 export interface Subscription {
   id: string;
@@ -46,8 +47,6 @@ export function useSubscription() {
       return;
     }
 
-    // TODO: Uncomment when LemonSqueezy is approved
-    /*
     try {
       setLoading(true);
       setError(null);
@@ -70,8 +69,6 @@ export function useSubscription() {
     } finally {
       setLoading(false);
     }
-    */
-    setLoading(false);
   }, [user]);
 
   // Initial fetch
@@ -79,9 +76,9 @@ export function useSubscription() {
     fetchSubscription();
   }, [fetchSubscription]);
 
-  // When subscriptions are disabled, give everyone Pro access
-  const isActive = SUBSCRIPTIONS_ENABLED ? subscription?.status === 'active' : true;
-  const isPro = SUBSCRIPTIONS_ENABLED ? (isActive && (subscription?.plan_type === 'pro' || subscription?.plan_type === 'annual')) : true;
+  // Check subscription status
+  const isActive = subscription?.status === 'active';
+  const isPro = isActive && (subscription?.plan_type === 'pro' || subscription?.plan_type === 'annual');
 
   // Check if subscription is cancelled but still active until period end
   const isCancelled = subscription?.status === 'cancelled' && subscription?.ends_at;

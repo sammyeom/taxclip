@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useAuth } from '@/hooks/useAuth';
+import { useUsageLimit } from '@/hooks/useUsageLimit';
 import { getReceipts, getReceiptStats, getReceiptsByYear } from '@/lib/supabase';
 import { Receipt } from '@/types/database';
 import Navigation from '@/components/Navigation';
@@ -22,6 +23,8 @@ import {
   Download,
   CheckCircle2,
   X,
+  Crown,
+  Zap,
 } from 'lucide-react';
 import {
   ChartSkeleton,
@@ -40,6 +43,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardAction, 
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Progress } from '@/components/ui/progress';
 
 // Dynamic imports for heavy chart components (code splitting)
 const DynamicSpendingTrendChart = dynamic(
@@ -263,6 +267,7 @@ function CheckoutSuccessBanner() {
 export default function DashboardPage() {
   const { user, loading: authLoading } = useAuth();
   const router = useRouter();
+  const { monthlyCount, monthlyLimit, remainingUploads, isPro } = useUsageLimit();
 
   const [stats, setStats] = useState<StatsData | null>(null);
   const [allReceipts, setAllReceipts] = useState<Receipt[]>([]);
@@ -488,6 +493,44 @@ export default function DashboardPage() {
             Here's your financial overview
           </p>
         </div>
+
+        {/* Usage Banner for Free Users */}
+        {!isPro && (
+          <div className="mb-6 bg-gradient-to-r from-slate-50 to-cyan-50 border border-cyan-200 rounded-xl p-4 sm:p-6">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <div className="flex-1">
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="text-sm font-semibold text-slate-700">Monthly Usage</span>
+                  <span className="bg-slate-200 text-slate-700 px-2 py-0.5 rounded-full text-xs font-medium">
+                    Free Plan
+                  </span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <Progress
+                    value={monthlyLimit === Infinity ? 0 : (monthlyCount / monthlyLimit) * 100}
+                    className="h-2 flex-1 max-w-xs"
+                  />
+                  <span className="text-sm font-bold text-slate-900">
+                    {monthlyCount} / {monthlyLimit === Infinity ? '∞' : monthlyLimit}
+                  </span>
+                </div>
+                <p className="text-xs text-slate-500 mt-1">
+                  {remainingUploads === Infinity
+                    ? 'Unlimited uploads'
+                    : remainingUploads === 0
+                    ? 'Upload limit reached'
+                    : `${remainingUploads} uploads remaining this month`}
+                </p>
+              </div>
+              <Link href="/settings?tab=billing">
+                <Button className="bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white whitespace-nowrap">
+                  <Zap className="w-4 h-4 mr-2" />
+                  Upgrade to Pro
+                </Button>
+              </Link>
+            </div>
+          </div>
+        )}
 
         {/* Stats Cards - 2x2 on mobile, 4 cols on desktop */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4 lg:gap-6 mb-6 sm:mb-8">

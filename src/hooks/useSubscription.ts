@@ -96,9 +96,12 @@ export function useSubscription() {
   // Create checkout session
   const createCheckout = async (plan: 'monthly' | 'yearly'): Promise<string | null> => {
     // LemonSqueezy checkout URLs from environment variables
+    // Production URLs (uncomment when going live):
+    // monthly: 'https://taxclip.lemonsqueezy.com/checkout/buy/1d738928-55d4-4c09-9c8d-e7a451234a1c'
+    // yearly: 'https://taxclip.lemonsqueezy.com/checkout/buy/ffab2a3d-9fca-4af3-a381-666bf7fdcdbb'
     const checkoutUrls = {
-      monthly: process.env.NEXT_PUBLIC_LEMON_SQUEEZY_CHECKOUT_MONTHLY || 'https://taxclip.lemonsqueezy.com/checkout/buy/1d738928-55d4-4c09-9c8d-e7a451234a1c',
-      yearly: process.env.NEXT_PUBLIC_LEMON_SQUEEZY_CHECKOUT_YEARLY || 'https://taxclip.lemonsqueezy.com/checkout/buy/ffab2a3d-9fca-4af3-a381-666bf7fdcdbb',
+      monthly: process.env.NEXT_PUBLIC_LEMON_SQUEEZY_CHECKOUT_MONTHLY || '',
+      yearly: process.env.NEXT_PUBLIC_LEMON_SQUEEZY_CHECKOUT_YEARLY || '',
     };
 
     // Add user email and user_id as prefill if logged in

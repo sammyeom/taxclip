@@ -13,7 +13,7 @@ export interface Subscription {
   user_email: string | null;
   lemon_squeezy_customer_id: string | null;
   lemon_squeezy_subscription_id: string | null;
-  status: 'active' | 'cancelled' | 'expired' | 'paused' | 'past_due' | 'inactive';
+  status: 'active' | 'on_trial' | 'cancelled' | 'expired' | 'paused' | 'past_due' | 'inactive';
   plan_type: 'free' | 'pro' | 'annual';
   current_period_start: string | null;
   current_period_end: string | null;

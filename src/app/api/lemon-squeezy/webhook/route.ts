@@ -90,30 +90,36 @@ function mapStatus(lsStatus: string): string {
 }
 
 // Map variant ID to plan type
-// We use variant_id instead of product_id for accurate mapping
-function mapPlanType(variantId: string, productId?: string): string {
+// We check variant_id from env vars, or fallback to variant_name detection
+function mapPlanType(variantId: string, variantName?: string, productName?: string): string {
   const monthlyVariantId = process.env.LEMON_SQUEEZY_VARIANT_ID_MONTHLY;
   const yearlyVariantId = process.env.LEMON_SQUEEZY_VARIANT_ID_YEARLY;
 
   console.log('[Webhook] Plan type mapping:');
   console.log('[Webhook] - Received variant_id:', variantId);
-  console.log('[Webhook] - Received product_id:', productId);
+  console.log('[Webhook] - Received variant_name:', variantName);
+  console.log('[Webhook] - Received product_name:', productName);
   console.log('[Webhook] - Monthly variant_id from env:', monthlyVariantId);
   console.log('[Webhook] - Yearly variant_id from env:', yearlyVariantId);
 
-  // Try variant_id first (more accurate)
-  if (variantId === monthlyVariantId) {
+  // Try variant_id first (if env vars are set correctly with numeric IDs)
+  if (monthlyVariantId && variantId === monthlyVariantId) {
     console.log('[Webhook] - Matched monthly variant_id');
     return 'pro';
   }
-  if (variantId === yearlyVariantId) {
+  if (yearlyVariantId && variantId === yearlyVariantId) {
     console.log('[Webhook] - Matched yearly variant_id');
     return 'annual';
   }
 
-  // Fallback: check if variant_id contains 'yearly' or 'annual' keywords in name
-  // This is a safeguard if env vars don't match
-  console.log('[Webhook] - No variant_id match found, defaulting to pro');
+  // Fallback: check variant_name or product_name for yearly/annual keywords
+  const nameToCheck = (variantName || productName || '').toLowerCase();
+  if (nameToCheck.includes('year') || nameToCheck.includes('annual')) {
+    console.log('[Webhook] - Detected yearly from name:', nameToCheck);
+    return 'annual';
+  }
+
+  console.log('[Webhook] - Defaulting to monthly (pro)');
   return 'pro';
 }
 
@@ -249,10 +255,11 @@ export async function POST(request: NextRequest) {
         const lsStatus = attrs?.status || 'inactive';
         const status = mapStatus(lsStatus);
 
-        // Use variant_id for accurate plan type mapping
+        // Use variant_id for plan type mapping, with fallback to name detection
         const planType = mapPlanType(
           attrs?.variant_id?.toString() || '',
-          attrs?.product_id?.toString()
+          attrs?.variant_name || '',
+          attrs?.product_name || ''
         );
 
         console.log('[Webhook] Lemon Squeezy status:', lsStatus);

@@ -281,7 +281,7 @@ export async function POST(request: NextRequest) {
 
         const subscriptionData = {
           user_id: userId,
-          user_email: attrs?.user_email || userEmail,
+          user_email: userEmail,  // Use custom_data.user_email first, fallback to attrs.user_email
           lemon_squeezy_customer_id: attrs?.customer_id?.toString(),
           lemon_squeezy_subscription_id: data.id?.toString(),
           lemon_squeezy_order_id: attrs?.order_id?.toString(),

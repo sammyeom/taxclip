@@ -135,6 +135,7 @@ export function useSubscription() {
     const params = new URLSearchParams();
     if (user?.email) {
       params.append('checkout[email]', user.email);
+      params.append('checkout[custom][user_email]', user.email);
     }
     if (user?.id) {
       params.append('checkout[custom][user_id]', user.id);

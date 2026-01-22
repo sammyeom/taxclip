@@ -500,25 +500,25 @@ export default function DashboardPage() {
             <div className="flex items-center justify-between gap-3">
               <div className="flex items-center gap-3 flex-1 min-w-0">
                 <div className="flex items-center gap-2">
-                  <span className="text-xs font-semibold text-slate-700">Monthly Usage</span>
-                  <span className="bg-slate-200 text-slate-600 px-1.5 py-0.5 rounded text-[10px] font-medium">
+                  <span className="text-base sm:text-lg font-semibold text-slate-700">Monthly Usage</span>
+                  <span className="bg-slate-200 text-slate-600 px-1.5 py-0.5 rounded text-xs font-medium">
                     Free
                   </span>
                 </div>
                 <Progress
                   value={monthlyLimit === Infinity ? 0 : (monthlyCount / monthlyLimit) * 100}
-                  className="h-1.5 w-24 sm:w-32"
+                  className="h-2 w-24 sm:w-32"
                 />
-                <span className="text-xs font-semibold text-slate-700">
+                <span className="text-base sm:text-lg font-semibold text-slate-700">
                   {monthlyCount}/{monthlyLimit === Infinity ? '∞' : monthlyLimit}
                 </span>
-                <span className="text-[10px] text-slate-500 hidden sm:inline">
+                <span className="text-sm text-slate-500 hidden sm:inline">
                   ({remainingUploads === 0 ? 'Limit reached' : `${remainingUploads} left`})
                 </span>
               </div>
               <Link href="/settings?tab=billing">
-                <Button size="sm" className="bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white text-xs h-8">
-                  <Zap className="w-3 h-3 mr-1" />
+                <Button size="sm" className="bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white text-sm h-9">
+                  <Zap className="w-4 h-4 mr-1" />
                   Upgrade
                 </Button>
               </Link>

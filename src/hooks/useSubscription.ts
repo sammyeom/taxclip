@@ -31,11 +31,13 @@ export function useSubscription() {
   const [subscription, setSubscription] = useState<Subscription | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [hasUsedTrial, setHasUsedTrial] = useState<boolean>(false);
 
-  // Fetch subscription data
+  // Fetch subscription data and trial status
   const fetchSubscription = useCallback(async () => {
     if (!user) {
       setSubscription(null);
+      setHasUsedTrial(false);
       setLoading(false);
       return;
     }
@@ -43,6 +45,7 @@ export function useSubscription() {
     // Subscriptions disabled - give everyone free access
     if (!SUBSCRIPTIONS_ENABLED) {
       setSubscription(null);
+      setHasUsedTrial(false);
       setLoading(false);
       return;
     }
@@ -51,6 +54,7 @@ export function useSubscription() {
       setLoading(true);
       setError(null);
 
+      // Fetch subscription data
       const { data, error: fetchError } = await supabase
         .from('subscriptions')
         .select('*')
@@ -62,6 +66,19 @@ export function useSubscription() {
       }
 
       setSubscription(data || null);
+
+      // Fetch has_used_trial from user_settings table
+      const { data: settingsData, error: settingsError } = await supabase
+        .from('user_settings')
+        .select('has_used_trial')
+        .eq('user_id', user.id)
+        .single();
+
+      if (settingsError && settingsError.code !== 'PGRST116') {
+        console.error('Error fetching user settings:', settingsError);
+      }
+
+      setHasUsedTrial(settingsData?.has_used_trial || false);
     } catch (err) {
       console.error('Error fetching subscription:', err);
       setError(err instanceof Error ? err.message : 'Failed to fetch subscription');
@@ -77,7 +94,8 @@ export function useSubscription() {
   }, [fetchSubscription]);
 
   // Check subscription status
-  const isActive = subscription?.status === 'active';
+  // Include 'on_trial' as active since trial users should have pro features
+  const isActive = subscription?.status === 'active' || subscription?.status === 'on_trial';
   const isPro = isActive && (subscription?.plan_type === 'pro' || subscription?.plan_type === 'annual');
 
   // Check if subscription is cancelled but still active until period end
@@ -94,15 +112,23 @@ export function useSubscription() {
   };
 
   // Create checkout session
+  // If user has already used trial, use no-trial URLs
   const createCheckout = async (plan: 'monthly' | 'yearly'): Promise<string | null> => {
     // LemonSqueezy checkout URLs from environment variables
-    // Production URLs (uncomment when going live):
-    // monthly: 'https://taxclip.lemonsqueezy.com/checkout/buy/1d738928-55d4-4c09-9c8d-e7a451234a1c'
-    // yearly: 'https://taxclip.lemonsqueezy.com/checkout/buy/ffab2a3d-9fca-4af3-a381-666bf7fdcdbb'
-    const checkoutUrls = {
+    // With trial (for first-time users)
+    const checkoutUrlsWithTrial = {
       monthly: process.env.NEXT_PUBLIC_LEMON_SQUEEZY_CHECKOUT_MONTHLY || '',
       yearly: process.env.NEXT_PUBLIC_LEMON_SQUEEZY_CHECKOUT_YEARLY || '',
     };
+
+    // Without trial (for users who already used trial)
+    const checkoutUrlsNoTrial = {
+      monthly: process.env.NEXT_PUBLIC_LEMON_SQUEEZY_CHECKOUT_MONTHLY_NO_TRIAL || checkoutUrlsWithTrial.monthly,
+      yearly: process.env.NEXT_PUBLIC_LEMON_SQUEEZY_CHECKOUT_YEARLY_NO_TRIAL || checkoutUrlsWithTrial.yearly,
+    };
+
+    // Select URL based on whether user has used trial
+    const checkoutUrls = hasUsedTrial ? checkoutUrlsNoTrial : checkoutUrlsWithTrial;
 
     // Add user email and user_id as prefill if logged in
     let checkoutUrl = checkoutUrls[plan];
@@ -135,6 +161,9 @@ export function useSubscription() {
     }
   };
 
+  // Check if user is on trial
+  const isOnTrial = subscription?.status === 'on_trial';
+
   return {
     subscription,
     loading,
@@ -142,6 +171,8 @@ export function useSubscription() {
     isActive,
     isPro,
     isCancelled,
+    isOnTrial,
+    hasUsedTrial,
     getDaysRemaining,
     createCheckout,
     openCustomerPortal,

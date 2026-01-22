@@ -152,6 +152,16 @@ CREATE TABLE IF NOT EXISTS public.user_settings (
   -- Data & Privacy
   data_retention_years INTEGER NOT NULL DEFAULT 7,
 
+  -- Subscription info (for quick access without joining)
+  subscription_status TEXT DEFAULT 'inactive',
+  subscription_plan TEXT DEFAULT 'free',
+  subscription_ends_at TIMESTAMPTZ,
+  lemon_squeezy_customer_id TEXT,
+  lemon_squeezy_subscription_id TEXT,
+
+  -- Trial tracking (prevents users from getting multiple free trials)
+  has_used_trial BOOLEAN NOT NULL DEFAULT FALSE,
+
   -- Timestamps
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
@@ -203,7 +213,7 @@ CREATE TABLE IF NOT EXISTS public.subscriptions (
   lemon_squeezy_variant_id TEXT,
 
   -- Subscription details
-  status TEXT NOT NULL DEFAULT 'inactive', -- active, cancelled, expired, paused, past_due, inactive
+  status TEXT NOT NULL DEFAULT 'inactive', -- active, on_trial, cancelled, expired, paused, past_due, inactive
   plan_type TEXT NOT NULL DEFAULT 'free', -- free, pro, annual
 
   -- Billing info
@@ -308,7 +318,10 @@ BEGIN
     meals_deduction_rate,
     mileage_tracking,
     mileage_rate,
-    data_retention_years
+    data_retention_years,
+    subscription_status,
+    subscription_plan,
+    has_used_trial
   ) VALUES (
     NEW.id,
     NEW.email,
@@ -325,7 +338,10 @@ BEGIN
     0.50,
     false,
     0.67,
-    7
+    7,
+    'inactive',
+    'free',
+    false
   );
   RETURN NEW;
 END;
@@ -387,7 +403,10 @@ INSERT INTO public.user_settings (
   meals_deduction_rate,
   mileage_tracking,
   mileage_rate,
-  data_retention_years
+  data_retention_years,
+  subscription_status,
+  subscription_plan,
+  has_used_trial
 )
 SELECT
   id,
@@ -405,10 +424,24 @@ SELECT
   0.50,
   false,
   0.67,
-  7
+  7,
+  'inactive',
+  'free',
+  false
 FROM auth.users
 WHERE id NOT IN (SELECT user_id FROM public.user_settings)
 ON CONFLICT (user_id) DO NOTHING;
+
+-- ============================================================================
+-- 10. UPDATE EXISTING USERS WITH SUBSCRIPTIONS
+-- Mark has_used_trial = true for users who already have subscriptions
+-- ============================================================================
+UPDATE user_settings
+SET has_used_trial = TRUE
+WHERE user_id IN (
+  SELECT user_id FROM subscriptions
+  WHERE status IN ('active', 'on_trial', 'cancelled', 'expired')
+);
 
 -- ============================================================================
 -- 9. GRANT PERMISSIONS

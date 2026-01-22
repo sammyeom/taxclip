@@ -75,10 +75,11 @@ function verifySignature(payload: string, signature: string): boolean {
 }
 
 // Map Lemon Squeezy status to our status
+// IMPORTANT: Keep 'on_trial' as 'on_trial' to distinguish trial users
 function mapStatus(lsStatus: string): string {
   const statusMap: Record<string, string> = {
     'active': 'active',
-    'on_trial': 'active',
+    'on_trial': 'on_trial', // Keep trial status separate for tracking
     'paused': 'paused',
     'past_due': 'past_due',
     'unpaid': 'past_due',
@@ -88,18 +89,31 @@ function mapStatus(lsStatus: string): string {
   return statusMap[lsStatus] || 'inactive';
 }
 
-// Map product ID to plan type
-function mapPlanType(productId: string): string {
-  const monthlyProductId = process.env.NEXT_PUBLIC_LEMON_SQUEEZY_PRODUCT_MONTHLY;
-  const yearlyProductId = process.env.NEXT_PUBLIC_LEMON_SQUEEZY_PRODUCT_YEARLY;
+// Map variant ID to plan type
+// We use variant_id instead of product_id for accurate mapping
+function mapPlanType(variantId: string, productId?: string): string {
+  const monthlyVariantId = process.env.LEMON_SQUEEZY_VARIANT_ID_MONTHLY;
+  const yearlyVariantId = process.env.LEMON_SQUEEZY_VARIANT_ID_YEARLY;
 
-  console.log('[Webhook] Product ID mapping:');
+  console.log('[Webhook] Plan type mapping:');
+  console.log('[Webhook] - Received variant_id:', variantId);
   console.log('[Webhook] - Received product_id:', productId);
-  console.log('[Webhook] - Monthly product_id:', monthlyProductId);
-  console.log('[Webhook] - Yearly product_id:', yearlyProductId);
+  console.log('[Webhook] - Monthly variant_id from env:', monthlyVariantId);
+  console.log('[Webhook] - Yearly variant_id from env:', yearlyVariantId);
 
-  if (productId === monthlyProductId) return 'pro';
-  if (productId === yearlyProductId) return 'annual';
+  // Try variant_id first (more accurate)
+  if (variantId === monthlyVariantId) {
+    console.log('[Webhook] - Matched monthly variant_id');
+    return 'pro';
+  }
+  if (variantId === yearlyVariantId) {
+    console.log('[Webhook] - Matched yearly variant_id');
+    return 'annual';
+  }
+
+  // Fallback: check if variant_id contains 'yearly' or 'annual' keywords in name
+  // This is a safeguard if env vars don't match
+  console.log('[Webhook] - No variant_id match found, defaulting to pro');
   return 'pro';
 }
 
@@ -130,6 +144,29 @@ async function updateUserSettings(userId: string, subscriptionData: {
     console.error('[Webhook] Error updating user_settings:', error);
   } else {
     console.log('[Webhook] Successfully updated user_settings:', data);
+  }
+
+  return { data, error };
+}
+
+// Helper function to mark user as having used trial
+// This prevents users from getting another free trial
+async function markTrialUsed(userId: string) {
+  console.log('[Webhook] Marking trial as used for user:', userId);
+
+  const { data, error } = await supabase
+    .from('user_settings')
+    .update({
+      has_used_trial: true,
+      updated_at: new Date().toISOString(),
+    })
+    .eq('user_id', userId)
+    .select();
+
+  if (error) {
+    console.error('[Webhook] Error marking trial as used:', error);
+  } else {
+    console.log('[Webhook] Successfully marked trial as used:', data);
   }
 
   return { data, error };
@@ -203,12 +240,29 @@ export async function POST(request: NextRequest) {
       case 'subscription_created':
       case 'subscription_updated': {
         const attrs = data.attributes;
+        const isCreated = eventName === 'subscription_created';
 
-        console.log('[Webhook] Processing subscription_created/updated');
+        console.log('[Webhook] Processing', eventName);
         console.log('[Webhook] Attributes:', JSON.stringify(attrs, null, 2));
 
-        const status = mapStatus(attrs?.status || 'inactive');
-        const planType = mapPlanType(attrs?.product_id?.toString() || '');
+        // Get the raw Lemon Squeezy status
+        const lsStatus = attrs?.status || 'inactive';
+        const status = mapStatus(lsStatus);
+
+        // Use variant_id for accurate plan type mapping
+        const planType = mapPlanType(
+          attrs?.variant_id?.toString() || '',
+          attrs?.product_id?.toString()
+        );
+
+        console.log('[Webhook] Lemon Squeezy status:', lsStatus);
+        console.log('[Webhook] Mapped status:', status);
+        console.log('[Webhook] Plan type:', planType);
+
+        // IMPORTANT: Use renews_at directly from Lemon Squeezy
+        // This is the actual next payment date (e.g., after 7-day trial ends)
+        const renewsAt = attrs?.renews_at;
+        console.log('[Webhook] renews_at from Lemon Squeezy:', renewsAt);
 
         const subscriptionData = {
           user_id: userId,
@@ -224,7 +278,8 @@ export async function POST(request: NextRequest) {
           current_period_start: attrs?.current_period_start,
           current_period_end: attrs?.current_period_end,
           trial_ends_at: attrs?.trial_ends_at,
-          renews_at: attrs?.renews_at,
+          // Use renews_at directly from Lemon Squeezy - this is the actual payment date
+          renews_at: renewsAt,
           ends_at: attrs?.ends_at,
           update_payment_method_url: attrs?.urls?.update_payment_method,
           customer_portal_url: attrs?.urls?.customer_portal,
@@ -272,6 +327,13 @@ export async function POST(request: NextRequest) {
           lemon_squeezy_customer_id: attrs?.customer_id?.toString(),
           lemon_squeezy_subscription_id: data.id?.toString(),
         });
+
+        // 3. Mark trial as used on subscription_created
+        // This prevents users from getting another free trial
+        if (isCreated) {
+          console.log('[Webhook] New subscription created - marking trial as used');
+          await markTrialUsed(userId);
+        }
 
         break;
       }

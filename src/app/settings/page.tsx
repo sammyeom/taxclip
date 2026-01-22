@@ -137,7 +137,7 @@ function SettingsContent({ defaultTab }: { defaultTab: string }) {
   const router = useRouter();
 
   // Subscription and usage hooks
-  const { subscription, isPro, createCheckout, openCustomerPortal } = useSubscription();
+  const { subscription, isPro, isOnTrial, hasUsedTrial, createCheckout, openCustomerPortal } = useSubscription();
   const { monthlyCount, monthlyLimit, remainingUploads } = useUsageLimit();
 
   const [settings, setSettings] = useState<AppSettings>(DEFAULT_SETTINGS);
@@ -958,9 +958,14 @@ For tax filing assistance, please consult a qualified tax professional.
                   <div>
                     <h3 className="text-2xl font-bold text-slate-900">
                       {isPro ? 'Pro' : 'Free'} Plan
+                      {isOnTrial && (
+                        <span className="ml-2 text-sm bg-green-100 text-green-700 px-2 py-0.5 rounded-full">
+                          Trial
+                        </span>
+                      )}
                     </h3>
                     {isPro && subscription?.plan_type === 'annual' && (
-                      <span className="text-sm text-amber-600 font-medium">Annual subscription</span>
+                      <span className="text-sm text-amber-600 font-medium">Yearly subscription</span>
                     )}
                     {isPro && subscription?.plan_type === 'pro' && (
                       <span className="text-sm text-cyan-600 font-medium">Monthly subscription</span>
@@ -1012,14 +1017,16 @@ For tax filing assistance, please consult a qualified tax professional.
                     </div>
 
                     {/* Next billing date */}
-                    {(subscription?.renews_at || subscription?.ends_at) && (
+                    {(subscription?.renews_at || subscription?.ends_at || subscription?.trial_ends_at) && (
                       <div className="border-t pt-4 mt-4">
                         <div className="flex items-center gap-2 text-slate-600">
                           <Calendar className="w-4 h-4" />
                           <span className="text-sm">
                             {subscription?.status === 'cancelled'
                               ? `Access until: ${formatDate(subscription?.ends_at)}`
-                              : `Next billing: ${formatDate(subscription?.renews_at)}`
+                              : isOnTrial
+                                ? `Trial ends: ${formatDate(subscription?.trial_ends_at || subscription?.renews_at)}`
+                                : `Next billing: ${formatDate(subscription?.renews_at)}`
                             }
                           </span>
                         </div>
@@ -1094,7 +1101,10 @@ For tax filing assistance, please consult a qualified tax professional.
                       <p className="text-2xl font-bold mb-1">
                         $9.99<span className="text-sm font-normal text-slate-500">/month</span>
                       </p>
-                      <p className="text-xs text-green-600 font-medium mb-3">7-day free trial</p>
+                      {!hasUsedTrial && (
+                        <p className="text-xs text-green-600 font-medium mb-3">7-day free trial</p>
+                      )}
+                      {hasUsedTrial && <div className="mb-3" />}
                       <ul className="space-y-2 text-sm">
                         <li className="flex items-center gap-2">
                           <Check className="w-4 h-4 text-green-500" />
@@ -1135,15 +1145,26 @@ For tax filing assistance, please consult a qualified tax professional.
             </DialogDescription>
           </DialogHeader>
 
-          {/* 7-day trial badge */}
-          <div className="bg-green-50 border border-green-200 rounded-lg p-3 text-center">
-            <p className="text-green-700 font-semibold text-sm">
-              Start with a 7-day free trial
-            </p>
-            <p className="text-green-600 text-xs">
-              Cancel anytime during trial - no charges
-            </p>
-          </div>
+          {/* 7-day trial badge - only show if user hasn't used trial */}
+          {!hasUsedTrial ? (
+            <div className="bg-green-50 border border-green-200 rounded-lg p-3 text-center">
+              <p className="text-green-700 font-semibold text-sm">
+                Start with a 7-day free trial
+              </p>
+              <p className="text-green-600 text-xs">
+                Cancel anytime during trial - no charges
+              </p>
+            </div>
+          ) : (
+            <div className="bg-slate-50 border border-slate-200 rounded-lg p-3 text-center">
+              <p className="text-slate-700 font-semibold text-sm">
+                You have already used your free trial
+              </p>
+              <p className="text-slate-600 text-xs">
+                Upgrade now to continue with Pro features
+              </p>
+            </div>
+          )}
 
           <div className="space-y-3 py-2">
             {/* Monthly Option */}

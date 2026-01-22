@@ -5,6 +5,22 @@ import { createClient } from '@supabase/supabase-js';
 // Force dynamic rendering for webhook endpoint
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
+export const preferredRegion = 'auto';
+
+// CORS headers for webhook
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type, X-Signature, x-signature',
+};
+
+// Handle CORS preflight
+export async function OPTIONS() {
+  return new NextResponse(null, {
+    status: 200,
+    headers: corsHeaders,
+  });
+}
 
 const WEBHOOK_SECRET = process.env.LEMON_SQUEEZY_WEBHOOK_SECRET;
 
@@ -131,7 +147,7 @@ export async function GET() {
       supabaseServiceKey: !!supabaseServiceKey,
       webhookSecret: !!WEBHOOK_SECRET,
     }
-  });
+  }, { headers: corsHeaders });
 }
 
 export async function POST(request: NextRequest) {
@@ -149,12 +165,12 @@ export async function POST(request: NextRequest) {
     // Verify signature
     if (!signature) {
       console.error('[Webhook] ERROR: No signature header provided');
-      return NextResponse.json({ error: 'No signature provided' }, { status: 401 });
+      return NextResponse.json({ error: 'No signature provided' }, { status: 401, headers: corsHeaders });
     }
 
     if (!verifySignature(rawBody, signature)) {
       console.error('[Webhook] ERROR: Invalid webhook signature');
-      return NextResponse.json({ error: 'Invalid signature' }, { status: 401 });
+      return NextResponse.json({ error: 'Invalid signature' }, { status: 401, headers: corsHeaders });
     }
 
     console.log('[Webhook] Signature verified successfully');
@@ -179,7 +195,7 @@ export async function POST(request: NextRequest) {
 
     if (!eventName) {
       console.error('[Webhook] ERROR: No event_name in payload');
-      return NextResponse.json({ error: 'Invalid payload: missing event_name' }, { status: 400 });
+      return NextResponse.json({ error: 'Invalid payload: missing event_name' }, { status: 400, headers: corsHeaders });
     }
 
     // Handle different event types
@@ -226,7 +242,7 @@ export async function POST(request: NextRequest) {
             received: true,
             warning: 'No user_id provided in custom_data. Subscription not saved.',
             event: eventName
-          });
+          }, { headers: corsHeaders });
         }
 
         // 1. Upsert to subscriptions table
@@ -418,7 +434,7 @@ export async function POST(request: NextRequest) {
     }
 
     console.log('[Webhook] ========== Webhook processed successfully ==========');
-    return NextResponse.json({ received: true, event: eventName });
+    return NextResponse.json({ received: true, event: eventName }, { headers: corsHeaders });
   } catch (error) {
     console.error('[Webhook] ========== FATAL ERROR ==========');
     console.error('[Webhook] Error:', error);
@@ -426,7 +442,7 @@ export async function POST(request: NextRequest) {
     console.error('[Webhook] Error stack:', (error as Error).stack);
     return NextResponse.json(
       { error: 'Webhook processing failed', message: (error as Error).message },
-      { status: 500 }
+      { status: 500, headers: corsHeaders }
     );
   }
 }

@@ -112,10 +112,18 @@ function mapPlanType(variantId: string, variantName?: string, productName?: stri
     return 'annual';
   }
 
-  // Fallback: check variant_name or product_name for yearly/annual keywords
-  const nameToCheck = (variantName || productName || '').toLowerCase();
-  if (nameToCheck.includes('year') || nameToCheck.includes('annual')) {
-    console.log('[Webhook] - Detected yearly from name:', nameToCheck);
+  // Fallback: check product_name AND variant_name for yearly/annual keywords
+  // Check product_name first (more reliable), then variant_name
+  const productNameLower = (productName || '').toLowerCase();
+  const variantNameLower = (variantName || '').toLowerCase();
+
+  if (productNameLower.includes('year') || productNameLower.includes('annual')) {
+    console.log('[Webhook] - Detected yearly from product_name:', productNameLower);
+    return 'annual';
+  }
+
+  if (variantNameLower.includes('year') || variantNameLower.includes('annual')) {
+    console.log('[Webhook] - Detected yearly from variant_name:', variantNameLower);
     return 'annual';
   }
 

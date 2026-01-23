@@ -1208,7 +1208,7 @@ For tax filing assistance, please consult a qualified tax professional.
                   <p className="text-sm text-slate-500">Billed annually</p>
                 </div>
                 <div className="text-right">
-                  <p className="text-xl font-bold">$99.99</p>
+                  <p className="text-xl font-bold">$99</p>
                   <p className="text-xs text-slate-500">/year</p>
                 </div>
               </div>

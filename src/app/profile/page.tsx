@@ -4,6 +4,7 @@ import { useState, useEffect, useMemo, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/hooks/useAuth';
+import { useSubscription } from '@/hooks/useSubscription';
 import { getReceipts } from '@/lib/supabase';
 import Navigation from '@/components/Navigation';
 import { Receipt } from '@/types/database';
@@ -24,6 +25,8 @@ import {
   Camera,
   Upload as UploadIcon,
   Lock,
+  Crown,
+  Sparkles,
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -50,6 +53,7 @@ const getReceiptTotal = (r: Receipt): number => {
 
 export default function ProfilePage() {
   const { user, loading: authLoading } = useAuth();
+  const { subscription, isPro, isOnTrial } = useSubscription();
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
@@ -418,6 +422,29 @@ export default function ProfilePage() {
                     <p className="font-semibold text-sm sm:text-base text-slate-900 flex items-center justify-center sm:justify-start gap-2">
                       <Mail className="w-3 h-3 sm:w-4 sm:h-4 text-slate-400" />
                       <span className="truncate">{user.email}</span>
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-xs sm:text-sm text-slate-500">Subscription</p>
+                    <p className="font-semibold text-sm sm:text-base flex items-center justify-center sm:justify-start gap-2">
+                      {isPro ? (
+                        <>
+                          <Crown className="w-3 h-3 sm:w-4 sm:h-4 text-amber-500" />
+                          <span className="text-amber-600">
+                            Pro {subscription?.plan_type === 'annual' ? '(Yearly)' : '(Monthly)'}
+                          </span>
+                          {isOnTrial && (
+                            <span className="text-xs bg-green-100 text-green-700 px-1.5 py-0.5 rounded-full">
+                              Trial
+                            </span>
+                          )}
+                        </>
+                      ) : (
+                        <>
+                          <Sparkles className="w-3 h-3 sm:w-4 sm:h-4 text-slate-400" />
+                          <span className="text-slate-600">Free Plan</span>
+                        </>
+                      )}
                     </p>
                   </div>
                   <div className="grid grid-cols-2 gap-3 sm:gap-4 pt-2">

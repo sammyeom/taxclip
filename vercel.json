@@ -1,12 +1,12 @@
 {
   "functions": {
-    "src/app/api/lemon-squeezy/webhook/route.ts": {
+    "src/app/api/webhooks/lemonsqueezy/route.ts": {
       "maxDuration": 30
     }
   },
   "headers": [
     {
-      "source": "/api/lemon-squeezy/(.*)",
+      "source": "/api/webhooks/(.*)",
       "headers": [
         { "key": "Access-Control-Allow-Origin", "value": "*" },
         { "key": "Access-Control-Allow-Methods", "value": "GET, POST, OPTIONS" },

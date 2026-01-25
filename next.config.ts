@@ -2,6 +2,23 @@ import type { NextConfig } from "next";
 import { withSentryConfig } from "@sentry/nextjs";
 
 const nextConfig: NextConfig = {
+  async headers() {
+    return [
+      {
+        source: '/:path*',
+        headers: [
+          {
+            key: 'X-Frame-Options',
+            value: 'DENY',
+          },
+          {
+            key: 'Content-Security-Policy',
+            value: "frame-ancestors 'none';",
+          },
+        ],
+      },
+    ];
+  },
   images: {
     // Enable modern image formats
     formats: ['image/avif', 'image/webp'],

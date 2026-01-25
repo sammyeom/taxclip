@@ -150,13 +150,13 @@ export default function Home() {
 
                 {/* Main headline */}
                 <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-slate-900 mb-6 leading-tight">
-                  Never Lose a Receipt Again
+                  Done with your weekly receipts in 5 minutes
                 </h1>
 
                 {/* Subheadline */}
                 <p className="text-lg sm:text-xl text-slate-600 mb-8 leading-relaxed">
-                  Snap, scan, and organize business receipts in seconds.<br />
-                  AI-powered OCR extracts data automatically.
+                  Don't spend your weekend wrestling with receipts.<br />
+                  Just snap a photo, and let TaxClip's system handle the rest.
                 </p>
 
                 {/* CTA Buttons */}
@@ -167,7 +167,7 @@ export default function Home() {
                       whileTap={{ scale: 0.95 }}
                       className="gradient-btn text-white px-8 py-4 rounded-lg font-semibold text-lg shadow-lg w-full"
                     >
-                      Get Started Free
+                      Start your 5-minute ritual
                     </motion.button>
                   </Link>
                   <motion.button
@@ -198,42 +198,97 @@ export default function Home() {
               </motion.div>
             </div>
 
-            {/* Right side - Visual */}
+            {/* Right side - Visual: The 5-Minute Flow */}
             <motion.div
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.6, delay: 0.2 }}
               className="relative"
             >
-              <div className="bg-white rounded-2xl shadow-2xl border border-slate-200 p-8">
-                <div className="grid gap-6">
-                  {/* Upload area */}
-                  <div className="border-2 border-dashed border-cyan-300 rounded-xl p-8 bg-gradient-to-br from-cyan-50 to-sky-50 text-center">
-                    <Camera className="w-12 h-12 text-cyan-600 mx-auto mb-4" />
-                    <p className="text-sm font-medium text-slate-700">Drop receipt or click to upload</p>
+              {/* Timeline badge */}
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.3 }}
+                className="absolute -top-2 left-4 z-10 flex items-center gap-2 bg-slate-900 text-white px-3 py-1.5 rounded-full shadow-lg text-xs font-mono"
+              >
+                <span className="text-cyan-400">9:00 AM</span>
+                <span className="text-slate-400">→</span>
+                <span className="text-green-400">9:05 AM</span>
+              </motion.div>
+
+              <div className="bg-white rounded-2xl shadow-2xl border border-slate-200 p-6 pt-8">
+                {/* Two-panel layout: Phone capture + Dashboard */}
+                <div className="grid grid-cols-2 gap-4">
+                  {/* Left: Phone with receipt capture */}
+                  <div className="relative">
+                    <div className="bg-slate-900 rounded-2xl p-2 shadow-xl">
+                      <div className="bg-gradient-to-br from-cyan-50 to-sky-50 rounded-xl p-4 aspect-[3/4] flex flex-col items-center justify-center">
+                        <div className="w-16 h-20 bg-white rounded shadow-md mb-3 flex items-center justify-center border border-slate-200">
+                          <FileText className="w-8 h-8 text-slate-400" />
+                        </div>
+                        <Camera className="w-8 h-8 text-cyan-600 mb-2" />
+                        <p className="text-xs text-slate-600 font-medium text-center">Snap receipt</p>
+                      </div>
+                    </div>
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.8 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ duration: 0.4, delay: 0.5 }}
+                      className="absolute -bottom-2 -right-2 bg-cyan-500 text-white p-1.5 rounded-full shadow-lg"
+                    >
+                      <CheckCircle2 className="w-4 h-4" />
+                    </motion.div>
                   </div>
 
-                  {/* Extracted data preview */}
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
-                      <span className="text-sm text-slate-500">Vendor</span>
-                      <span className="text-sm font-semibold text-slate-900">Coffee Shop Inc.</span>
+                  {/* Right: Dashboard preview */}
+                  <div className="bg-slate-50 rounded-xl p-3 border border-slate-200">
+                    <div className="flex items-center gap-2 mb-3">
+                      <div className="w-2 h-2 rounded-full bg-green-500"></div>
+                      <span className="text-xs font-semibold text-slate-700">Dashboard</span>
                     </div>
-                    <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
-                      <span className="text-sm text-slate-500">Date</span>
-                      <span className="text-sm font-semibold text-slate-900">Jan 6, 2026</span>
+                    <div className="space-y-2">
+                      <div className="bg-white rounded p-2 shadow-sm">
+                        <div className="text-xs text-slate-500">Today</div>
+                        <div className="text-sm font-bold text-slate-900">7 receipts</div>
+                      </div>
+                      <div className="bg-white rounded p-2 shadow-sm">
+                        <div className="text-xs text-slate-500">This week</div>
+                        <div className="text-sm font-bold text-green-600">$342.50</div>
+                      </div>
+                      <div className="bg-gradient-to-r from-cyan-50 to-sky-50 rounded p-2 border border-cyan-200">
+                        <div className="flex items-center gap-1">
+                          <Sparkles className="w-3 h-3 text-cyan-600" />
+                          <span className="text-xs font-medium text-cyan-700">Auto-categorized</span>
+                        </div>
+                      </div>
                     </div>
-                    <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
-                      <span className="text-sm text-slate-500">Total</span>
-                      <span className="text-sm font-semibold text-slate-900">$12.50</span>
-                    </div>
-                    <div className="flex items-center justify-between p-3 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg border border-green-200">
-                      <span className="text-sm text-slate-500">Category</span>
-                      <span className="inline-flex items-center gap-1 text-sm font-semibold text-green-700">
-                        <Sparkles className="w-4 h-4" />
-                        Meals & Entertainment
-                      </span>
-                    </div>
+                  </div>
+                </div>
+
+                {/* Bottom: Flow indicator */}
+                <div className="mt-4 pt-4 border-t border-slate-100">
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="flex items-center gap-1.5 text-slate-500">
+                      <div className="w-5 h-5 rounded-full bg-cyan-100 flex items-center justify-center">
+                        <Camera className="w-3 h-3 text-cyan-600" />
+                      </div>
+                      Capture
+                    </span>
+                    <div className="flex-1 h-px bg-gradient-to-r from-cyan-200 via-sky-300 to-green-200 mx-2"></div>
+                    <span className="flex items-center gap-1.5 text-slate-500">
+                      <div className="w-5 h-5 rounded-full bg-sky-100 flex items-center justify-center">
+                        <Sparkles className="w-3 h-3 text-sky-600" />
+                      </div>
+                      AI Process
+                    </span>
+                    <div className="flex-1 h-px bg-gradient-to-r from-sky-200 to-green-200 mx-2"></div>
+                    <span className="flex items-center gap-1.5 text-green-600 font-medium">
+                      <div className="w-5 h-5 rounded-full bg-green-100 flex items-center justify-center">
+                        <CheckCircle2 className="w-3 h-3 text-green-600" />
+                      </div>
+                      Done!
+                    </span>
                   </div>
                 </div>
               </div>
@@ -242,12 +297,12 @@ export default function Home() {
               <motion.div
                 initial={{ opacity: 0, scale: 0.8 }}
                 animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.6, delay: 0.4 }}
-                className="absolute -top-4 -right-4 bg-gradient-to-r from-cyan-500 to-sky-500 text-white px-4 py-2 rounded-full shadow-lg text-sm font-semibold"
+                transition={{ duration: 0.6, delay: 0.6 }}
+                className="absolute -bottom-3 -right-3 bg-gradient-to-r from-green-500 to-emerald-500 text-white px-4 py-2 rounded-full shadow-lg text-sm font-semibold"
               >
                 <span className="flex items-center gap-1">
-                  <Sparkles className="w-4 h-4" />
-                  AI in 3 seconds
+                  <Zap className="w-4 h-4" />
+                  5 min ritual
                 </span>
               </motion.div>
             </motion.div>

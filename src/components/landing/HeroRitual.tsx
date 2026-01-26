@@ -213,6 +213,9 @@ export default function HeroRitual() {
         <div className={`text-center p-2 sm:p-3 rounded-xl transition-all duration-300 ${
           phase === 'snap' ? 'bg-cyan-50 border-2 border-cyan-200' : 'bg-slate-50 border border-slate-100'
         }`}>
+          <div className={`text-[10px] sm:text-xs font-bold mb-1 ${
+            phase === 'snap' ? 'text-cyan-600' : 'text-slate-400'
+          }`}>Step 1</div>
           <Badge
             variant="secondary"
             className={`mb-2 text-[10px] sm:text-xs ${
@@ -237,6 +240,9 @@ export default function HeroRitual() {
         <div className={`text-center p-2 sm:p-3 rounded-xl transition-all duration-300 ${
           phase === 'auto-sort' ? 'bg-sky-50 border-2 border-sky-200' : 'bg-slate-50 border border-slate-100'
         }`}>
+          <div className={`text-[10px] sm:text-xs font-bold mb-1 ${
+            phase === 'auto-sort' ? 'text-sky-600' : 'text-slate-400'
+          }`}>Step 2</div>
           <Badge
             variant="secondary"
             className={`mb-2 text-[10px] sm:text-xs ${
@@ -257,17 +263,20 @@ export default function HeroRitual() {
           </div>
         </div>
 
-        {/* Step 3: Result */}
+        {/* Step 3: Export */}
         <div className={`text-center p-2 sm:p-3 rounded-xl transition-all duration-300 ${
           (phase === 'result' || phase === 'complete') ? 'bg-green-50 border-2 border-green-200' : 'bg-slate-50 border border-slate-100'
         }`}>
+          <div className={`text-[10px] sm:text-xs font-bold mb-1 ${
+            (phase === 'result' || phase === 'complete') ? 'text-green-600' : 'text-slate-400'
+          }`}>Step 3</div>
           <Badge
             variant="secondary"
             className={`mb-2 text-[10px] sm:text-xs ${
               (phase === 'result' || phase === 'complete') ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-500'
             }`}
           >
-            Result
+            Export
           </Badge>
           <div className="flex justify-center">
             <motion.div

@@ -321,50 +321,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 5. HOW IT WORKS */}
-      <section className="py-20 sm:py-32 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="text-center mb-16"
-          >
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-slate-900 mb-6">
-              Snap, Organize, Export — All in 3 Seconds
-            </h2>
-          </motion.div>
-
-          <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-            {[
-              { num: '1', title: 'Capture Any Receipt', desc: 'Upload photos, screenshots, or email receipts. AI OCR reads vendor, date, amount, and category instantly.' },
-              { num: '2', title: 'Smart Categorization', desc: 'AI learns your business patterns and suggests categories. Review and adjust with a simple click.' },
-              { num: '3', title: 'Export Anywhere', desc: 'Download CSV for QuickBooks, Excel, or email to your accountant. Clean, structured data — no manual entry needed.' },
-            ].map((step, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: i * 0.1 }}
-                className="text-center"
-              >
-                <div className="inline-flex items-center justify-center w-16 h-16 rounded-full gradient-btn text-white text-2xl font-bold mb-4 shadow-lg">
-                  {step.num}
-                </div>
-                <h3 className="text-xl font-semibold text-slate-900 mb-3">
-                  {step.title}
-                </h3>
-                <p className="text-slate-600">
-                  {step.desc}
-                </p>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* 6. FEATURES SECTION */}
       <section id="features" className="py-20 sm:py-32 bg-slate-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -375,9 +331,12 @@ export default function Home() {
             transition={{ duration: 0.6 }}
             className="text-center mb-16"
           >
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-slate-900 mb-6">
-              Built for Freelancers & Small Businesses
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-slate-900 mb-4">
+              Enjoy Your Weekends, Leave the Ritual to Us
             </h2>
+            <p className="text-lg sm:text-xl text-slate-600 max-w-2xl mx-auto">
+              Turn messy paperwork into a 5-minute habit and keep your free time for what matters most.
+            </p>
           </motion.div>
 
           <div className="grid sm:grid-cols-2 gap-6 max-w-4xl mx-auto">
@@ -477,59 +436,6 @@ export default function Home() {
                     </p>
                   </CardContent>
                 </Card>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* 6. EVERYTHING YOU NEED SECTION */}
-      <section className="py-20 sm:py-32" style={{ background: 'linear-gradient(135deg, #ECFEFF 0%, #F0F9FF 100%)' }}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="text-center mb-16"
-          >
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-slate-900 mb-6">
-              Everything You Need to Save on Taxes
-            </h2>
-          </motion.div>
-
-          <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-            {[
-              [
-                'Receipt OCR & AI Parsing',
-                'Multi-Currency Support',
-                'Expense Categories',
-              ],
-              [
-                'CSV & Excel Export',
-                'QuickBooks Integration',
-                'Team Collaboration',
-              ],
-              [
-                'Mobile App (iOS & Android)',
-                'Email Receipt Forwarding',
-                'Unlimited Storage',
-              ],
-            ].map((column, colIdx) => (
-              <motion.div
-                key={colIdx}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: colIdx * 0.1 }}
-                className="space-y-4"
-              >
-                {column.map((feature, i) => (
-                  <div key={i} className="flex items-start gap-3">
-                    <CheckCircle2 className="w-6 h-6 text-green-500 flex-shrink-0 mt-0.5" />
-                    <span className="text-slate-700 font-medium">{feature}</span>
-                  </div>
-                ))}
               </motion.div>
             ))}
           </div>

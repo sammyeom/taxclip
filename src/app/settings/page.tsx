@@ -9,6 +9,7 @@ import { getReceipts, deleteReceipt, getUserSettings, updateUserSettings, resetU
 import { getReceiptImages, Receipt } from '@/types/database';
 import Navigation from '@/components/Navigation';
 import JSZip from 'jszip';
+import { motion } from 'framer-motion';
 import {
   Save,
   Loader2,
@@ -28,6 +29,7 @@ import {
   Zap,
   ExternalLink,
   Check,
+  Sparkles,
 } from 'lucide-react';
 import {
   Select,
@@ -1069,11 +1071,11 @@ For tax filing assistance, please consult a qualified tax professional.
                   <CardTitle className="text-lg sm:text-xl">Plan Comparison</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     {/* Free Plan */}
-                    <div className="border rounded-lg p-4">
-                      <h4 className="font-semibold text-lg mb-2">Free</h4>
-                      <p className="text-2xl font-bold mb-4">$0<span className="text-sm font-normal text-slate-500">/month</span></p>
+                    <div className="border rounded-lg p-4 bg-white">
+                      <h4 className="font-semibold text-lg mb-2 text-slate-700">Free</h4>
+                      <p className="text-2xl font-bold mb-4 text-slate-700">$0<span className="text-sm font-normal text-slate-500">/month</span></p>
                       <ul className="space-y-2 text-sm">
                         <li className="flex items-center gap-2">
                           <Check className="w-4 h-4 text-green-500" />
@@ -1090,21 +1092,15 @@ For tax filing assistance, please consult a qualified tax professional.
                       </ul>
                     </div>
 
-                    {/* Pro Plan */}
-                    <div className="border-2 border-cyan-500 rounded-lg p-4 relative">
-                      <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-cyan-500 text-white px-3 py-0.5 rounded-full text-xs font-semibold">
-                        RECOMMENDED
-                      </div>
-                      <h4 className="font-semibold text-lg mb-2 flex items-center gap-2">
-                        Pro <Crown className="w-4 h-4 text-amber-500" />
+                    {/* Monthly Pro Plan */}
+                    <div className="border rounded-lg p-4 bg-white">
+                      <h4 className="font-semibold text-lg mb-2 flex items-center gap-2 text-slate-700">
+                        Pro Monthly <Crown className="w-4 h-4 text-amber-500" />
                       </h4>
-                      <p className="text-2xl font-bold mb-1">
+                      <p className="text-2xl font-bold mb-1 text-slate-700">
                         $9.99<span className="text-sm font-normal text-slate-500">/month</span>
                       </p>
-                      {!hasUsedTrial && (
-                        <p className="text-xs text-green-600 font-medium mb-3">7-day free trial</p>
-                      )}
-                      {hasUsedTrial && <div className="mb-3" />}
+                      <div className="mb-3" />
                       <ul className="space-y-2 text-sm">
                         <li className="flex items-center gap-2">
                           <Check className="w-4 h-4 text-green-500" />
@@ -1124,6 +1120,99 @@ For tax filing assistance, please consult a qualified tax professional.
                         </li>
                       </ul>
                     </div>
+
+                    {/* Annual Pro Plan - Premium Look */}
+                    <div className="relative">
+                      {/* Animated Gradient Border */}
+                      <motion.div
+                        className="absolute -inset-[2px] rounded-xl opacity-75"
+                        style={{
+                          background: 'linear-gradient(90deg, #06b6d4, #3b82f6, #8b5cf6, #06b6d4)',
+                          backgroundSize: '300% 100%',
+                        }}
+                        animate={{
+                          backgroundPosition: ['0% 50%', '100% 50%', '0% 50%'],
+                        }}
+                        transition={{
+                          duration: 3,
+                          repeat: Infinity,
+                          ease: 'linear',
+                        }}
+                      />
+                      <div className="relative rounded-xl p-4 bg-gradient-to-br from-cyan-50 via-blue-50 to-indigo-50 shadow-xl h-full">
+                        {/* Best Value Badge */}
+                        <div className="absolute -top-4 left-1/2 -translate-x-1/2">
+                          <span className="inline-flex flex-col items-center bg-gradient-to-r from-amber-400 to-amber-500 text-white px-3 py-1.5 rounded-lg text-center font-semibold shadow-md whitespace-nowrap">
+                            <span className="flex items-center gap-1 text-[10px]">
+                              <Sparkles className="w-2.5 h-2.5" />
+                              Best Value
+                            </span>
+                            <span className="text-xs font-bold">Save 20%</span>
+                          </span>
+                        </div>
+                        <h4 className="font-bold text-lg mb-2 flex items-center gap-2 text-slate-900 mt-1">
+                          Pro Annual <Crown className="w-4 h-4 text-amber-500" />
+                        </h4>
+                        <div className="flex items-baseline gap-2 mb-1">
+                          <span className="text-2xl font-bold text-slate-900">$99</span>
+                          <span className="text-sm text-slate-400 line-through">$119.88</span>
+                          <span className="text-sm font-normal text-slate-500">/year</span>
+                        </div>
+                        {!hasUsedTrial && (
+                          <p className="text-xs text-cyan-600 font-semibold mb-3 flex items-center gap-1">
+                            <Check className="w-3 h-3" />
+                            7-Day Free Trial Included
+                          </p>
+                        )}
+                        <ul className="space-y-2 text-sm">
+                          <li className="flex items-center gap-2">
+                            <Check className="w-4 h-4 text-green-500" />
+                            <strong>Unlimited</strong> receipts
+                          </li>
+                          <li className="flex items-center gap-2">
+                            <Check className="w-4 h-4 text-green-500" />
+                            Priority AI processing
+                          </li>
+                          <li className="flex items-center gap-2">
+                            <Check className="w-4 h-4 text-green-500" />
+                            Advanced tax reports
+                          </li>
+                          <li className="flex items-center gap-2">
+                            <Check className="w-4 h-4 text-green-500" />
+                            Email support
+                          </li>
+                        </ul>
+                        {/* CTA Button with Shine Effect */}
+                        <Button
+                          onClick={() => {
+                            setSelectedPlan('yearly');
+                            setUpgradeDialogOpen(true);
+                          }}
+                          className="relative overflow-hidden w-full mt-4 bg-gradient-to-r from-cyan-500 via-blue-500 to-cyan-500 hover:from-cyan-600 hover:via-blue-600 hover:to-cyan-600 text-white font-semibold shadow-lg"
+                          style={{ backgroundSize: '200% 100%' }}
+                        >
+                          {/* Shine effect */}
+                          <motion.div
+                            className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent"
+                            initial={{ x: '-100%' }}
+                            animate={{ x: '200%' }}
+                            transition={{
+                              duration: 2,
+                              repeat: Infinity,
+                              repeatDelay: 1,
+                              ease: 'easeInOut',
+                            }}
+                          />
+                          <Zap className="w-4 h-4 mr-2" />
+                          {!hasUsedTrial ? 'Start 7-Day Free Trial' : 'Upgrade Now'}
+                        </Button>
+                        {!hasUsedTrial && (
+                          <p className="text-[10px] text-slate-400 mt-2 text-center">
+                            Cancel anytime during trial. We&apos;ll remind you before it ends.
+                          </p>
+                        )}
+                      </div>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
@@ -1134,7 +1223,7 @@ For tax filing assistance, please consult a qualified tax professional.
 
       {/* Upgrade Plan Dialog */}
       <Dialog open={upgradeDialogOpen} onOpenChange={setUpgradeDialogOpen}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-lg">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Crown className="w-5 h-5 text-amber-500" />
@@ -1166,80 +1255,163 @@ For tax filing assistance, please consult a qualified tax professional.
             </div>
           )}
 
-          <div className="space-y-3 py-2">
-            {/* Monthly Option */}
+          <div className="space-y-4 py-2">
+            {/* Monthly Option - Subdued Style */}
             <button
               onClick={() => setSelectedPlan('monthly')}
-              className={`w-full p-4 rounded-lg border-2 text-left transition-all ${
+              className={`w-full p-4 rounded-lg border text-left transition-all ${
                 selectedPlan === 'monthly'
-                  ? 'border-cyan-500 bg-cyan-50'
-                  : 'border-slate-200 hover:border-slate-300'
+                  ? 'border-slate-300 bg-slate-50'
+                  : 'border-slate-200 hover:border-slate-300 bg-white'
               }`}
             >
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="font-semibold">Monthly</p>
+                  <p className="font-medium text-slate-700">Monthly</p>
                   <p className="text-sm text-slate-500">Billed monthly</p>
                 </div>
                 <div className="text-right">
-                  <p className="text-xl font-bold">$9.99</p>
+                  <p className="text-xl font-bold text-slate-700">$9.99</p>
                   <p className="text-xs text-slate-500">/month</p>
                 </div>
               </div>
             </button>
 
-            {/* Yearly Option */}
-            <button
-              onClick={() => setSelectedPlan('yearly')}
-              className={`w-full p-4 rounded-lg border-2 text-left transition-all ${
-                selectedPlan === 'yearly'
-                  ? 'border-cyan-500 bg-cyan-50'
-                  : 'border-slate-200 hover:border-slate-300'
-              }`}
-            >
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="font-semibold flex items-center gap-2">
-                    Yearly
-                    <span className="bg-green-100 text-green-700 px-2 py-0.5 rounded-full text-xs font-medium">
-                      Save 17%
+            {/* Annual Option - Premium Look with Animated Border */}
+            <div className="relative">
+              {/* Animated Gradient Border */}
+              <motion.div
+                className="absolute -inset-[2px] rounded-xl opacity-75"
+                style={{
+                  background: 'linear-gradient(90deg, #06b6d4, #3b82f6, #8b5cf6, #06b6d4)',
+                  backgroundSize: '300% 100%',
+                }}
+                animate={{
+                  backgroundPosition: ['0% 50%', '100% 50%', '0% 50%'],
+                }}
+                transition={{
+                  duration: 3,
+                  repeat: Infinity,
+                  ease: 'linear',
+                }}
+              />
+              <button
+                onClick={() => setSelectedPlan('yearly')}
+                className={`relative w-full p-5 rounded-xl text-left transition-all shadow-xl ${
+                  selectedPlan === 'yearly'
+                    ? 'bg-gradient-to-br from-cyan-50 via-blue-50 to-indigo-50 border-0'
+                    : 'bg-white border-0 hover:bg-slate-50'
+                }`}
+              >
+                {/* Best Value Badge */}
+                <div className="absolute -top-4 left-1/2 -translate-x-1/2">
+                  <span className="inline-flex flex-col items-center bg-gradient-to-r from-amber-400 to-amber-500 text-white px-3 py-1.5 rounded-lg text-center font-semibold shadow-md whitespace-nowrap">
+                    <span className="flex items-center gap-1 text-xs">
+                      <Sparkles className="w-3 h-3" />
+                      Best Value
                     </span>
+                    <span className="text-[10px] font-bold">Save 20%</span>
+                  </span>
+                </div>
+
+                <div className="flex items-center justify-between mt-1">
+                  <div>
+                    <p className="font-bold text-slate-900 flex items-center gap-2">
+                      Annual
+                      <span className="bg-green-100 text-green-700 px-2 py-0.5 rounded-full text-xs font-semibold">
+                        Save 20%
+                      </span>
+                    </p>
+                    <p className="text-sm text-slate-500">Billed annually</p>
+                  </div>
+                  <div className="text-right flex items-baseline gap-2">
+                    <p className="text-2xl font-bold text-slate-900">$99</p>
+                    <p className="text-sm text-slate-400 line-through">$119.88</p>
+                    <p className="text-xs text-slate-500">/year</p>
+                  </div>
+                </div>
+
+                {/* 7-Day Free Trial Included */}
+                {!hasUsedTrial && (
+                  <div className="mt-3 pt-3 border-t border-slate-200/50">
+                    <p className="text-sm text-cyan-600 font-semibold flex items-center gap-1.5">
+                      <Check className="w-4 h-4" />
+                      7-Day Free Trial Included
+                    </p>
+                  </div>
+                )}
+
+                {/* Safety text */}
+                {!hasUsedTrial && (
+                  <p className="text-[10px] text-slate-400 mt-2 text-center">
+                    Cancel anytime during trial. We&apos;ll remind you before it ends.
                   </p>
-                  <p className="text-sm text-slate-500">Billed annually</p>
-                </div>
-                <div className="text-right">
-                  <p className="text-xl font-bold">$99</p>
-                  <p className="text-xs text-slate-500">/year</p>
-                </div>
-              </div>
-            </button>
+                )}
+              </button>
+            </div>
           </div>
 
-          <DialogFooter>
+          <DialogFooter className="flex-col sm:flex-row gap-2">
             <Button
-              variant="outline"
+              variant="ghost"
               onClick={() => setUpgradeDialogOpen(false)}
               disabled={checkoutLoading}
+              className="text-slate-500 hover:text-slate-700"
             >
               Cancel
             </Button>
-            <Button
-              onClick={handleCheckout}
-              disabled={checkoutLoading}
-              className="bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600"
-            >
-              {checkoutLoading ? (
-                <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Processing...
-                </>
-              ) : (
-                <>
-                  <Zap className="w-4 h-4 mr-2" />
-                  Continue to Checkout
-                </>
-              )}
-            </Button>
+            {/* Conditional button based on selected plan */}
+            {selectedPlan === 'yearly' ? (
+              <Button
+                onClick={handleCheckout}
+                disabled={checkoutLoading}
+                className="relative overflow-hidden bg-gradient-to-r from-cyan-500 via-blue-500 to-cyan-500 hover:from-cyan-600 hover:via-blue-600 hover:to-cyan-600 text-white font-semibold shadow-lg"
+                style={{ backgroundSize: '200% 100%' }}
+              >
+                {/* Shine effect overlay */}
+                <motion.div
+                  className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent"
+                  initial={{ x: '-100%' }}
+                  animate={{ x: '200%' }}
+                  transition={{
+                    duration: 2,
+                    repeat: Infinity,
+                    repeatDelay: 1,
+                    ease: 'easeInOut',
+                  }}
+                />
+                {checkoutLoading ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Processing...
+                  </>
+                ) : (
+                  <>
+                    <Zap className="w-4 h-4 mr-2" />
+                    {!hasUsedTrial ? 'Start 7-Day Free Trial' : 'Continue to Checkout'}
+                  </>
+                )}
+              </Button>
+            ) : (
+              <Button
+                onClick={handleCheckout}
+                disabled={checkoutLoading}
+                variant="outline"
+                className="border-slate-300 text-slate-700 hover:bg-slate-100"
+              >
+                {checkoutLoading ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Processing...
+                  </>
+                ) : (
+                  <>
+                    <CreditCard className="w-4 h-4 mr-2" />
+                    Continue to Checkout
+                  </>
+                )}
+              </Button>
+            )}
           </DialogFooter>
         </DialogContent>
       </Dialog>

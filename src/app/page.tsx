@@ -13,6 +13,18 @@ import {
   Sparkles,
   Loader2,
   Upload,
+  Wand2,
+  FileCheck,
+  Camera,
+  Tags,
+  FileX,
+  Clock,
+  SearchX,
+  CircleDollarSign,
+  Briefcase,
+  Rocket,
+  Calculator,
+  ChevronDown,
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
@@ -21,6 +33,7 @@ import SignInButton from '@/components/SignInButton';
 import { useAuth } from '@/hooks/useAuth';
 import { useSubscription } from '@/hooks/useSubscription';
 import { Input } from '@/components/ui/input';
+import { Card, CardContent } from '@/components/ui/card';
 import HeroRitual from '@/components/landing/HeroRitual';
 
 export default function Home() {
@@ -28,6 +41,7 @@ export default function Home() {
   const [demoModalOpen, setDemoModalOpen] = useState(false);
   const [checkoutLoading, setCheckoutLoading] = useState<'monthly' | 'yearly' | null>(null);
   const [ctaEmail, setCtaEmail] = useState('');
+  const [openFaq, setOpenFaq] = useState<number | null>(null);
 
   const router = useRouter();
   const { user } = useAuth();
@@ -248,12 +262,36 @@ export default function Home() {
             </h2>
           </motion.div>
 
-          <div className="grid md:grid-cols-2 gap-6">
+          <div className="grid sm:grid-cols-2 gap-6 max-w-4xl mx-auto">
             {[
-              { icon: '📄', title: 'Paper fades, emails get buried', desc: 'Receipts disappear when you need them most' },
-              { icon: '⏰', title: 'Manual entry wastes hours', desc: 'Tedious data entry takes away from actual work' },
-              { icon: '🔍', title: 'Last-minute panic during month-end', desc: 'Searching through months of documents creates anxiety' },
-              { icon: '💸', title: 'Lost receipts = Lost reimbursements', desc: 'Missing documentation means money left on the table' },
+              {
+                icon: FileX,
+                title: 'Paper fades, emails get buried',
+                desc: 'Receipts disappear when you need them most',
+                bg: 'bg-red-100',
+                color: 'text-red-600',
+              },
+              {
+                icon: Clock,
+                title: 'Manual entry wastes hours',
+                desc: 'Tedious data entry takes away from actual work',
+                bg: 'bg-orange-100',
+                color: 'text-orange-600',
+              },
+              {
+                icon: SearchX,
+                title: 'Last-minute panic during month-end',
+                desc: 'Searching through months of documents creates anxiety',
+                bg: 'bg-rose-100',
+                color: 'text-rose-600',
+              },
+              {
+                icon: CircleDollarSign,
+                title: 'Lost receipts = Lost reimbursements',
+                desc: 'Missing documentation means money left on the table',
+                bg: 'bg-amber-100',
+                color: 'text-amber-600',
+              },
             ].map((item, i) => (
               <motion.div
                 key={i}
@@ -261,11 +299,22 @@ export default function Home() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.6, delay: i * 0.1 }}
-                className="bg-gradient-to-br from-cyan-50 to-sky-50 border border-cyan-100 rounded-xl p-6"
+                className="group relative"
               >
-                <div className="text-4xl mb-4">{item.icon}</div>
-                <h3 className="text-lg font-semibold text-slate-900 mb-2">{item.title}</h3>
-                <p className="text-sm text-slate-600">{item.desc}</p>
+                {/* Hover glow effect */}
+                <div
+                  className="absolute -inset-1 rounded-2xl bg-gradient-to-r from-orange-200 via-amber-100 to-orange-200 opacity-0 group-hover:opacity-60 blur-xl transition-opacity duration-500"
+                  style={{ transform: 'translateZ(0)' }}
+                />
+                <Card className="relative h-full border-slate-200 bg-white/90 backdrop-blur-sm transition-all duration-300 group-hover:border-orange-200/50">
+                  <CardContent className="p-6 sm:p-8">
+                    <div className={`inline-flex p-3 rounded-xl ${item.bg} mb-5`}>
+                      <item.icon className={`w-6 h-6 ${item.color}`} strokeWidth={1.5} />
+                    </div>
+                    <h3 className="text-lg font-semibold text-slate-900 mb-2">{item.title}</h3>
+                    <p className="text-sm text-slate-600 leading-relaxed">{item.desc}</p>
+                  </CardContent>
+                </Card>
               </motion.div>
             ))}
           </div>
@@ -331,27 +380,39 @@ export default function Home() {
             </h2>
           </motion.div>
 
-          <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+          <div className="grid sm:grid-cols-2 gap-6 max-w-4xl mx-auto">
             {[
-              {emoji: '📸',
-                title: 'Multi-Format Support',
-                subtitle: 'Drag and drop, snap, or forward emails',
-                desc: 'Works with receipts, invoices, screenshots, and email receipts. Upload any proof of payment and let AI handle the rest.',
+              {
+                icon: Wand2,
+                title: 'Forget Manual Entry',
+                desc: 'Our system automatically sorts every detail. No more typing dates or amounts by hand.',
+                color: 'text-violet-600',
+                bg: 'bg-violet-100',
+                gradient: 'from-violet-400 via-purple-400 to-indigo-400',
               },
-              {emoji: '🤖',
-                title: 'AI-Powered Extraction',
-                subtitle: '99% accuracy with continuous learning',
-                desc: 'OCR + AI reads vendor, date, amount, category, and notes automatically. Bank-level encryption keeps your data secure and private.',
+              {
+                icon: FileCheck,
+                title: 'Tax-Ready in One Click',
+                desc: 'Generate perfect reports for your accountant. One button, and your tax prep for the month is done.',
+                color: 'text-emerald-600',
+                bg: 'bg-emerald-100',
+                gradient: 'from-emerald-400 via-teal-400 to-cyan-400',
               },
-              {emoji: '📊',
-                title: 'Smart Categorization',
-                subtitle: 'AI learns your business patterns',
-                desc: 'Auto-categorize by meals, transport, software, supplies, and more. Learns from your adjustments to get smarter over time.',
+              {
+                icon: Camera,
+                title: 'Snap, Forward, or Drag',
+                desc: 'Paper receipts, email invoices, or digital files—everything flows into one organized system.',
+                color: 'text-cyan-600',
+                bg: 'bg-cyan-100',
+                gradient: 'from-cyan-400 via-sky-400 to-blue-400',
               },
-              {emoji: '💾',
-                title: 'Export to Accounting Tools',
-                subtitle: 'One-click export to QuickBooks & more',
-                desc: 'Download CSV for QuickBooks, Xero, Wave, FreshBooks, or Excel. Email clean reports directly to your accountant.',
+              {
+                icon: Tags,
+                title: 'Auto-Categorized for You',
+                desc: 'Meals, travel, or office supplies? The system learns your business and categorizes everything instantly.',
+                color: 'text-amber-600',
+                bg: 'bg-amber-100',
+                gradient: 'from-amber-400 via-orange-400 to-yellow-400',
               },
             ].map((feature, i) => (
               <motion.div
@@ -360,29 +421,62 @@ export default function Home() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.6, delay: i * 0.1 }}
-                whileHover={{ y: -8, boxShadow: '0 20px 40px -10px rgba(6, 182, 212, 0.2)' }}
-                className="bg-white rounded-xl shadow-md border border-slate-100 p-8 hover:shadow-xl transition-all relative overflow-hidden group"
+                className="group relative"
+                style={{ transform: 'translateZ(0)' }}
               >
-                {/* Gradient border effect */}
-                <div className="absolute inset-0 bg-gradient-to-br from-cyan-100 via-transparent to-sky-100 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
-
-                <div className="relative">
-                  <div className="flex items-center gap-3 mb-4">
-                    <span className="text-3xl inline-flex p-3 rounded-lg bg-gradient-to-br from-cyan-100 to-sky-100 text-cyan-600">
-                      {feature.emoji}
-                    </span>
-                  </div>
-                  <h3 className="text-xl font-bold text-slate-900 mb-2">
-                    {feature.title}
-                  </h3>
-                  <p className="text-sm font-semibold text-cyan-600 mb-3">
-                    {feature.subtitle}
-                  </p>
-                  <p className="text-slate-600 leading-relaxed">
-                    {feature.desc}
-                    
-                  </p>
+                {/* Animated border gradient */}
+                <div className="absolute -inset-[1px] rounded-xl overflow-hidden">
+                  <motion.div
+                    className={`absolute inset-0 bg-gradient-to-r ${feature.gradient} opacity-0 group-hover:opacity-100`}
+                    animate={{
+                      backgroundPosition: ['0% 50%', '100% 50%', '0% 50%'],
+                    }}
+                    transition={{
+                      duration: 3,
+                      repeat: Infinity,
+                      ease: 'linear',
+                    }}
+                    style={{
+                      backgroundSize: '200% 200%',
+                    }}
+                  />
                 </div>
+
+                {/* Mesh gradient background on hover */}
+                <div
+                  className="absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-700 overflow-hidden"
+                  style={{ transform: 'translateZ(0)' }}
+                >
+                  <motion.div
+                    className="absolute inset-0"
+                    style={{
+                      background: 'radial-gradient(circle at 20% 20%, rgba(147, 197, 253, 0.15) 0%, transparent 50%), radial-gradient(circle at 80% 80%, rgba(196, 181, 253, 0.15) 0%, transparent 50%), radial-gradient(circle at 40% 60%, rgba(167, 243, 208, 0.1) 0%, transparent 40%)',
+                    }}
+                    animate={{
+                      scale: [1, 1.1, 1],
+                      rotate: [0, 5, 0],
+                    }}
+                    transition={{
+                      duration: 8,
+                      repeat: Infinity,
+                      ease: 'easeInOut',
+                    }}
+                  />
+                </div>
+
+                <Card className="relative h-full bg-white border-slate-200 group-hover:border-transparent group-hover:shadow-xl transition-all duration-500">
+                  <CardContent className="p-6 sm:p-8 relative z-10">
+                    <div className={`inline-flex p-3 rounded-xl ${feature.bg} mb-5 transition-transform duration-300 group-hover:scale-110`}>
+                      <feature.icon className={`w-6 h-6 ${feature.color}`} strokeWidth={1.5} />
+                    </div>
+                    <h3 className="text-xl font-bold text-slate-900 mb-3">
+                      {feature.title}
+                    </h3>
+                    <p className="text-slate-600 leading-relaxed text-[15px]">
+                      {feature.desc}
+                    </p>
+                  </CardContent>
+                </Card>
               </motion.div>
             ))}
           </div>
@@ -460,19 +554,28 @@ export default function Home() {
           <div className="grid md:grid-cols-3 gap-8">
             {[
               {
-                emoji: '💼',
+                icon: Briefcase,
                 title: 'Freelancers & Contractors',
                 desc: 'Keep client expenses organized without spreadsheets. Group receipts by project and stay ready for invoicing.',
+                bg: 'bg-blue-100',
+                color: 'text-blue-600',
+                border: 'border-t-blue-500',
               },
               {
-                emoji: '🚀',
+                icon: Rocket,
                 title: 'Small Business Owners',
                 desc: 'Track SaaS subscriptions, ads, and travel receipts. Never miss a deductible expense again.',
+                bg: 'bg-purple-100',
+                color: 'text-purple-600',
+                border: 'border-t-purple-500',
               },
               {
-                emoji: '📊',
+                icon: Calculator,
                 title: 'Accountants & Bookkeepers',
                 desc: 'Receive clean, structured data instead of messy PDFs. Export-ready formats save hours of manual entry.',
+                bg: 'bg-teal-100',
+                color: 'text-teal-600',
+                border: 'border-t-teal-500',
               },
             ].map((useCase, i) => (
               <motion.div
@@ -481,10 +584,10 @@ export default function Home() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.6, delay: i * 0.1 }}
-                className="bg-white rounded-xl shadow-md border-t-4 border-t-cyan-500 border-slate-100 p-8"
+                className={`bg-white rounded-xl shadow-md border-t-4 ${useCase.border} border-slate-100 p-8 hover:shadow-lg transition-shadow`}
               >
-                <div className="text-4xl mb-4">
-                  {useCase.emoji}
+                <div className={`inline-flex p-3 rounded-xl ${useCase.bg} mb-4`}>
+                  <useCase.icon className={`w-6 h-6 ${useCase.color}`} strokeWidth={1.5} />
                 </div>
                 <h3 className="text-xl font-semibold text-slate-900 mb-3">
                   {useCase.title}
@@ -623,7 +726,7 @@ export default function Home() {
             </p>
           </motion.div>
 
-          <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+          <div className="grid md:grid-cols-3 gap-6 max-w-6xl mx-auto items-start">
             {/* FREE PLAN */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -649,41 +752,36 @@ export default function Home() {
                   'Manual data entry',
                 ].map((feature, i) => (
                   <li key={i} className="flex items-start gap-3">
-                    <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
-                    <span className="text-slate-700">{feature}</span>
+                    <div className="flex-shrink-0 w-5 h-5 rounded-full bg-slate-100 flex items-center justify-center mt-0.5">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-slate-500" strokeWidth={2} />
+                    </div>
+                    <span className="text-slate-600">{feature}</span>
                   </li>
                 ))}
               </ul>
 
               <Link href="/sign-up">
                 <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="w-full border-2 border-cyan-500 text-cyan-600 hover:bg-cyan-50 px-6 py-3 rounded-lg font-semibold transition-colors"
+                  whileHover={{ scale: 1.03 }}
+                  whileTap={{ scale: 0.98 }}
+                  className="w-full border-2 border-slate-300 text-slate-600 hover:bg-slate-50 px-6 py-3 rounded-lg font-semibold transition-colors"
                 >
                   Start Free
                 </motion.button>
               </Link>
             </motion.div>
 
-            {/* PRO PLAN - HIGHLIGHTED */}
+            {/* PRO PLAN */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.6, delay: 0.1 }}
               whileHover={{ scale: 1.02 }}
-              className="bg-white rounded-2xl shadow-2xl border-2 border-cyan-500 p-8 relative md:scale-105"
+              className="bg-white rounded-2xl shadow-md border border-slate-200 p-8"
             >
-              {/* Most Popular Badge */}
-              <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                <span className="gradient-btn text-white px-4 py-1 rounded-full text-sm font-semibold shadow-lg">
-                  Most Popular
-                </span>
-              </div>
-
               <div className="text-center mb-8">
-                <h3 className="text-2xl font-bold text-slate-900 mb-4">PRO ⭐</h3>
+                <h3 className="text-2xl font-bold text-slate-900 mb-4">PRO</h3>
                 <div className="flex items-baseline justify-center gap-2">
                   <span className="text-5xl font-bold text-slate-900">$9.99</span>
                   <span className="text-slate-600">/month</span>
@@ -700,8 +798,10 @@ export default function Home() {
                   'Priority email support',
                 ].map((feature, i) => (
                   <li key={i} className="flex items-start gap-3">
-                    <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
-                    <span className="text-slate-700 font-medium">{feature}</span>
+                    <div className="flex-shrink-0 w-5 h-5 rounded-full bg-cyan-100 flex items-center justify-center mt-0.5">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-cyan-600" strokeWidth={2} />
+                    </div>
+                    <span className="text-slate-700">{feature}</span>
                   </li>
                 ))}
               </ul>
@@ -709,9 +809,9 @@ export default function Home() {
               <motion.button
                 onClick={() => handleCheckout('monthly')}
                 disabled={checkoutLoading !== null}
-                whileHover={{ scale: checkoutLoading ? 1 : 1.05 }}
-                whileTap={{ scale: checkoutLoading ? 1 : 0.95 }}
-                className="w-full gradient-btn text-white px-6 py-4 rounded-lg font-bold text-lg shadow-lg disabled:opacity-70 flex items-center justify-center gap-2"
+                whileHover={{ scale: checkoutLoading ? 1 : 1.03 }}
+                whileTap={{ scale: checkoutLoading ? 1 : 0.98 }}
+                className="w-full border-2 border-cyan-500 text-cyan-600 hover:bg-cyan-50 px-6 py-3 rounded-lg font-semibold transition-colors disabled:opacity-70 flex items-center justify-center gap-2"
               >
                 {checkoutLoading === 'monthly' ? (
                   <>
@@ -724,80 +824,142 @@ export default function Home() {
               </motion.button>
             </motion.div>
 
-            {/* ANNUAL PLAN */}
+            {/* ANNUAL PLAN - HIGHLIGHTED */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.6, delay: 0.2 }}
-              whileHover={{ scale: 1.02 }}
-              className="bg-white rounded-2xl shadow-md border border-slate-200 p-8 relative"
+              className="relative group"
+              style={{ transform: 'translateZ(0)' }}
             >
-              {/* Gift Badge */}
-              <div className="absolute -top-3 -right-3">
-                <span className="inline-flex items-center gap-1 bg-gradient-to-r from-green-500 to-emerald-500 text-white px-3 py-1.5 rounded-full text-xs font-bold shadow-lg">
-                  🎁 2 MONTHS FREE
-                </span>
+              {/* Premium Animated gradient border - flowing effect */}
+              <div className="absolute -inset-[2px] rounded-2xl overflow-hidden">
+                <motion.div
+                  className="absolute inset-0"
+                  style={{
+                    background: 'linear-gradient(90deg, rgba(6,182,212,0.3), rgba(14,165,233,0.8), rgba(56,189,248,0.8), rgba(14,165,233,0.8), rgba(6,182,212,0.3))',
+                    backgroundSize: '300% 100%',
+                  }}
+                  animate={{
+                    backgroundPosition: ['0% 50%', '100% 50%', '0% 50%'],
+                  }}
+                  transition={{
+                    duration: 4,
+                    repeat: Infinity,
+                    ease: 'linear',
+                  }}
+                />
               </div>
 
-              <div className="text-center mb-8">
-                <h3 className="text-2xl font-bold text-slate-900 mb-4">ANNUAL</h3>
-                <div className="mb-3">
-                  <div className="flex items-baseline justify-center gap-2 mb-1">
-                    <span className="text-2xl text-slate-400 line-through">$119.88</span>
-                    <span className="text-sm text-slate-500">/year</span>
-                  </div>
-                  <div className="flex items-baseline justify-center gap-2">
-                    <span className="text-5xl font-bold text-slate-900">$99</span>
-                    <span className="text-slate-600">/year</span>
-                  </div>
+              {/* Best Value Badge - Premium Design */}
+              <div className="absolute -top-5 left-1/2 transform -translate-x-1/2 z-10">
+                <motion.div
+                  initial={{ scale: 0.9 }}
+                  animate={{ scale: 1 }}
+                  transition={{ duration: 0.3 }}
+                  className="relative"
+                >
+                  <div className="absolute inset-0 bg-gradient-to-r from-cyan-400 to-sky-400 rounded-xl blur-md opacity-60" />
+                  <span className="relative inline-flex flex-col items-center bg-gradient-to-r from-cyan-500 via-sky-500 to-cyan-500 text-white px-5 py-2 rounded-xl text-center font-bold shadow-lg">
+                    <span className="flex items-center gap-1.5 text-xs">
+                      <Sparkles className="w-3.5 h-3.5" />
+                      Best Value
+                    </span>
+                    <span className="text-sm font-bold">Save 20%</span>
+                  </span>
+                </motion.div>
+              </div>
+
+              <motion.div
+                whileHover={{ scale: 1.02 }}
+                className="relative bg-white rounded-2xl p-8 pt-10"
+                style={{
+                  boxShadow: '0 25px 50px -12px rgba(6, 182, 212, 0.25), 0 12px 24px -8px rgba(0, 0, 0, 0.15)',
+                }}
+              >
+                {/* Start with 7-day free trial badge */}
+                <div className="bg-cyan-50 text-cyan-700 px-4 py-2 rounded-lg border border-cyan-200 mb-4 text-center">
+                  <p className="text-sm font-semibold">Start with a 7-day free trial</p>
                 </div>
-                <div className="flex flex-col gap-2 items-center">
+
+                <div className="text-center mb-8">
+                  <h3 className="text-2xl font-bold text-slate-900 mb-4">ANNUAL</h3>
+                  <div className="mb-3">
+                    <div className="flex items-baseline justify-center gap-3">
+                      <span className="text-6xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-cyan-600 to-sky-600">$99</span>
+                      <div className="flex flex-col items-start">
+                        <span className="text-lg text-slate-400 line-through">$119.88</span>
+                        <span className="text-slate-600 text-sm">/year</span>
+                      </div>
+                    </div>
+                  </div>
                   <p className="text-lg font-semibold text-cyan-600">
                     = $8.25/month
                   </p>
-                  <div className="bg-green-100 text-green-700 px-4 py-2 rounded-lg">
-                    <p className="text-lg font-bold">Save $20/year</p>
-                    <p className="text-xs">12 months for the price of 10</p>
-                  </div>
                 </div>
-              </div>
 
-              <div className="mb-4">
-                <p className="text-sm font-semibold text-slate-700 mb-4">All Pro features, plus:</p>
-              </div>
+                <div className="mb-4">
+                  <p className="text-sm font-semibold text-slate-700 mb-4">All Pro features, plus:</p>
+                </div>
 
-              <ul className="space-y-4 mb-8">
-                {[
-                  '2 months free (best value)',
-                  'Priority chat support',
-                  'Early access to features',
-                  'Accountant collaboration',
-                  'Data export & API access',
-                ].map((feature, i) => (
-                  <li key={i} className="flex items-start gap-3">
-                    <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
-                    <span className="text-slate-700">{feature}</span>
-                  </li>
-                ))}
-              </ul>
+                <ul className="space-y-4 mb-8">
+                  {[
+                    'Priority chat support',
+                    'Early access to features',
+                    'Accountant collaboration',
+                    'Data export & API access',
+                  ].map((feature, i) => (
+                    <li key={i} className="flex items-start gap-3">
+                      <div className="flex-shrink-0 w-5 h-5 rounded-full bg-cyan-100 flex items-center justify-center mt-0.5">
+                        <CheckCircle2 className="w-3.5 h-3.5 text-cyan-600" strokeWidth={2} />
+                      </div>
+                      <span className="text-slate-700 font-medium">{feature}</span>
+                    </li>
+                  ))}
+                </ul>
 
-              <motion.button
-                onClick={() => handleCheckout('yearly')}
-                disabled={checkoutLoading !== null}
-                whileHover={{ scale: checkoutLoading ? 1 : 1.05 }}
-                whileTap={{ scale: checkoutLoading ? 1 : 0.95 }}
-                className="w-full border-2 border-cyan-500 text-cyan-600 hover:bg-cyan-50 px-6 py-3 rounded-lg font-semibold transition-colors disabled:opacity-70 flex items-center justify-center gap-2"
-              >
-                {checkoutLoading === 'yearly' ? (
-                  <>
-                    <Loader2 className="w-5 h-5 animate-spin" />
-                    Processing...
-                  </>
-                ) : (
-                  'Start 7-Day Trial'
-                )}
-              </motion.button>
+                {/* Premium CTA Button with Shine Effect */}
+                <div className="relative">
+                  <motion.button
+                    onClick={() => handleCheckout('yearly')}
+                    disabled={checkoutLoading !== null}
+                    whileHover={{ scale: checkoutLoading ? 1 : 1.03 }}
+                    whileTap={{ scale: checkoutLoading ? 1 : 0.98 }}
+                    className="relative w-full overflow-hidden gradient-btn text-white px-6 py-4 rounded-xl font-bold text-lg shadow-lg disabled:opacity-70 flex items-center justify-center gap-2 transition-all"
+                  >
+                    {/* Shine effect overlay */}
+                    <motion.div
+                      className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -skew-x-12"
+                      animate={{
+                        x: ['-200%', '200%'],
+                      }}
+                      transition={{
+                        duration: 2.5,
+                        repeat: Infinity,
+                        repeatDelay: 1,
+                        ease: 'easeInOut',
+                      }}
+                    />
+                    <span className="relative z-10 flex items-center gap-2">
+                      {checkoutLoading === 'yearly' ? (
+                        <>
+                          <Loader2 className="w-5 h-5 animate-spin" />
+                          Processing...
+                        </>
+                      ) : (
+                        'Start 7-Day Free Trial'
+                      )}
+                    </span>
+                  </motion.button>
+                </div>
+
+                {/* Cancel anytime safety text */}
+                <div className="text-xs text-slate-400 text-center mt-4">
+                  <p>Cancel anytime during trial.</p>
+                  <p>We'll remind you before it ends.</p>
+                </div>
+              </motion.div>
             </motion.div>
           </div>
         </div>
@@ -818,27 +980,27 @@ export default function Home() {
             </h2>
           </motion.div>
 
-          <div className="space-y-4 sm:space-y-6">
+          <div className="space-y-3 sm:space-y-4">
             {[
               {
                 q: 'What format do you export?',
-                a: `We export accounting-ready CSV files that include: Date, Vendor/Merchant name, Amount, Category (Meals, Transport, Software, etc.), Business Purpose, Payment Method, and Receipt Image URL. Compatible with QuickBooks (Online & Desktop), Xero, Wave, FreshBooks, Excel & Google Sheets, and any accounting software that accepts CSV.`,
+                a: `We deliver accounting-ready CSV files with everything you need: Date, Vendor, Amount, Category, Business Purpose, Payment Method, and Receipt Image URL. Works seamlessly with QuickBooks, Xero, Wave, FreshBooks, Excel, Google Sheets — any software that accepts CSV. Your accountant will love you.`,
               },
               {
                 q: 'Is my data secure?',
-                a: 'Yes. All data is encrypted in transit (TLS 1.3) and at rest (AES-256). We use Supabase with row-level security, ensuring you can only access your own data. We never sell your information.',
+                a: 'Absolutely. We use bank-level encryption — TLS 1.3 in transit and AES-256 at rest. Row-level security ensures only you can access your data. We never sell or share your information. Your receipts are safer with us than in your desk drawer.',
               },
               {
                 q: 'Can I try it for free?',
-                a: 'Absolutely! Our Free plan includes 10 receipt scans per month with full AI categorization and CSV export. No credit card required.',
+                a: 'Yes! Start with our Free plan (10 receipts/month) or try Pro with a 7-day free trial. No-risk, cancel anytime — no questions asked. You only pay if you love it.',
               },
               {
                 q: 'What types of receipts can I upload?',
-                a: 'TaxClip works with photos, PDFs, screenshots, email receipts, and invoices. Our AI extracts data from virtually any proof of payment.',
+                a: 'Everything. Photos, PDFs, screenshots, email receipts, invoices — our AI handles them all. If it proves you paid for something, we can extract the data.',
               },
               {
                 q: 'Do you file taxes for me?',
-                a: 'No. TaxClip helps you organize and export your receipts for bookkeeping and tax preparation. For tax filing, please work with a qualified accountant or tax professional.',
+                a: `We handle the hardest part — organizing and exporting your receipts in tax-ready format. For actual filing, work with your accountant. They'll thank you for the clean data.`,
               },
             ].map((item, i) => (
               <motion.div
@@ -847,10 +1009,34 @@ export default function Home() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.4, delay: i * 0.1 }}
-                className="bg-slate-50 rounded-xl p-4 sm:p-6 border border-slate-200"
+                className="bg-slate-50 rounded-2xl border border-slate-200/80 overflow-hidden"
               >
-                <h3 className="text-sm sm:text-lg font-semibold text-slate-900 mb-2 sm:mb-3">{item.q}</h3>
-                <p className="text-xs sm:text-base text-slate-600 leading-relaxed">{item.a}</p>
+                <button
+                  onClick={() => setOpenFaq(openFaq === i ? null : i)}
+                  className="w-full flex items-center justify-between p-4 sm:p-6 text-left hover:bg-slate-100/50 transition-colors"
+                >
+                  <h3 className="text-sm sm:text-lg font-semibold text-slate-900 pr-4">{item.q}</h3>
+                  <motion.div
+                    animate={{ rotate: openFaq === i ? 180 : 0 }}
+                    transition={{ duration: 0.2 }}
+                    className="flex-shrink-0"
+                  >
+                    <ChevronDown className="w-5 h-5 text-slate-500" />
+                  </motion.div>
+                </button>
+                <motion.div
+                  initial={false}
+                  animate={{
+                    height: openFaq === i ? 'auto' : 0,
+                    opacity: openFaq === i ? 1 : 0,
+                  }}
+                  transition={{ duration: 0.3, ease: 'easeInOut' }}
+                  className="overflow-hidden"
+                >
+                  <p className="text-xs sm:text-base text-slate-600 leading-relaxed px-4 sm:px-6 pb-4 sm:pb-6">
+                    {item.a}
+                  </p>
+                </motion.div>
               </motion.div>
             ))}
           </div>
@@ -867,10 +1053,10 @@ export default function Home() {
             transition={{ duration: 0.6 }}
           >
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-6">
-              Ready to Simplify Your Bookkeeping?
+              Join 500+ users saving 4 hours every weekend.
             </h2>
             <p className="text-xl text-blue-100 mb-10 max-w-2xl mx-auto">
-              Join thousands of founders saving time and taxes.
+              Try TaxClip free for 7 days. Save 20% when you choose annual.
             </p>
 
             {/* Email input form */}
@@ -879,7 +1065,7 @@ export default function Home() {
                 e.preventDefault();
                 router.push(`/sign-up${ctaEmail ? `?email=${encodeURIComponent(ctaEmail)}` : ''}`);
               }}
-              className="max-w-md mx-auto mb-6"
+              className="max-w-lg mx-auto mb-4"
             >
               <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
                 <Input
@@ -895,13 +1081,13 @@ export default function Home() {
                   whileTap={{ scale: 0.95 }}
                   className="bg-white text-cyan-600 hover:bg-slate-50 h-12 px-6 sm:px-8 rounded-lg font-semibold text-base shadow-xl transition-colors whitespace-nowrap"
                 >
-                  Get started free
+                  Start Free Trial
                 </motion.button>
               </div>
             </form>
 
             <p className="text-blue-100 text-sm">
-              Free forever • No credit card required
+              No credit card required • Cancel anytime
             </p>
           </motion.div>
         </div>

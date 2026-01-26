@@ -24,6 +24,17 @@ interface ExportPanelProps {
   onYearChange: (year: number) => void;
 }
 
+// Calculate total from subtotal + tax + tip
+const getReceiptTotal = (r: Receipt): number => {
+  const subtotal = r.subtotal ?? 0;
+  const tax = r.tax ?? 0;
+  const tip = r.tip ?? 0;
+  if (subtotal > 0 || tax > 0 || tip > 0) {
+    return subtotal + tax + tip;
+  }
+  return r.total ?? 0;
+};
+
 type ExportStatus = 'idle' | 'loading' | 'success' | 'error';
 
 export default function ExportPanel({
@@ -164,7 +175,7 @@ export default function ExportPanel({
             </span>
             {receipts.length > 0 && (
               <span className="text-xs sm:text-sm text-muted-foreground">
-                Total: ${receipts.reduce((sum, r) => sum + (r.total || 0), 0).toFixed(2)}
+                Total: ${receipts.reduce((sum, r) => sum + getReceiptTotal(r), 0).toFixed(2)}
               </span>
             )}
           </div>

@@ -3,20 +3,14 @@
 import { motion } from 'framer-motion';
 import Image from 'next/image';
 import {
-  Camera,
-  Tags,
   Download,
   CheckCircle2,
-  Zap,
-  Shield,
-  TrendingUp,
   Users,
   Building2,
   UserCircle,
   Menu,
   X,
   Sparkles,
-  FileText,
   Loader2,
   Upload,
 } from 'lucide-react';
@@ -27,6 +21,7 @@ import SignInButton from '@/components/SignInButton';
 import { useAuth } from '@/hooks/useAuth';
 import { useSubscription } from '@/hooks/useSubscription';
 import { Input } from '@/components/ui/input';
+import HeroRitual from '@/components/landing/HeroRitual';
 
 export default function Home() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -198,113 +193,14 @@ export default function Home() {
               </motion.div>
             </div>
 
-            {/* Right side - Visual: The 5-Minute Flow */}
+            {/* Right side - Interactive 5-Minute Flow Animation */}
             <motion.div
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.6, delay: 0.2 }}
-              className="relative"
+              className="flex justify-center lg:justify-end"
             >
-              {/* Timeline badge */}
-              <motion.div
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.3 }}
-                className="absolute -top-2 left-4 z-10 flex items-center gap-2 bg-slate-900 text-white px-3 py-1.5 rounded-full shadow-lg text-xs font-mono"
-              >
-                <span className="text-cyan-400">9:00 AM</span>
-                <span className="text-slate-400">→</span>
-                <span className="text-green-400">9:05 AM</span>
-              </motion.div>
-
-              <div className="bg-white rounded-2xl shadow-2xl border border-slate-200 p-6 pt-8">
-                {/* Two-panel layout: Phone capture + Dashboard */}
-                <div className="grid grid-cols-2 gap-4">
-                  {/* Left: Phone with receipt capture */}
-                  <div className="relative">
-                    <div className="bg-slate-900 rounded-2xl p-2 shadow-xl">
-                      <div className="bg-gradient-to-br from-cyan-50 to-sky-50 rounded-xl p-4 aspect-[3/4] flex flex-col items-center justify-center">
-                        <div className="w-16 h-20 bg-white rounded shadow-md mb-3 flex items-center justify-center border border-slate-200">
-                          <FileText className="w-8 h-8 text-slate-400" />
-                        </div>
-                        <Camera className="w-8 h-8 text-cyan-600 mb-2" />
-                        <p className="text-xs text-slate-600 font-medium text-center">Snap receipt</p>
-                      </div>
-                    </div>
-                    <motion.div
-                      initial={{ opacity: 0, scale: 0.8 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      transition={{ duration: 0.4, delay: 0.5 }}
-                      className="absolute -bottom-2 -right-2 bg-cyan-500 text-white p-1.5 rounded-full shadow-lg"
-                    >
-                      <CheckCircle2 className="w-4 h-4" />
-                    </motion.div>
-                  </div>
-
-                  {/* Right: Dashboard preview */}
-                  <div className="bg-slate-50 rounded-xl p-3 border border-slate-200">
-                    <div className="flex items-center gap-2 mb-3">
-                      <div className="w-2 h-2 rounded-full bg-green-500"></div>
-                      <span className="text-xs font-semibold text-slate-700">Dashboard</span>
-                    </div>
-                    <div className="space-y-2">
-                      <div className="bg-white rounded p-2 shadow-sm">
-                        <div className="text-xs text-slate-500">Today</div>
-                        <div className="text-sm font-bold text-slate-900">7 receipts</div>
-                      </div>
-                      <div className="bg-white rounded p-2 shadow-sm">
-                        <div className="text-xs text-slate-500">This week</div>
-                        <div className="text-sm font-bold text-green-600">$342.50</div>
-                      </div>
-                      <div className="bg-gradient-to-r from-cyan-50 to-sky-50 rounded p-2 border border-cyan-200">
-                        <div className="flex items-center gap-1">
-                          <Sparkles className="w-3 h-3 text-cyan-600" />
-                          <span className="text-xs font-medium text-cyan-700">Auto-categorized</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Bottom: Flow indicator */}
-                <div className="mt-4 pt-4 border-t border-slate-100">
-                  <div className="flex items-center justify-between text-xs">
-                    <span className="flex items-center gap-1.5 text-slate-500">
-                      <div className="w-5 h-5 rounded-full bg-cyan-100 flex items-center justify-center">
-                        <Camera className="w-3 h-3 text-cyan-600" />
-                      </div>
-                      Capture
-                    </span>
-                    <div className="flex-1 h-px bg-gradient-to-r from-cyan-200 via-sky-300 to-green-200 mx-2"></div>
-                    <span className="flex items-center gap-1.5 text-slate-500">
-                      <div className="w-5 h-5 rounded-full bg-sky-100 flex items-center justify-center">
-                        <Sparkles className="w-3 h-3 text-sky-600" />
-                      </div>
-                      AI Process
-                    </span>
-                    <div className="flex-1 h-px bg-gradient-to-r from-sky-200 to-green-200 mx-2"></div>
-                    <span className="flex items-center gap-1.5 text-green-600 font-medium">
-                      <div className="w-5 h-5 rounded-full bg-green-100 flex items-center justify-center">
-                        <CheckCircle2 className="w-3 h-3 text-green-600" />
-                      </div>
-                      Done!
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Floating badge */}
-              <motion.div
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.6, delay: 0.6 }}
-                className="absolute -bottom-3 -right-3 bg-gradient-to-r from-green-500 to-emerald-500 text-white px-4 py-2 rounded-full shadow-lg text-sm font-semibold"
-              >
-                <span className="flex items-center gap-1">
-                  <Zap className="w-4 h-4" />
-                  5 min ritual
-                </span>
-              </motion.div>
+              <HeroRitual />
             </motion.div>
           </div>
         </div>
@@ -899,7 +795,7 @@ export default function Home() {
                     Processing...
                   </>
                 ) : (
-                  'Start Annual Trial'
+                  'Start 7-Day Trial'
                 )}
               </motion.button>
             </motion.div>

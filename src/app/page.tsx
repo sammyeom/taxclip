@@ -522,15 +522,18 @@ export default function Home() {
             className="mb-8"
           >
             <p className="text-sm text-slate-500 uppercase tracking-wider mb-4">
-              Works with the tools you already use
+              Compatible with your favorite tools
             </p>
-            <div className="flex flex-wrap items-center justify-center gap-6 sm:gap-8 text-slate-400">
-              <span className="font-semibold text-slate-600">QuickBooks</span>
-              <span className="font-semibold text-slate-600">Excel</span>
-              <span className="font-semibold text-slate-600">Google Sheets</span>
-              <span className="font-semibold text-slate-600">Xero</span>
-              <span className="font-semibold text-slate-600">Wave</span>
+            <div className="flex flex-wrap items-center justify-center gap-6 sm:gap-8">
+              <span className="font-semibold text-slate-400/60">QuickBooks</span>
+              <span className="font-semibold text-slate-400/60">Excel</span>
+              <span className="font-semibold text-slate-400/60">Google Sheets</span>
+              <span className="font-semibold text-slate-400/60">Xero</span>
+              <span className="font-semibold text-slate-400/60">Wave</span>
             </div>
+            <p className="text-xs text-slate-400 mt-3">
+              Download IRS-ready CSV and PDF files that work everywhere.
+            </p>
           </motion.div>
 
           {/* Bridge Headline */}
@@ -539,13 +542,18 @@ export default function Home() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.4, delay: 0.1 }}
+            className="text-center mt-16"
           >
-            <h3 className="text-2xl sm:text-3xl font-bold text-slate-900">
-              Stop chasing receipts at tax time.<br />
+            <h3 className="text-3xl font-bold text-slate-900">
+              Ready to{' '}
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-600 to-sky-600">
-                Start your 5-minute ritual today.
+                reclaim your weekends
               </span>
+              ?
             </h3>
+            <p className="text-lg text-slate-500 mt-2">
+              Join 500+ users who turned spreadsheet chaos into a 5-minute ritual.
+            </p>
           </motion.div>
         </div>
       </section>
@@ -561,10 +569,10 @@ export default function Home() {
             className="text-center mb-16"
           >
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-slate-900 mb-6">
-              Simple Pricing. No Hidden Fees.
+              Simple, Transparent Pricing
             </h2>
             <p className="text-xl text-slate-600">
-              Start free, upgrade when you're ready
+              Try all Pro features free for 7 days. No credit card required.
             </p>
           </motion.div>
 

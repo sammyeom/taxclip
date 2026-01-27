@@ -531,6 +531,9 @@ export default function Home() {
             <span className="font-semibold text-slate-700">Xero</span>
             <span className="font-semibold text-slate-700">Wave</span>
           </div>
+          <p className="text-center text-sm text-slate-500 mt-6">
+            Download IRS-ready CSV and PDF files that work everywhere.
+          </p>
         </div>
       </section>
 
@@ -543,14 +546,14 @@ export default function Home() {
             viewport={{ once: true }}
             transition={{ duration: 0.4 }}
           >
-            <h3 className="text-3xl font-bold text-slate-900">
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-slate-900 mb-6">
               Ready to{' '}
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-600 to-sky-600">
                 reclaim your weekends
               </span>
               ?
-            </h3>
-            <p className="text-lg text-slate-500 mt-2">
+            </h2>
+            <p className="text-xl text-slate-600">
               Join 500+ users who turned spreadsheet chaos into a 5-minute ritual.
             </p>
           </motion.div>

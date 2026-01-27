@@ -518,39 +518,30 @@ export default function Home() {
         </div>
       </section>
 
-      {/* BRIDGE TO PRICING - Tools & CTA */}
-      <section className="py-16 sm:py-20 bg-white border-b border-slate-100">
+      {/* COMPATIBLE TOOLS BAR */}
+      <section className="bg-slate-50 py-16 border-y border-slate-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <p className="text-center text-slate-600 mb-8 font-medium">
+            Compatible with your favorite tools
+          </p>
+          <div className="flex flex-wrap justify-center items-center gap-8 sm:gap-12 opacity-60">
+            <span className="font-semibold text-slate-700">QuickBooks</span>
+            <span className="font-semibold text-slate-700">Excel</span>
+            <span className="font-semibold text-slate-700">Google Sheets</span>
+            <span className="font-semibold text-slate-700">Xero</span>
+            <span className="font-semibold text-slate-700">Wave</span>
+          </div>
+        </div>
+      </section>
+
+      {/* BRIDGE TO PRICING */}
+      <section className="py-16 sm:py-20 bg-white">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          {/* Works with tools */}
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.4 }}
-            className="mb-8"
-          >
-            <p className="text-sm text-slate-500 uppercase tracking-wider mb-4">
-              Compatible with your favorite tools
-            </p>
-            <div className="flex flex-wrap items-center justify-center gap-6 sm:gap-8">
-              <span className="font-semibold text-slate-400/60">QuickBooks</span>
-              <span className="font-semibold text-slate-400/60">Excel</span>
-              <span className="font-semibold text-slate-400/60">Google Sheets</span>
-              <span className="font-semibold text-slate-400/60">Xero</span>
-              <span className="font-semibold text-slate-400/60">Wave</span>
-            </div>
-            <p className="text-xs text-slate-400 mt-3">
-              Download IRS-ready CSV and PDF files that work everywhere.
-            </p>
-          </motion.div>
-
-          {/* Bridge Headline */}
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.4, delay: 0.1 }}
-            className="text-center mt-16"
           >
             <h3 className="text-3xl font-bold text-slate-900">
               Ready to{' '}

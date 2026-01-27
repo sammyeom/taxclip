@@ -7,6 +7,7 @@ const nextConfig: NextConfig = {
       {
         source: '/:path*',
         headers: [
+          // Clickjacking 방어
           {
             key: 'X-Frame-Options',
             value: 'DENY',
@@ -14,6 +15,31 @@ const nextConfig: NextConfig = {
           {
             key: 'Content-Security-Policy',
             value: "frame-ancestors 'none';",
+          },
+          // MIME 타입 스니핑 방지
+          {
+            key: 'X-Content-Type-Options',
+            value: 'nosniff',
+          },
+          // 리퍼러 정보 제어
+          {
+            key: 'Referrer-Policy',
+            value: 'strict-origin-when-cross-origin',
+          },
+          // DNS 프리페칭 제어
+          {
+            key: 'X-DNS-Prefetch-Control',
+            value: 'on',
+          },
+          // HTTPS 강제 (1년)
+          {
+            key: 'Strict-Transport-Security',
+            value: 'max-age=31536000; includeSubDomains',
+          },
+          // 브라우저 기능 제한
+          {
+            key: 'Permissions-Policy',
+            value: 'camera=(), microphone=(), geolocation=()',
           },
         ],
       },

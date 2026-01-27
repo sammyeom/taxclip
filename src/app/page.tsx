@@ -225,7 +225,7 @@ export default function Home() {
       </section>
 
       {/* 3. TRUST BAR */}
-      <section className="bg-slate-50 py-12 border-y border-slate-200">
+      <section className="bg-slate-50 py-16 border-y border-slate-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <p className="text-center text-slate-600 mb-8 font-medium">
             Trusted by thousands of founders, freelancers, and finance teams
@@ -457,7 +457,7 @@ export default function Home() {
             </h2>
           </motion.div>
 
-          <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+          <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
             {[
               {
                 quote: "I used to spend an entire weekend on receipts. With TaxClip I'm done in under an hour.",
@@ -478,28 +478,36 @@ export default function Home() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.6, delay: i * 0.1 }}
-                className="bg-gradient-to-br from-cyan-50 to-sky-50 rounded-xl border border-cyan-100 p-8"
+                className="group relative"
               >
-                <div className="flex items-center justify-between mb-4">
-                  <div className="text-4xl text-cyan-600">"</div>
-                  <div className="text-yellow-400 text-lg">⭐⭐⭐⭐⭐</div>
-                </div>
-                <p className="text-slate-700 mb-6 leading-relaxed text-lg">
-                  {testimonial.quote}
-                </p>
-                <div className="flex items-center gap-3">
-                  <Image
-                    src={testimonial.avatar}
-                    alt={testimonial.name}
-                    width={48}
-                    height={48}
-                    className="rounded-full object-cover shadow-md"
-                  />
-                  <div>
-                    <div className="font-semibold text-slate-900">{testimonial.name}</div>
-                    <div className="text-sm text-slate-600">{testimonial.role}</div>
-                  </div>
-                </div>
+                {/* Hover glow effect */}
+                <div
+                  className="absolute -inset-1 rounded-2xl bg-gradient-to-r from-cyan-200 via-sky-100 to-cyan-200 opacity-0 group-hover:opacity-60 blur-xl transition-opacity duration-500"
+                  style={{ transform: 'translateZ(0)' }}
+                />
+                <Card className="relative h-full border-slate-200 bg-white/90 backdrop-blur-sm transition-all duration-300 group-hover:border-cyan-200/50">
+                  <CardContent className="p-6 sm:p-8">
+                    <div className="flex items-center justify-end mb-4">
+                      <div className="text-yellow-400 text-lg">⭐⭐⭐⭐⭐</div>
+                    </div>
+                    <p className="text-slate-700 mb-6 leading-relaxed text-lg">
+                      "{testimonial.quote}"
+                    </p>
+                    <div className="flex items-center gap-3">
+                      <Image
+                        src={testimonial.avatar}
+                        alt={testimonial.name}
+                        width={48}
+                        height={48}
+                        className="rounded-full object-cover shadow-md"
+                      />
+                      <div>
+                        <div className="font-semibold text-slate-900">{testimonial.name}</div>
+                        <div className="text-sm text-slate-600">{testimonial.role}</div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
               </motion.div>
             ))}
           </div>
@@ -511,7 +519,7 @@ export default function Home() {
       </section>
 
       {/* BRIDGE TO PRICING - Tools & CTA */}
-      <section className="py-12 sm:py-16 bg-white border-b border-slate-100">
+      <section className="py-16 sm:py-20 bg-white border-b border-slate-100">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           {/* Works with tools */}
           <motion.div

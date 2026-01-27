@@ -442,71 +442,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 7. USE CASES */}
-      <section className="py-20 sm:py-32 bg-slate-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="text-center mb-16"
-          >
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-slate-900 mb-6">
-              Perfect For:
-            </h2>
-          </motion.div>
-
-          <div className="grid md:grid-cols-3 gap-8">
-            {[
-              {
-                icon: Briefcase,
-                title: 'Freelancers & Contractors',
-                desc: 'Keep client expenses organized without spreadsheets. Group receipts by project and stay ready for invoicing.',
-                bg: 'bg-blue-100',
-                color: 'text-blue-600',
-                border: 'border-t-blue-500',
-              },
-              {
-                icon: Rocket,
-                title: 'Small Business Owners',
-                desc: 'Track SaaS subscriptions, ads, and travel receipts. Never miss a deductible expense again.',
-                bg: 'bg-purple-100',
-                color: 'text-purple-600',
-                border: 'border-t-purple-500',
-              },
-              {
-                icon: Calculator,
-                title: 'Accountants & Bookkeepers',
-                desc: 'Receive clean, structured data instead of messy PDFs. Export-ready formats save hours of manual entry.',
-                bg: 'bg-teal-100',
-                color: 'text-teal-600',
-                border: 'border-t-teal-500',
-              },
-            ].map((useCase, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: i * 0.1 }}
-                className={`bg-white rounded-xl shadow-md border-t-4 ${useCase.border} border-slate-100 p-8 hover:shadow-lg transition-shadow`}
-              >
-                <div className={`inline-flex p-3 rounded-xl ${useCase.bg} mb-4`}>
-                  <useCase.icon className={`w-6 h-6 ${useCase.color}`} strokeWidth={1.5} />
-                </div>
-                <h3 className="text-xl font-semibold text-slate-900 mb-3">
-                  {useCase.title}
-                </h3>
-                <p className="text-slate-600">
-                  {useCase.desc}
-                </p>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* 9. SOCIAL PROOF / TESTIMONIALS */}
       <section className="py-20 sm:py-32 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -575,41 +510,42 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 10. EXPORT SECTION */}
-      <section className="py-20 sm:py-32 bg-white">
+      {/* BRIDGE TO PRICING - Tools & CTA */}
+      <section className="py-12 sm:py-16 bg-white border-b border-slate-100">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          {/* Works with tools */}
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 10 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
+            transition={{ duration: 0.4 }}
+            className="mb-8"
           >
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-slate-900 mb-12">
-              Export to Your Favorite Tools
-            </h2>
-
-            <div className="grid sm:grid-cols-2 gap-4 max-w-lg mx-auto mb-10">
-              {[
-                'QuickBooks Online & Desktop',
-                'Excel & Google Sheets',
-                'Xero, Wave, FreshBooks',
-                'Email to Accountant (PDF + CSV)',
-              ].map((item, i) => (
-                <div key={i} className="flex items-center gap-3 text-left">
-                  <CheckCircle2 className="w-6 h-6 text-green-500 flex-shrink-0" />
-                  <span className="text-slate-700 font-medium">{item}</span>
-                </div>
-              ))}
+            <p className="text-sm text-slate-500 uppercase tracking-wider mb-4">
+              Works with the tools you already use
+            </p>
+            <div className="flex flex-wrap items-center justify-center gap-6 sm:gap-8 text-slate-400">
+              <span className="font-semibold text-slate-600">QuickBooks</span>
+              <span className="font-semibold text-slate-600">Excel</span>
+              <span className="font-semibold text-slate-600">Google Sheets</span>
+              <span className="font-semibold text-slate-600">Xero</span>
+              <span className="font-semibold text-slate-600">Wave</span>
             </div>
+          </motion.div>
 
-            <a
-              href="/sample-export.csv"
-              download
-              className="inline-flex items-center gap-2 border-2 border-cyan-500 text-cyan-600 hover:bg-cyan-50 px-6 py-3 rounded-lg font-semibold transition-colors"
-            >
-              <Download className="w-5 h-5" />
-              Download Sample CSV
-            </a>
+          {/* Bridge Headline */}
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.4, delay: 0.1 }}
+          >
+            <h3 className="text-2xl sm:text-3xl font-bold text-slate-900">
+              Stop chasing receipts at tax time.<br />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-600 to-sky-600">
+                Start your 5-minute ritual today.
+              </span>
+            </h3>
           </motion.div>
         </div>
       </section>
@@ -907,6 +843,10 @@ export default function Home() {
               {
                 q: 'Do you file taxes for me?',
                 a: `We handle the hardest part — organizing and exporting your receipts in tax-ready format. For actual filing, work with your accountant. They'll thank you for the clean data.`,
+              },
+              {
+                q: 'Who is TaxClip for?',
+                a: 'Freelancers, small business owners, and accountants. Whether you need to organize client expenses, track SaaS subscriptions, or receive clean data from clients instead of messy PDFs — TaxClip saves hours of manual work.',
               },
             ].map((item, i) => (
               <motion.div

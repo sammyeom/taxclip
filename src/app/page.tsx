@@ -713,8 +713,8 @@ export default function Home() {
                   transition={{ duration: 0.3 }}
                   className="relative"
                 >
-                  <div className="absolute inset-0 bg-gradient-to-r from-cyan-400 to-sky-400 rounded-xl blur-md opacity-60" />
-                  <span className="relative inline-flex flex-col items-center bg-gradient-to-r from-cyan-500 via-sky-500 to-cyan-500 text-white px-5 py-2 rounded-xl text-center font-bold shadow-lg">
+                  <div className="absolute inset-0 bg-gradient-to-r from-amber-400 to-amber-500 rounded-xl blur-md opacity-60" />
+                  <span className="relative inline-flex flex-col items-center bg-gradient-to-r from-amber-400 to-amber-500 text-white px-5 py-2 rounded-xl text-center font-bold shadow-lg">
                     <span className="flex items-center gap-1.5 text-xs">
                       <Sparkles className="w-3.5 h-3.5" />
                       Best Value

@@ -1157,6 +1157,7 @@ For tax filing assistance, please consult a qualified tax professional.
                           <span className="text-2xl font-bold text-slate-900">$99</span>
                           <span className="text-sm text-slate-400 line-through">$119.88</span>
                           <span className="text-sm font-normal text-slate-500">/year</span>
+                          <span className="text-sm font-medium text-cyan-600">= $8.25/month</span>
                         </div>
                         {!hasUsedTrial && (
                           <p className="text-xs text-cyan-600 font-semibold mb-3 flex items-center gap-1">
@@ -1324,10 +1325,13 @@ For tax filing assistance, please consult a qualified tax professional.
                     </p>
                     <p className="text-sm text-slate-500">Billed annually</p>
                   </div>
-                  <div className="text-right flex items-baseline gap-2">
-                    <p className="text-2xl font-bold text-slate-900">$99</p>
-                    <p className="text-sm text-slate-400 line-through">$119.88</p>
-                    <p className="text-xs text-slate-500">/year</p>
+                  <div className="text-right">
+                    <div className="flex items-baseline gap-2">
+                      <p className="text-2xl font-bold text-slate-900">$99</p>
+                      <p className="text-sm text-slate-400 line-through">$119.88</p>
+                      <p className="text-xs text-slate-500">/year</p>
+                    </div>
+                    <p className="text-sm font-medium text-cyan-600">= $8.25/month</p>
                   </div>
                 </div>
 

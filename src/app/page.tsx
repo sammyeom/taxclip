@@ -142,7 +142,7 @@ export default function Home() {
 
       {/* 2. HERO SECTION */}
       <section className="relative overflow-hidden" style={{ background: 'linear-gradient(135deg, #ECFEFF 0%, #FFFFFF 100%)' }}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 sm:py-32">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-20">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             {/* Left side - Content */}
             <div className="text-center lg:text-left">

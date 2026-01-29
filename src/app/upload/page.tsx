@@ -1586,10 +1586,10 @@ export default function UploadPage() {
                   }
                 </p>
                 <p className={`text-sm ${canUpload ? 'text-blue-700' : 'text-amber-700'}`}>
-                  {canUpload
-                    ? 'Upgrade to Pro for unlimited uploads'
-                    : 'Upgrade to Pro to continue uploading receipts'
-                  }
+                  One missed receipt costs more than Pro. Go Unlimited for $9.99/mo.
+                </p>
+                <p className="text-sm font-semibold text-orange-600 mt-1">
+                  🔥 Flash Deal: Get 20% OFF when you choose Yearly ($99/yr)!
                 </p>
               </div>
             </div>

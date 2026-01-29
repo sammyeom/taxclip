@@ -523,6 +523,16 @@ export default function DashboardPage() {
                 </Button>
               </Link>
             </div>
+            {monthlyCount >= 5 && monthlyLimit !== Infinity && (
+              <p className="text-sm text-slate-600 mt-3">
+                {monthlyCount === 5 && "You're halfway there! 📈 5 receipts organized, 5 more to go. You're doing great on your tax prep!"}
+                {monthlyCount === 6 && "Keep the momentum! 🚀 Each scan is a step toward a stress-free tax season. You have 4 free slots left."}
+                {monthlyCount === 7 && "TaxClip is working for you! 🛠️ 7 expenses captured. Thinking of going bigger? Pro offers unlimited peace of mind."}
+                {monthlyCount === 8 && "Almost at the limit! ⚡ Just 2 scans left. Upgrade to Pro for less than the cost of two coffees ($9.99) and never stop."}
+                {monthlyCount === 9 && "Final countdown! 🏁 Only 1 scan left. Don't let your bookkeeping pause here. Go Pro and keep winning."}
+                {monthlyCount >= 10 && "Free limit reached. ✅ Unlock unlimited scans. Secure your tax savings for the whole year and save 20% today!"}
+              </p>
+            )}
           </div>
         )}
 

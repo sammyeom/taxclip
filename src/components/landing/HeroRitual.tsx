@@ -200,7 +200,7 @@ export default function HeroRitual() {
         animate={{ opacity: 1, y: 0 }}
         className="flex items-center justify-center mb-4 sm:mb-6"
       >
-        <div className="inline-flex items-center gap-2 bg-slate-900 text-white px-3 sm:px-4 py-1.5 sm:py-2 rounded-full shadow-lg text-xs sm:text-sm font-mono">
+        <div className="inline-flex items-center gap-2 bg-slate-900 text-white px-3 sm:px-4 py-1.5 sm:py-2 rounded-full shadow-lg text-sm sm:text-base font-mono">
           <span className="text-cyan-400 font-semibold">9:00 AM</span>
           <span className="text-slate-500">→</span>
           <span className="text-green-400 font-semibold">9:05 AM</span>
@@ -213,12 +213,12 @@ export default function HeroRitual() {
         <div className={`text-center p-2 sm:p-3 rounded-xl transition-all duration-300 ${
           phase === 'snap' ? 'bg-cyan-50 border-2 border-cyan-200' : 'bg-slate-50 border border-slate-100'
         }`}>
-          <div className={`text-[10px] sm:text-xs font-bold mb-1 ${
+          <div className={`text-xs sm:text-sm font-bold mb-1 ${
             phase === 'snap' ? 'text-cyan-600' : 'text-slate-400'
           }`}>Step 1</div>
           <Badge
             variant="secondary"
-            className={`mb-2 text-[10px] sm:text-xs ${
+            className={`mb-2 text-xs sm:text-sm ${
               phase === 'snap' ? 'bg-cyan-100 text-cyan-700' : 'bg-slate-100 text-slate-500'
             }`}
           >
@@ -240,12 +240,12 @@ export default function HeroRitual() {
         <div className={`text-center p-2 sm:p-3 rounded-xl transition-all duration-300 ${
           phase === 'auto-sort' ? 'bg-sky-50 border-2 border-sky-200' : 'bg-slate-50 border border-slate-100'
         }`}>
-          <div className={`text-[10px] sm:text-xs font-bold mb-1 ${
+          <div className={`text-xs sm:text-sm font-bold mb-1 ${
             phase === 'auto-sort' ? 'text-sky-600' : 'text-slate-400'
           }`}>Step 2</div>
           <Badge
             variant="secondary"
-            className={`mb-2 text-[10px] sm:text-xs ${
+            className={`mb-2 text-xs sm:text-sm ${
               phase === 'auto-sort' ? 'bg-sky-100 text-sky-700' : 'bg-slate-100 text-slate-500'
             }`}
           >
@@ -267,12 +267,12 @@ export default function HeroRitual() {
         <div className={`text-center p-2 sm:p-3 rounded-xl transition-all duration-300 ${
           (phase === 'result' || phase === 'complete') ? 'bg-green-50 border-2 border-green-200' : 'bg-slate-50 border border-slate-100'
         }`}>
-          <div className={`text-[10px] sm:text-xs font-bold mb-1 ${
+          <div className={`text-xs sm:text-sm font-bold mb-1 ${
             (phase === 'result' || phase === 'complete') ? 'text-green-600' : 'text-slate-400'
           }`}>Step 3</div>
           <Badge
             variant="secondary"
-            className={`mb-2 text-[10px] sm:text-xs ${
+            className={`mb-2 text-xs sm:text-sm ${
               (phase === 'result' || phase === 'complete') ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-500'
             }`}
           >
@@ -326,16 +326,16 @@ export default function HeroRitual() {
                 >
                   <Sparkles className="w-10 h-10 sm:w-12 sm:h-12 text-sky-500" />
                 </motion.div>
-                <p className="text-sm sm:text-base font-medium text-slate-700">AI Categorizing...</p>
+                <p className="text-base sm:text-lg font-medium text-slate-700">AI Categorizing...</p>
               </div>
 
               <div className="space-y-2 sm:space-y-3">
-                <div className="flex justify-between text-xs sm:text-sm text-slate-600">
+                <div className="flex justify-between text-sm sm:text-base text-slate-600">
                   <span>Processing receipts</span>
                   <span className="font-semibold">{progress}%</span>
                 </div>
                 <Progress value={progress} className="h-3 sm:h-4" />
-                <div className="flex justify-between text-[10px] sm:text-xs text-slate-400">
+                <div className="flex justify-between text-xs sm:text-sm text-slate-400">
                   <span>Meals, Transport, Software...</span>
                   <span>7 items</span>
                 </div>
@@ -354,13 +354,13 @@ export default function HeroRitual() {
               className="text-center px-4"
             >
               <div className="mb-3 sm:mb-4">
-                <div className="text-xs sm:text-sm text-slate-500 uppercase tracking-wider mb-1">This Week's Total</div>
+                <div className="text-sm sm:text-base text-slate-500 uppercase tracking-wider mb-1">This Week's Total</div>
                 <div className="flex items-baseline justify-center gap-1">
                   <span className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-[#111111]">
                     ${countUpValue}
                   </span>
                 </div>
-                <div className="text-xs sm:text-sm text-slate-400 mt-1">across 7 receipts</div>
+                <div className="text-sm sm:text-base text-slate-400 mt-1">across 7 receipts</div>
               </div>
 
               {/* Complete Badge */}
@@ -383,7 +383,7 @@ export default function HeroRitual() {
                     >
                       🎉
                     </motion.span>
-                    <span className="text-sm sm:text-base font-semibold">5-Min Ritual Complete!</span>
+                    <span className="text-base sm:text-lg font-semibold">5-Min Ritual Complete!</span>
                   </motion.div>
                 )}
               </AnimatePresence>

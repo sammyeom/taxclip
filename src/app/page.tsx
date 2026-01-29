@@ -458,7 +458,7 @@ export default function Home() {
             </h2>
           </motion.div>
 
-          <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+          <div className="grid sm:grid-cols-2 gap-6 max-w-4xl mx-auto">
             {[
               {
                 quote: "I used to spend an entire weekend on receipts. With TaxClip I'm done in under an hour.",

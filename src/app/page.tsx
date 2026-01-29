@@ -159,13 +159,14 @@ export default function Home() {
 
                 {/* Main headline */}
                 <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-slate-900 mb-6 leading-tight">
-                  Done with your weekly receipts in 5 minutes
+                  Never dread receipts again.<br />
+                  Finish your weekly bookkeeping in 5 minutes.
                 </h1>
 
                 {/* Subheadline */}
                 <p className="text-lg sm:text-xl text-slate-600 mb-8 leading-relaxed">
                   Don't spend your weekend wrestling with receipts.<br />
-                  Just snap a photo, and let TaxClip's system handle the rest.
+                  Just snap a photo, and let TaxClip handle the rest. Reclaim your Sundays.
                 </p>
 
                 {/* CTA Buttons */}
@@ -228,7 +229,7 @@ export default function Home() {
       <section className="bg-slate-50 py-16 border-y border-slate-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <p className="text-center text-slate-600 mb-8 font-medium">
-            Trusted by thousands of founders, freelancers, and finance teams
+            Trusted by 50+ high-earning freelancers & founders to save 10+ hours every month.
           </p>
           <div className="flex flex-wrap justify-center items-center gap-8 sm:gap-12 opacity-60">
             <div className="flex items-center gap-2 text-slate-700">

@@ -59,6 +59,13 @@ import {
   SheetTitle,
   SheetFooter,
 } from '@/components/ui/sheet';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 
 // OCR item can be either a string (legacy) or an object with qty, unitPrice, amount
 interface OCRItem {
@@ -182,6 +189,9 @@ export default function UploadPage() {
     loading: usageLimitLoading,
     refetch: refetchUsage,
   } = useUsageLimit();
+
+  // Upgrade modal state
+  const [upgradeLimitModal, setUpgradeLimitModal] = useState(false);
 
   // File management states
   const [files, setFiles] = useState<FileWithPreview[]>([]);
@@ -578,7 +588,7 @@ export default function UploadPage() {
 
     // Check upload limit for free users
     if (!canUpload) {
-      setError('Monthly upload limit reached. Upgrade to Pro for unlimited uploads.');
+      setUpgradeLimitModal(true);
       return;
     }
 
@@ -2570,6 +2580,44 @@ export default function UploadPage() {
           )}
         </SheetContent>
       </Sheet>
+
+      {/* Upgrade Limit Modal - 11th upload attempt */}
+      <Dialog open={upgradeLimitModal} onOpenChange={setUpgradeLimitModal}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-bold text-slate-900">
+              Don't let $50+ slip away for just $9.99!
+            </DialogTitle>
+            <DialogDescription className="text-base text-slate-600 pt-2">
+              You just tried to upload your 11th receipt. That's amazing progress!
+            </DialogDescription>
+          </DialogHeader>
+          <div className="py-4">
+            <p className="text-slate-700 leading-relaxed">
+              One missed receipt often costs more in taxes than a full month of Pro. For <span className="font-semibold">$9.99</span> (or save 20% with Yearly), get unlimited scans and reclaim your Sundays.
+            </p>
+          </div>
+          <div className="flex flex-col gap-3 pt-2">
+            <Button
+              onClick={() => {
+                setUpgradeLimitModal(false);
+                router.push('/settings?tab=billing');
+              }}
+              className="w-full bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white font-semibold py-3 text-base"
+            >
+              <Crown className="w-5 h-5 mr-2" />
+              Upgrade to Pro Now
+            </Button>
+            <Button
+              variant="ghost"
+              onClick={() => setUpgradeLimitModal(false)}
+              className="w-full text-slate-400 hover:text-slate-600 font-normal"
+            >
+              Maybe Later
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

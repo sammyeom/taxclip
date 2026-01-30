@@ -150,6 +150,34 @@ export const signOut = async () => {
   return { error: null };
 };
 
+// Helper function for password reset
+export const resetPasswordForEmail = async (email: string) => {
+  const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: `${window.location.origin}/reset-password`,
+  });
+
+  if (error) {
+    console.error('Error sending reset email:', error.message);
+    return { error };
+  }
+
+  return { data, error: null };
+};
+
+// Helper function to update password
+export const updatePassword = async (newPassword: string) => {
+  const { data, error } = await supabase.auth.updateUser({
+    password: newPassword,
+  });
+
+  if (error) {
+    console.error('Error updating password:', error.message);
+    return { error };
+  }
+
+  return { data, error: null };
+};
+
 // Helper function to get current user
 export const getCurrentUser = async () => {
   const { data: { session }, error } = await supabase.auth.getSession();

@@ -1093,7 +1093,7 @@ For tax filing assistance, please consult a qualified tax professional.
                     </div>
 
                     {/* Monthly Pro Plan */}
-                    <div className="border rounded-lg p-4 bg-white">
+                    <div className="border rounded-lg p-4 bg-white flex flex-col">
                       <h4 className="font-semibold text-lg mb-2 flex items-center gap-2 text-slate-700">
                         Pro Monthly <Crown className="w-4 h-4 text-amber-500" />
                       </h4>
@@ -1107,7 +1107,7 @@ For tax filing assistance, please consult a qualified tax professional.
                         </p>
                       )}
                       {hasUsedTrial && <div className="mb-3" />}
-                      <ul className="space-y-2 text-sm">
+                      <ul className="space-y-2 text-sm flex-1">
                         <li className="flex items-center gap-2">
                           <Check className="w-4 h-4 text-green-500" />
                           <strong>Unlimited</strong> receipts
@@ -1125,6 +1125,18 @@ For tax filing assistance, please consult a qualified tax professional.
                           Email support
                         </li>
                       </ul>
+                      {/* CTA Button */}
+                      <Button
+                        onClick={() => {
+                          setSelectedPlan('monthly');
+                          setUpgradeDialogOpen(true);
+                        }}
+                        variant="outline"
+                        className="w-full mt-4 border-blue-500 text-blue-600 hover:bg-blue-50 font-semibold"
+                      >
+                        <Zap className="w-4 h-4 mr-2" />
+                        {!hasUsedTrial ? 'Start 7-Day Trial' : 'Upgrade Now'}
+                      </Button>
                     </div>
 
                     {/* Annual Pro Plan - Premium Look */}
@@ -1263,25 +1275,43 @@ For tax filing assistance, please consult a qualified tax professional.
           )}
 
           <div className="space-y-4 py-2">
-            {/* Monthly Option - Subdued Style */}
+            {/* Monthly Option */}
             <button
               onClick={() => setSelectedPlan('monthly')}
-              className={`w-full p-4 rounded-lg border text-left transition-all ${
+              className={`w-full p-4 rounded-lg border-2 text-left transition-all ${
                 selectedPlan === 'monthly'
-                  ? 'border-slate-300 bg-slate-50'
+                  ? 'border-blue-500 bg-blue-50 ring-2 ring-blue-200'
                   : 'border-slate-200 hover:border-slate-300 bg-white'
               }`}
             >
               <div className="flex items-center justify-between">
-                <div>
-                  <p className="font-medium text-slate-700">Monthly</p>
-                  <p className="text-sm text-slate-500">Billed monthly</p>
+                <div className="flex items-center gap-3">
+                  <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${
+                    selectedPlan === 'monthly'
+                      ? 'border-blue-500 bg-blue-500'
+                      : 'border-slate-300'
+                  }`}>
+                    {selectedPlan === 'monthly' && <Check className="w-3 h-3 text-white" />}
+                  </div>
+                  <div>
+                    <p className={`font-medium ${selectedPlan === 'monthly' ? 'text-blue-700' : 'text-slate-700'}`}>Monthly</p>
+                    <p className="text-sm text-slate-500">Billed monthly</p>
+                  </div>
                 </div>
                 <div className="text-right">
-                  <p className="text-xl font-bold text-slate-700">$9.99</p>
+                  <p className={`text-xl font-bold ${selectedPlan === 'monthly' ? 'text-blue-700' : 'text-slate-700'}`}>$9.99</p>
                   <p className="text-xs text-slate-500">/month</p>
                 </div>
               </div>
+              {/* 7-Day Free Trial Included */}
+              {!hasUsedTrial && selectedPlan === 'monthly' && (
+                <div className="mt-3 pt-3 border-t border-blue-200/50">
+                  <p className="text-sm text-blue-600 font-semibold flex items-center gap-1.5">
+                    <Check className="w-4 h-4" />
+                    7-Day Free Trial Included
+                  </p>
+                </div>
+              )}
             </button>
 
             {/* Annual Option - Premium Look with Animated Border */}

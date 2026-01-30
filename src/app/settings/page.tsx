@@ -1131,8 +1131,7 @@ For tax filing assistance, please consult a qualified tax professional.
                           setSelectedPlan('monthly');
                           setUpgradeDialogOpen(true);
                         }}
-                        variant="outline"
-                        className="w-full mt-4 border-blue-500 text-blue-600 hover:bg-blue-50 font-semibold"
+                        className="w-full mt-4 bg-cyan-500 hover:bg-cyan-600 text-white font-semibold"
                       >
                         <Zap className="w-4 h-4 mr-2" />
                         {!hasUsedTrial ? 'Start 7-Day Trial' : 'Upgrade Now'}
@@ -1278,9 +1277,9 @@ For tax filing assistance, please consult a qualified tax professional.
             {/* Monthly Option */}
             <button
               onClick={() => setSelectedPlan('monthly')}
-              className={`w-full p-4 rounded-lg border-2 text-left transition-all ${
+              className={`w-full p-4 rounded-xl border-2 text-left transition-all ${
                 selectedPlan === 'monthly'
-                  ? 'border-blue-500 bg-blue-50 ring-2 ring-blue-200'
+                  ? 'border-cyan-500 bg-cyan-50 ring-2 ring-cyan-200'
                   : 'border-slate-200 hover:border-slate-300 bg-white'
               }`}
             >
@@ -1288,25 +1287,25 @@ For tax filing assistance, please consult a qualified tax professional.
                 <div className="flex items-center gap-3">
                   <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${
                     selectedPlan === 'monthly'
-                      ? 'border-blue-500 bg-blue-500'
+                      ? 'border-cyan-500 bg-cyan-500'
                       : 'border-slate-300'
                   }`}>
                     {selectedPlan === 'monthly' && <Check className="w-3 h-3 text-white" />}
                   </div>
                   <div>
-                    <p className={`font-medium ${selectedPlan === 'monthly' ? 'text-blue-700' : 'text-slate-700'}`}>Monthly</p>
+                    <p className="font-medium text-slate-900">Monthly</p>
                     <p className="text-sm text-slate-500">Billed monthly</p>
                   </div>
                 </div>
                 <div className="text-right">
-                  <p className={`text-xl font-bold ${selectedPlan === 'monthly' ? 'text-blue-700' : 'text-slate-700'}`}>$9.99</p>
+                  <p className="text-xl font-bold text-slate-900">$9.99</p>
                   <p className="text-xs text-slate-500">/month</p>
                 </div>
               </div>
               {/* 7-Day Free Trial Included */}
               {!hasUsedTrial && selectedPlan === 'monthly' && (
-                <div className="mt-3 pt-3 border-t border-blue-200/50">
-                  <p className="text-sm text-blue-600 font-semibold flex items-center gap-1.5">
+                <div className="mt-3 pt-3 border-t border-cyan-200/50">
+                  <p className="text-sm text-cyan-500 font-semibold flex items-center gap-1.5">
                     <Check className="w-4 h-4" />
                     7-Day Free Trial Included
                   </p>
@@ -1436,8 +1435,7 @@ For tax filing assistance, please consult a qualified tax professional.
               <Button
                 onClick={handleCheckout}
                 disabled={checkoutLoading}
-                variant="outline"
-                className="border-slate-300 text-slate-700 hover:bg-slate-100"
+                className="bg-cyan-500 hover:bg-cyan-600 text-white font-semibold"
               >
                 {checkoutLoading ? (
                   <>
@@ -1446,8 +1444,8 @@ For tax filing assistance, please consult a qualified tax professional.
                   </>
                 ) : (
                   <>
-                    <CreditCard className="w-4 h-4 mr-2" />
-                    Continue to Checkout
+                    <Zap className="w-4 h-4 mr-2" />
+                    {!hasUsedTrial ? 'Start 7-Day Free Trial' : 'Continue to Checkout'}
                   </>
                 )}
               </Button>

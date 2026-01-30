@@ -1093,7 +1093,7 @@ For tax filing assistance, please consult a qualified tax professional.
                     </div>
 
                     {/* Monthly Pro Plan */}
-                    <div className="border rounded-lg p-4 bg-white">
+                    <div className="border-2 rounded-lg p-4 bg-white">
                       <h4 className="font-semibold text-lg mb-2 flex items-center gap-2 text-slate-700">
                         Pro Monthly <Crown className="w-4 h-4 text-amber-500" />
                       </h4>
@@ -1101,23 +1101,12 @@ For tax filing assistance, please consult a qualified tax professional.
                         $9.99<span className="text-sm font-normal text-slate-500">/month</span>
                       </p>
                       {!hasUsedTrial && (
-                        <p className="text-xs text-cyan-600 font-semibold mb-2 flex items-center gap-1">
+                        <p className="text-xs text-cyan-600 font-semibold mb-3 flex items-center gap-1">
                           <Check className="w-3 h-3" />
                           7-Day Free Trial Included
                         </p>
                       )}
-                      {/* CTA Button - right below price/trial text */}
-                      <Button
-                        onClick={() => {
-                          setSelectedPlan('monthly');
-                          setUpgradeDialogOpen(true);
-                        }}
-                        variant="outline"
-                        className="w-full mb-4 border-cyan-500 text-cyan-500 hover:bg-cyan-50 font-semibold"
-                      >
-                        <Zap className="w-4 h-4 mr-2" />
-                        {!hasUsedTrial ? 'Start 7-Day Trial' : 'Upgrade Now'}
-                      </Button>
+                      {hasUsedTrial && <div className="mb-3" />}
                       <ul className="space-y-2 text-sm">
                         <li className="flex items-center gap-2">
                           <Check className="w-4 h-4 text-green-500" />
@@ -1136,6 +1125,18 @@ For tax filing assistance, please consult a qualified tax professional.
                           Email support
                         </li>
                       </ul>
+                      {/* CTA Button - below list */}
+                      <Button
+                        onClick={() => {
+                          setSelectedPlan('monthly');
+                          setUpgradeDialogOpen(true);
+                        }}
+                        variant="outline"
+                        className="w-full mt-4 border-2 border-cyan-600 text-cyan-600 hover:bg-cyan-50 font-semibold"
+                      >
+                        <Zap className="w-4 h-4 mr-2" />
+                        {!hasUsedTrial ? 'Start 7-Day Trial' : 'Upgrade Now'}
+                      </Button>
                     </div>
 
                     {/* Annual Pro Plan - Premium Look */}
@@ -1279,7 +1280,7 @@ For tax filing assistance, please consult a qualified tax professional.
               onClick={() => setSelectedPlan('monthly')}
               className={`w-full p-4 rounded-xl border-2 text-left transition-all ${
                 selectedPlan === 'monthly'
-                  ? 'border-cyan-500 bg-cyan-50/50'
+                  ? 'border-cyan-600 bg-cyan-50/50'
                   : 'border-slate-200 hover:border-slate-300 bg-white'
               }`}
             >
@@ -1296,7 +1297,7 @@ For tax filing assistance, please consult a qualified tax professional.
               {/* 7-Day Free Trial Included */}
               {!hasUsedTrial && selectedPlan === 'monthly' && (
                 <div className="mt-3 pt-3 border-t border-cyan-200/50">
-                  <p className="text-sm text-cyan-500 font-semibold flex items-center gap-1.5">
+                  <p className="text-sm text-cyan-600 font-semibold flex items-center gap-1.5">
                     <Check className="w-4 h-4" />
                     7-Day Free Trial Included
                   </p>
@@ -1427,7 +1428,7 @@ For tax filing assistance, please consult a qualified tax professional.
                 onClick={handleCheckout}
                 disabled={checkoutLoading}
                 variant="outline"
-                className="border-cyan-500 text-cyan-500 hover:bg-cyan-50 font-semibold"
+                className="border-2 border-cyan-600 text-cyan-600 hover:bg-cyan-50 font-semibold"
               >
                 {checkoutLoading ? (
                   <>

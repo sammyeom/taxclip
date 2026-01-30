@@ -1100,7 +1100,13 @@ For tax filing assistance, please consult a qualified tax professional.
                       <p className="text-2xl font-bold mb-1 text-slate-700">
                         $9.99<span className="text-sm font-normal text-slate-500">/month</span>
                       </p>
-                      <div className="mb-3" />
+                      {!hasUsedTrial && (
+                        <p className="text-xs text-cyan-600 font-semibold mb-3 flex items-center gap-1">
+                          <Check className="w-3 h-3" />
+                          7-Day Free Trial Included
+                        </p>
+                      )}
+                      {hasUsedTrial && <div className="mb-3" />}
                       <ul className="space-y-2 text-sm">
                         <li className="flex items-center gap-2">
                           <Check className="w-4 h-4 text-green-500" />

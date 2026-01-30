@@ -1093,7 +1093,7 @@ For tax filing assistance, please consult a qualified tax professional.
                     </div>
 
                     {/* Monthly Pro Plan */}
-                    <div className="border rounded-lg p-4 bg-white flex flex-col">
+                    <div className="border rounded-lg p-4 bg-white">
                       <h4 className="font-semibold text-lg mb-2 flex items-center gap-2 text-slate-700">
                         Pro Monthly <Crown className="w-4 h-4 text-amber-500" />
                       </h4>
@@ -1101,13 +1101,24 @@ For tax filing assistance, please consult a qualified tax professional.
                         $9.99<span className="text-sm font-normal text-slate-500">/month</span>
                       </p>
                       {!hasUsedTrial && (
-                        <p className="text-xs text-cyan-600 font-semibold mb-3 flex items-center gap-1">
+                        <p className="text-xs text-cyan-600 font-semibold mb-2 flex items-center gap-1">
                           <Check className="w-3 h-3" />
                           7-Day Free Trial Included
                         </p>
                       )}
-                      {hasUsedTrial && <div className="mb-3" />}
-                      <ul className="space-y-2 text-sm flex-1">
+                      {/* CTA Button - right below price/trial text */}
+                      <Button
+                        onClick={() => {
+                          setSelectedPlan('monthly');
+                          setUpgradeDialogOpen(true);
+                        }}
+                        variant="outline"
+                        className="w-full mb-4 border-cyan-500 text-cyan-500 hover:bg-cyan-50 font-semibold"
+                      >
+                        <Zap className="w-4 h-4 mr-2" />
+                        {!hasUsedTrial ? 'Start 7-Day Trial' : 'Upgrade Now'}
+                      </Button>
+                      <ul className="space-y-2 text-sm">
                         <li className="flex items-center gap-2">
                           <Check className="w-4 h-4 text-green-500" />
                           <strong>Unlimited</strong> receipts
@@ -1125,17 +1136,6 @@ For tax filing assistance, please consult a qualified tax professional.
                           Email support
                         </li>
                       </ul>
-                      {/* CTA Button */}
-                      <Button
-                        onClick={() => {
-                          setSelectedPlan('monthly');
-                          setUpgradeDialogOpen(true);
-                        }}
-                        className="w-full mt-4 bg-cyan-500 hover:bg-cyan-600 text-white font-semibold"
-                      >
-                        <Zap className="w-4 h-4 mr-2" />
-                        {!hasUsedTrial ? 'Start 7-Day Trial' : 'Upgrade Now'}
-                      </Button>
                     </div>
 
                     {/* Annual Pro Plan - Premium Look */}
@@ -1279,23 +1279,14 @@ For tax filing assistance, please consult a qualified tax professional.
               onClick={() => setSelectedPlan('monthly')}
               className={`w-full p-4 rounded-xl border-2 text-left transition-all ${
                 selectedPlan === 'monthly'
-                  ? 'border-cyan-500 bg-cyan-50 ring-2 ring-cyan-200'
+                  ? 'border-cyan-500 bg-cyan-50/50'
                   : 'border-slate-200 hover:border-slate-300 bg-white'
               }`}
             >
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${
-                    selectedPlan === 'monthly'
-                      ? 'border-cyan-500 bg-cyan-500'
-                      : 'border-slate-300'
-                  }`}>
-                    {selectedPlan === 'monthly' && <Check className="w-3 h-3 text-white" />}
-                  </div>
-                  <div>
-                    <p className="font-medium text-slate-900">Monthly</p>
-                    <p className="text-sm text-slate-500">Billed monthly</p>
-                  </div>
+                <div>
+                  <p className="font-medium text-slate-900">Monthly</p>
+                  <p className="text-sm text-slate-500">Billed monthly</p>
                 </div>
                 <div className="text-right">
                   <p className="text-xl font-bold text-slate-900">$9.99</p>
@@ -1435,7 +1426,8 @@ For tax filing assistance, please consult a qualified tax professional.
               <Button
                 onClick={handleCheckout}
                 disabled={checkoutLoading}
-                className="bg-cyan-500 hover:bg-cyan-600 text-white font-semibold"
+                variant="outline"
+                className="border-cyan-500 text-cyan-500 hover:bg-cyan-50 font-semibold"
               >
                 {checkoutLoading ? (
                   <>

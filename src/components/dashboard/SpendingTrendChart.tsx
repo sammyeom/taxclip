@@ -2,15 +2,13 @@
 
 import { useRouter } from 'next/navigation';
 import { TrendingUp } from 'lucide-react';
-import { BarChart, Bar, XAxis, YAxis } from 'recharts';
+import { Bar, XAxis, YAxis, ReferenceLine, ComposedChart } from 'recharts';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   ChartConfig,
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
-  ChartLegend,
-  ChartLegendContent,
 } from '@/components/ui/chart';
 
 export interface MonthlyData {
@@ -30,6 +28,7 @@ export interface MonthComparisonData {
 interface SpendingTrendChartProps {
   monthlyData: MonthlyData[];
   comparisonData: MonthComparisonData[];
+  averageAmount?: number;
 }
 
 const formatCurrency = (amount: number) => {
@@ -51,159 +50,124 @@ const monthlyChartConfig = {
     label: 'Spending',
     color: '#06B6D4',
   },
-} satisfies ChartConfig;
-
-const comparisonChartConfig = {
-  'Last Month': {
-    label: 'Last Month',
-    color: '#F97316',
-  },
-  'This Month': {
-    label: 'This Month',
-    color: '#06B6D4',
+  average: {
+    label: 'Average',
+    color: '#94A3B8',
   },
 } satisfies ChartConfig;
 
 export default function SpendingTrendChart({
   monthlyData,
   comparisonData,
+  averageAmount = 0,
 }: SpendingTrendChartProps) {
   const router = useRouter();
   const hasMonthlyData = monthlyData.some((d) => d.amount > 0);
-  const hasComparisonData = comparisonData.some(
-    (d) => d['Last Month'] > 0 || d['This Month'] > 0
-  );
+
+  // Add average to data for legend display
+  const dataWithAverage = monthlyData.map((d) => ({
+    ...d,
+    average: averageAmount,
+  }));
 
   return (
-    <div className="space-y-4 sm:space-y-6">
-      {/* Monthly Spending Trend */}
-      <Card>
-        <CardHeader className="pb-2 sm:pb-6">
-          <CardTitle className="text-base sm:text-xl md:text-2xl font-bold">
-            Monthly Spending Trend
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="px-2 sm:px-6 pb-4 sm:pb-6">
-          {!hasMonthlyData ? (
-            <div className="text-center py-8 sm:py-12">
-              <TrendingUp className="w-10 h-10 sm:w-12 sm:h-12 text-slate-300 mx-auto mb-3" />
-              <p className="text-slate-600 text-xs sm:text-sm">No data for trend analysis</p>
-            </div>
-          ) : (
-            <ChartContainer config={monthlyChartConfig} className="h-[180px] sm:h-[220px] md:h-[250px] w-full">
-              <BarChart
-                data={monthlyData}
-                accessibilityLayer
-                margin={{ top: 5, right: 5, left: -15, bottom: 0 }}
-              >
-                <XAxis
-                  dataKey="month"
-                  tickLine={false}
-                  tickMargin={8}
-                  axisLine={false}
-                  fontSize={10}
-                  interval={0}
-                  tick={{ fontSize: 10 }}
-                />
-                <YAxis
-                  tickLine={false}
-                  tickMargin={5}
-                  axisLine={false}
-                  width={45}
-                  fontSize={10}
-                  tick={{ fontSize: 10 }}
-                  tickFormatter={(value) => formatCurrencyCompact(value)}
-                />
-                <ChartTooltip
-                  cursor={{ fill: 'rgba(6, 182, 212, 0.1)' }}
-                  content={
-                    <ChartTooltipContent
-                      formatter={(value) => formatCurrency(Number(value) || 0)}
-                    />
-                  }
-                />
-                <Bar
-                  dataKey="amount"
-                  fill="var(--color-amount)"
-                  radius={[4, 4, 0, 0]}
-                  onClick={(data) => {
-                    const payload = data as unknown as {
-                      monthIndex?: number;
-                      year?: number;
-                    };
-                    if (payload && payload.monthIndex !== undefined) {
-                      const year = payload.year || new Date().getFullYear();
-                      router.push(
-                        `/receipts?month=${payload.monthIndex}&year=${year}`
-                      );
-                    }
+    <Card>
+      <CardHeader className="pb-2 sm:pb-6">
+        <CardTitle className="text-base sm:text-xl md:text-2xl font-bold">
+          Monthly Spending Trend
+        </CardTitle>
+        {averageAmount > 0 && hasMonthlyData && (
+          <p className="text-xs sm:text-sm text-muted-foreground">
+            6-month average: <span className="font-semibold text-cyan-600">{formatCurrency(averageAmount)}</span>
+          </p>
+        )}
+      </CardHeader>
+      <CardContent className="px-2 sm:px-6 pb-4 sm:pb-6">
+        {!hasMonthlyData ? (
+          <div className="text-center py-8 sm:py-12">
+            <TrendingUp className="w-10 h-10 sm:w-12 sm:h-12 text-slate-300 mx-auto mb-3" />
+            <p className="text-slate-600 text-xs sm:text-sm">No data for trend analysis</p>
+          </div>
+        ) : (
+          <ChartContainer config={monthlyChartConfig} className="h-[200px] sm:h-[240px] md:h-[280px] w-full">
+            <ComposedChart
+              data={dataWithAverage}
+              accessibilityLayer
+              margin={{ top: 10, right: 10, left: -15, bottom: 0 }}
+            >
+              <XAxis
+                dataKey="month"
+                tickLine={false}
+                tickMargin={8}
+                axisLine={false}
+                fontSize={10}
+                interval={0}
+                tick={{ fontSize: 10 }}
+              />
+              <YAxis
+                tickLine={false}
+                tickMargin={5}
+                axisLine={false}
+                width={45}
+                fontSize={10}
+                tick={{ fontSize: 10 }}
+                tickFormatter={(value) => formatCurrencyCompact(value)}
+              />
+              <ChartTooltip
+                cursor={{ fill: 'rgba(6, 182, 212, 0.1)' }}
+                content={
+                  <ChartTooltipContent
+                    formatter={(value, name) => (
+                      <div className="flex items-center gap-2">
+                        <span className="text-muted-foreground text-xs">
+                          {name === 'amount' ? 'Spending' : 'Avg'}:
+                        </span>
+                        <span className="font-semibold">
+                          {formatCurrency(Number(value) || 0)}
+                        </span>
+                      </div>
+                    )}
+                  />
+                }
+              />
+              {/* Average Reference Line */}
+              {averageAmount > 0 && (
+                <ReferenceLine
+                  y={averageAmount}
+                  stroke="#94A3B8"
+                  strokeDasharray="5 5"
+                  strokeWidth={2}
+                  label={{
+                    value: 'Avg',
+                    position: 'right',
+                    fill: '#94A3B8',
+                    fontSize: 10,
                   }}
-                  style={{ cursor: 'pointer' }}
                 />
-              </BarChart>
-            </ChartContainer>
-          )}
-        </CardContent>
-      </Card>
-
-      {/* Month Comparison */}
-      {hasComparisonData && (
-        <Card>
-          <CardHeader className="pb-2 sm:pb-6">
-            <CardTitle className="text-base sm:text-xl md:text-2xl font-bold">
-              This Month vs Last Month
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="px-2 sm:px-6 pb-4 sm:pb-6">
-            <ChartContainer config={comparisonChartConfig} className="h-[200px] sm:h-[220px] md:h-[250px] w-full">
-              <BarChart
-                data={comparisonData}
-                accessibilityLayer
-                margin={{ top: 5, right: 5, left: -15, bottom: 0 }}
-              >
-                <XAxis
-                  dataKey="month"
-                  tickLine={false}
-                  tickMargin={8}
-                  axisLine={false}
-                  fontSize={10}
-                  tick={{ fontSize: 10 }}
-                />
-                <YAxis
-                  tickLine={false}
-                  tickMargin={5}
-                  axisLine={false}
-                  width={45}
-                  fontSize={10}
-                  tick={{ fontSize: 10 }}
-                  tickFormatter={(value) => formatCurrencyCompact(value)}
-                />
-                <ChartTooltip
-                  content={
-                    <ChartTooltipContent
-                      formatter={(value) => formatCurrency(Number(value) || 0)}
-                    />
+              )}
+              {/* Bars */}
+              <Bar
+                dataKey="amount"
+                fill="var(--color-amount)"
+                radius={[4, 4, 0, 0]}
+                onClick={(data) => {
+                  const payload = data as unknown as {
+                    monthIndex?: number;
+                    year?: number;
+                  };
+                  if (payload && payload.monthIndex !== undefined) {
+                    const year = payload.year || new Date().getFullYear();
+                    router.push(
+                      `/receipts?month=${payload.monthIndex}&year=${year}`
+                    );
                   }
-                />
-                <ChartLegend
-                  content={<ChartLegendContent />}
-                  className="mt-2 flex-wrap justify-center gap-2 sm:gap-4 text-xs sm:text-sm"
-                />
-                <Bar
-                  dataKey="Last Month"
-                  fill="#F97316"
-                  radius={[4, 4, 0, 0]}
-                />
-                <Bar
-                  dataKey="This Month"
-                  fill="#06B6D4"
-                  radius={[4, 4, 0, 0]}
-                />
-              </BarChart>
-            </ChartContainer>
-          </CardContent>
-        </Card>
-      )}
-    </div>
+                }}
+                style={{ cursor: 'pointer' }}
+              />
+            </ComposedChart>
+          </ChartContainer>
+        )}
+      </CardContent>
+    </Card>
   );
 }

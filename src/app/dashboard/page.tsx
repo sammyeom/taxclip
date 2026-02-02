@@ -11,20 +11,23 @@ import { Receipt } from '@/types/database';
 import Navigation from '@/components/Navigation';
 import { TaxExportModal } from '@/components/export';
 import {
-  Loader2,
   Receipt as ReceiptIcon,
   Calendar,
   TrendingUp,
   Tag,
   Upload,
-  FileText,
   BarChart3,
   ChevronRight,
   Download,
   CheckCircle2,
   X,
-  Crown,
   Zap,
+  Search,
+  Settings,
+  Eye,
+  Edit3,
+  ArrowUpRight,
+  ArrowDownRight,
 } from 'lucide-react';
 import {
   ChartSkeleton,
@@ -35,7 +38,6 @@ import {
   InsightData,
 } from '@/components/dashboard';
 import dynamic from 'next/dynamic';
-import { getSubcategoryLabel } from '@/constants/irs-categories';
 
 // shadcn/ui components
 import { Button } from '@/components/ui/button';
@@ -86,32 +88,18 @@ const CATEGORIES: Record<string, string> = {
   other: 'Other',
 };
 
-const CATEGORY_VARIANTS: Record<string, 'default' | 'secondary' | 'destructive' | 'outline'> = {
-  advertising: 'default',
-  office_expense: 'secondary',
-  supplies: 'default',
-  meals: 'secondary',
-  travel: 'default',
-  utilities: 'secondary',
-  car_truck: 'default',
-  insurance: 'destructive',
-  legal_professional: 'secondary',
-  rent_lease: 'default',
-  repairs_maintenance: 'secondary',
-  other: 'outline',
-};
-
+// Cyan-focused color palette for charts
 const CHART_COLORS = [
-  '#06B6D4',
-  '#3B82F6',
-  '#10B981',
-  '#F59E0B',
-  '#EF4444',
-  '#8B5CF6',
-  '#EC4899',
-  '#F97316',
-  '#6366F1',
-  '#14B8A6',
+  '#06B6D4', // Cyan-500
+  '#0891B2', // Cyan-600
+  '#3B82F6', // Blue-500
+  '#2563EB', // Blue-600
+  '#10B981', // Emerald-500
+  '#059669', // Emerald-600
+  '#6B7280', // Gray-500
+  '#4B5563', // Gray-600
+  '#0E7490', // Cyan-700
+  '#0284C7', // Sky-600
 ];
 
 interface StatsData {
@@ -228,6 +216,93 @@ function StatCard({
   );
 }
 
+// Quick Action Card Component - 2x2 Grid Style
+function QuickActionCard({
+  icon: Icon,
+  title,
+  subtitle,
+  href,
+  onClick,
+}: {
+  icon: React.ElementType;
+  title: string;
+  subtitle: string;
+  href?: string;
+  onClick?: () => void;
+}) {
+  const content = (
+    <div className="group bg-white border border-gray-100 rounded-xl p-4 hover:bg-cyan-50 hover:border-cyan-200 transition-all cursor-pointer shadow-sm hover:shadow-md">
+      <div className="flex items-start gap-3">
+        <div className="p-2.5 bg-cyan-50 rounded-lg group-hover:bg-cyan-100 transition-colors">
+          <Icon className="w-5 h-5 text-cyan-600" />
+        </div>
+        <div className="flex-1 min-w-0">
+          <h4 className="font-semibold text-gray-900 text-sm group-hover:text-cyan-700 transition-colors">
+            {title}
+          </h4>
+          <p className="text-xs text-gray-500 mt-0.5 line-clamp-2">
+            {subtitle}
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+
+  if (onClick) {
+    return <button onClick={onClick} className="w-full text-left">{content}</button>;
+  }
+
+  return href ? <Link href={href}>{content}</Link> : content;
+}
+
+// Month Comparison Card Component
+function MonthComparisonCard({
+  thisMonth,
+  lastMonth,
+  percentChange,
+}: {
+  thisMonth: number;
+  lastMonth: number;
+  percentChange: number | null;
+}) {
+  const isUp = percentChange !== null && percentChange >= 0;
+
+  return (
+    <Card className="bg-white shadow-sm">
+      <CardHeader className="pb-2">
+        <CardTitle className="text-base font-bold flex items-center gap-2">
+          This Month vs Last
+          {percentChange !== null && (
+            <Badge
+              variant="outline"
+              className={`ml-auto text-xs ${isUp ? 'text-orange-600 border-orange-200 bg-orange-50' : 'text-green-600 border-green-200 bg-green-50'}`}
+            >
+              {isUp ? <ArrowUpRight className="w-3 h-3 mr-0.5" /> : <ArrowDownRight className="w-3 h-3 mr-0.5" />}
+              {isUp ? '+' : ''}{percentChange.toFixed(1)}%
+            </Badge>
+          )}
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-3">
+        <div className="flex justify-between items-center">
+          <span className="text-sm text-gray-600">This Month</span>
+          <span className="font-bold text-cyan-600 text-lg">{formatCurrency(thisMonth)}</span>
+        </div>
+        <div className="flex justify-between items-center">
+          <span className="text-sm text-gray-600">Last Month</span>
+          <span className="font-medium text-gray-500">{formatCurrency(lastMonth)}</span>
+        </div>
+        <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+          <div
+            className="h-full bg-gradient-to-r from-cyan-400 to-cyan-600 rounded-full transition-all"
+            style={{ width: `${Math.min((thisMonth / Math.max(lastMonth, thisMonth, 1)) * 100, 100)}%` }}
+          />
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
 // Checkout Success Banner Component
 function CheckoutSuccessBanner() {
   const searchParams = useSearchParams();
@@ -272,6 +347,7 @@ export default function DashboardPage() {
   const [stats, setStats] = useState<StatsData | null>(null);
   const [allReceipts, setAllReceipts] = useState<Receipt[]>([]);
   const [loading, setLoading] = useState(true);
+  const [hoveredReceiptId, setHoveredReceiptId] = useState<string | null>(null);
 
   // Tax Export Modal state
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
@@ -375,7 +451,7 @@ export default function DashboardPage() {
       .slice(0, 5);
   }, [allReceipts]);
 
-  // Monthly trend data (6 months)
+  // Monthly trend data (6 months) with average
   const monthlyData = useMemo((): MonthlyData[] => {
     const now = new Date();
     const data: MonthlyData[] = [];
@@ -396,6 +472,12 @@ export default function DashboardPage() {
     return data;
   }, [allReceipts]);
 
+  // Calculate average for trend chart
+  const monthlyAverage = useMemo(() => {
+    const total = monthlyData.reduce((sum, d) => sum + d.amount, 0);
+    return total / monthlyData.length;
+  }, [monthlyData]);
+
   // Month comparison data
   const comparisonData = useMemo((): MonthComparisonData[] => {
     const now = new Date();
@@ -415,7 +497,7 @@ export default function DashboardPage() {
     ];
   }, [lastMonthStats, currentMonthStats]);
 
-  // Category chart data
+  // Category chart data with Cyan-focused colors
   const categoryData = useMemo((): CategoryData[] => {
     if (!stats?.categoryTotals) return [];
     return Object.entries(stats.categoryTotals)
@@ -463,9 +545,9 @@ export default function DashboardPage() {
             ))}
           </div>
           <Skeleton className="h-32 rounded-xl mb-8" />
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <Skeleton className="h-96 rounded-xl" />
-            <Skeleton className="h-96 rounded-xl" />
+          <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+            <Skeleton className="lg:col-span-3 h-96 rounded-xl" />
+            <Skeleton className="lg:col-span-2 h-96 rounded-xl" />
           </div>
         </main>
       </div>
@@ -525,12 +607,12 @@ export default function DashboardPage() {
             </div>
             {monthlyCount >= 5 && monthlyLimit !== Infinity && (
               <p className="text-sm text-slate-600 mt-3">
-                {monthlyCount === 5 && "You're halfway there! 📈 5 receipts organized, 5 more to go. You're doing great on your tax prep!"}
-                {monthlyCount === 6 && "Keep the momentum! 🚀 Each scan is a step toward a stress-free tax season. You have 4 free slots left."}
-                {monthlyCount === 7 && "TaxClip is working for you! 🛠️ 7 expenses captured. Thinking of going bigger? Pro offers unlimited peace of mind."}
-                {monthlyCount === 8 && "Almost at the limit! ⚡ Just 2 scans left. Upgrade to Pro for less than the cost of two coffees ($9.99) and never stop."}
-                {monthlyCount === 9 && "Final countdown! 🏁 Only 1 scan left. Don't let your bookkeeping pause here. Go Pro and keep winning."}
-                {monthlyCount >= 10 && "Free limit reached. ✅ Unlock unlimited scans. Secure your tax savings for the whole year and save 20% today!"}
+                {monthlyCount === 5 && "You're halfway there! 5 receipts organized, 5 more to go. You're doing great on your tax prep!"}
+                {monthlyCount === 6 && "Keep the momentum! Each scan is a step toward a stress-free tax season. You have 4 free slots left."}
+                {monthlyCount === 7 && "TaxClip is working for you! 7 expenses captured. Thinking of going bigger? Pro offers unlimited peace of mind."}
+                {monthlyCount === 8 && "Almost at the limit! Just 2 scans left. Upgrade to Pro for less than the cost of two coffees ($9.99) and never stop."}
+                {monthlyCount === 9 && "Final countdown! Only 1 scan left. Don't let your bookkeeping pause here. Go Pro and keep winning."}
+                {monthlyCount >= 10 && "Free limit reached. Unlock unlimited scans. Secure your tax savings for the whole year and save 20% today!"}
               </p>
             )}
           </div>
@@ -585,11 +667,11 @@ export default function DashboardPage() {
           </div>
         </Link>
 
-        {/* Two-column layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-          {/* Left Column */}
-          <div className="space-y-6">
-            {/* Recent Receipts */}
+        {/* Two-column layout: 60% Left / 40% Right */}
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 mb-8">
+          {/* Left Column - 60% (3/5) */}
+          <div className="lg:col-span-3 space-y-6">
+            {/* Recent Receipts - Improved */}
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
                 <CardTitle className="text-xl font-bold">Recent Receipts</CardTitle>
@@ -608,93 +690,135 @@ export default function DashboardPage() {
                 ) : (
                   <div className="space-y-2">
                     {recentReceipts.map((receipt) => (
-                      <Link key={receipt.id} href={`/receipts/${receipt.id}`}>
-                        <div className="flex items-center gap-3 p-2 rounded-lg hover:bg-muted transition-colors border">
-                          <div className="w-10 h-10 bg-muted rounded-lg flex-shrink-0 overflow-hidden flex items-center justify-center relative">
-                            {receipt.image_url ? (
-                              <Image
-                                src={receipt.image_url}
-                                alt=""
-                                fill
-                                sizes="40px"
-                                className="object-cover"
-                              />
-                            ) : (
-                              <ReceiptIcon className="w-5 h-5 text-muted-foreground" />
-                            )}
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center justify-between">
-                              <p className="font-semibold text-sm truncate">
-                                {receipt.merchant}
-                              </p>
-                              <p className="text-green-600 font-bold text-sm ml-2">
-                                {formatCurrency(getReceiptTotal(receipt))}
-                              </p>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <p className="text-xs text-muted-foreground">{formatDate(receipt.date)}</p>
-                              <Badge
-                                variant={CATEGORY_VARIANTS[receipt.category] || 'outline'}
-                                className="hidden sm:inline-flex text-xs"
-                              >
-                                {CATEGORIES[receipt.category] || receipt.category}
-                              </Badge>
-                              {receipt.subcategory && (
-                                <span className="text-xs text-muted-foreground hidden sm:inline-block">
-                                  - {getSubcategoryLabel(receipt.category, receipt.subcategory)}
-                                </span>
+                      <div
+                        key={receipt.id}
+                        className="relative"
+                        onMouseEnter={() => setHoveredReceiptId(receipt.id)}
+                        onMouseLeave={() => setHoveredReceiptId(null)}
+                      >
+                        <Link href={`/receipts/${receipt.id}`}>
+                          <div className="flex items-center gap-3 p-3 rounded-lg hover:bg-cyan-50 transition-colors border border-gray-100 hover:border-cyan-200">
+                            {/* Thumbnail */}
+                            <div className="w-12 h-12 bg-gray-100 rounded-lg flex-shrink-0 overflow-hidden flex items-center justify-center relative">
+                              {receipt.image_url ? (
+                                <Image
+                                  src={receipt.image_url}
+                                  alt=""
+                                  fill
+                                  sizes="48px"
+                                  className="object-cover"
+                                />
+                              ) : (
+                                <ReceiptIcon className="w-6 h-6 text-gray-400" />
                               )}
                             </div>
+                            {/* Content */}
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center justify-between">
+                                <p className="font-semibold text-sm truncate text-gray-900">
+                                  {receipt.merchant}
+                                </p>
+                                <p className="text-cyan-600 font-bold text-sm ml-2">
+                                  {formatCurrency(getReceiptTotal(receipt))}
+                                </p>
+                              </div>
+                              <div className="flex items-center gap-2 mt-1">
+                                <p className="text-xs text-gray-500">{formatDate(receipt.date)}</p>
+                                <span className="text-gray-300">|</span>
+                                <Badge
+                                  variant="outline"
+                                  className="text-xs text-gray-500 border-gray-200"
+                                >
+                                  {CATEGORIES[receipt.category] || receipt.category}
+                                </Badge>
+                              </div>
+                            </div>
+                            {/* Hover Action Buttons */}
+                            {hoveredReceiptId === receipt.id && (
+                              <div className="hidden sm:flex items-center gap-1 absolute right-3">
+                                <Link href={`/receipts/${receipt.id}`} onClick={(e) => e.stopPropagation()}>
+                                  <Button size="sm" variant="outline" className="h-8 px-2 bg-white hover:bg-cyan-50 border-cyan-200">
+                                    <Eye className="w-3.5 h-3.5 mr-1" />
+                                    View
+                                  </Button>
+                                </Link>
+                                <Link href={`/receipts/${receipt.id}/edit`} onClick={(e) => e.stopPropagation()}>
+                                  <Button size="sm" variant="outline" className="h-8 px-2 bg-white hover:bg-cyan-50 border-cyan-200">
+                                    <Edit3 className="w-3.5 h-3.5 mr-1" />
+                                    Edit
+                                  </Button>
+                                </Link>
+                              </div>
+                            )}
                           </div>
-                        </div>
-                      </Link>
+                        </Link>
+                      </div>
                     ))}
                   </div>
                 )}
               </CardContent>
             </Card>
 
-            {/* Quick Actions */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-xl font-bold">Quick Actions</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-2">
-                <Button className="w-full bg-cyan-500 hover:bg-cyan-600 text-white" asChild>
-                  <Link href="/upload">
-                    <Upload className="w-4 h-4 mr-2" /> Upload Receipt
-                  </Link>
-                </Button>
-                <Button
-                  variant="default"
-                  className="w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700"
-                  onClick={() => setIsExportModalOpen(true)}
-                >
-                  <Download className="w-4 h-4 mr-2" /> Export for Tax Filing
-                </Button>
-                <Button variant="secondary" className="w-full" asChild>
-                  <Link href="/receipts">
-                    <FileText className="w-4 h-4 mr-2" /> View All Receipts
-                  </Link>
-                </Button>
-                <Button variant="secondary" className="w-full" asChild>
-                  <Link href="/reports">
-                    <BarChart3 className="w-4 h-4 mr-2" /> Generate Report
-                  </Link>
-                </Button>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Right Column - Charts with Suspense for progressive loading */}
-          <div className="space-y-6">
+            {/* Monthly Spending Trend with Average Line */}
             <Suspense fallback={<ChartSkeleton height={300} />}>
-              <DynamicSpendingTrendChart monthlyData={monthlyData} comparisonData={comparisonData} />
+              <DynamicSpendingTrendChart
+                monthlyData={monthlyData}
+                comparisonData={comparisonData}
+                averageAmount={monthlyAverage}
+              />
             </Suspense>
+
+            {/* Spending by Category */}
             <Suspense fallback={<ChartSkeleton height={300} />}>
               <DynamicCategoryPieChart data={categoryData} totalAmount={stats?.totalAmount || 0} />
             </Suspense>
+          </div>
+
+          {/* Right Column - 40% (2/5) */}
+          <div className="lg:col-span-2 space-y-6">
+            {/* Quick Actions - 2x2 Grid (No Upload) */}
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-lg font-bold">Quick Actions</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-2 gap-3">
+                  <QuickActionCard
+                    icon={Download}
+                    title="Export"
+                    subtitle="Download for tax filing"
+                    onClick={() => setIsExportModalOpen(true)}
+                  />
+                  <QuickActionCard
+                    icon={BarChart3}
+                    title="Reports"
+                    subtitle="View spending analytics"
+                    href="/reports"
+                  />
+                  <QuickActionCard
+                    icon={Search}
+                    title="Search"
+                    subtitle="Find any receipt"
+                    href="/receipts"
+                  />
+                  <QuickActionCard
+                    icon={Settings}
+                    title="Settings"
+                    subtitle="Account preferences"
+                    href="/settings"
+                  />
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* This Month vs Last Month */}
+            <MonthComparisonCard
+              thisMonth={currentMonthStats.total}
+              lastMonth={lastMonthStats.total}
+              percentChange={monthComparison}
+            />
+
+            {/* Insights - Reordered */}
             <Suspense fallback={<InsightSkeleton />}>
               <DynamicInsightSection data={insightData} />
             </Suspense>

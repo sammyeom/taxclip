@@ -100,7 +100,7 @@ export default function Home() {
                 Pricing
               </a>
               <SignInButton />
-              <Link href="/upload" className="gradient-btn text-white px-6 py-2 rounded-lg font-semibold shadow-md flex items-center gap-2">
+              <Link href="/sign-up" className="gradient-btn text-white px-6 py-2 rounded-lg font-semibold shadow-md flex items-center gap-2">
                 <Upload className="w-4 h-4" />
                 Upload Receipt
               </Link>
@@ -134,7 +134,7 @@ export default function Home() {
                   Pricing
                 </a>
                 <SignInButton />
-                <Link href="/upload" className="gradient-btn text-white px-6 py-2 rounded-lg font-semibold shadow-md flex items-center gap-2 justify-center">
+                <Link href="/sign-up" className="gradient-btn text-white px-6 py-2 rounded-lg font-semibold shadow-md flex items-center gap-2 justify-center">
                   <Upload className="w-4 h-4" />
                   Upload Receipt
                 </Link>

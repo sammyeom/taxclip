@@ -561,7 +561,7 @@ export default function SplitView({
 
             {/* Multi-image notice */}
             {images.length > 1 && (
-              <div className="mt-4 p-3 bg-cyan-50 border border-cyan-200 rounded-lg text-sm text-cyan-700">
+              <div className="mt-4 p-3 bg-cyan-50 border border-cyan-200 rounded-lg text-sm text-cyan-600">
                 <p className="font-medium">Multi-Page Receipt</p>
                 <p className="text-xs mt-1 text-cyan-600">
                   Data extracted from {images.length} images. Use arrow keys or thumbnails to navigate.

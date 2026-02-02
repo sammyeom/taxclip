@@ -118,7 +118,7 @@ export default function UploadZone({
           </>
         ) : isDragActive ? (
           <>
-            <p className="text-cyan-700 mb-2 font-semibold text-base sm:text-lg">
+            <p className="text-cyan-600 mb-2 font-semibold text-base sm:text-lg">
               Drop your files here
             </p>
             <p className="text-cyan-600 text-xs sm:text-sm">

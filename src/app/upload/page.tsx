@@ -1676,7 +1676,7 @@ export default function UploadPage() {
                   className={`
                     flex items-center justify-center gap-2 px-3 sm:px-4 py-2 rounded-lg text-sm sm:text-base font-medium transition-colors
                     ${multiSelectMode
-                      ? 'bg-cyan-100 text-cyan-700 border border-cyan-300'
+                      ? 'bg-cyan-100 text-cyan-600 border border-cyan-300'
                       : 'bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-300'
                     }
                   `}
@@ -1808,7 +1808,7 @@ export default function UploadPage() {
                     onClick={() => setShowSplitView(true)}
                     className={`flex-1 sm:flex-none flex items-center justify-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition-colors ${
                       showSplitView
-                        ? 'bg-cyan-100 text-cyan-700'
+                        ? 'bg-cyan-100 text-cyan-600'
                         : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                     }`}
                   >
@@ -1819,7 +1819,7 @@ export default function UploadPage() {
                     onClick={() => setShowSplitView(false)}
                     className={`flex-1 sm:flex-none flex items-center justify-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition-colors ${
                       !showSplitView
-                        ? 'bg-cyan-100 text-cyan-700'
+                        ? 'bg-cyan-100 text-cyan-600'
                         : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                     }`}
                   >
@@ -1943,7 +1943,7 @@ export default function UploadPage() {
                               .reduce((sum, item) => sum + item.amount, 0);
                             handleFormChange('subtotal', itemsTotal.toFixed(2));
                           }}
-                          className="text-[9px] sm:text-[10px] px-1 sm:px-1.5 py-0.5 bg-cyan-100 hover:bg-cyan-200 text-cyan-700 rounded transition-colors shrink-0"
+                          className="text-[9px] sm:text-[10px] px-1 sm:px-1.5 py-0.5 bg-cyan-100 hover:bg-cyan-200 text-cyan-600 rounded transition-colors shrink-0"
                           title="Calculate from line items"
                         >
                           Auto
@@ -2094,7 +2094,7 @@ export default function UploadPage() {
                         <button
                           type="button"
                           onClick={() => handleFormChange('amount', selectedItemsTotal.toFixed(2))}
-                          className="px-2 py-1 text-xs bg-cyan-100 hover:bg-cyan-200 text-cyan-700 rounded transition-colors whitespace-nowrap"
+                          className="px-2 py-1 text-xs bg-cyan-100 hover:bg-cyan-200 text-cyan-600 rounded transition-colors whitespace-nowrap"
                           title="Apply to Amount field"
                         >
                           Apply

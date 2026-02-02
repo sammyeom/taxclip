@@ -197,7 +197,7 @@ function ResultsDisplay() {
       >
         <div className="flex items-center gap-2">
           <Sparkles className="w-4 h-4 text-cyan-600" />
-          <span className="text-sm font-semibold text-cyan-700">100% Auto-categorized</span>
+          <span className="text-sm font-semibold text-cyan-600">100% Auto-categorized</span>
         </div>
         <Progress value={100} className="h-1.5 mt-2" />
       </motion.div>
@@ -241,7 +241,7 @@ export default function FiveMinRitual() {
                 className="p-6 sm:p-8 border-b lg:border-b-0 lg:border-r border-slate-100"
               >
                 <div className="flex items-center gap-2 mb-4">
-                  <Badge variant="secondary" className="bg-cyan-100 text-cyan-700 border-cyan-200">
+                  <Badge variant="secondary" className="bg-cyan-100 text-cyan-600 border-cyan-200">
                     Step 1
                   </Badge>
                   <span className="text-sm font-semibold text-slate-900">Snap</span>

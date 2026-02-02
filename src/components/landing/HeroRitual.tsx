@@ -219,7 +219,7 @@ export default function HeroRitual() {
           <Badge
             variant="secondary"
             className={`mb-2 text-xs sm:text-sm ${
-              phase === 'snap' ? 'bg-cyan-100 text-cyan-700' : 'bg-slate-100 text-slate-500'
+              phase === 'snap' ? 'bg-cyan-100 text-cyan-600' : 'bg-slate-100 text-slate-500'
             }`}
           >
             Snap

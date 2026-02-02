@@ -62,7 +62,7 @@ export default function RefundPolicyPage() {
               <div className="space-y-4">
                 <Alert className="bg-cyan-50 border-cyan-200">
                   <AlertTitle className="text-cyan-800 font-medium">14-Day Money-Back Guarantee</AlertTitle>
-                  <AlertDescription className="text-cyan-700">
+                  <AlertDescription className="text-cyan-600">
                     If you are a new subscriber and are not satisfied with TaxClip, you may request a full refund within 14 days of your initial purchase.
                   </AlertDescription>
                 </Alert>

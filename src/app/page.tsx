@@ -156,7 +156,7 @@ export default function Home() {
                 transition={{ duration: 0.6 }}
               >
                 {/* AI-Powered badge */}
-                <div className="inline-flex items-center gap-2 bg-gradient-to-r from-cyan-100 to-sky-100 text-cyan-700 px-4 py-2 rounded-full text-sm font-semibold mb-4 border border-cyan-200">
+                <div className="inline-flex items-center gap-2 bg-gradient-to-r from-cyan-100 to-sky-100 text-cyan-600 px-4 py-2 rounded-full text-sm font-semibold mb-4 border border-cyan-200">
                   <Sparkles className="w-4 h-4" />
                   <span>AI-Powered Receipt Management</span>
                 </div>
@@ -188,7 +188,7 @@ export default function Home() {
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                     onClick={() => setDemoModalOpen(true)}
-                    className="border-2 border-cyan-400 hover:border-cyan-500 text-cyan-700 hover:bg-cyan-50 px-8 py-4 rounded-lg font-semibold text-lg transition-colors"
+                    className="border-2 border-cyan-400 hover:border-cyan-500 text-cyan-600 hover:bg-cyan-50 px-8 py-4 rounded-lg font-semibold text-lg transition-colors"
                   >
                     Watch Demo
                   </motion.button>
@@ -736,7 +736,7 @@ export default function Home() {
                 }}
               >
                 {/* Start with 7-day free trial badge */}
-                <div className="bg-cyan-50 text-cyan-700 px-4 py-2 rounded-lg border border-cyan-200 mb-4 text-center">
+                <div className="bg-cyan-50 text-cyan-600 px-4 py-2 rounded-lg border border-cyan-200 mb-4 text-center">
                   <p className="text-sm font-semibold">Start with a 7-day free trial</p>
                 </div>
 

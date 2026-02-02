@@ -259,7 +259,7 @@ export default function TaxExportModal({
           {/* PDF Progress */}
           {pdfStatus === 'loading' && (
             <div className="bg-cyan-50 rounded-lg p-3 sm:p-4 space-y-2">
-              <div className="flex items-center justify-between text-xs sm:text-sm text-cyan-700">
+              <div className="flex items-center justify-between text-xs sm:text-sm text-cyan-600">
                 <span>{pdfMessage}</span>
                 <span className="font-semibold">{pdfProgress}%</span>
               </div>

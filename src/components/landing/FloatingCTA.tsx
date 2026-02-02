@@ -43,7 +43,7 @@ export default function FloatingCTA() {
       {/* Floating CTA Button */}
       <Button
         onClick={handleClick}
-        className="rounded-full bg-cyan-500 hover:bg-cyan-600 text-white shadow-xl hover:shadow-2xl transition-all duration-300 h-12 px-5 sm:h-14 sm:px-6 text-sm sm:text-base font-semibold"
+        className="rounded-full bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white shadow-xl hover:shadow-2xl transition-all duration-300 h-12 px-5 sm:h-14 sm:px-6 text-sm sm:text-base font-semibold"
       >
         <Camera className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
         Start Scanning Free

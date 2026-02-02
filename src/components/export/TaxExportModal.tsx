@@ -195,7 +195,15 @@ export default function TaxExportModal({
               </span>
               {receipts.length > 0 && (
                 <span className="font-semibold text-green-600">
-                  ${receipts.reduce((sum, r) => sum + (r.subtotal || r.total || 0), 0).toFixed(2)}
+                  ${receipts.reduce((sum, r) => {
+                    const subtotal = r.subtotal ?? 0;
+                    const tax = r.tax ?? 0;
+                    const tip = r.tip ?? 0;
+                    if (subtotal > 0 || tax > 0 || tip > 0) {
+                      return sum + subtotal + tax + tip;
+                    }
+                    return sum + (r.total ?? 0);
+                  }, 0).toFixed(2)}
                 </span>
               )}
             </div>

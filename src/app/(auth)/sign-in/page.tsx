@@ -4,42 +4,12 @@ import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Mail, Lock, Loader2, AlertCircle, Fingerprint } from 'lucide-react';
+import { Mail, Lock, Loader2, AlertCircle } from 'lucide-react';
 import { signInWithEmail, signInWithGoogle } from '@/lib/supabase';
 import { useAuth } from '@/hooks/useAuth';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
-
-// Type declarations for Credential Management API
-declare global {
-  interface PasswordCredentialData {
-    id: string;
-    password: string;
-    name?: string;
-  }
-
-  interface PasswordCredential extends Credential {
-    password: string;
-    name: string;
-    iconURL: string;
-  }
-
-  interface PasswordCredentialConstructor {
-    new (data: PasswordCredentialData): PasswordCredential;
-  }
-
-  interface Window {
-    PasswordCredential?: PasswordCredentialConstructor;
-  }
-
-  interface CredentialRequestOptions {
-    password?: boolean;
-  }
-
-  // eslint-disable-next-line no-var
-  var PasswordCredential: PasswordCredentialConstructor | undefined;
-}
 
 function SignInForm() {
   const router = useRouter();
@@ -50,29 +20,15 @@ function SignInForm() {
   const [rememberEmail, setRememberEmail] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [biometricSupported, setBiometricSupported] = useState(false);
-  const [biometricLoading, setBiometricLoading] = useState(false);
 
   const redirectTo = searchParams.get('redirect');
 
-  // Load remembered email and check biometric support
+  // Load remembered email
   useEffect(() => {
-    // Load remembered email
     const savedEmail = localStorage.getItem('remembered_email');
     if (savedEmail) {
       setEmail(savedEmail);
       setRememberEmail(true);
-    }
-
-    // Check if biometric/passkey is supported
-    if (window.PublicKeyCredential) {
-      PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable()
-        .then((available) => {
-          setBiometricSupported(available);
-        })
-        .catch(() => {
-          setBiometricSupported(false);
-        });
     }
   }, []);
 
@@ -107,59 +63,10 @@ function SignInForm() {
       localStorage.removeItem('remembered_email');
     }
 
-    // Store credentials for biometric login (if supported)
-    if (biometricSupported && 'PasswordCredential' in window && window.PasswordCredential) {
-      try {
-        const credential = new window.PasswordCredential({
-          id: email,
-          password: password,
-          name: email,
-        });
-        await navigator.credentials.store(credential);
-      } catch {
-        // Credential storage failed, continue anyway
-      }
-    }
-
     if (redirectTo === 'checkout') {
       router.push('/#pricing');
     } else {
       router.push('/upload');
-    }
-  };
-
-  // Biometric/Quick login using stored credentials
-  const handleBiometricLogin = async () => {
-    setBiometricLoading(true);
-    setError(null);
-
-    try {
-      const credential = await navigator.credentials.get({
-        password: true,
-        mediation: 'optional',
-      }) as PasswordCredential | null;
-
-      if (credential && credential.password) {
-        const { error: signInError } = await signInWithEmail(credential.id, credential.password);
-
-        if (signInError) {
-          setError('Biometric login failed. Please sign in with email.');
-          setBiometricLoading(false);
-          return;
-        }
-
-        if (redirectTo === 'checkout') {
-          router.push('/#pricing');
-        } else {
-          router.push('/upload');
-        }
-      } else {
-        setError('No saved credentials found. Please sign in with email first.');
-        setBiometricLoading(false);
-      }
-    } catch {
-      setError('Biometric login failed. Please sign in with email.');
-      setBiometricLoading(false);
     }
   };
 
@@ -252,33 +159,6 @@ function SignInForm() {
               <span className="px-4 bg-white text-slate-500">Or continue with email</span>
             </div>
           </div>
-
-          {/* Biometric Login Button */}
-          {biometricSupported && (
-            <>
-              <Button
-                variant="outline"
-                onClick={handleBiometricLogin}
-                disabled={biometricLoading || loading}
-                className="w-full h-12 mb-4 border-cyan-200 hover:bg-cyan-50"
-              >
-                {biometricLoading ? (
-                  <Loader2 className="w-5 h-5 animate-spin mr-2" />
-                ) : (
-                  <Fingerprint className="w-5 h-5 mr-2 text-cyan-600" />
-                )}
-                Quick Login with Biometrics
-              </Button>
-              <div className="relative mb-6">
-                <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-slate-200"></div>
-                </div>
-                <div className="relative flex justify-center text-sm">
-                  <span className="px-4 bg-white text-slate-400">or</span>
-                </div>
-              </div>
-            </>
-          )}
 
           {/* Email Sign In Form */}
           <form onSubmit={handleEmailSignIn} className="space-y-3 sm:space-y-4">

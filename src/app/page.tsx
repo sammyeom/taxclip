@@ -35,6 +35,7 @@ import { useSubscription } from '@/hooks/useSubscription';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
 import HeroRitual from '@/components/landing/HeroRitual';
+import FloatingCTA from '@/components/landing/FloatingCTA';
 
 export default function Home() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -77,6 +78,9 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-white">
+      {/* Floating CTA Button */}
+      <FloatingCTA />
+
       {/* 1. NAVIGATION BAR (sticky) */}
       <nav className="sticky top-0 z-50 bg-white/95 backdrop-blur-sm border-b border-slate-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

@@ -230,16 +230,16 @@ export default function HeroRitual() {
         animate={{ opacity: 1, y: 0 }}
         className="mb-6 sm:mb-8"
       >
-        <div className="flex items-center justify-between mb-1">
+        <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-2">
-            <Zap className="w-5 h-5 text-cyan-500" />
-            <span className="text-base sm:text-lg font-bold text-cyan-600">Done in 5 mins</span>
+            <Zap className="w-6 h-6 text-cyan-500" />
+            <span className="text-xl sm:text-2xl font-bold text-cyan-600">Done in 5 mins</span>
           </div>
-          <div className="w-24 sm:w-32">
-            <Progress value={headerProgress} className="h-2 bg-cyan-100 [&>div]:bg-cyan-500" />
+          <div className="w-28 sm:w-36">
+            <Progress value={headerProgress} className="h-2.5 bg-cyan-100 [&>div]:bg-cyan-500" />
           </div>
         </div>
-        <p className="text-xs sm:text-sm text-slate-500 ml-7">Your weekly bookkeeping sprint</p>
+        <p className="text-sm sm:text-base text-slate-500 ml-8">Your weekly bookkeeping sprint</p>
       </motion.div>
 
       {/* Steps container */}
@@ -252,10 +252,10 @@ export default function HeroRitual() {
               ? 'border-cyan-200 bg-white'
               : 'border-slate-100 bg-slate-50'
         }`}>
-          <div className={`text-xs font-bold mb-1.5 ${
+          <div className={`text-sm sm:text-base font-bold mb-1.5 ${
             getStepState(1) === 'active' ? 'text-cyan-600' : 'text-slate-400'
           }`}>Step 1</div>
-          <div className={`text-sm font-semibold mb-2 ${
+          <div className={`text-base sm:text-lg font-semibold mb-2 ${
             getStepState(1) === 'active' ? 'text-cyan-600' : 'text-slate-600'
           }`}>Snap</div>
           <div className="flex justify-center">
@@ -277,10 +277,10 @@ export default function HeroRitual() {
               ? 'border-cyan-200 bg-white'
               : 'border-slate-100 bg-slate-50'
         }`}>
-          <div className={`text-xs font-bold mb-1.5 ${
+          <div className={`text-sm sm:text-base font-bold mb-1.5 ${
             getStepState(2) === 'active' ? 'text-cyan-600' : 'text-slate-400'
           }`}>Step 2</div>
-          <div className={`text-sm font-semibold mb-2 ${
+          <div className={`text-base sm:text-lg font-semibold mb-2 ${
             getStepState(2) === 'active' ? 'text-cyan-600' : 'text-slate-600'
           }`}>Auto-Sort</div>
           <div className="flex justify-center">
@@ -307,14 +307,14 @@ export default function HeroRitual() {
               ? 'border-green-200 bg-green-50'
               : 'border-slate-100 bg-slate-50'
         }`}>
-          <div className={`text-xs font-bold mb-1.5 ${
+          <div className={`text-sm sm:text-base font-bold mb-1.5 ${
             getStepState(3) === 'active'
               ? 'text-cyan-600'
               : getStepState(3) === 'complete'
                 ? 'text-green-600'
                 : 'text-slate-400'
           }`}>{getStepState(3) === 'active' ? 'Processing...' : 'Step 3'}</div>
-          <div className={`text-sm font-semibold mb-2 ${
+          <div className={`text-base sm:text-lg font-semibold mb-2 ${
             getStepState(3) === 'active'
               ? 'text-cyan-600'
               : getStepState(3) === 'complete'

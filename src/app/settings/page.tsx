@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import { useSubscription } from '@/hooks/useSubscription';
 import { useUsageLimit } from '@/hooks/useUsageLimit';
-import { getReceipts, deleteReceipt, getUserSettings, updateUserSettings, resetUserSettings, resetPasswordForEmail } from '@/lib/supabase';
+import { getReceipts, deleteReceipt, getUserSettings, updateUserSettings, resetUserSettings } from '@/lib/supabase';
 import { getReceiptImages, Receipt } from '@/types/database';
 import Navigation from '@/components/Navigation';
 import JSZip from 'jszip';
@@ -30,15 +30,11 @@ import {
   ExternalLink,
   Check,
   Sparkles,
-  User,
-  Mail,
-  Key,
   Target,
   Sun,
   Moon,
   Monitor,
   Palette,
-  MessageCircle,
 } from 'lucide-react';
 import {
   Select,
@@ -160,12 +156,6 @@ function SettingsContent({ defaultTab }: { defaultTab: string }) {
   const [error, setError] = useState<string | null>(null);
 
   // Profile state
-  const [displayName, setDisplayName] = useState('');
-  const [savedDisplayName, setSavedDisplayName] = useState('');
-  const [businessName, setBusinessName] = useState('');
-  const [savedBusinessName, setSavedBusinessName] = useState('');
-  const [sendingPasswordReset, setSendingPasswordReset] = useState(false);
-  const [passwordResetDialog, setPasswordResetDialog] = useState(false);
 
   // Preferences state
   const [receiptGoal, setReceiptGoal] = useState<number | null>(null);
@@ -229,14 +219,6 @@ function SettingsContent({ defaultTab }: { defaultTab: string }) {
 
       setSettings(mappedSettings);
 
-      // Load display name and business name
-      const loadedDisplayName = data.display_name || user?.email?.split('@')[0] || '';
-      setDisplayName(loadedDisplayName);
-      setSavedDisplayName(loadedDisplayName);
-      const loadedBusinessName = data.business_name || '';
-      setBusinessName(loadedBusinessName);
-      setSavedBusinessName(loadedBusinessName);
-
       // Load receipt goal and theme mode
       setReceiptGoal(data.receipt_goal || null);
       const savedTheme = data.theme_mode || 'auto';
@@ -275,8 +257,6 @@ function SettingsContent({ defaultTab }: { defaultTab: string }) {
         mileage_tracking: settingsToSave.mileageTracking,
         mileage_rate: settingsToSave.mileageRate,
         data_retention_years: settingsToSave.dataRetention,
-        display_name: displayName.trim() || null,
-        business_name: businessName.trim() || null,
         receipt_goal: receiptGoal,
         theme_mode: themeMode,
       };
@@ -285,10 +265,6 @@ function SettingsContent({ defaultTab }: { defaultTab: string }) {
 
       if (updateError) throw updateError;
 
-      // Update saved display name
-      setSavedDisplayName(displayName.trim());
-      setSavedBusinessName(businessName.trim());
-
       setShowSuccess(true);
       setTimeout(() => setShowSuccess(false), 3000);
     } catch (err) {
@@ -296,27 +272,6 @@ function SettingsContent({ defaultTab }: { defaultTab: string }) {
       setError(err instanceof Error ? err.message : 'Failed to save settings');
     } finally {
       setSaving(false);
-    }
-  };
-
-  // Handle password reset
-  const handleSendPasswordReset = async () => {
-    if (!user?.email) return;
-
-    setSendingPasswordReset(true);
-    try {
-      const { error } = await resetPasswordForEmail(user.email);
-      if (error) {
-        setError(error.message || 'Failed to send password reset email');
-      } else {
-        setPasswordResetDialog(false);
-        setShowSuccess(true);
-        setTimeout(() => setShowSuccess(false), 5000);
-      }
-    } catch (err) {
-      setError('Failed to send password reset email');
-    } finally {
-      setSendingPasswordReset(false);
     }
   };
 
@@ -636,95 +591,6 @@ For tax filing assistance, please consult a qualified tax professional.
             <AlertDescription>{error}</AlertDescription>
           </Alert>
         )}
-
-        {/* Profile Section */}
-        <Card className="mb-4 sm:mb-6">
-          <CardHeader className="pb-3 sm:pb-6">
-            <CardTitle className="flex items-center gap-2 sm:gap-3 text-lg sm:text-xl">
-              <User className="w-5 h-5 sm:w-6 sm:h-6 text-cyan-600" />
-              Profile
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-0 divide-y divide-border">
-            {/* Display Name */}
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between py-3 sm:py-4 gap-2">
-              <div className="flex-1">
-                <Label className="text-sm font-semibold">Display Name</Label>
-                <p className="text-xs text-muted-foreground mt-0.5">Your name shown in the app</p>
-              </div>
-              <Input
-                value={displayName}
-                onChange={(e) => setDisplayName(e.target.value)}
-                placeholder="Enter your name"
-                className="w-full sm:w-48 lg:w-64 h-9 sm:h-10"
-              />
-            </div>
-
-            {/* Business Name */}
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between py-3 sm:py-4 gap-2">
-              <div className="flex-1">
-                <Label className="text-sm font-semibold">Business Name</Label>
-                <p className="text-xs text-muted-foreground mt-0.5">Shown on reports and exports (optional)</p>
-              </div>
-              <Input
-                value={businessName}
-                onChange={(e) => setBusinessName(e.target.value)}
-                placeholder="Enter your business name"
-                className="w-full sm:w-48 lg:w-64 h-9 sm:h-10"
-              />
-            </div>
-
-            {/* Email (Read Only) */}
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between py-3 sm:py-4 gap-2">
-              <div className="flex-1">
-                <Label className="text-sm font-semibold flex items-center gap-2">
-                  <Mail className="w-4 h-4 text-slate-400" />
-                  Email
-                </Label>
-                <p className="text-xs text-muted-foreground mt-0.5">Email cannot be changed</p>
-              </div>
-              <div className="w-full sm:w-48 lg:w-64 h-9 sm:h-10 px-3 flex items-center bg-slate-100 rounded-md text-slate-500 text-sm">
-                {user?.email || 'No email'}
-              </div>
-            </div>
-
-            {/* Change Password */}
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between py-3 sm:py-4 gap-2">
-              <div className="flex-1">
-                <Label className="text-sm font-semibold flex items-center gap-2">
-                  <Key className="w-4 h-4 text-slate-400" />
-                  Password
-                </Label>
-                <p className="text-xs text-muted-foreground mt-0.5">Send a password reset link to your email</p>
-              </div>
-              <Button
-                variant="outline"
-                onClick={() => setPasswordResetDialog(true)}
-                className="w-full sm:w-auto"
-              >
-                Change Password
-              </Button>
-            </div>
-
-            {/* Contact Support */}
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between py-3 sm:py-4 gap-2">
-              <div className="flex-1">
-                <Label className="text-sm font-semibold flex items-center gap-2">
-                  <MessageCircle className="w-4 h-4 text-slate-400" />
-                  Contact Support
-                </Label>
-                <p className="text-xs text-muted-foreground mt-0.5">Get help or send feedback</p>
-              </div>
-              <Button
-                variant="outline"
-                onClick={() => router.push('/contact')}
-                className="w-full sm:w-auto"
-              >
-                Contact Us
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
 
         {/* Preferences Section */}
         <Card className="mb-4 sm:mb-6">
@@ -1741,41 +1607,6 @@ For tax filing assistance, please consult a qualified tax professional.
         </AlertDialogContent>
       </AlertDialog>
 
-      {/* Password Reset Dialog */}
-      <AlertDialog open={passwordResetDialog} onOpenChange={setPasswordResetDialog}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <div className="flex items-center gap-3">
-              <div className="bg-cyan-100 rounded-full p-3">
-                <Key className="w-6 h-6 text-cyan-600" />
-              </div>
-              <AlertDialogTitle className="text-xl font-bold text-slate-900">Change Password</AlertDialogTitle>
-            </div>
-            <AlertDialogDescription className="mt-4">
-              We&apos;ll send a password reset link to:
-              <span className="block font-semibold text-slate-900 mt-2">{user?.email}</span>
-              <span className="block text-xs text-slate-500 mt-2">The link will expire in 1 hour.</span>
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={sendingPasswordReset}>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleSendPasswordReset}
-              disabled={sendingPasswordReset}
-              className="bg-cyan-600 hover:bg-cyan-700 text-white"
-            >
-              {sendingPasswordReset ? (
-                <>
-                  <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                  Sending...
-                </>
-              ) : (
-                'Send Reset Link'
-              )}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </div>
   );
 }

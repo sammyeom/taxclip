@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { supabase } from '@/lib/supabase';
+import { supabase, resetPasswordForEmail, getUserSettings, updateUserSettings } from '@/lib/supabase';
 import { useAuth } from '@/hooks/useAuth';
 import { useSubscription } from '@/hooks/useSubscription';
 import { getReceipts } from '@/lib/supabase';
@@ -63,9 +63,6 @@ export default function ProfilePage() {
   const [businessName, setBusinessName] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
-  const [email, setEmail] = useState('');
-  const [newPassword, setNewPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
 
   // UI state
   const [loading, setLoading] = useState(true);
@@ -73,7 +70,7 @@ export default function ProfilePage() {
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [showPasswordFields, setShowPasswordFields] = useState(false);
+  const [sendingPasswordReset, setSendingPasswordReset] = useState(false);
 
   // Data state
   const [receipts, setReceipts] = useState<Receipt[]>([]);
@@ -104,11 +101,15 @@ export default function ProfilePage() {
       const { data: { user: authUser } } = await supabase.auth.getUser();
       if (authUser) {
         setUserMetadata(authUser);
-        setDisplayName(authUser.user_metadata?.displayName || '');
-        setBusinessName(authUser.user_metadata?.businessName || '');
         setPhoneNumber(authUser.user_metadata?.phoneNumber || '');
         setAvatarUrl(authUser.user_metadata?.avatarUrl || null);
-        setEmail(authUser.email || '');
+      }
+
+      // Fetch display name and business name from user_settings
+      const { data: settings } = await getUserSettings();
+      if (settings) {
+        setDisplayName(settings.display_name || '');
+        setBusinessName(settings.business_name || '');
       }
     } catch (err) {
       console.error('Error fetching user data:', err);
@@ -221,43 +222,22 @@ export default function ProfilePage() {
     setSuccess(false);
 
     try {
-      // Update user metadata
+      // Update display name and business name in user_settings
+      const { error: settingsError } = await updateUserSettings(user.id, {
+        display_name: displayName.trim() || null,
+        business_name: businessName.trim() || null,
+      });
+
+      if (settingsError) throw settingsError;
+
+      // Update phone number in user metadata
       const { error: updateError } = await supabase.auth.updateUser({
         data: {
-          displayName,
-          businessName,
           phoneNumber,
         },
       });
 
       if (updateError) throw updateError;
-
-      // Update email if changed
-      if (email !== user.email) {
-        const { error: emailError } = await supabase.auth.updateUser({
-          email: email,
-        });
-        if (emailError) throw emailError;
-      }
-
-      // Update password if provided
-      if (newPassword) {
-        if (newPassword !== confirmPassword) {
-          throw new Error('Passwords do not match');
-        }
-        if (newPassword.length < 6) {
-          throw new Error('Password must be at least 6 characters');
-        }
-
-        const { error: passwordError } = await supabase.auth.updateUser({
-          password: newPassword,
-        });
-        if (passwordError) throw passwordError;
-
-        setNewPassword('');
-        setConfirmPassword('');
-        setShowPasswordFields(false);
-      }
 
       setSuccess(true);
       setTimeout(() => setSuccess(false), 3000);
@@ -266,6 +246,28 @@ export default function ProfilePage() {
       setError(err instanceof Error ? err.message : 'Failed to save changes');
     } finally {
       setSaving(false);
+    }
+  };
+
+  // Handle password reset via email
+  const handlePasswordReset = async () => {
+    if (!user?.email) return;
+
+    setSendingPasswordReset(true);
+    setError(null);
+
+    try {
+      const { error } = await resetPasswordForEmail(user.email);
+      if (error) throw error;
+
+      setSuccess(true);
+      setError(null);
+      alert('Password reset email sent! Check your inbox.');
+    } catch (err) {
+      console.error('Error sending password reset:', err);
+      setError(err instanceof Error ? err.message : 'Failed to send password reset email');
+    } finally {
+      setSendingPasswordReset(false);
     }
   };
 
@@ -418,9 +420,11 @@ export default function ProfilePage() {
                 {/* Basic Info */}
                 <div className="flex-1 w-full space-y-2 sm:space-y-3 text-center sm:text-left">
                   <div>
-                    <p className="text-xs sm:text-sm text-slate-500">Email</p>
-                    <p className="font-semibold text-sm sm:text-base text-slate-900 flex items-center justify-center sm:justify-start gap-2">
-                      <Mail className="w-3 h-3 sm:w-4 sm:h-4 text-slate-400" />
+                    <p className="text-lg sm:text-xl font-bold text-slate-900">
+                      {displayName || user.email?.split('@')[0] || 'User'}
+                    </p>
+                    <p className="text-sm text-slate-500 flex items-center justify-center sm:justify-start gap-1">
+                      <Mail className="w-3 h-3 sm:w-4 sm:h-4" />
                       <span className="truncate">{user.email}</span>
                     </p>
                   </div>
@@ -532,81 +536,42 @@ export default function ProfilePage() {
                     </div>
                     <Input
                       type="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      placeholder="your@email.com"
-                      className="pl-11"
+                      value={user.email || ''}
+                      disabled
+                      className="pl-11 bg-slate-100 text-slate-500 cursor-not-allowed"
                     />
                   </div>
                   <p className="text-xs text-slate-500 mt-1">
-                    Changing email requires verification
+                    Email cannot be changed
                   </p>
                 </div>
 
                 {/* Password Change Section */}
                 <div className="pt-3 sm:pt-4 border-t border-slate-200">
-                  {!showPasswordFields ? (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => setShowPasswordFields(true)}
-                      className="text-cyan-600 hover:text-cyan-700 hover:bg-cyan-50 p-0 h-auto"
-                    >
-                      <Lock className="w-3 h-3 sm:w-4 sm:h-4 mr-2" />
-                      Change Password
-                    </Button>
-                  ) : (
-                    <div className="space-y-3 sm:space-y-4">
-                      <div>
-                        <label className="block text-xs sm:text-sm font-semibold text-slate-700 mb-1 sm:mb-2">
-                          New Password
-                        </label>
-                        <div className="relative">
-                          <div className="absolute top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none z-10" style={{ left: '14px' }}>
-                            <Lock className="w-4 h-4 sm:w-5 sm:h-5" />
-                          </div>
-                          <Input
-                            type="password"
-                            value={newPassword}
-                            onChange={(e) => setNewPassword(e.target.value)}
-                            placeholder="Enter new password"
-                            className="pl-11"
-                          />
-                        </div>
-                      </div>
-
-                      <div>
-                        <label className="block text-xs sm:text-sm font-semibold text-slate-700 mb-1 sm:mb-2">
-                          Confirm Password
-                        </label>
-                        <div className="relative">
-                          <div className="absolute top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none z-10" style={{ left: '14px' }}>
-                            <Lock className="w-4 h-4 sm:w-5 sm:h-5" />
-                          </div>
-                          <Input
-                            type="password"
-                            value={confirmPassword}
-                            onChange={(e) => setConfirmPassword(e.target.value)}
-                            placeholder="Confirm new password"
-                            className="pl-11"
-                          />
-                        </div>
-                      </div>
-
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => {
-                          setShowPasswordFields(false);
-                          setNewPassword('');
-                          setConfirmPassword('');
-                        }}
-                        className="text-slate-600 hover:text-slate-900 p-0 h-auto"
-                      >
-                        Cancel
-                      </Button>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-xs sm:text-sm font-semibold text-slate-700">Password</p>
+                      <p className="text-xs text-slate-500">Send a reset link to your email</p>
                     </div>
-                  )}
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handlePasswordReset}
+                      disabled={sendingPasswordReset}
+                    >
+                      {sendingPasswordReset ? (
+                        <>
+                          <Loader2 className="w-3 h-3 sm:w-4 sm:h-4 mr-2 animate-spin" />
+                          Sending...
+                        </>
+                      ) : (
+                        <>
+                          <Lock className="w-3 h-3 sm:w-4 sm:h-4 mr-2" />
+                          Change Password
+                        </>
+                      )}
+                    </Button>
+                  </div>
                 </div>
 
                 {/* Save Button */}

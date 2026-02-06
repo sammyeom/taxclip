@@ -65,7 +65,7 @@ export default function Navigation() {
     const loadDisplayName = async () => {
       if (user?.id) {
         try {
-          const { data } = await getUserSettings(user.id);
+          const { data } = await getUserSettings();
           if (data?.display_name) {
             setDisplayName(data.display_name);
           } else {

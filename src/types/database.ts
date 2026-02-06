@@ -219,6 +219,7 @@ export interface UserSettings {
 
   // Profile
   display_name?: string | null;
+  business_name?: string | null;
   receipt_goal?: number | null;
   theme_mode?: 'light' | 'dark' | 'auto';
 
@@ -243,6 +244,7 @@ export interface UpdateUserSettings {
   mileage_rate?: number;
   data_retention_years?: number;
   display_name?: string | null;
+  business_name?: string | null;
   receipt_goal?: number | null;
   theme_mode?: 'light' | 'dark' | 'auto';
 }

@@ -1,23 +1,29 @@
 'use client';
 
 import { useState, useEffect, Suspense } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Lock, Loader2, AlertCircle, CheckCircle } from 'lucide-react';
+import { Lock, Loader2, AlertCircle, CheckCircle, Eye, EyeOff } from 'lucide-react';
 import { updatePassword, supabase } from '@/lib/supabase';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 
 function ResetPasswordForm() {
   const router = useRouter();
-  const searchParams = useSearchParams();
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const [isValidSession, setIsValidSession] = useState<boolean | null>(null);
+
+  // Real-time validation
+  const isMinLength = password.length >= 8;
+  const passwordsMatch = password === confirmPassword && confirmPassword.length > 0;
+  const isFormValid = isMinLength && passwordsMatch;
 
   // Check if user has a valid reset session
   useEffect(() => {
@@ -27,7 +33,7 @@ function ResetPasswordForm() {
     };
 
     // Listen for auth state changes (when user clicks reset link)
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event) => {
       if (event === 'PASSWORD_RECOVERY') {
         setIsValidSession(true);
       }
@@ -51,8 +57,8 @@ function ResetPasswordForm() {
       return;
     }
 
-    if (password.length < 6) {
-      setError('Password must be at least 6 characters');
+    if (password.length < 8) {
+      setError('Password must be at least 8 characters');
       setLoading(false);
       return;
     }
@@ -68,10 +74,10 @@ function ResetPasswordForm() {
     setSuccess(true);
     setLoading(false);
 
-    // Redirect to sign-in after 3 seconds
+    // Redirect to upload page after 2 seconds
     setTimeout(() => {
-      router.push('/sign-in');
-    }, 3000);
+      router.push('/upload');
+    }, 2000);
   };
 
   // Loading state while checking session
@@ -142,10 +148,10 @@ function ResetPasswordForm() {
               </div>
               <h3 className="text-lg font-semibold text-slate-900 mb-2">Password Updated!</h3>
               <p className="text-slate-600 mb-4">
-                Your password has been successfully reset.
+                Your password has been successfully updated.
               </p>
               <p className="text-sm text-slate-500">
-                Redirecting to sign in...
+                Redirecting to upload page...
               </p>
             </div>
           ) : (
@@ -172,16 +178,45 @@ function ResetPasswordForm() {
                     </div>
                     <Input
                       id="password"
-                      type="password"
+                      type={showPassword ? 'text' : 'password'}
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       required
-                      minLength={6}
-                      className="pl-11"
+                      minLength={8}
+                      className={`pl-11 pr-11 ${
+                        password.length > 0 && !isMinLength
+                          ? 'border-red-300 focus-visible:ring-red-500'
+                          : ''
+                      }`}
                       placeholder="Enter new password"
                     />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute top-1/2 -translate-y-1/2 right-3 text-slate-400 hover:text-slate-600"
+                    >
+                      {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                    </button>
                   </div>
-                  <p className="text-xs text-slate-500 mt-1">At least 6 characters</p>
+                  {/* Password requirement indicator */}
+                  <div className="flex items-center gap-1.5 mt-1.5">
+                    {password.length > 0 ? (
+                      isMinLength ? (
+                        <CheckCircle className="w-3.5 h-3.5 text-green-500" />
+                      ) : (
+                        <AlertCircle className="w-3.5 h-3.5 text-red-500" />
+                      )
+                    ) : (
+                      <div className="w-3.5 h-3.5 rounded-full border border-slate-300" />
+                    )}
+                    <span className={`text-xs ${
+                      password.length > 0
+                        ? isMinLength ? 'text-green-600' : 'text-red-500'
+                        : 'text-slate-500'
+                    }`}>
+                      At least 8 characters
+                    </span>
+                  </div>
                 </div>
 
                 <div>
@@ -194,28 +229,45 @@ function ResetPasswordForm() {
                     </div>
                     <Input
                       id="confirmPassword"
-                      type="password"
+                      type={showConfirmPassword ? 'text' : 'password'}
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
                       required
-                      minLength={6}
-                      className={`pl-11 ${
-                        confirmPassword && password !== confirmPassword
+                      minLength={8}
+                      className={`pl-11 pr-11 ${
+                        confirmPassword && !passwordsMatch
                           ? 'border-red-300 focus-visible:ring-red-500'
                           : ''
                       }`}
                       placeholder="Confirm new password"
                     />
+                    <button
+                      type="button"
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      className="absolute top-1/2 -translate-y-1/2 right-3 text-slate-400 hover:text-slate-600"
+                    >
+                      {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                    </button>
                   </div>
-                  {confirmPassword && password !== confirmPassword && (
-                    <p className="text-xs text-red-500 mt-1">Passwords do not match</p>
+                  {/* Match indicator */}
+                  {confirmPassword.length > 0 && (
+                    <div className="flex items-center gap-1.5 mt-1.5">
+                      {passwordsMatch ? (
+                        <CheckCircle className="w-3.5 h-3.5 text-green-500" />
+                      ) : (
+                        <AlertCircle className="w-3.5 h-3.5 text-red-500" />
+                      )}
+                      <span className={`text-xs ${passwordsMatch ? 'text-green-600' : 'text-red-500'}`}>
+                        {passwordsMatch ? 'Passwords match' : 'Passwords do not match'}
+                      </span>
+                    </div>
                   )}
                 </div>
 
                 <Button
                   type="submit"
-                  disabled={loading}
-                  className="w-full bg-cyan-500 hover:bg-cyan-600 text-white"
+                  disabled={loading || !isFormValid}
+                  className="w-full bg-cyan-500 hover:bg-cyan-600 text-white disabled:bg-slate-300"
                   size="lg"
                 >
                   {loading ? (

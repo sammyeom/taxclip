@@ -249,12 +249,16 @@ export default function ProfilePage() {
     }
   };
 
+  // State for password reset confirmation
+  const [showPasswordResetConfirm, setShowPasswordResetConfirm] = useState(false);
+
   // Handle password reset via email
   const handlePasswordReset = async () => {
     if (!user?.email) return;
 
     setSendingPasswordReset(true);
     setError(null);
+    setShowPasswordResetConfirm(false);
 
     try {
       const { error } = await resetPasswordForEmail(user.email);
@@ -262,13 +266,19 @@ export default function ProfilePage() {
 
       setSuccess(true);
       setError(null);
-      alert('Password reset email sent! Check your inbox.');
+      // Show success message
+      alert('Email Sent!\n\nCheck your email for the password reset link. Click the "Reset Password" button in the email to set your new password.');
     } catch (err) {
       console.error('Error sending password reset:', err);
       setError(err instanceof Error ? err.message : 'Failed to send password reset email');
     } finally {
       setSendingPasswordReset(false);
     }
+  };
+
+  // Show confirmation dialog
+  const handlePasswordResetClick = () => {
+    setShowPasswordResetConfirm(true);
   };
 
   // Format date
@@ -556,7 +566,7 @@ export default function ProfilePage() {
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={handlePasswordReset}
+                      onClick={handlePasswordResetClick}
                       disabled={sendingPasswordReset}
                     >
                       {sendingPasswordReset ? (
@@ -567,7 +577,7 @@ export default function ProfilePage() {
                       ) : (
                         <>
                           <Lock className="w-3 h-3 sm:w-4 sm:h-4 mr-2" />
-                          Change Password
+                          Change Password ›
                         </>
                       )}
                     </Button>
@@ -665,6 +675,46 @@ export default function ProfilePage() {
         </div>
       </div>
 
+      {/* Password Reset Confirmation Dialog */}
+      {showPasswordResetConfirm && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6">
+            <div className="text-center mb-6">
+              <div className="bg-cyan-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                <Lock className="w-8 h-8 text-cyan-600" />
+              </div>
+              <h3 className="text-xl font-bold text-slate-900 mb-2">Change Password</h3>
+              <p className="text-slate-600">
+                A password reset link will be sent to:
+              </p>
+              <p className="text-cyan-600 font-medium mt-1">{user?.email}</p>
+            </div>
+            <div className="flex gap-3">
+              <Button
+                variant="outline"
+                className="flex-1"
+                onClick={() => setShowPasswordResetConfirm(false)}
+              >
+                Cancel
+              </Button>
+              <Button
+                className="flex-1 bg-cyan-500 hover:bg-cyan-600 text-white"
+                onClick={handlePasswordReset}
+                disabled={sendingPasswordReset}
+              >
+                {sendingPasswordReset ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                    Sending...
+                  </>
+                ) : (
+                  'Send Email'
+                )}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

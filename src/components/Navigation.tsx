@@ -5,7 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
-import { signOut } from '@/lib/supabase';
+import { signOut, getUserSettings } from '@/lib/supabase';
 import {
   LayoutDashboard,
   Upload,
@@ -43,6 +43,7 @@ export default function Navigation() {
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [displayName, setDisplayName] = useState('');
 
   // Handle scroll for shadow effect
   useEffect(() => {
@@ -58,6 +59,25 @@ export default function Navigation() {
   useEffect(() => {
     setMobileMenuOpen(false);
   }, [pathname]);
+
+  // Load display name from user settings
+  useEffect(() => {
+    const loadDisplayName = async () => {
+      if (user?.id) {
+        try {
+          const { data } = await getUserSettings(user.id);
+          if (data?.display_name) {
+            setDisplayName(data.display_name);
+          } else {
+            setDisplayName(user.email?.split('@')[0] || '');
+          }
+        } catch (error) {
+          setDisplayName(user.email?.split('@')[0] || '');
+        }
+      }
+    };
+    loadDisplayName();
+  }, [user?.id, user?.email]);
 
   const handleSignOut = async () => {
     await signOut();
@@ -75,6 +95,7 @@ export default function Navigation() {
 
   // Get user initials for avatar
   const getUserInitials = () => {
+    if (displayName) return displayName.charAt(0).toUpperCase();
     if (!user?.email) return 'U';
     return user.email.charAt(0).toUpperCase();
   };
@@ -132,15 +153,15 @@ export default function Navigation() {
                       </AvatarFallback>
                     </Avatar>
                     <span className="hidden lg:inline-block text-sm font-medium max-w-[150px] truncate">
-                      {user.email}
+                      {displayName || user.email}
                     </span>
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className="w-56" align="end" forceMount>
                   <DropdownMenuLabel className="font-normal">
                     <div className="flex flex-col space-y-1">
-                      <p className="text-xs text-muted-foreground">Signed in as</p>
-                      <p className="text-sm font-medium truncate">{user.email}</p>
+                      <p className="text-sm font-medium truncate">{displayName || user.email?.split('@')[0]}</p>
+                      <p className="text-xs text-muted-foreground truncate">{user.email}</p>
                     </div>
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
@@ -186,8 +207,8 @@ export default function Navigation() {
                       </AvatarFallback>
                     </Avatar>
                     <div className="flex-1 min-w-0">
-                      <p className="text-xs text-muted-foreground">Signed in as</p>
-                      <p className="text-sm font-medium truncate">{user.email}</p>
+                      <p className="text-sm font-medium truncate">{displayName || user.email?.split('@')[0]}</p>
+                      <p className="text-xs text-muted-foreground truncate">{user.email}</p>
                     </div>
                   </div>
                 </div>

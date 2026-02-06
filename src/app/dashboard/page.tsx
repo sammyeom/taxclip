@@ -6,6 +6,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useAuth } from '@/hooks/useAuth';
 import { useUsageLimit } from '@/hooks/useUsageLimit';
+import { useDateFormat } from '@/contexts/DateFormatContext';
 import { getReceipts, getReceiptStats, getReceiptsByYear } from '@/lib/supabase';
 import { Receipt } from '@/types/database';
 import Navigation from '@/components/Navigation';
@@ -116,12 +117,7 @@ const formatCurrency = (amount: number) => {
   }).format(amount);
 };
 
-const formatDate = (dateString: string) => {
-  return new Date(dateString).toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric',
-  });
-};
+// formatDate is now provided by useDateFormat context
 
 // Calculate total from subtotal + tax + tip
 const getReceiptTotal = (r: Receipt): number => {
@@ -343,6 +339,7 @@ export default function DashboardPage() {
   const { user, loading: authLoading } = useAuth();
   const router = useRouter();
   const { monthlyCount, monthlyLimit, remainingUploads, isPro } = useUsageLimit();
+  const { formatDate } = useDateFormat();
 
   const [stats, setStats] = useState<StatsData | null>(null);
   const [allReceipts, setAllReceipts] = useState<Receipt[]>([]);
@@ -723,7 +720,7 @@ export default function DashboardPage() {
                                 </p>
                               </div>
                               <div className="flex items-center gap-2 mt-1">
-                                <p className="text-xs text-gray-500">{formatDate(receipt.date)}</p>
+                                <p className="text-xs text-gray-500">{formatDate(receipt.date, { shortMonth: true })}</p>
                                 <span className="text-gray-300">|</span>
                                 <Badge
                                   variant="outline"

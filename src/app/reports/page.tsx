@@ -8,6 +8,7 @@ import {
   getReceiptsByYear,
 } from '@/lib/supabase';
 import { useAuth } from '@/hooks/useAuth';
+import { useDateFormat } from '@/contexts/DateFormatContext';
 import { Receipt } from '@/types/database';
 import Navigation from '@/components/Navigation';
 import { ExportPanel } from '@/components/export';
@@ -110,6 +111,7 @@ const getReceiptTotal = (r: Receipt): number => {
 export default function ReportsPage() {
   const { user, loading: authLoading } = useAuth();
   const router = useRouter();
+  const { formatDate } = useDateFormat();
 
   const currentYear = new Date().getFullYear();
   const [selectedYear, setSelectedYear] = useState(currentYear);
@@ -242,16 +244,6 @@ export default function ReportsPage() {
       style: 'currency',
       currency: 'USD',
     }).format(amount);
-  };
-
-  // Format date
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
-    });
   };
 
   // Loading state
@@ -651,7 +643,7 @@ export default function ReportsPage() {
                       {recentReceipts.map((receipt) => (
                         <tr key={receipt.id} className="border-b border-slate-100 hover:bg-slate-50">
                           <td className="py-2 sm:py-3 px-3 sm:px-4 text-xs sm:text-sm text-slate-700">
-                            {formatDate(receipt.date)}
+                            {formatDate(receipt.date, { shortMonth: true })}
                           </td>
                           <td className="py-2 sm:py-3 px-3 sm:px-4 text-xs sm:text-sm font-semibold text-slate-900 max-w-[100px] truncate">
                             {receipt.merchant}

@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { getReceiptById, updateReceipt, deleteReceipt } from '@/lib/supabase';
 import { useAuth } from '@/hooks/useAuth';
+import { useDateFormat } from '@/contexts/DateFormatContext';
 import { Receipt } from '@/types/database';
 import Navigation from '@/components/Navigation';
 import {
@@ -112,6 +113,7 @@ export default function ReceiptDetailPage() {
   const router = useRouter();
   const params = useParams();
   const receiptId = params.id as string;
+  const { formatDate, formatDateTime } = useDateFormat();
 
   // Data state
   const [receipt, setReceipt] = useState<Receipt | null>(null);
@@ -303,28 +305,6 @@ export default function ReceiptDetailPage() {
       setDeleting(false);
       setShowDeleteConfirm(false);
     }
-  };
-
-  // Format date
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    });
-  };
-
-  const formatDateTime = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
   };
 
   // Format currency
@@ -564,7 +544,7 @@ export default function ReceiptDetailPage() {
                     <Calendar className="w-4 h-4" />
                     <span>Date</span>
                   </div>
-                  <p className="text-2xl font-bold text-slate-900">{formatDate(receipt.date)}</p>
+                  <p className="text-2xl font-bold text-slate-900">{formatDate(receipt.date, { showWeekday: true })}</p>
                 </div>
 
                 {/* Vendor */}

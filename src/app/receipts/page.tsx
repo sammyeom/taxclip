@@ -4,6 +4,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { getReceipts, deleteReceipt } from '@/lib/supabase';
 import { useAuth } from '@/hooks/useAuth';
+import { useDateFormat } from '@/contexts/DateFormatContext';
 import { Receipt } from '@/types/database';
 import Navigation from '@/components/Navigation';
 import {
@@ -93,6 +94,7 @@ const CATEGORY_LABELS: Record<string, string> = {
 export default function ReceiptsPage() {
   const { user, loading: authLoading } = useAuth();
   const router = useRouter();
+  const { formatDate } = useDateFormat();
 
   // Data state
   const [receipts, setReceipts] = useState<Receipt[]>([]);
@@ -229,12 +231,6 @@ export default function ReceiptsPage() {
     } finally {
       setDeleting(false);
     }
-  };
-
-  // Format date
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
   };
 
   // Format currency
@@ -548,7 +544,7 @@ export default function ReceiptsPage() {
                     {/* Info */}
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between mb-1">
-                        <p className="text-xs sm:text-sm text-slate-500">{formatDate(receipt.date)}</p>
+                        <p className="text-xs sm:text-sm text-slate-500">{formatDate(receipt.date, { shortMonth: true })}</p>
                       </div>
                       <h3 className="font-bold text-base sm:text-lg text-slate-900 truncate mb-1">
                         {receipt.merchant}
@@ -658,7 +654,7 @@ export default function ReceiptsPage() {
                 <div className="space-y-4">
                   <div>
                     <label className="text-sm font-medium text-slate-500">Date</label>
-                    <p className="text-lg text-slate-900">{formatDate(selectedReceipt.date)}</p>
+                    <p className="text-lg text-slate-900">{formatDate(selectedReceipt.date, { shortMonth: true })}</p>
                   </div>
 
                   <div>

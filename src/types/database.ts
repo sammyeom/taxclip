@@ -217,6 +217,11 @@ export interface UserSettings {
   // Data & Privacy
   data_retention_years: number;
 
+  // Profile
+  display_name?: string | null;
+  receipt_goal?: number | null;
+  theme_mode?: 'light' | 'dark' | 'auto';
+
   // Timestamps
   created_at?: string;
   updated_at?: string;
@@ -237,5 +242,8 @@ export interface UpdateUserSettings {
   mileage_tracking?: boolean;
   mileage_rate?: number;
   data_retention_years?: number;
+  display_name?: string | null;
+  receipt_goal?: number | null;
+  theme_mode?: 'light' | 'dark' | 'auto';
 }
 

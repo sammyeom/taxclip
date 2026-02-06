@@ -162,6 +162,11 @@ CREATE TABLE IF NOT EXISTS public.user_settings (
   -- Trial tracking (prevents users from getting multiple free trials)
   has_used_trial BOOLEAN NOT NULL DEFAULT FALSE,
 
+  -- Mobile app settings
+  display_name TEXT,
+  receipt_goal INTEGER,
+  theme_mode TEXT DEFAULT 'auto',
+
   -- Timestamps
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
@@ -321,7 +326,10 @@ BEGIN
     data_retention_years,
     subscription_status,
     subscription_plan,
-    has_used_trial
+    has_used_trial,
+    display_name,
+    receipt_goal,
+    theme_mode
   ) VALUES (
     NEW.id,
     NEW.email,
@@ -341,7 +349,10 @@ BEGIN
     7,
     'inactive',
     'free',
-    false
+    false,
+    COALESCE(NEW.raw_user_meta_data->>'full_name', split_part(NEW.email, '@', 1)),
+    NULL,
+    'auto'
   );
   RETURN NEW;
 END;
@@ -406,7 +417,10 @@ INSERT INTO public.user_settings (
   data_retention_years,
   subscription_status,
   subscription_plan,
-  has_used_trial
+  has_used_trial,
+  display_name,
+  receipt_goal,
+  theme_mode
 )
 SELECT
   id,
@@ -427,7 +441,10 @@ SELECT
   7,
   'inactive',
   'free',
-  false
+  false,
+  split_part(email, '@', 1),
+  NULL,
+  'auto'
 FROM auth.users
 WHERE id NOT IN (SELECT user_id FROM public.user_settings)
 ON CONFLICT (user_id) DO NOTHING;

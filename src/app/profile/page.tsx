@@ -223,7 +223,7 @@ export default function ProfilePage() {
 
     try {
       // Update display name and business name in user_settings
-      const { error: settingsError } = await updateUserSettings(user.id, {
+      const { error: settingsError } = await updateUserSettings({
         display_name: displayName.trim() || null,
         business_name: businessName.trim() || null,
       });

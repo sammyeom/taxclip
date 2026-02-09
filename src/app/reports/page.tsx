@@ -10,7 +10,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useDateFormat } from '@/contexts/DateFormatContext';
 import { Receipt } from '@/types/database';
 import Navigation from '@/components/Navigation';
-import { ExportPanel } from '@/components/export';
+import ExportPanel, { DateRange } from '@/components/export/ExportPanel';
 import {
   FileText,
   TrendingUp,
@@ -21,9 +21,6 @@ import {
   BarChart3,
   PieChart as PieChartIcon,
   AlertCircle,
-  Calendar,
-  ChevronDown,
-  Check,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -45,14 +42,6 @@ import {
   ChartLegendContent,
 } from '@/components/ui/chart';
 import { getSubcategoryLabel } from '@/constants/irs-categories';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-
-type DateRange = 'this_year' | 'last_year' | 'this_month' | 'last_3_months' | 'all_time';
 
 const CATEGORIES: Record<string, string> = {
   advertising: 'Advertising',
@@ -125,6 +114,8 @@ export default function ReportsPage() {
 
   const currentYear = new Date().getFullYear();
   const [dateRange, setDateRange] = useState<DateRange>('this_year');
+  const [customStartDate, setCustomStartDate] = useState<Date>(new Date(currentYear, 0, 1));
+  const [customEndDate, setCustomEndDate] = useState<Date>(new Date());
 
   // Data state
   const [stats, setStats] = useState<StatsData | null>(null);
@@ -134,12 +125,8 @@ export default function ReportsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Available years for export (derive from dateRange)
-  const availableYears = [2024, 2025, 2026];
-  const selectedYear = dateRange === 'last_year' ? currentYear - 1 : currentYear;
-
   // Filter receipts by date range
-  const filterReceiptsByDateRange = useCallback((receipts: Receipt[], range: DateRange) => {
+  const filterReceiptsByDateRange = useCallback((receipts: Receipt[], range: DateRange, startDate?: Date, endDate?: Date) => {
     const now = new Date();
     const currentYr = now.getFullYear();
     const lastYr = currentYr - 1;
@@ -160,6 +147,15 @@ export default function ReportsPage() {
           threeMonthsAgo.setHours(0, 0, 0, 0);
           return rDate >= threeMonthsAgo && rDate <= now;
         }
+        case 'custom':
+          if (startDate && endDate) {
+            const start = new Date(startDate);
+            start.setHours(0, 0, 0, 0);
+            const end = new Date(endDate);
+            end.setHours(23, 59, 59, 999);
+            return rDate >= start && rDate <= end;
+          }
+          return true;
         case 'all_time':
         default:
           return true;
@@ -181,6 +177,8 @@ export default function ReportsPage() {
         return 'Last 3 Months';
       case 'all_time':
         return 'All Time';
+      case 'custom':
+        return `${customStartDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - ${customEndDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`;
       default:
         return `${currentYear}`;
     }
@@ -205,23 +203,18 @@ export default function ReportsPage() {
       }
       case 'all_time':
         return 'All receipts ever';
+      case 'custom':
+        return `${customStartDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - ${customEndDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`;
       default:
         return '';
     }
   };
 
-  // Date range options
-  const dateRangeOptions = [
-    { key: 'this_year' as DateRange, label: `${currentYear}`, desc: 'Current year • Jan 1 - Dec 31' },
-    { key: 'last_year' as DateRange, label: `${currentYear - 1}`, desc: 'Previous year • For tax filing' },
-    { key: 'this_month' as DateRange, label: new Date().toLocaleString('en-US', { month: 'long', year: 'numeric' }), desc: 'Current month' },
-    { key: 'last_3_months' as DateRange, label: 'Last 3 Months', desc: (() => {
-      const now = new Date();
-      const threeMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 2, 1);
-      return `${threeMonthsAgo.toLocaleString('en-US', { month: 'short' })} - ${now.toLocaleString('en-US', { month: 'short', year: 'numeric' })}`;
-    })() },
-    { key: 'all_time' as DateRange, label: 'All Time', desc: 'All receipts ever' },
-  ];
+  // Handle custom date change
+  const handleCustomDateChange = (startDate: Date, endDate: Date) => {
+    setCustomStartDate(startDate);
+    setCustomEndDate(endDate);
+  };
 
   // Auth redirect
   useEffect(() => {
@@ -237,10 +230,10 @@ export default function ReportsPage() {
     }
   }, [user]);
 
-  // Apply filtering when dateRange changes
+  // Apply filtering when dateRange or custom dates change
   useEffect(() => {
     if (allReceipts.length > 0) {
-      const filtered = filterReceiptsByDateRange(allReceipts, dateRange);
+      const filtered = filterReceiptsByDateRange(allReceipts, dateRange, customStartDate, customEndDate);
       setFilteredReceipts(filtered);
       setRecentReceipts(filtered.slice(0, 10));
 
@@ -248,7 +241,7 @@ export default function ReportsPage() {
       const statsData = calculateStats(filtered);
       setStats(statsData);
     }
-  }, [dateRange, allReceipts, filterReceiptsByDateRange]);
+  }, [dateRange, allReceipts, filterReceiptsByDateRange, customStartDate, customEndDate]);
 
   // Calculate stats from receipts
   const calculateStats = (receipts: Receipt[]): StatsData => {
@@ -292,7 +285,7 @@ export default function ReportsPage() {
       setAllReceipts(allReceiptsData);
 
       // Apply date range filter
-      const filtered = filterReceiptsByDateRange(allReceiptsData, dateRange);
+      const filtered = filterReceiptsByDateRange(allReceiptsData, dateRange, customStartDate, customEndDate);
       setFilteredReceipts(filtered);
       setRecentReceipts(filtered.slice(0, 10));
 
@@ -410,62 +403,23 @@ export default function ReportsPage() {
       <Navigation />
 
       <div className="max-w-7xl mx-auto py-6 sm:py-8 px-4 sm:px-6 lg:px-8">
-        {/* Header with Date Range Picker */}
+        {/* Header */}
         <div className="mb-6 sm:mb-8">
-          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 sm:gap-4">
-            <div>
-              <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 mb-1 sm:mb-2">Tax Reports</h1>
-              <p className="text-sm sm:text-base text-slate-600">Schedule C summary and expense analytics</p>
-            </div>
-
-            {/* Date Range Picker */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" className="flex items-center gap-2 h-10 px-4 bg-white border-cyan-200 hover:border-cyan-400 hover:bg-cyan-50">
-                  <Calendar className="w-4 h-4 text-cyan-600" />
-                  <span className="font-semibold text-cyan-700">{getDateRangeLabel()}</span>
-                  <ChevronDown className="w-4 h-4 text-cyan-600" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-72">
-                {dateRangeOptions.map((option) => (
-                  <DropdownMenuItem
-                    key={option.key}
-                    onClick={() => setDateRange(option.key)}
-                    className={`flex items-center gap-3 py-3 cursor-pointer ${
-                      dateRange === option.key ? 'bg-cyan-50' : ''
-                    }`}
-                  >
-                    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
-                      dateRange === option.key
-                        ? 'border-cyan-600 bg-cyan-600'
-                        : 'border-slate-300'
-                    }`}>
-                      {dateRange === option.key && <Check className="w-3 h-3 text-white" />}
-                    </div>
-                    <div className="flex-1">
-                      <div className="font-medium text-slate-900">{option.label}</div>
-                      <div className="text-xs text-slate-500">{option.desc}</div>
-                    </div>
-                  </DropdownMenuItem>
-                ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-
-          {/* Date Range Info */}
-          <div className="mt-3 text-sm text-slate-600">
-            <span className="font-medium">{filteredReceipts.length}</span> receipt{filteredReceipts.length !== 1 ? 's' : ''} • {getDateRangeDescription()}
-          </div>
+          <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 mb-1 sm:mb-2">Tax Reports</h1>
+          <p className="text-sm sm:text-base text-slate-600">Schedule C summary and expense analytics</p>
         </div>
 
-        {/* IRS-Ready Export Panel */}
+        {/* IRS-Ready Export Panel with Date Range */}
         <div className="mb-6 sm:mb-8">
           <ExportPanel
             receipts={filteredReceipts}
-            taxYear={selectedYear}
-            availableYears={availableYears}
-            onYearChange={(year) => setDateRange(year === currentYear ? 'this_year' : 'last_year')}
+            dateRange={dateRange}
+            dateRangeLabel={getDateRangeLabel()}
+            dateRangeDescription={getDateRangeDescription()}
+            onDateRangeChange={setDateRange}
+            customStartDate={customStartDate}
+            customEndDate={customEndDate}
+            onCustomDateChange={handleCustomDateChange}
           />
         </div>
 

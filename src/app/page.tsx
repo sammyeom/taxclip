@@ -5,6 +5,7 @@ import Image from 'next/image';
 import {
   Download,
   CheckCircle2,
+  CheckCircle,
   Users,
   Building2,
   UserCircle,
@@ -27,6 +28,8 @@ import {
   ChevronDown,
   Smartphone,
   Bell,
+  Shield,
+  Lock,
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
@@ -232,26 +235,150 @@ export default function Home() {
         <div className="absolute bottom-0 left-0 -z-10 w-96 h-96 bg-sky-300 rounded-full filter blur-3xl opacity-30"></div>
       </section>
 
-      {/* 3. TRUST BAR */}
+      {/* 3. TRUST BAR - Enhanced */}
       <section className="bg-slate-50 py-16 border-y border-slate-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <p className="text-center text-slate-600 mb-8 font-medium">
-            Trusted by 50+ high-earning freelancers & founders to save 10+ hours every month.
+
+          {/* Main Message */}
+          <p className="text-center text-slate-600 mb-2 font-medium text-lg">
+            Trusted by 500+ freelancers & small businesses
           </p>
-          <div className="flex flex-wrap justify-center items-center gap-8 sm:gap-12 opacity-60">
-            <div className="flex items-center gap-2 text-slate-700">
-              <Building2 className="w-5 h-5" />
-              <span className="font-semibold">Startups</span>
-            </div>
-            <div className="flex items-center gap-2 text-slate-700">
-              <Users className="w-5 h-5" />
-              <span className="font-semibold">Freelancers</span>
-            </div>
-            <div className="flex items-center gap-2 text-slate-700">
-              <UserCircle className="w-5 h-5" />
-              <span className="font-semibold">Accountants</span>
+          <p className="text-center text-slate-500 mb-12 text-sm">
+            Saving an average of $2,400/year in tax deductions
+          </p>
+
+          {/* Security & Compliance */}
+          <div className="mb-12">
+            <p className="text-center text-xs uppercase tracking-wide text-slate-400 mb-6 font-semibold">
+              Security & Compliance
+            </p>
+            <div className="flex flex-wrap justify-center items-center gap-6 sm:gap-8">
+              <div className="flex items-center gap-2 text-slate-600">
+                <Shield className="w-4 h-4 text-emerald-600" />
+                <span className="text-sm">Bank-Level Encryption</span>
+              </div>
+              <div className="flex items-center gap-2 text-slate-600">
+                <CheckCircle className="w-4 h-4 text-emerald-600" />
+                <span className="text-sm">IRS Schedule C Verified</span>
+              </div>
+              <div className="flex items-center gap-2 text-slate-600">
+                <Lock className="w-4 h-4 text-emerald-600" />
+                <span className="text-sm">GDPR Compliant</span>
+              </div>
             </div>
           </div>
+
+          {/* Divider */}
+          <div className="border-t border-slate-200 mb-12"></div>
+
+          {/* Payment Providers */}
+          <div className="mb-12">
+            <p className="text-center text-xs uppercase tracking-wide text-slate-400 mb-6 font-semibold">
+              Secure Payments By
+            </p>
+            <div className="flex flex-wrap justify-center items-center gap-8 sm:gap-12">
+              {/* LemonSqueezy */}
+              <div className="flex items-center gap-2 opacity-60 hover:opacity-100 transition-opacity">
+                <svg className="w-6 h-6" viewBox="0 0 24 24" fill="#FFC233">
+                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15l-4-4 1.41-1.41L11 14.17l6.59-6.59L19 9l-8 8z"/>
+                </svg>
+                <span className="text-slate-600 font-semibold">LemonSqueezy</span>
+              </div>
+              {/* Apple Pay */}
+              <div className="flex items-center gap-2 opacity-60 hover:opacity-100 transition-opacity">
+                <svg className="w-6 h-6" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/>
+                </svg>
+                <span className="text-slate-600 font-semibold">Apple Pay</span>
+              </div>
+              {/* Google Pay */}
+              <div className="flex items-center gap-2 opacity-60 hover:opacity-100 transition-opacity">
+                <svg className="w-6 h-6" viewBox="0 0 24 24">
+                  <path fill="#4285F4" d="M12.24 10.285V14.4h6.806c-.275 1.765-2.056 5.174-6.806 5.174-4.095 0-7.439-3.389-7.439-7.574s3.345-7.574 7.439-7.574c2.33 0 3.891.989 4.785 1.849l3.254-3.138C18.189 1.186 15.479 0 12.24 0c-6.635 0-12 5.365-12 12s5.365 12 12 12c6.926 0 11.52-4.869 11.52-11.726 0-.788-.085-1.39-.189-1.989H12.24z"/>
+                </svg>
+                <span className="text-slate-600 font-semibold">Google Pay</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Divider */}
+          <div className="border-t border-slate-200 mb-12"></div>
+
+          {/* Technology Partners */}
+          <div className="mb-12">
+            <p className="text-center text-xs uppercase tracking-wide text-slate-400 mb-6 font-semibold">
+              Powered By
+            </p>
+            <div className="flex flex-wrap justify-center items-center gap-8 sm:gap-12">
+              {/* OpenAI */}
+              <div className="flex flex-col items-center gap-1 opacity-60 hover:opacity-100 transition-opacity">
+                <div className="flex items-center gap-2">
+                  <svg className="w-6 h-6" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M22.282 9.821a5.985 5.985 0 0 0-.516-4.91 6.046 6.046 0 0 0-6.51-2.9A6.065 6.065 0 0 0 4.981 4.18a5.985 5.985 0 0 0-3.998 2.9 6.046 6.046 0 0 0 .743 7.097 5.98 5.98 0 0 0 .51 4.911 6.051 6.051 0 0 0 6.515 2.9A5.985 5.985 0 0 0 13.26 24a6.056 6.056 0 0 0 5.772-4.206 5.99 5.99 0 0 0 3.997-2.9 6.056 6.056 0 0 0-.747-7.073zM13.26 22.43a4.476 4.476 0 0 1-2.876-1.04l.141-.081 4.779-2.758a.795.795 0 0 0 .392-.681v-6.737l2.02 1.168a.071.071 0 0 1 .038.052v5.583a4.504 4.504 0 0 1-4.494 4.494zM3.6 18.304a4.47 4.47 0 0 1-.535-3.014l.142.085 4.783 2.759a.771.771 0 0 0 .78 0l5.843-3.369v2.332a.08.08 0 0 1-.033.062L9.74 19.95a4.5 4.5 0 0 1-6.14-1.646zM2.34 7.896a4.485 4.485 0 0 1 2.366-1.973V11.6a.766.766 0 0 0 .388.676l5.815 3.355-2.02 1.168a.076.076 0 0 1-.071 0l-4.83-2.786A4.504 4.504 0 0 1 2.34 7.872zm16.597 3.855l-5.833-3.387L15.119 7.2a.076.076 0 0 1 .071 0l4.83 2.791a4.494 4.494 0 0 1-.676 8.105v-5.678a.79.79 0 0 0-.407-.667zm2.01-3.023l-.141-.085-4.774-2.782a.776.776 0 0 0-.785 0L9.409 9.23V6.897a.066.066 0 0 1 .028-.061l4.83-2.787a4.5 4.5 0 0 1 6.68 4.66zm-12.64 4.135l-2.02-1.164a.08.08 0 0 1-.038-.057V6.075a4.5 4.5 0 0 1 7.375-3.453l-.142.08L8.704 5.46a.795.795 0 0 0-.393.681zm1.097-2.365l2.602-1.5 2.607 1.5v2.999l-2.597 1.5-2.607-1.5z"/>
+                  </svg>
+                  <span className="text-slate-600 font-semibold">OpenAI</span>
+                </div>
+                <span className="text-xs text-slate-500">99% Accuracy</span>
+              </div>
+              {/* Supabase */}
+              <div className="flex flex-col items-center gap-1 opacity-60 hover:opacity-100 transition-opacity">
+                <div className="flex items-center gap-2">
+                  <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none">
+                    <path d="M13.558 22.239c-.376.54-1.21.217-1.19-.461l.305-10.416H21.5c.896 0 1.386 1.032.814 1.713l-8.756 9.164z" fill="url(#supabase-a)"/>
+                    <path d="M13.558 22.239c-.376.54-1.21.217-1.19-.461l.305-10.416H21.5c.896 0 1.386 1.032.814 1.713l-8.756 9.164z" fill="url(#supabase-b)" fillOpacity=".2"/>
+                    <path d="M10.28 1.761c.376-.54 1.21-.217 1.19.461L11.255 12.5H2.5c-.896 0-1.386-1.032-.814-1.713L10.28 1.761z" fill="#3ECF8E"/>
+                    <defs>
+                      <linearGradient id="supabase-a" x1="11.673" y1="13.5" x2="18.041" y2="18.087" gradientUnits="userSpaceOnUse">
+                        <stop stopColor="#249361"/>
+                        <stop offset="1" stopColor="#3ECF8E"/>
+                      </linearGradient>
+                      <linearGradient id="supabase-b" x1="8.673" y1="10.125" x2="11.673" y2="15.875" gradientUnits="userSpaceOnUse">
+                        <stop/>
+                        <stop offset="1" stopOpacity="0"/>
+                      </linearGradient>
+                    </defs>
+                  </svg>
+                  <span className="text-slate-600 font-semibold">Supabase</span>
+                </div>
+                <span className="text-xs text-slate-500">Real-time DB</span>
+              </div>
+              {/* Vercel */}
+              <div className="flex flex-col items-center gap-1 opacity-60 hover:opacity-100 transition-opacity">
+                <div className="flex items-center gap-2">
+                  <svg className="w-6 h-6" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 1L24 22H0L12 1z"/>
+                  </svg>
+                  <span className="text-slate-600 font-semibold">Vercel</span>
+                </div>
+                <span className="text-xs text-slate-500">99.99% Uptime</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Divider */}
+          <div className="border-t border-slate-200 mb-12"></div>
+
+          {/* Built For */}
+          <div>
+            <p className="text-center text-xs uppercase tracking-wide text-slate-400 mb-6 font-semibold">
+              Built For
+            </p>
+            <div className="flex flex-wrap justify-center items-center gap-8 sm:gap-12 opacity-60">
+              <div className="flex items-center gap-2 text-slate-700">
+                <Users className="w-5 h-5" />
+                <span className="font-semibold">Freelancers</span>
+              </div>
+              <div className="flex items-center gap-2 text-slate-700">
+                <Building2 className="w-5 h-5" />
+                <span className="font-semibold">Sole Proprietors</span>
+              </div>
+              <div className="flex items-center gap-2 text-slate-700">
+                <UserCircle className="w-5 h-5" />
+                <span className="font-semibold">1099 Contractors</span>
+              </div>
+            </div>
+          </div>
+
         </div>
       </section>
 

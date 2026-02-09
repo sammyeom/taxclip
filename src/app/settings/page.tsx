@@ -565,7 +565,7 @@ For tax filing assistance, please consult a qualified tax professional.
         {/* Header */}
         <div className="mb-6 sm:mb-8">
           <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 mb-1 sm:mb-2">Settings</h1>
-          <p className="text-sm sm:text-base text-slate-600">Manage your app preferences and configurations</p>
+          <p className="text-sm sm:text-base text-slate-600">Manage your account and app settings</p>
         </div>
 
         {/* Tabs */}
@@ -591,81 +591,6 @@ For tax filing assistance, please consult a qualified tax professional.
             <AlertDescription>{error}</AlertDescription>
           </Alert>
         )}
-
-        {/* Preferences Section */}
-        <Card className="mb-4 sm:mb-6">
-          <CardHeader className="pb-3 sm:pb-6">
-            <CardTitle className="flex items-center gap-2 sm:gap-3 text-lg sm:text-xl">
-              <Palette className="w-5 h-5 sm:w-6 sm:h-6 text-cyan-600" />
-              Preferences
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-0 divide-y divide-border">
-            {/* Theme Mode */}
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between py-3 sm:py-4 gap-2">
-              <div className="flex-1">
-                <Label className="text-sm font-semibold">Theme</Label>
-                <p className="text-xs text-muted-foreground mt-0.5">Choose your preferred appearance</p>
-              </div>
-              <div className="flex gap-2">
-                <Button
-                  variant={themeMode === 'light' ? 'default' : 'outline'}
-                  size="sm"
-                  onClick={() => { setThemeMode('light'); setTheme('light'); }}
-                  className={themeMode === 'light' ? 'bg-cyan-500 hover:bg-cyan-600' : ''}
-                >
-                  <Sun className="w-4 h-4 mr-1" />
-                  Light
-                </Button>
-                <Button
-                  variant={themeMode === 'dark' ? 'default' : 'outline'}
-                  size="sm"
-                  onClick={() => { setThemeMode('dark'); setTheme('dark'); }}
-                  className={themeMode === 'dark' ? 'bg-cyan-500 hover:bg-cyan-600' : ''}
-                >
-                  <Moon className="w-4 h-4 mr-1" />
-                  Dark
-                </Button>
-                <Button
-                  variant={themeMode === 'auto' ? 'default' : 'outline'}
-                  size="sm"
-                  onClick={() => { setThemeMode('auto'); setTheme('system'); }}
-                  className={themeMode === 'auto' ? 'bg-cyan-500 hover:bg-cyan-600' : ''}
-                >
-                  <Monitor className="w-4 h-4 mr-1" />
-                  Auto
-                </Button>
-              </div>
-            </div>
-
-            {/* Receipt Goal */}
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between py-3 sm:py-4 gap-2">
-              <div className="flex-1">
-                <Label className="text-sm font-semibold flex items-center gap-2">
-                  <Target className="w-4 h-4 text-cyan-500" />
-                  Annual Receipt Goal
-                </Label>
-                <p className="text-xs text-muted-foreground mt-0.5">Set your yearly receipt tracking target</p>
-              </div>
-              <Select
-                value={receiptGoal ? String(receiptGoal) : 'none'}
-                onValueChange={(value) => setReceiptGoal(value === 'none' ? null : Number(value))}
-              >
-                <SelectTrigger className="w-full sm:w-48 lg:w-64 h-9 sm:h-10">
-                  <SelectValue placeholder="Set a goal" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="none">No goal set</SelectItem>
-                  <SelectItem value="50">50 receipts/year</SelectItem>
-                  <SelectItem value="100">100 receipts/year</SelectItem>
-                  <SelectItem value="200">200 receipts/year</SelectItem>
-                  <SelectItem value="500">500 receipts/year</SelectItem>
-                  <SelectItem value="1000">1,000 receipts/year</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </CardContent>
-        </Card>
 
         {/* General Settings */}
         <Card className="mb-4 sm:mb-6">

@@ -215,6 +215,12 @@ export default function Home() {
                     Export to QuickBooks & Excel
                   </span>
                 </div>
+
+                {/* Mobile App Coming Soon */}
+                <div className="mt-6 inline-flex items-center gap-2 text-slate-500 text-sm">
+                  <Smartphone className="w-4 h-4" />
+                  <span>Mobile app coming soon for iOS & Android</span>
+                </div>
               </motion.div>
             </div>
 
@@ -508,14 +514,23 @@ export default function Home() {
                 bg: 'bg-amber-100',
                 gradient: 'from-amber-400 via-orange-400 to-yellow-400',
               },
-            ].map((feature, i) => (
+              {
+                icon: Smartphone,
+                title: 'Scan on the Go',
+                desc: 'Capture receipts instantly with our mobile app. Snap a photo right after the purchase—never lose a receipt again.',
+                color: 'text-pink-600',
+                bg: 'bg-pink-100',
+                gradient: 'from-pink-400 via-rose-400 to-red-400',
+                comingSoon: true,
+              },
+            ].map((feature, i, arr) => (
               <motion.div
                 key={i}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.6, delay: i * 0.1 }}
-                className="group relative"
+                className={`group relative ${'comingSoon' in feature && feature.comingSoon ? 'sm:col-span-2 max-w-xl mx-auto' : ''}`}
                 style={{ transform: 'translateZ(0)' }}
               >
                 {/* Animated border gradient */}
@@ -560,6 +575,11 @@ export default function Home() {
 
                 <Card className="relative h-full bg-white border-slate-200 group-hover:border-transparent group-hover:shadow-xl transition-all duration-500">
                   <CardContent className="p-6 sm:p-8 relative z-10">
+                    {'comingSoon' in feature && feature.comingSoon && (
+                      <div className="absolute top-4 right-4 bg-gradient-to-r from-pink-500 to-rose-500 text-white text-xs font-semibold px-3 py-1 rounded-full">
+                        Coming Soon
+                      </div>
+                    )}
                     <div className={`inline-flex p-3 rounded-xl ${feature.bg} mb-5 transition-transform duration-300 group-hover:scale-110`}>
                       <feature.icon className={`w-6 h-6 ${feature.color}`} strokeWidth={1.5} />
                     </div>

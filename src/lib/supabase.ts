@@ -252,17 +252,18 @@ export const getReceiptsByCategory = async (category: string) => {
   return { data: data as Receipt[], error: null };
 };
 
-// 이번 달 영수증 개수 가져오기
+// 이번 달 영수증 업로드 개수 가져오기 (UTC 기준, 매달 1일 0시 리셋)
 export const getMonthlyReceiptCount = async () => {
   const now = new Date();
-  const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-  const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
+  // Use UTC for month boundaries (reset on 1st of each month at UTC midnight)
+  const startOfMonthUTC = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1, 0, 0, 0, 0));
+  const endOfMonthUTC = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 0, 23, 59, 59, 999));
 
   const { count, error } = await supabase
     .from('receipts')
     .select('*', { count: 'exact', head: true })
-    .gte('created_at', startOfMonth.toISOString())
-    .lte('created_at', endOfMonth.toISOString());
+    .gte('created_at', startOfMonthUTC.toISOString())
+    .lte('created_at', endOfMonthUTC.toISOString());
 
   if (error) {
     console.error('Error counting monthly receipts:', error.message);

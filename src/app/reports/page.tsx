@@ -1,11 +1,10 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import {
-  getReceiptStats,
-  getReceiptsByYear,
+  getReceipts,
 } from '@/lib/supabase';
 import { useAuth } from '@/hooks/useAuth';
 import { useDateFormat } from '@/contexts/DateFormatContext';
@@ -22,6 +21,9 @@ import {
   BarChart3,
   PieChart as PieChartIcon,
   AlertCircle,
+  Calendar,
+  ChevronDown,
+  Check,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -43,6 +45,14 @@ import {
   ChartLegendContent,
 } from '@/components/ui/chart';
 import { getSubcategoryLabel } from '@/constants/irs-categories';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+
+type DateRange = 'this_year' | 'last_year' | 'this_month' | 'last_3_months' | 'all_time';
 
 const CATEGORIES: Record<string, string> = {
   advertising: 'Advertising',
@@ -114,17 +124,104 @@ export default function ReportsPage() {
   const { formatDate } = useDateFormat();
 
   const currentYear = new Date().getFullYear();
-  const [selectedYear, setSelectedYear] = useState(currentYear);
+  const [dateRange, setDateRange] = useState<DateRange>('this_year');
 
   // Data state
   const [stats, setStats] = useState<StatsData | null>(null);
   const [allReceipts, setAllReceipts] = useState<Receipt[]>([]);
+  const [filteredReceipts, setFilteredReceipts] = useState<Receipt[]>([]);
   const [recentReceipts, setRecentReceipts] = useState<Receipt[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Available years for export
+  // Available years for export (derive from dateRange)
   const availableYears = [2024, 2025, 2026];
+  const selectedYear = dateRange === 'last_year' ? currentYear - 1 : currentYear;
+
+  // Filter receipts by date range
+  const filterReceiptsByDateRange = useCallback((receipts: Receipt[], range: DateRange) => {
+    const now = new Date();
+    const currentYr = now.getFullYear();
+    const lastYr = currentYr - 1;
+    const currentMonth = now.getMonth();
+
+    return receipts.filter((r) => {
+      const rDate = new Date(r.date);
+      const receiptYear = rDate.getFullYear();
+      switch (range) {
+        case 'this_year':
+          return receiptYear === currentYr;
+        case 'last_year':
+          return receiptYear === lastYr;
+        case 'this_month':
+          return rDate.getMonth() === currentMonth && receiptYear === currentYr;
+        case 'last_3_months': {
+          const threeMonthsAgo = new Date(currentYr, currentMonth - 2, 1);
+          threeMonthsAgo.setHours(0, 0, 0, 0);
+          return rDate >= threeMonthsAgo && rDate <= now;
+        }
+        case 'all_time':
+        default:
+          return true;
+      }
+    });
+  }, []);
+
+  // Get date range label
+  const getDateRangeLabel = () => {
+    const now = new Date();
+    switch (dateRange) {
+      case 'this_year':
+        return `${currentYear}`;
+      case 'last_year':
+        return `${currentYear - 1}`;
+      case 'this_month':
+        return now.toLocaleString('en-US', { month: 'long', year: 'numeric' });
+      case 'last_3_months':
+        return 'Last 3 Months';
+      case 'all_time':
+        return 'All Time';
+      default:
+        return `${currentYear}`;
+    }
+  };
+
+  // Get date range description
+  const getDateRangeDescription = () => {
+    const now = new Date();
+    switch (dateRange) {
+      case 'this_year':
+        return `Jan 1 - Dec 31, ${currentYear}`;
+      case 'last_year':
+        return `Jan 1 - Dec 31, ${currentYear - 1}`;
+      case 'this_month': {
+        const monthStart = new Date(currentYear, now.getMonth(), 1);
+        const monthEnd = new Date(currentYear, now.getMonth() + 1, 0);
+        return `${monthStart.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - ${monthEnd.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`;
+      }
+      case 'last_3_months': {
+        const threeMonthsAgo = new Date(currentYear, now.getMonth() - 2, 1);
+        return `${threeMonthsAgo.toLocaleDateString('en-US', { month: 'short' })} - ${now.toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}`;
+      }
+      case 'all_time':
+        return 'All receipts ever';
+      default:
+        return '';
+    }
+  };
+
+  // Date range options
+  const dateRangeOptions = [
+    { key: 'this_year' as DateRange, label: `${currentYear}`, desc: 'Current year • Jan 1 - Dec 31' },
+    { key: 'last_year' as DateRange, label: `${currentYear - 1}`, desc: 'Previous year • For tax filing' },
+    { key: 'this_month' as DateRange, label: new Date().toLocaleString('en-US', { month: 'long', year: 'numeric' }), desc: 'Current month' },
+    { key: 'last_3_months' as DateRange, label: 'Last 3 Months', desc: (() => {
+      const now = new Date();
+      const threeMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 2, 1);
+      return `${threeMonthsAgo.toLocaleString('en-US', { month: 'short' })} - ${now.toLocaleString('en-US', { month: 'short', year: 'numeric' })}`;
+    })() },
+    { key: 'all_time' as DateRange, label: 'All Time', desc: 'All receipts ever' },
+  ];
 
   // Auth redirect
   useEffect(() => {
@@ -133,29 +230,75 @@ export default function ReportsPage() {
     }
   }, [user, authLoading, router]);
 
-  // Fetch data when year changes
+  // Fetch all receipts once
   useEffect(() => {
     if (user) {
       fetchData();
     }
-  }, [user, selectedYear]);
+  }, [user]);
+
+  // Apply filtering when dateRange changes
+  useEffect(() => {
+    if (allReceipts.length > 0) {
+      const filtered = filterReceiptsByDateRange(allReceipts, dateRange);
+      setFilteredReceipts(filtered);
+      setRecentReceipts(filtered.slice(0, 10));
+
+      // Calculate stats from filtered receipts
+      const statsData = calculateStats(filtered);
+      setStats(statsData);
+    }
+  }, [dateRange, allReceipts, filterReceiptsByDateRange]);
+
+  // Calculate stats from receipts
+  const calculateStats = (receipts: Receipt[]): StatsData => {
+    const totalCount = receipts.length;
+    const totalAmount = receipts.reduce((sum, r) => sum + getReceiptTotal(r), 0);
+
+    // Category totals
+    const categoryTotals: Record<string, number> = {};
+    receipts.forEach(receipt => {
+      const cat = receipt.category || 'other';
+      categoryTotals[cat] = (categoryTotals[cat] || 0) + getReceiptTotal(receipt);
+    });
+
+    // Monthly totals (Jan=0, Dec=11)
+    const monthlyTotals = new Array(12).fill(0);
+    receipts.forEach(receipt => {
+      if (receipt.date) {
+        const month = new Date(receipt.date).getMonth();
+        monthlyTotals[month] += getReceiptTotal(receipt);
+      }
+    });
+
+    return {
+      totalCount,
+      totalAmount,
+      categoryTotals,
+      monthlyTotals,
+    };
+  };
 
   const fetchData = async () => {
     setLoading(true);
     setError(null);
 
     try {
-      // Fetch stats
-      const { data: statsData, error: statsError } = await getReceiptStats(selectedYear);
-      if (statsError) throw statsError;
-      setStats(statsData);
-
-      // Fetch all receipts for the year
-      const { data: receiptsData, error: receiptsError } =
-        await getReceiptsByYear(selectedYear);
+      // Fetch all receipts (filter by date field, not tax_year)
+      const { data: receiptsData, error: receiptsError } = await getReceipts();
       if (receiptsError) throw receiptsError;
-      setAllReceipts(receiptsData || []);
-      setRecentReceipts((receiptsData || []).slice(0, 10));
+
+      const allReceiptsData = receiptsData || [];
+      setAllReceipts(allReceiptsData);
+
+      // Apply date range filter
+      const filtered = filterReceiptsByDateRange(allReceiptsData, dateRange);
+      setFilteredReceipts(filtered);
+      setRecentReceipts(filtered.slice(0, 10));
+
+      // Calculate stats from filtered receipts
+      const statsData = calculateStats(filtered);
+      setStats(statsData);
     } catch (err) {
       console.error('Error fetching data:', err);
       setError(err instanceof Error ? err.message : 'Failed to load data');
@@ -170,16 +313,16 @@ export default function ReportsPage() {
 
     // Find largest expense safely
     let largestExpense: Receipt | null = null;
-    if (recentReceipts.length > 0) {
-      largestExpense = recentReceipts.reduce(
+    if (filteredReceipts.length > 0) {
+      largestExpense = filteredReceipts.reduce(
         (max, receipt) => (getReceiptTotal(receipt) > getReceiptTotal(max) ? receipt : max),
-        recentReceipts[0]
+        filteredReceipts[0]
       );
     }
 
     const mostUsedCategory = Object.entries(stats.categoryTotals).reduce(
       (max, [category, amount]) => {
-        const count = recentReceipts.filter((r) => r.category === category).length;
+        const count = filteredReceipts.filter((r) => r.category === category).length;
         return count > max.count ? { category, count, amount } : max;
       },
       { category: 'none', count: 0, amount: 0 }
@@ -189,7 +332,7 @@ export default function ReportsPage() {
       largestExpense,
       mostUsedCategory,
     };
-  }, [stats, recentReceipts]);
+  }, [stats, filteredReceipts]);
 
   // Prepare monthly chart data
   const monthlyChartData = useMemo(() => {
@@ -224,7 +367,7 @@ export default function ReportsPage() {
     return Object.entries(CATEGORIES)
       .map(([key, label]) => {
         const amount = stats.categoryTotals[key] || 0;
-        const count = recentReceipts.filter((r) => r.category === key).length;
+        const count = filteredReceipts.filter((r) => r.category === key).length;
         const percentage = totalExpenses > 0 ? (amount / totalExpenses) * 100 : 0;
 
         return {
@@ -236,7 +379,7 @@ export default function ReportsPage() {
         };
       })
       .sort((a, b) => b.amount - a.amount);
-  }, [stats, recentReceipts]);
+  }, [stats, filteredReceipts]);
 
   // Format currency
   const formatCurrency = (amount: number) => {
@@ -267,23 +410,62 @@ export default function ReportsPage() {
       <Navigation />
 
       <div className="max-w-7xl mx-auto py-6 sm:py-8 px-4 sm:px-6 lg:px-8">
-        {/* Header */}
+        {/* Header with Date Range Picker */}
         <div className="mb-6 sm:mb-8">
-          <div className="flex flex-col gap-3 sm:gap-4">
+          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 sm:gap-4">
             <div>
               <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 mb-1 sm:mb-2">Tax Reports</h1>
               <p className="text-sm sm:text-base text-slate-600">Schedule C summary and expense analytics</p>
             </div>
+
+            {/* Date Range Picker */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" className="flex items-center gap-2 h-10 px-4 bg-white border-cyan-200 hover:border-cyan-400 hover:bg-cyan-50">
+                  <Calendar className="w-4 h-4 text-cyan-600" />
+                  <span className="font-semibold text-cyan-700">{getDateRangeLabel()}</span>
+                  <ChevronDown className="w-4 h-4 text-cyan-600" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-72">
+                {dateRangeOptions.map((option) => (
+                  <DropdownMenuItem
+                    key={option.key}
+                    onClick={() => setDateRange(option.key)}
+                    className={`flex items-center gap-3 py-3 cursor-pointer ${
+                      dateRange === option.key ? 'bg-cyan-50' : ''
+                    }`}
+                  >
+                    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+                      dateRange === option.key
+                        ? 'border-cyan-600 bg-cyan-600'
+                        : 'border-slate-300'
+                    }`}>
+                      {dateRange === option.key && <Check className="w-3 h-3 text-white" />}
+                    </div>
+                    <div className="flex-1">
+                      <div className="font-medium text-slate-900">{option.label}</div>
+                      <div className="text-xs text-slate-500">{option.desc}</div>
+                    </div>
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+
+          {/* Date Range Info */}
+          <div className="mt-3 text-sm text-slate-600">
+            <span className="font-medium">{filteredReceipts.length}</span> receipt{filteredReceipts.length !== 1 ? 's' : ''} • {getDateRangeDescription()}
           </div>
         </div>
 
         {/* IRS-Ready Export Panel */}
         <div className="mb-6 sm:mb-8">
           <ExportPanel
-            receipts={allReceipts}
+            receipts={filteredReceipts}
             taxYear={selectedYear}
             availableYears={availableYears}
-            onYearChange={setSelectedYear}
+            onYearChange={(year) => setDateRange(year === currentYear ? 'this_year' : 'last_year')}
           />
         </div>
 
@@ -303,10 +485,12 @@ export default function ReportsPage() {
           <div className="bg-white rounded-xl shadow-lg p-12 text-center">
             <FileText className="w-24 h-24 text-gray-300 mx-auto mb-4" />
             <h3 className="text-2xl font-semibold text-slate-900 mb-2">
-              No receipts for {selectedYear}
+              No receipts for {getDateRangeLabel()}
             </h3>
             <p className="text-slate-600 mb-6">
-              Upload some receipts to see your tax reports and analytics
+              {dateRange === 'all_time'
+                ? 'Upload some receipts to see your tax reports and analytics'
+                : `No receipts found in this date range. Try selecting "All Time" or a different period.`}
             </p>
             <Button
               onClick={() => router.push('/upload')}
@@ -603,7 +787,7 @@ export default function ReportsPage() {
             <div className="bg-white rounded-xl shadow-lg p-4 sm:p-6">
               <div className="flex items-center justify-between mb-4 sm:mb-6">
                 <h2 className="text-lg sm:text-2xl font-bold text-slate-900">
-                  Recent ({selectedYear})
+                  Recent ({getDateRangeLabel()})
                 </h2>
                 <Button
                   variant="ghost"

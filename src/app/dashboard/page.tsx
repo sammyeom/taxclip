@@ -511,6 +511,12 @@ export default function DashboardPage() {
   // Insight data
   const insightData = useMemo((): InsightData => {
     const topCat = categoryData[0];
+
+    // Calculate deductible amount: Meals 50%, Others 100%
+    const mealsAmount = stats?.categoryTotals?.meals || 0;
+    const otherAmount = (stats?.totalAmount || 0) - mealsAmount;
+    const deductibleAmount = (mealsAmount * 0.5) + otherAmount;
+
     return {
       topCategory: topCat
         ? {
@@ -520,7 +526,7 @@ export default function DashboardPage() {
           }
         : null,
       averageAmount: stats?.totalCount ? stats.totalAmount / stats.totalCount : 0,
-      estimatedTaxBenefit: stats?.totalAmount ? stats.totalAmount * 0.1 : 0,
+      estimatedTaxBenefit: deductibleAmount * 0.22,
       totalCount: stats?.totalCount || 0,
       monthlyChange: monthComparison,
     };

@@ -31,6 +31,8 @@ const formatCurrency = (amount: number) => {
   return new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: 'USD',
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
   }).format(amount);
 };
 
@@ -43,7 +45,7 @@ export default function InsightSection({ data }: InsightSectionProps) {
       icon: DollarSign,
       iconColor: 'text-cyan-500',
       title: 'Estimated Tax Benefit',
-      description: 'Based on 10% deduction rate',
+      description: 'Based on 22% tax rate',
       value: formatCurrency(data.estimatedTaxBenefit),
       gradient: 'from-cyan-500/10',
       highlight: true,

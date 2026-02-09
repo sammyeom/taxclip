@@ -241,77 +241,33 @@ export default function Home() {
         <div className="absolute bottom-0 left-0 -z-10 w-96 h-96 bg-sky-300 rounded-full filter blur-3xl opacity-30"></div>
       </section>
 
-      {/* 3. TRUST BAR - Compact Version */}
-      <section className="bg-slate-50 py-8 border-y border-slate-200">
+      {/* 3. TRUST BAR - Ultra Compact */}
+      <section className="bg-slate-50 py-6 border-y border-slate-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
           {/* Line 1: Main Message */}
-          <div className="text-center mb-6">
-            <p className="text-slate-600 font-medium text-base mb-1">
-              Trusted by 500+ freelancers & small businesses
-            </p>
-            <p className="text-slate-500 text-sm">
-              Saving an average of $2,400/year in tax deductions
-            </p>
-          </div>
+          <p className="text-center text-slate-600 font-medium text-sm sm:text-base mb-2">
+            Trusted by 500+ freelancers & small businesses
+          </p>
 
-          {/* Line 2: Security + Payment + Tech - Single Line */}
-          <div className="flex flex-wrap justify-center items-center gap-3 sm:gap-4 text-xs sm:text-sm text-slate-600 mb-4">
+          {/* Line 2: Trust Signals Only */}
+          <div className="flex flex-wrap justify-center items-center gap-2 sm:gap-3 text-xs text-slate-500">
 
-            {/* Security */}
             <div className="flex items-center gap-1.5">
-              <Shield className="w-3.5 h-3.5 text-emerald-600" />
+              <Shield className="w-3 h-3 text-emerald-600" />
               <span>Bank-Level Encryption</span>
             </div>
 
             <span className="text-slate-300">•</span>
 
             <div className="flex items-center gap-1.5">
-              <CheckCircle className="w-3.5 h-3.5 text-emerald-600" />
-              <span>IRS Verified</span>
+              <CheckCircle className="w-3 h-3 text-emerald-600" />
+              <span>IRS Schedule C Verified</span>
             </div>
 
             <span className="text-slate-300">•</span>
 
-            {/* Payment */}
-            <span className="font-medium">LemonSqueezy</span>
-
-            <span className="text-slate-300">•</span>
-
-            {/* Tech */}
-            <span className="font-medium">OpenAI</span>
-
-            <span className="text-slate-300">•</span>
-
-            <span className="font-medium">Supabase</span>
-
-            <span className="text-slate-300">•</span>
-
-            <span className="font-medium">Vercel</span>
-
-          </div>
-
-          {/* Line 3: Built For */}
-          <div className="flex flex-wrap justify-center items-center gap-4 sm:gap-6 text-sm text-slate-600 opacity-70">
-
-            <div className="flex items-center gap-1.5">
-              <Users className="w-4 h-4" />
-              <span className="font-medium">Freelancers</span>
-            </div>
-
-            <span className="text-slate-300">•</span>
-
-            <div className="flex items-center gap-1.5">
-              <Building2 className="w-4 h-4" />
-              <span className="font-medium">Sole Proprietors</span>
-            </div>
-
-            <span className="text-slate-300">•</span>
-
-            <div className="flex items-center gap-1.5">
-              <UserCircle className="w-4 h-4" />
-              <span className="font-medium">1099 Contractors</span>
-            </div>
+            <span>Saving $2,400/year on average</span>
 
           </div>
 

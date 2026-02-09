@@ -526,7 +526,7 @@ export default function DashboardPage() {
           }
         : null,
       averageAmount: stats?.totalCount ? stats.totalAmount / stats.totalCount : 0,
-      estimatedTaxBenefit: deductibleAmount * 0.22,
+      estimatedTaxBenefit: deductibleAmount * 0.373, // Federal 22% + Self-Employment 15.3%
       totalCount: stats?.totalCount || 0,
       monthlyChange: monthComparison,
     };

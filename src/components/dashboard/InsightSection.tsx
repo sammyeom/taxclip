@@ -45,8 +45,8 @@ export default function InsightSection({ data }: InsightSectionProps) {
       icon: DollarSign,
       iconColor: 'text-cyan-500',
       title: 'Estimated Tax Benefit',
-      description: 'Based on 22% tax rate',
-      value: formatCurrency(data.estimatedTaxBenefit),
+      description: 'Based on 37.3% combined rate',
+      value: `~${formatCurrency(data.estimatedTaxBenefit)}`,
       gradient: 'from-cyan-500/10',
       highlight: true,
     });

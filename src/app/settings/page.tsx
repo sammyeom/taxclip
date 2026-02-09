@@ -1245,7 +1245,7 @@ For tax filing assistance, please consult a qualified tax professional.
                               <Sparkles className="w-2.5 h-2.5" />
                               Best Value
                             </span>
-                            <span className="text-xs font-bold">Save 20%</span>
+                            <span className="text-xs font-bold">Save 17%</span>
                           </span>
                         </div>
                         <h4 className="font-bold text-lg mb-2 flex items-center gap-2 text-slate-900 mt-1">
@@ -1418,7 +1418,7 @@ For tax filing assistance, please consult a qualified tax professional.
                       <Sparkles className="w-3 h-3" />
                       Best Value
                     </span>
-                    <span className="text-[10px] font-bold">Save 20%</span>
+                    <span className="text-[10px] font-bold">Save 17%</span>
                   </span>
                 </div>
 
@@ -1427,7 +1427,7 @@ For tax filing assistance, please consult a qualified tax professional.
                     <p className="font-bold text-slate-900 flex items-center gap-2">
                       Annual
                       <span className="bg-green-100 text-green-700 px-2 py-0.5 rounded-full text-xs font-semibold">
-                        Save 20%
+                        Save 17%
                       </span>
                     </p>
                     <p className="text-sm text-slate-500">Billed annually</p>

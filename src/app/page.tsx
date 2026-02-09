@@ -723,7 +723,7 @@ export default function Home() {
                       <Sparkles className="w-3.5 h-3.5" />
                       Best Value
                     </span>
-                    <span className="text-sm font-bold">Save 20%</span>
+                    <span className="text-sm font-bold">Save 17%</span>
                   </span>
                 </motion.div>
               </div>
@@ -917,7 +917,7 @@ export default function Home() {
               Join 500+ users saving 4 hours every weekend.
             </h2>
             <p className="text-xl text-blue-100 mb-10 max-w-2xl mx-auto">
-              Try TaxClip free for 7 days. Save 20% when you choose annual.
+              Try TaxClip free for 7 days. Save 17% when you choose annual.
             </p>
 
             {/* Email input form */}

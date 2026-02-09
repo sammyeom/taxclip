@@ -615,7 +615,7 @@ export default function DashboardPage() {
                 {monthlyCount === 7 && "TaxClip is working for you! 7 expenses captured. Thinking of going bigger? Pro offers unlimited peace of mind."}
                 {monthlyCount === 8 && "Almost at the limit! Just 2 scans left. Upgrade to Pro for less than the cost of two coffees ($9.99) and never stop."}
                 {monthlyCount === 9 && "Final countdown! Only 1 scan left. Don't let your bookkeeping pause here. Go Pro and keep winning."}
-                {monthlyCount >= 10 && "Free limit reached. Unlock unlimited scans. Secure your tax savings for the whole year and save 20% today!"}
+                {monthlyCount >= 10 && "Free limit reached. Unlock unlimited scans. Secure your tax savings for the whole year and save 17% today!"}
               </p>
             )}
           </div>

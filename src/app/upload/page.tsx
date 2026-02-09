@@ -1599,7 +1599,7 @@ export default function UploadPage() {
                   One missed receipt costs more than Pro. Go Unlimited for $9.99/mo.
                 </p>
                 <p className="text-sm font-semibold text-orange-600 mt-1">
-                  🔥 Flash Deal: Get 20% OFF when you choose Yearly ($99/yr)!
+                  🔥 Flash Deal: Get 17% OFF when you choose Yearly ($99/yr)!
                 </p>
               </div>
             </div>
@@ -2594,7 +2594,7 @@ export default function UploadPage() {
           </DialogHeader>
           <div className="py-4">
             <p className="text-slate-700 leading-relaxed">
-              One missed receipt often costs more in taxes than a full month of Pro. For <span className="font-semibold">$9.99</span> (or save 20% with Yearly), get unlimited scans and reclaim your Sundays.
+              One missed receipt often costs more in taxes than a full month of Pro. For <span className="font-semibold">$9.99</span> (or save 17% with Yearly), get unlimited scans and reclaim your Sundays.
             </p>
           </div>
           <div className="flex flex-col gap-3 pt-2">

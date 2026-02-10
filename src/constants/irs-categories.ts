@@ -596,3 +596,531 @@ export const IRS_SCHEDULE_C_CATEGORIES_ARRAY = Object.values(IRS_SCHEDULE_C_CATE
   label: cat.label,
   line: cat.line,
 }));
+
+// ============================================================================
+// AUTO-CATEGORIZATION SYSTEM
+// ============================================================================
+
+// Comprehensive merchant database for auto-categorization
+export const MERCHANT_DATABASE: Record<string, { category: string; confidence: 'high' | 'medium' }> = {
+  // ===== MEALS (Restaurants, Cafes, Food Delivery) =====
+  // Coffee Shops
+  'starbucks': { category: 'meals', confidence: 'high' },
+  'dunkin': { category: 'meals', confidence: 'high' },
+  'peets coffee': { category: 'meals', confidence: 'high' },
+  "peet's coffee": { category: 'meals', confidence: 'high' },
+  'blue bottle': { category: 'meals', confidence: 'high' },
+  'philz coffee': { category: 'meals', confidence: 'high' },
+  'dutch bros': { category: 'meals', confidence: 'high' },
+  'tim hortons': { category: 'meals', confidence: 'high' },
+  'caribou coffee': { category: 'meals', confidence: 'high' },
+
+  // Fast Food
+  'mcdonald': { category: 'meals', confidence: 'high' },
+  'burger king': { category: 'meals', confidence: 'high' },
+  "wendy's": { category: 'meals', confidence: 'high' },
+  'wendys': { category: 'meals', confidence: 'high' },
+  'taco bell': { category: 'meals', confidence: 'high' },
+  'chick-fil-a': { category: 'meals', confidence: 'high' },
+  'chickfila': { category: 'meals', confidence: 'high' },
+  'chipotle': { category: 'meals', confidence: 'high' },
+  'subway': { category: 'meals', confidence: 'high' },
+  'five guys': { category: 'meals', confidence: 'high' },
+  'in-n-out': { category: 'meals', confidence: 'high' },
+  'shake shack': { category: 'meals', confidence: 'high' },
+  'panda express': { category: 'meals', confidence: 'high' },
+  'popeyes': { category: 'meals', confidence: 'high' },
+  'kfc': { category: 'meals', confidence: 'high' },
+  'jack in the box': { category: 'meals', confidence: 'high' },
+  "carl's jr": { category: 'meals', confidence: 'high' },
+  'del taco': { category: 'meals', confidence: 'high' },
+  'qdoba': { category: 'meals', confidence: 'high' },
+  'panera': { category: 'meals', confidence: 'high' },
+  'jimmy john': { category: 'meals', confidence: 'high' },
+  'jersey mike': { category: 'meals', confidence: 'high' },
+  'firehouse subs': { category: 'meals', confidence: 'high' },
+  'wingstop': { category: 'meals', confidence: 'high' },
+  'buffalo wild wings': { category: 'meals', confidence: 'high' },
+  'sonic drive': { category: 'meals', confidence: 'high' },
+  "arby's": { category: 'meals', confidence: 'high' },
+  'arbys': { category: 'meals', confidence: 'high' },
+  'whataburger': { category: 'meals', confidence: 'high' },
+  "culver's": { category: 'meals', confidence: 'high' },
+  'culvers': { category: 'meals', confidence: 'high' },
+  'zaxby': { category: 'meals', confidence: 'high' },
+  'raising cane': { category: 'meals', confidence: 'high' },
+
+  // Casual Dining
+  'applebee': { category: 'meals', confidence: 'high' },
+  "chili's": { category: 'meals', confidence: 'high' },
+  'chilis': { category: 'meals', confidence: 'high' },
+  'olive garden': { category: 'meals', confidence: 'high' },
+  'red lobster': { category: 'meals', confidence: 'high' },
+  'outback steakhouse': { category: 'meals', confidence: 'high' },
+  'texas roadhouse': { category: 'meals', confidence: 'high' },
+  'cheesecake factory': { category: 'meals', confidence: 'high' },
+  'p.f. chang': { category: 'meals', confidence: 'high' },
+  'pf chang': { category: 'meals', confidence: 'high' },
+  'red robin': { category: 'meals', confidence: 'high' },
+  'ihop': { category: 'meals', confidence: 'high' },
+  "denny's": { category: 'meals', confidence: 'high' },
+  'dennys': { category: 'meals', confidence: 'high' },
+  'cracker barrel': { category: 'meals', confidence: 'high' },
+  'waffle house': { category: 'meals', confidence: 'high' },
+  'tgi friday': { category: 'meals', confidence: 'high' },
+  'hooters': { category: 'meals', confidence: 'high' },
+  "bj's restaurant": { category: 'meals', confidence: 'high' },
+  'bjs restaurant': { category: 'meals', confidence: 'high' },
+  'yard house': { category: 'meals', confidence: 'high' },
+
+  // Food Delivery
+  'doordash': { category: 'meals', confidence: 'high' },
+  'uber eats': { category: 'meals', confidence: 'high' },
+  'ubereats': { category: 'meals', confidence: 'high' },
+  'grubhub': { category: 'meals', confidence: 'high' },
+  'postmates': { category: 'meals', confidence: 'high' },
+  'seamless': { category: 'meals', confidence: 'high' },
+  'caviar': { category: 'meals', confidence: 'high' },
+  'instacart': { category: 'meals', confidence: 'medium' },
+
+  // Pizza
+  "domino's": { category: 'meals', confidence: 'high' },
+  'dominos': { category: 'meals', confidence: 'high' },
+  'pizza hut': { category: 'meals', confidence: 'high' },
+  'papa john': { category: 'meals', confidence: 'high' },
+  'little caesars': { category: 'meals', confidence: 'high' },
+  'papa murphy': { category: 'meals', confidence: 'high' },
+  "marco's pizza": { category: 'meals', confidence: 'high' },
+  'round table': { category: 'meals', confidence: 'high' },
+
+  // Asian Cuisine
+  'pho': { category: 'meals', confidence: 'medium' },
+  'sushi': { category: 'meals', confidence: 'medium' },
+  'ramen': { category: 'meals', confidence: 'medium' },
+  'dim sum': { category: 'meals', confidence: 'high' },
+  'boba': { category: 'meals', confidence: 'high' },
+  'bubble tea': { category: 'meals', confidence: 'high' },
+
+  // ===== CAR & TRUCK (Gas, Auto, Parking) =====
+  // Gas Stations
+  'shell': { category: 'car_truck', confidence: 'high' },
+  'chevron': { category: 'car_truck', confidence: 'high' },
+  'exxon': { category: 'car_truck', confidence: 'high' },
+  'mobil': { category: 'car_truck', confidence: 'high' },
+  'bp ': { category: 'car_truck', confidence: 'high' },
+  'arco': { category: 'car_truck', confidence: 'high' },
+  '76 gas': { category: 'car_truck', confidence: 'high' },
+  'circle k': { category: 'car_truck', confidence: 'high' },
+  'speedway': { category: 'car_truck', confidence: 'high' },
+  'marathon': { category: 'car_truck', confidence: 'high' },
+  'sunoco': { category: 'car_truck', confidence: 'high' },
+  'valero': { category: 'car_truck', confidence: 'high' },
+  'phillips 66': { category: 'car_truck', confidence: 'high' },
+  'sinclair': { category: 'car_truck', confidence: 'high' },
+  "casey's": { category: 'car_truck', confidence: 'high' },
+  'caseys': { category: 'car_truck', confidence: 'high' },
+  'wawa': { category: 'car_truck', confidence: 'high' },
+  'sheetz': { category: 'car_truck', confidence: 'high' },
+  'quiktrip': { category: 'car_truck', confidence: 'high' },
+  'qt ': { category: 'car_truck', confidence: 'high' },
+  'racetrac': { category: 'car_truck', confidence: 'high' },
+  'pilot flying': { category: 'car_truck', confidence: 'high' },
+  'loves travel': { category: 'car_truck', confidence: 'high' },
+  'ta travel': { category: 'car_truck', confidence: 'high' },
+  'petro stopping': { category: 'car_truck', confidence: 'high' },
+  'costco gas': { category: 'car_truck', confidence: 'high' },
+  "sam's club gas": { category: 'car_truck', confidence: 'high' },
+
+  // Auto Service
+  'jiffy lube': { category: 'car_truck', confidence: 'high' },
+  'valvoline': { category: 'car_truck', confidence: 'high' },
+  'firestone': { category: 'car_truck', confidence: 'high' },
+  'goodyear': { category: 'car_truck', confidence: 'high' },
+  'discount tire': { category: 'car_truck', confidence: 'high' },
+  'les schwab': { category: 'car_truck', confidence: 'high' },
+  'midas': { category: 'car_truck', confidence: 'high' },
+  'pep boys': { category: 'car_truck', confidence: 'high' },
+  'autozone': { category: 'car_truck', confidence: 'high' },
+  "o'reilly auto": { category: 'car_truck', confidence: 'high' },
+  'oreilly auto': { category: 'car_truck', confidence: 'high' },
+  'advance auto': { category: 'car_truck', confidence: 'high' },
+  'napa auto': { category: 'car_truck', confidence: 'high' },
+  'carmax': { category: 'car_truck', confidence: 'high' },
+  'car wash': { category: 'car_truck', confidence: 'high' },
+  'mister car wash': { category: 'car_truck', confidence: 'high' },
+  'quick quack': { category: 'car_truck', confidence: 'high' },
+
+  // Parking
+  'parkwhiz': { category: 'car_truck', confidence: 'high' },
+  'spothero': { category: 'car_truck', confidence: 'high' },
+  'parkopedia': { category: 'car_truck', confidence: 'high' },
+  'ace parking': { category: 'car_truck', confidence: 'high' },
+  'sp plus': { category: 'car_truck', confidence: 'high' },
+  'laz parking': { category: 'car_truck', confidence: 'high' },
+  'impark': { category: 'car_truck', confidence: 'high' },
+
+  // EV Charging
+  'tesla supercharger': { category: 'car_truck', confidence: 'high' },
+  'chargepoint': { category: 'car_truck', confidence: 'high' },
+  'electrify america': { category: 'car_truck', confidence: 'high' },
+  'evgo': { category: 'car_truck', confidence: 'high' },
+  'blink charging': { category: 'car_truck', confidence: 'high' },
+
+  // ===== TRAVEL (Airlines, Hotels, Transportation) =====
+  // Airlines
+  'delta air': { category: 'travel', confidence: 'high' },
+  'united airlines': { category: 'travel', confidence: 'high' },
+  'american airlines': { category: 'travel', confidence: 'high' },
+  'southwest airlines': { category: 'travel', confidence: 'high' },
+  'jetblue': { category: 'travel', confidence: 'high' },
+  'alaska airlines': { category: 'travel', confidence: 'high' },
+  'spirit airlines': { category: 'travel', confidence: 'high' },
+  'frontier airlines': { category: 'travel', confidence: 'high' },
+  'hawaiian airlines': { category: 'travel', confidence: 'high' },
+  'sun country': { category: 'travel', confidence: 'high' },
+  'allegiant': { category: 'travel', confidence: 'high' },
+  'air canada': { category: 'travel', confidence: 'high' },
+  'british airways': { category: 'travel', confidence: 'high' },
+  'lufthansa': { category: 'travel', confidence: 'high' },
+  'emirates': { category: 'travel', confidence: 'high' },
+  'korean air': { category: 'travel', confidence: 'high' },
+  'ana ': { category: 'travel', confidence: 'high' },
+  'jal ': { category: 'travel', confidence: 'high' },
+  'cathay pacific': { category: 'travel', confidence: 'high' },
+  'singapore airlines': { category: 'travel', confidence: 'high' },
+  'qantas': { category: 'travel', confidence: 'high' },
+
+  // Hotels
+  'marriott': { category: 'travel', confidence: 'high' },
+  'hilton': { category: 'travel', confidence: 'high' },
+  'hyatt': { category: 'travel', confidence: 'high' },
+  'ihg': { category: 'travel', confidence: 'high' },
+  'holiday inn': { category: 'travel', confidence: 'high' },
+  'sheraton': { category: 'travel', confidence: 'high' },
+  'westin': { category: 'travel', confidence: 'high' },
+  'w hotel': { category: 'travel', confidence: 'high' },
+  'ritz carlton': { category: 'travel', confidence: 'high' },
+  'four seasons': { category: 'travel', confidence: 'high' },
+  'intercontinental': { category: 'travel', confidence: 'high' },
+  'crowne plaza': { category: 'travel', confidence: 'high' },
+  'hampton inn': { category: 'travel', confidence: 'high' },
+  'doubletree': { category: 'travel', confidence: 'high' },
+  'embassy suites': { category: 'travel', confidence: 'high' },
+  'courtyard by marriott': { category: 'travel', confidence: 'high' },
+  'fairfield inn': { category: 'travel', confidence: 'high' },
+  'residence inn': { category: 'travel', confidence: 'high' },
+  'springhill suites': { category: 'travel', confidence: 'high' },
+  'best western': { category: 'travel', confidence: 'high' },
+  'la quinta': { category: 'travel', confidence: 'high' },
+  'wyndham': { category: 'travel', confidence: 'high' },
+  'radisson': { category: 'travel', confidence: 'high' },
+  'omni hotel': { category: 'travel', confidence: 'high' },
+  'loews hotel': { category: 'travel', confidence: 'high' },
+  'kimpton': { category: 'travel', confidence: 'high' },
+  'ace hotel': { category: 'travel', confidence: 'high' },
+  'motel 6': { category: 'travel', confidence: 'high' },
+  'super 8': { category: 'travel', confidence: 'high' },
+  'days inn': { category: 'travel', confidence: 'high' },
+  'red roof inn': { category: 'travel', confidence: 'high' },
+  'comfort inn': { category: 'travel', confidence: 'high' },
+  'quality inn': { category: 'travel', confidence: 'high' },
+  'econo lodge': { category: 'travel', confidence: 'high' },
+  'airbnb': { category: 'travel', confidence: 'high' },
+  'vrbo': { category: 'travel', confidence: 'high' },
+  'booking.com': { category: 'travel', confidence: 'high' },
+  'expedia': { category: 'travel', confidence: 'high' },
+  'hotels.com': { category: 'travel', confidence: 'high' },
+  'priceline': { category: 'travel', confidence: 'high' },
+  'kayak': { category: 'travel', confidence: 'high' },
+  'trivago': { category: 'travel', confidence: 'high' },
+
+  // Rideshare & Taxi
+  'uber': { category: 'travel', confidence: 'high' },
+  'lyft': { category: 'travel', confidence: 'high' },
+  'taxi': { category: 'travel', confidence: 'medium' },
+  'cab ': { category: 'travel', confidence: 'medium' },
+  'yellow cab': { category: 'travel', confidence: 'high' },
+
+  // Car Rental
+  'hertz': { category: 'travel', confidence: 'high' },
+  'enterprise rent': { category: 'travel', confidence: 'high' },
+  'avis': { category: 'travel', confidence: 'high' },
+  'budget rent': { category: 'travel', confidence: 'high' },
+  'national car': { category: 'travel', confidence: 'high' },
+  'alamo rent': { category: 'travel', confidence: 'high' },
+  'dollar rent': { category: 'travel', confidence: 'high' },
+  'thrifty car': { category: 'travel', confidence: 'high' },
+  'sixt': { category: 'travel', confidence: 'high' },
+  'turo': { category: 'travel', confidence: 'high' },
+  'zipcar': { category: 'travel', confidence: 'high' },
+
+  // Public Transit
+  'amtrak': { category: 'travel', confidence: 'high' },
+  'greyhound': { category: 'travel', confidence: 'high' },
+  'megabus': { category: 'travel', confidence: 'high' },
+  'flixbus': { category: 'travel', confidence: 'high' },
+
+  // ===== OFFICE EXPENSE =====
+  'office depot': { category: 'office_expense', confidence: 'high' },
+  'officemax': { category: 'office_expense', confidence: 'high' },
+  'staples': { category: 'office_expense', confidence: 'high' },
+  'fedex office': { category: 'office_expense', confidence: 'high' },
+  'ups store': { category: 'office_expense', confidence: 'high' },
+  'usps': { category: 'office_expense', confidence: 'high' },
+  'post office': { category: 'office_expense', confidence: 'high' },
+  'stamps.com': { category: 'office_expense', confidence: 'high' },
+  'pitney bowes': { category: 'office_expense', confidence: 'high' },
+  'adobe': { category: 'office_expense', confidence: 'high' },
+  'microsoft 365': { category: 'office_expense', confidence: 'high' },
+  'microsoft office': { category: 'office_expense', confidence: 'high' },
+  'google workspace': { category: 'office_expense', confidence: 'high' },
+  'dropbox': { category: 'office_expense', confidence: 'high' },
+  'slack': { category: 'office_expense', confidence: 'high' },
+  'zoom': { category: 'office_expense', confidence: 'high' },
+  'notion': { category: 'office_expense', confidence: 'high' },
+  'asana': { category: 'office_expense', confidence: 'high' },
+  'trello': { category: 'office_expense', confidence: 'high' },
+  'monday.com': { category: 'office_expense', confidence: 'high' },
+  'hubspot': { category: 'office_expense', confidence: 'high' },
+  'salesforce': { category: 'office_expense', confidence: 'high' },
+  'quickbooks': { category: 'office_expense', confidence: 'high' },
+  'freshbooks': { category: 'office_expense', confidence: 'high' },
+  'xero': { category: 'office_expense', confidence: 'high' },
+  'intuit': { category: 'office_expense', confidence: 'high' },
+  'docusign': { category: 'office_expense', confidence: 'high' },
+  'mailchimp': { category: 'office_expense', confidence: 'high' },
+  'canva': { category: 'office_expense', confidence: 'high' },
+  'squarespace': { category: 'office_expense', confidence: 'high' },
+  'wix': { category: 'office_expense', confidence: 'high' },
+  'godaddy': { category: 'office_expense', confidence: 'high' },
+  'namecheap': { category: 'office_expense', confidence: 'high' },
+  'cloudflare': { category: 'office_expense', confidence: 'high' },
+  'aws': { category: 'office_expense', confidence: 'high' },
+  'amazon web services': { category: 'office_expense', confidence: 'high' },
+  'google cloud': { category: 'office_expense', confidence: 'high' },
+  'azure': { category: 'office_expense', confidence: 'high' },
+  'heroku': { category: 'office_expense', confidence: 'high' },
+  'digitalocean': { category: 'office_expense', confidence: 'high' },
+  'vercel': { category: 'office_expense', confidence: 'high' },
+  'netlify': { category: 'office_expense', confidence: 'high' },
+
+  // ===== SUPPLIES =====
+  'home depot': { category: 'supplies', confidence: 'high' },
+  'lowes': { category: 'supplies', confidence: 'high' },
+  "lowe's": { category: 'supplies', confidence: 'high' },
+  'menards': { category: 'supplies', confidence: 'high' },
+  'ace hardware': { category: 'supplies', confidence: 'high' },
+  'true value': { category: 'supplies', confidence: 'high' },
+  'harbor freight': { category: 'supplies', confidence: 'high' },
+  'uline': { category: 'supplies', confidence: 'high' },
+  'grainger': { category: 'supplies', confidence: 'high' },
+  'fastenal': { category: 'supplies', confidence: 'high' },
+
+  // ===== UTILITIES =====
+  'at&t': { category: 'utilities', confidence: 'high' },
+  'att ': { category: 'utilities', confidence: 'high' },
+  'verizon': { category: 'utilities', confidence: 'high' },
+  't-mobile': { category: 'utilities', confidence: 'high' },
+  'tmobile': { category: 'utilities', confidence: 'high' },
+  'sprint': { category: 'utilities', confidence: 'high' },
+  'comcast': { category: 'utilities', confidence: 'high' },
+  'xfinity': { category: 'utilities', confidence: 'high' },
+  'spectrum': { category: 'utilities', confidence: 'high' },
+  'cox': { category: 'utilities', confidence: 'medium' },
+  'frontier': { category: 'utilities', confidence: 'medium' },
+  'centurylink': { category: 'utilities', confidence: 'high' },
+  'optimum': { category: 'utilities', confidence: 'high' },
+  'google fiber': { category: 'utilities', confidence: 'high' },
+  'starlink': { category: 'utilities', confidence: 'high' },
+  'pge': { category: 'utilities', confidence: 'high' },
+  'pg&e': { category: 'utilities', confidence: 'high' },
+  'pacific gas': { category: 'utilities', confidence: 'high' },
+  'southern california edison': { category: 'utilities', confidence: 'high' },
+  'sce ': { category: 'utilities', confidence: 'high' },
+  'con edison': { category: 'utilities', confidence: 'high' },
+  'duke energy': { category: 'utilities', confidence: 'high' },
+  'florida power': { category: 'utilities', confidence: 'high' },
+  'dominion energy': { category: 'utilities', confidence: 'high' },
+  'xcel energy': { category: 'utilities', confidence: 'high' },
+
+  // ===== ADVERTISING =====
+  'google ads': { category: 'advertising', confidence: 'high' },
+  'facebook ads': { category: 'advertising', confidence: 'high' },
+  'meta ads': { category: 'advertising', confidence: 'high' },
+  'instagram ads': { category: 'advertising', confidence: 'high' },
+  'linkedin ads': { category: 'advertising', confidence: 'high' },
+  'twitter ads': { category: 'advertising', confidence: 'high' },
+  'tiktok ads': { category: 'advertising', confidence: 'high' },
+  'bing ads': { category: 'advertising', confidence: 'high' },
+  'amazon advertising': { category: 'advertising', confidence: 'high' },
+  'vistaprint': { category: 'advertising', confidence: 'high' },
+  'moo.com': { category: 'advertising', confidence: 'high' },
+  'shutterfly': { category: 'advertising', confidence: 'high' },
+
+  // ===== INSURANCE =====
+  'geico': { category: 'insurance', confidence: 'high' },
+  'state farm': { category: 'insurance', confidence: 'high' },
+  'allstate': { category: 'insurance', confidence: 'high' },
+  'progressive': { category: 'insurance', confidence: 'high' },
+  'liberty mutual': { category: 'insurance', confidence: 'high' },
+  'farmers insurance': { category: 'insurance', confidence: 'high' },
+  'nationwide': { category: 'insurance', confidence: 'high' },
+  'usaa': { category: 'insurance', confidence: 'high' },
+  'travelers': { category: 'insurance', confidence: 'high' },
+  'aig': { category: 'insurance', confidence: 'high' },
+  'metlife': { category: 'insurance', confidence: 'high' },
+  'prudential': { category: 'insurance', confidence: 'high' },
+  'aetna': { category: 'insurance', confidence: 'high' },
+  'cigna': { category: 'insurance', confidence: 'high' },
+  'blue cross': { category: 'insurance', confidence: 'high' },
+  'united health': { category: 'insurance', confidence: 'high' },
+  'humana': { category: 'insurance', confidence: 'high' },
+  'kaiser': { category: 'insurance', confidence: 'high' },
+
+  // ===== LEGAL/PROFESSIONAL =====
+  'legalzoom': { category: 'legal_professional', confidence: 'high' },
+  'rocket lawyer': { category: 'legal_professional', confidence: 'high' },
+  'h&r block': { category: 'legal_professional', confidence: 'high' },
+  'turbotax': { category: 'legal_professional', confidence: 'high' },
+  'jackson hewitt': { category: 'legal_professional', confidence: 'high' },
+  'ernst & young': { category: 'legal_professional', confidence: 'high' },
+  'deloitte': { category: 'legal_professional', confidence: 'high' },
+  'kpmg': { category: 'legal_professional', confidence: 'high' },
+  'pwc': { category: 'legal_professional', confidence: 'high' },
+  'pricewaterhousecoopers': { category: 'legal_professional', confidence: 'high' },
+
+  // ===== RENT/LEASE PROPERTY =====
+  'wework': { category: 'rent_property', confidence: 'high' },
+  'regus': { category: 'rent_property', confidence: 'high' },
+  'industrious': { category: 'rent_property', confidence: 'high' },
+  'spaces': { category: 'rent_property', confidence: 'high' },
+  'coworking': { category: 'rent_property', confidence: 'medium' },
+
+  // ===== COMMISSIONS & FEES =====
+  'stripe': { category: 'commissions_fees', confidence: 'high' },
+  'square': { category: 'commissions_fees', confidence: 'high' },
+  'paypal': { category: 'commissions_fees', confidence: 'high' },
+  'venmo': { category: 'commissions_fees', confidence: 'medium' },
+  'shopify': { category: 'commissions_fees', confidence: 'high' },
+  'etsy': { category: 'commissions_fees', confidence: 'high' },
+  'ebay': { category: 'commissions_fees', confidence: 'high' },
+  'amazon seller': { category: 'commissions_fees', confidence: 'high' },
+
+  // ===== CONTRACT LABOR =====
+  'upwork': { category: 'contract_labor', confidence: 'high' },
+  'fiverr': { category: 'contract_labor', confidence: 'high' },
+  'toptal': { category: 'contract_labor', confidence: 'high' },
+  'freelancer.com': { category: 'contract_labor', confidence: 'high' },
+  '99designs': { category: 'contract_labor', confidence: 'high' },
+
+  // ===== OTHER/EDUCATION =====
+  'udemy': { category: 'other', confidence: 'high' },
+  'coursera': { category: 'other', confidence: 'high' },
+  'linkedin learning': { category: 'other', confidence: 'high' },
+  'skillshare': { category: 'other', confidence: 'high' },
+  'masterclass': { category: 'other', confidence: 'high' },
+  'pluralsight': { category: 'other', confidence: 'high' },
+};
+
+// Keyword patterns for categories (used when merchant doesn't match exactly)
+export const CATEGORY_KEYWORDS: Record<string, string[]> = {
+  advertising: ['marketing', 'advertisement', 'promo', 'billboard', 'flyer', 'business card', 'brochure', 'signage', 'banner'],
+  car_truck: ['gasoline', 'fuel', 'petrol', 'diesel', 'parking', 'toll', 'car wash', 'auto repair', 'oil change', 'tire', 'brake', 'automotive'],
+  meals: ['restaurant', 'cafe', 'coffee', 'lunch', 'dinner', 'breakfast', 'food', 'grill', 'kitchen', 'bistro', 'eatery', 'diner', 'bakery', 'pizzeria', 'steakhouse', 'seafood', 'bbq', 'barbecue', 'taqueria', 'burrito', 'sandwich', 'deli', 'catering'],
+  travel: ['airline', 'hotel', 'flight', 'airport', 'rental car', 'lodging', 'resort', 'motel', 'hostel', 'transit', 'train', 'bus ticket'],
+  office_expense: ['office supplies', 'printer', 'ink', 'toner', 'paper', 'envelope', 'binder', 'folder', 'shipping', 'postage', 'software subscription', 'cloud storage'],
+  supplies: ['hardware', 'tools', 'lumber', 'paint', 'materials', 'packaging', 'boxes', 'tape', 'cleaning supplies'],
+  utilities: ['electric', 'electricity', 'water bill', 'gas bill', 'internet', 'phone bill', 'utility', 'broadband', 'cable', 'wireless'],
+  insurance: ['insurance premium', 'liability', 'coverage', 'policy', 'deductible'],
+  legal_professional: ['attorney', 'lawyer', 'law firm', 'cpa', 'accountant', 'bookkeeper', 'legal', 'consulting', 'tax preparation', 'notary'],
+  taxes_licenses: ['license fee', 'permit', 'registration', 'tax payment', 'renewal fee', 'certification'],
+  repairs_maintenance: ['repair', 'maintenance', 'fix', 'service call', 'technician', 'plumber', 'electrician', 'hvac'],
+  rent_property: ['rent payment', 'lease', 'office space', 'storage unit', 'warehouse'],
+  rent_equipment: ['equipment rental', 'vehicle lease', 'machinery rental'],
+  contract_labor: ['freelance', 'contractor', 'consultant fee'],
+  commissions_fees: ['transaction fee', 'processing fee', 'merchant fee', 'platform fee', 'commission'],
+  depreciation: ['equipment purchase', 'asset', 'machinery', 'computer equipment', 'furniture'],
+  interest_other: ['interest payment', 'loan payment', 'finance charge'],
+  wages: ['payroll', 'salary', 'wages', 'employee pay'],
+  home_office: ['home office', 'work from home'],
+};
+
+// Item keywords that suggest specific categories
+export const ITEM_CATEGORY_HINTS: Record<string, string[]> = {
+  meals: ['coffee', 'latte', 'espresso', 'cappuccino', 'mocha', 'tea', 'sandwich', 'salad', 'burger', 'pizza', 'pasta', 'soup', 'appetizer', 'entree', 'dessert', 'beverage', 'drink', 'water', 'soda', 'juice', 'beer', 'wine', 'cocktail'],
+  car_truck: ['regular', 'premium', 'unleaded', 'diesel', 'gallon', 'liters', 'oil change', 'tire rotation', 'brake pad', 'wiper blade'],
+  office_expense: ['copy paper', 'printer ink', 'toner', 'staples', 'pens', 'highlighters', 'notebooks', 'folders', 'labels'],
+  supplies: ['lumber', 'screws', 'nails', 'paint', 'brush', 'sandpaper', 'drill bit', 'tape'],
+};
+
+/**
+ * Enhanced auto-categorize function
+ * Analyzes merchant name and items to determine the most likely IRS category
+ */
+export function autoCategorize(
+  merchantName: string,
+  items?: Array<{ name: string }>,
+  autoEnabled: boolean = true
+): { category: string; confidence: 'high' | 'medium' | 'low' } {
+  if (!autoEnabled || !merchantName) {
+    return { category: 'other', confidence: 'low' };
+  }
+
+  const lowerMerchant = merchantName.toLowerCase().trim();
+
+  // 1. First, check exact merchant database matches
+  for (const [merchant, info] of Object.entries(MERCHANT_DATABASE)) {
+    if (lowerMerchant.includes(merchant)) {
+      return { category: info.category, confidence: info.confidence };
+    }
+  }
+
+  // 2. Check keyword patterns
+  for (const [category, keywords] of Object.entries(CATEGORY_KEYWORDS)) {
+    for (const keyword of keywords) {
+      if (lowerMerchant.includes(keyword.toLowerCase())) {
+        return { category, confidence: 'medium' };
+      }
+    }
+  }
+
+  // 3. Check item names for hints (if items are provided)
+  if (items && items.length > 0) {
+    const itemText = items.map(i => i.name.toLowerCase()).join(' ');
+
+    for (const [category, hints] of Object.entries(ITEM_CATEGORY_HINTS)) {
+      for (const hint of hints) {
+        if (itemText.includes(hint.toLowerCase())) {
+          return { category, confidence: 'medium' };
+        }
+      }
+    }
+  }
+
+  // 4. Pattern-based detection for common formats
+  // Check for gas station patterns (numbers like "10.5 GAL" or "GALLONS")
+  if (/\d+\.?\d*\s*(gal|gallon)/i.test(lowerMerchant)) {
+    return { category: 'car_truck', confidence: 'medium' };
+  }
+
+  // Check for restaurant patterns
+  if (/(grill|kitchen|cafe|bistro|diner|restaurant|eatery|tavern|pub|bar & grill)/i.test(lowerMerchant)) {
+    return { category: 'meals', confidence: 'medium' };
+  }
+
+  // Check for hotel patterns
+  if (/(hotel|inn|suites|resort|lodge|motel)/i.test(lowerMerchant)) {
+    return { category: 'travel', confidence: 'medium' };
+  }
+
+  // No confident match - return other (default category)
+  return { category: 'other', confidence: 'low' };
+
+}
+
+/**
+ * Check if category is uncategorized or needs attention
+ */
+export function isUncategorized(category: string): boolean {
+  return !category || category === 'uncategorized' || category === 'other';
+}

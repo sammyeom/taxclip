@@ -198,7 +198,6 @@ export interface UserSettings {
   // General Settings
   currency: string;
   date_format: string;
-  default_category: string;
   auto_categorize: boolean;
 
   // Notifications
@@ -231,7 +230,6 @@ export interface UserSettings {
 export interface UpdateUserSettings {
   currency?: string;
   date_format?: string;
-  default_category?: string;
   auto_categorize?: boolean;
   email_notifications?: boolean;
   monthly_summary?: boolean;

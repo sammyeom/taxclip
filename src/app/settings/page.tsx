@@ -75,7 +75,6 @@ interface AppSettings {
   // General
   currency: string;
   dateFormat: string;
-  defaultCategory: string;
   autoCategorize: boolean;
 
   // Notifications
@@ -98,7 +97,6 @@ interface AppSettings {
 const DEFAULT_SETTINGS: AppSettings = {
   currency: 'USD',
   dateFormat: 'MM/DD/YYYY',
-  defaultCategory: 'other',
   autoCategorize: true,
   emailNotifications: true,
   monthlySummary: true,
@@ -203,8 +201,7 @@ function SettingsContent({ defaultTab }: { defaultTab: string }) {
       const mappedSettings: AppSettings = {
         currency: data.currency,
         dateFormat: data.date_format,
-        defaultCategory: data.default_category,
-        autoCategorize: data.auto_categorize,
+        autoCategorize: data.auto_categorize ?? true,
         emailNotifications: data.email_notifications,
         monthlySummary: data.monthly_summary,
         uploadReminders: data.receipt_reminders,
@@ -245,7 +242,6 @@ function SettingsContent({ defaultTab }: { defaultTab: string }) {
       const dbSettings = {
         currency: settingsToSave.currency,
         date_format: settingsToSave.dateFormat,
-        default_category: settingsToSave.defaultCategory,
         auto_categorize: settingsToSave.autoCategorize,
         email_notifications: settingsToSave.emailNotifications,
         monthly_summary: settingsToSave.monthlySummary,

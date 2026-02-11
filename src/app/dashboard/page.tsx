@@ -30,6 +30,16 @@ import {
   ArrowUpRight,
   ArrowDownRight,
   DollarSign,
+  Lightbulb,
+  ChevronDown,
+  ChevronUp,
+  FileText,
+  UtensilsCrossed,
+  ClipboardList,
+  Briefcase,
+  PenLine,
+  Car,
+  Archive,
 } from 'lucide-react';
 import {
   ChartSkeleton,
@@ -73,6 +83,19 @@ const DynamicInsightSection = dynamic(
     ssr: false,
   }
 );
+
+// Tax Tips data (same as mobile)
+const TAX_TIPS = [
+  { icon: FileText, text: 'Keep receipts for expenses over $75' },
+  { icon: UtensilsCrossed, text: 'Business meals are 50% deductible' },
+  { icon: DollarSign, text: 'Save up to 37.3% on expenses (22% federal + 15.3% SE tax)' },
+  { icon: BarChart3, text: 'Categorize receipts regularly for accuracy' },
+  { icon: ClipboardList, text: 'Scan itemized receipts with all line items' },
+  { icon: Briefcase, text: 'Separate business and personal expenses' },
+  { icon: PenLine, text: 'Note the business purpose on each receipt' },
+  { icon: Car, text: 'Track mileage for vehicle deductions' },
+  { icon: Archive, text: 'Save receipts for 7 years (IRS requirement)' },
+];
 
 // Constants
 const CATEGORIES: Record<string, string> = {
@@ -346,6 +369,8 @@ export default function DashboardPage() {
   const [allReceipts, setAllReceipts] = useState<Receipt[]>([]);
   const [loading, setLoading] = useState(true);
   const [hoveredReceiptId, setHoveredReceiptId] = useState<string | null>(null);
+  const [taxTipsExpanded, setTaxTipsExpanded] = useState(false);
+  const [showAllTips, setShowAllTips] = useState(false);
 
   // Tax Export Modal state
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
@@ -878,6 +903,65 @@ export default function DashboardPage() {
             <Suspense fallback={<InsightSkeleton />}>
               <DynamicInsightSection data={insightData} />
             </Suspense>
+
+            {/* Tax Tips Section */}
+            <Card className="bg-amber-50 border-amber-200">
+              <button
+                onClick={() => setTaxTipsExpanded(!taxTipsExpanded)}
+                className="w-full"
+              >
+                <CardHeader className="pb-0 flex flex-row items-center justify-between">
+                  <CardTitle className="text-base font-semibold text-amber-800 flex items-center gap-2">
+                    <Lightbulb className="w-5 h-5 text-amber-600" />
+                    Tax Tips
+                  </CardTitle>
+                  {taxTipsExpanded ? (
+                    <ChevronUp className="w-5 h-5 text-amber-600" />
+                  ) : (
+                    <ChevronDown className="w-5 h-5 text-amber-600" />
+                  )}
+                </CardHeader>
+              </button>
+              {taxTipsExpanded && (
+                <CardContent className="pt-4">
+                  <div className="space-y-3">
+                    {(showAllTips ? TAX_TIPS : TAX_TIPS.slice(0, 5)).map((tip, index) => {
+                      const IconComponent = tip.icon;
+                      return (
+                        <div key={index} className="flex items-start gap-3">
+                          <div className="w-7 h-7 rounded-md bg-amber-100 flex items-center justify-center flex-shrink-0">
+                            <IconComponent className="w-3.5 h-3.5 text-amber-700" />
+                          </div>
+                          <p className="text-sm text-gray-600 pt-1">{tip.text}</p>
+                        </div>
+                      );
+                    })}
+                  </div>
+                  {!showAllTips && TAX_TIPS.length > 5 && (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setShowAllTips(true);
+                      }}
+                      className="mt-3 text-sm font-semibold text-amber-700 hover:text-amber-800"
+                    >
+                      Show all tips ({TAX_TIPS.length - 5} more)
+                    </button>
+                  )}
+                  {showAllTips && (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setShowAllTips(false);
+                      }}
+                      className="mt-3 text-sm font-semibold text-amber-700 hover:text-amber-800"
+                    >
+                      Show less
+                    </button>
+                  )}
+                </CardContent>
+              )}
+            </Card>
           </div>
         </div>
       </main>

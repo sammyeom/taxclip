@@ -21,9 +21,19 @@ import {
   BarChart3,
   PieChart as PieChartIcon,
   AlertCircle,
+  Info,
+  AlertTriangle,
+  X,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogClose,
+} from '@/components/ui/dialog';
 import {
   Table,
   TableBody,
@@ -124,6 +134,7 @@ export default function ReportsPage() {
   const [recentReceipts, setRecentReceipts] = useState<Receipt[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showTaxInfoModal, setShowTaxInfoModal] = useState(false);
 
   // Filter receipts by date range
   const filterReceiptsByDateRange = useCallback((receipts: Receipt[], range: DateRange, startDate?: Date, endDate?: Date) => {
@@ -558,7 +569,15 @@ export default function ReportsPage() {
                   </div>
                   {/* Est. Tax Savings */}
                   <div className="text-center">
-                    <p className="text-xs sm:text-sm text-slate-600 mb-1">Est. Tax Savings</p>
+                    <div className="flex items-center justify-center gap-1 mb-1">
+                      <p className="text-xs sm:text-sm text-slate-600">Est. Tax Savings</p>
+                      <button
+                        onClick={() => setShowTaxInfoModal(true)}
+                        className="text-slate-400 hover:text-cyan-600 transition-colors"
+                      >
+                        <Info className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                      </button>
+                    </div>
                     <p className="text-lg sm:text-2xl font-bold text-cyan-600">{formatCurrency(taxSummary.estimatedSavings)}</p>
                     <p className="text-[10px] sm:text-xs text-slate-500">37.3% rate</p>
                   </div>
@@ -864,6 +883,93 @@ export default function ReportsPage() {
           </>
         )}
       </div>
+
+      {/* Tax Info Modal */}
+      <Dialog open={showTaxInfoModal} onOpenChange={setShowTaxInfoModal}>
+        <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-bold">About Your Tax Savings</DialogTitle>
+          </DialogHeader>
+
+          <div className="space-y-4 mt-4">
+            {/* How It's Calculated */}
+            <div>
+              <h3 className="text-base font-semibold text-slate-900 mb-2">How It's Calculated</h3>
+              <p className="text-sm text-slate-600 leading-relaxed">
+                Your tax savings are estimated using a 37.3% effective tax rate, which includes:
+              </p>
+            </div>
+
+            {/* Federal Income Tax Card */}
+            <div className="bg-cyan-50 rounded-lg p-4">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm font-semibold text-slate-900">Federal Income Tax</span>
+                <span className="bg-cyan-500 text-white text-xs font-bold px-2 py-1 rounded">22%</span>
+              </div>
+              <p className="text-xs text-slate-600 leading-relaxed">
+                This is the most common tax bracket for freelancers and small business owners. When you deduct business expenses, you reduce your taxable income and save 22% in federal taxes.
+              </p>
+            </div>
+
+            {/* Self-Employment Tax Card */}
+            <div className="bg-cyan-50 rounded-lg p-4">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm font-semibold text-slate-900">Self-Employment Tax</span>
+                <span className="bg-cyan-500 text-white text-xs font-bold px-2 py-1 rounded">15.3%</span>
+              </div>
+              <p className="text-xs text-slate-600 leading-relaxed">
+                If you're self-employed, you pay Social Security (12.4%) and Medicare (2.9%) taxes on your net earnings. Business expenses reduce these taxes as well.
+              </p>
+            </div>
+
+            {/* Combined Rate Box */}
+            <div className="bg-cyan-500 rounded-lg p-4 text-center">
+              <span className="text-white font-bold text-lg">Combined Rate: 37.3%</span>
+            </div>
+
+            {/* Example Box */}
+            <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-4">
+              <h4 className="text-sm font-semibold text-emerald-800 mb-2">Example:</h4>
+              <p className="text-xs text-emerald-700 leading-relaxed">
+                Deductible expenses: $1,000<br />
+                Tax savings: $1,000 × 37.3% = $373<br /><br />
+                You keep $373 more in your pocket! 💰
+              </p>
+            </div>
+
+            {/* What's Not Included */}
+            <div>
+              <h3 className="text-base font-semibold text-slate-900 mb-2">What's not included:</h3>
+              <p className="text-sm text-slate-600 leading-relaxed">
+                State income taxes (varies by state, typically 0-13%)<br /><br />
+                This means your actual tax savings may be higher than shown here.
+              </p>
+            </div>
+
+            {/* Disclaimer Box */}
+            <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
+              <div className="flex items-center gap-2 mb-2">
+                <AlertTriangle className="w-4 h-4 text-amber-600" />
+                <span className="text-sm font-semibold text-amber-800">Disclaimer</span>
+              </div>
+              <p className="text-xs text-amber-700 leading-relaxed">
+                This is an estimate based on typical tax rates for sole proprietors and single-member LLCs. Your actual savings depend on your individual tax situation, including your state, tax bracket, and business structure.
+              </p>
+              <p className="text-xs text-amber-700 font-semibold mt-2">
+                For personalized tax advice, consult a qualified tax professional or CPA.
+              </p>
+            </div>
+
+            {/* Got it Button */}
+            <Button
+              onClick={() => setShowTaxInfoModal(false)}
+              className="w-full bg-cyan-500 hover:bg-cyan-600 text-white"
+            >
+              Got it
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

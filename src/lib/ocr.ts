@@ -28,7 +28,13 @@ export interface ReceiptData {
   category: string;
   paymentMethod?: string;
   documentType: DocumentType;  // Auto-classified document type
-  confidence?: number;         // Classification confidence (0-100)
+  confidence?: number;         // Overall OCR confidence (0-100)
+  fieldConfidence?: {          // Per-field confidence scores
+    date: number;
+    vendor: number;
+    total: number;
+    items: number;
+  };
 }
 
 // IRS Schedule C categories for accurate categorization
@@ -234,6 +240,41 @@ ITEMS FORMAT - Extract each item with quantity and price:
 }
 If only total price is shown (not unit price), set unitPrice = amount and qty = 1.`;
 
+    // Validation and confidence scoring instructions
+    const validationInstructions = `
+VALIDATION RULES (CRITICAL - Follow these exactly):
+1. DATE VALIDATION:
+   - Must be in YYYY-MM-DD format
+   - If unclear or partially visible, return null instead of guessing
+   - Check for common date formats: MM/DD/YYYY, DD/MM/YYYY, MMM DD YYYY
+
+2. AMOUNT VALIDATION:
+   - Total MUST equal subtotal + tax + tip (if all present)
+   - If items are extracted, verify sum of item amounts ≈ subtotal
+   - If discrepancy found, trust the "TOTAL" line on receipt
+   - Never return 0 for total unless receipt explicitly shows $0.00
+
+3. VENDOR VALIDATION:
+   - Look for store name in header, logo, or "Thank you for shopping at..."
+   - If unclear, return "Unknown Vendor" - do NOT guess
+
+4. CONFIDENCE SCORING:
+   For each field, assess readability:
+   - 90-100: Clearly visible, no ambiguity
+   - 70-89: Mostly clear, minor uncertainty
+   - 50-69: Partially visible or blurry
+   - Below 50: Guessing or very unclear
+
+Return additional confidence scores:
+{
+  "fieldConfidence": {
+    "date": 0-100,
+    "vendor": 0-100,
+    "total": 0-100,
+    "items": 0-100
+  }
+}`;
+
     const promptText = isMultiImage
       ? `You are analyzing ${imageUrls.length} images that together make up a SINGLE receipt/transaction.
 These images may show different parts of the same long receipt (top, middle, bottom sections).
@@ -250,32 +291,39 @@ ${IRS_CATEGORY_GUIDE}
 
 ${itemsFormatInstruction}
 
+${validationInstructions}
+
 Extract and return this JSON format:
 {
-  "date": "YYYY-MM-DD format",
+  "date": "YYYY-MM-DD format or null if unclear",
   "vendor": "merchant/store name",
   "amount": final total amount as number (NOT subtotal),
   "subtotal": subtotal before tax as number (null if not visible),
   "tax": tax amount as number (null if not visible),
   "tip": tip/gratuity amount as number (null if not visible),
-  "currency": "3-letter currency code (USD, KRW, EUR, GBP, JPY, CNY, CAD, AUD, etc.) - detect from currency symbol ($=USD, ₩=KRW, €=EUR, £=GBP, ¥=JPY or CNY, etc.)",
+  "currency": "3-letter currency code (USD, KRW, EUR, GBP, JPY, CNY, CAD, AUD, etc.)",
   "items": [
     {"name": "item1", "qty": 1, "unitPrice": 10.00, "amount": 10.00},
     {"name": "item2", "qty": 2, "unitPrice": 5.00, "amount": 10.00}
   ],
   "category": "one of: ${IRS_CATEGORIES.join(', ')}",
-  "paymentMethod": "one of: credit, debit, cash, check (detect from payment info on receipt)",
+  "paymentMethod": "one of: credit, debit, cash, check",
   "documentType": "one of: receipt, invoice, payment_proof, online_order, other",
-  "confidence": confidence percentage 0-100 for document type classification
+  "confidence": overall confidence 0-100,
+  "fieldConfidence": {
+    "date": 0-100,
+    "vendor": 0-100,
+    "total": 0-100,
+    "items": 0-100
+  }
 }
 
-IMPORTANT: Extract tax and tip separately - do NOT include them in the items array. They will be added separately.
-
-Make sure to:
-1. Extract ALL line items from every image with their quantities and prices
-2. Use the FINAL TOTAL (including tax) as the amount
-3. CAREFULLY categorize using the IRS Schedule C guide above - DO NOT default to "other" unless nothing else fits
-4. Classify the document type accurately for IRS audit purposes`
+CRITICAL RULES:
+1. Extract tax and tip separately - do NOT include them in the items array
+2. If text is unclear, return null for that field - do NOT guess
+3. Verify total = subtotal + tax + tip when all are present
+4. Extract ALL line items from every image
+5. Use the FINAL TOTAL (including tax) as the amount`
       : `Analyze this document image and extract the following information in JSON format:
 
 ${documentTypeInstructions}
@@ -284,33 +332,39 @@ ${IRS_CATEGORY_GUIDE}
 
 ${itemsFormatInstruction}
 
+${validationInstructions}
+
 Return this JSON format:
 {
-  "date": "YYYY-MM-DD format",
+  "date": "YYYY-MM-DD format or null if unclear",
   "vendor": "merchant/store name",
   "amount": total amount as number,
   "subtotal": subtotal before tax as number (null if not visible),
   "tax": tax amount as number (null if not visible),
   "tip": tip/gratuity amount as number (null if not visible),
-  "currency": "3-letter currency code (USD, KRW, EUR, GBP, JPY, CNY, CAD, AUD, etc.) - detect from currency symbol ($=USD, ₩=KRW, €=EUR, £=GBP, ¥=JPY or CNY, etc.)",
+  "currency": "3-letter currency code (USD, KRW, EUR, GBP, JPY, CNY, CAD, AUD, etc.)",
   "items": [
     {"name": "item1", "qty": 1, "unitPrice": 10.00, "amount": 10.00},
     {"name": "item2", "qty": 2, "unitPrice": 5.00, "amount": 10.00}
   ],
   "category": "one of: ${IRS_CATEGORIES.join(', ')}",
-  "paymentMethod": "one of: credit, debit, cash, check (detect from payment info on receipt)",
+  "paymentMethod": "one of: credit, debit, cash, check",
   "documentType": "one of: receipt, invoice, payment_proof, online_order, other",
-  "confidence": confidence percentage 0-100 for document type classification
+  "confidence": overall confidence 0-100,
+  "fieldConfidence": {
+    "date": 0-100,
+    "vendor": 0-100,
+    "total": 0-100,
+    "items": 0-100
+  }
 }
 
-IMPORTANT: Extract tax and tip separately - do NOT include them in the items array. They will be added separately.
-
-IMPORTANT RULES:
-1. CAREFULLY read the IRS Schedule C category guide above
-2. Choose the MOST SPECIFIC category - DO NOT default to "other" unless absolutely nothing else fits
-3. Look at the vendor name and items to determine category (e.g., OpenAI = "utilities", Restaurant = "meals")
-4. Extract each item with its quantity and unit price
-5. Classify the document type accurately for IRS audit purposes`;
+CRITICAL RULES:
+1. Extract tax and tip separately - do NOT include them in the items array
+2. If text is unclear, return null for that field - do NOT guess
+3. Verify total = subtotal + tax + tip when all are present
+4. Choose the MOST SPECIFIC IRS category - do NOT default to "other"
+5. Look at vendor name and items for category (e.g., OpenAI = "utilities", Restaurant = "meals")`;
 
     const response = await openai.chat.completions.create({
       model: "gpt-4o",  // Use full gpt-4o for better multi-image handling
@@ -393,6 +447,16 @@ IMPORTANT RULES:
       return 'credit'; // Default to credit
     };
 
+    // Extract field confidence scores
+    const fieldConfidence = data.fieldConfidence && typeof data.fieldConfidence === 'object'
+      ? {
+          date: typeof data.fieldConfidence.date === 'number' ? data.fieldConfidence.date : 50,
+          vendor: typeof data.fieldConfidence.vendor === 'number' ? data.fieldConfidence.vendor : 50,
+          total: typeof data.fieldConfidence.total === 'number' ? data.fieldConfidence.total : 50,
+          items: typeof data.fieldConfidence.items === 'number' ? data.fieldConfidence.items : 50,
+        }
+      : undefined;
+
     return {
       date: data.date || new Date().toISOString().split('T')[0],
       vendor: data.vendor || 'Unknown Vendor',
@@ -406,10 +470,142 @@ IMPORTANT RULES:
       paymentMethod: normalizePaymentMethod(data.paymentMethod),
       documentType,
       confidence: typeof data.confidence === 'number' ? data.confidence : undefined,
+      fieldConfidence,
     };
   } catch (error) {
     console.error('OCR Error:', error);
     throw new Error('Failed to extract receipt data');
   }
+}
+
+/**
+ * Two-pass verification for critical fields
+ * Re-analyzes image focusing only on total amount and date
+ * @param imageUrl - Image URL to verify
+ * @param initialResult - Initial OCR result to verify
+ * @returns Verified ReceiptData with potentially corrected values
+ */
+export async function verifyReceiptData(
+  imageUrl: string,
+  initialResult: ReceiptData
+): Promise<ReceiptData> {
+  // Skip verification if confidence is already high
+  const totalConfidence = initialResult.fieldConfidence?.total ?? 100;
+  const dateConfidence = initialResult.fieldConfidence?.date ?? 100;
+
+  if (totalConfidence >= 85 && dateConfidence >= 85) {
+    console.log('Skipping verification - confidence already high');
+    return initialResult;
+  }
+
+  console.log('Running two-pass verification for low confidence fields...');
+
+  try {
+    const verificationResponse = await openai.chat.completions.create({
+      model: "gpt-4o",
+      messages: [
+        {
+          role: "user",
+          content: [
+            {
+              type: "text",
+              text: `VERIFICATION TASK: Focus ONLY on extracting the TOTAL AMOUNT and DATE from this receipt.
+
+Initial extraction found:
+- Total: $${initialResult.amount}
+- Date: ${initialResult.date}
+
+Please carefully re-examine the image and verify these values.
+
+Look for:
+1. TOTAL: Find "Total", "Grand Total", "Amount Due", "Balance Due" - the final amount
+2. DATE: Look at top and bottom of receipt for transaction date
+
+Return JSON:
+{
+  "verified_amount": the total amount as a number,
+  "verified_date": "YYYY-MM-DD format",
+  "amount_confidence": 0-100,
+  "date_confidence": 0-100,
+  "amount_matches_initial": true/false,
+  "date_matches_initial": true/false
+}
+
+If you cannot clearly read a value, return null for that field.`,
+            },
+            {
+              type: "image_url",
+              image_url: {
+                url: imageUrl,
+                detail: "high" as const,
+              },
+            },
+          ],
+        },
+      ],
+      max_tokens: 500,
+    });
+
+    const verifyContent = verificationResponse.choices[0].message.content;
+    if (!verifyContent) return initialResult;
+
+    const jsonMatch = verifyContent.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) return initialResult;
+
+    const verifyData = JSON.parse(jsonMatch[0]);
+
+    // Update values if verification found different values with higher confidence
+    const verifiedResult = { ...initialResult };
+
+    // Update amount if verification has higher confidence
+    if (
+      verifyData.verified_amount !== null &&
+      verifyData.amount_confidence > totalConfidence &&
+      !verifyData.amount_matches_initial
+    ) {
+      console.log(`Verification corrected amount: ${initialResult.amount} -> ${verifyData.verified_amount}`);
+      verifiedResult.amount = parseFloat(verifyData.verified_amount) || initialResult.amount;
+      if (verifiedResult.fieldConfidence) {
+        verifiedResult.fieldConfidence.total = verifyData.amount_confidence;
+      }
+    }
+
+    // Update date if verification has higher confidence
+    if (
+      verifyData.verified_date !== null &&
+      verifyData.date_confidence > dateConfidence &&
+      !verifyData.date_matches_initial
+    ) {
+      console.log(`Verification corrected date: ${initialResult.date} -> ${verifyData.verified_date}`);
+      verifiedResult.date = verifyData.verified_date || initialResult.date;
+      if (verifiedResult.fieldConfidence) {
+        verifiedResult.fieldConfidence.date = verifyData.date_confidence;
+      }
+    }
+
+    return verifiedResult;
+  } catch (error) {
+    console.error('Verification error (using initial result):', error);
+    return initialResult;
+  }
+}
+
+/**
+ * Extract receipt data with automatic verification for low-confidence results
+ * @param imageUrl - Image URL
+ * @param autoVerify - Whether to automatically verify low-confidence results (default: true)
+ * @returns Extracted and optionally verified ReceiptData
+ */
+export async function extractAndVerifyReceiptData(
+  imageUrl: string,
+  autoVerify: boolean = true
+): Promise<ReceiptData> {
+  const initialResult = await extractReceiptData(imageUrl);
+
+  if (!autoVerify) {
+    return initialResult;
+  }
+
+  return verifyReceiptData(imageUrl, initialResult);
 }
 

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
-import { extractReceiptData, extractReceiptDataFromMultipleImages } from '@/lib/ocr';
+import { extractReceiptData, extractReceiptDataFromMultipleImages, extractAndVerifyReceiptData } from '@/lib/ocr';
 // PDF text extraction temporarily disabled due to pdf-parse v2.x compatibility issues
 // import { extractAndParseReceipt } from '@/lib/pdf-text-extract';
 import { EvidenceType } from '@/types/evidence';
@@ -156,7 +156,8 @@ export async function POST(request: NextRequest) {
                 console.log(`Processing receipt ${i + 1}/${uploadedUrls.length}: ${url}`);
 
                 try {
-                    const receiptData = await extractReceiptData(url);
+                    // Use two-pass verification for better accuracy
+                    const receiptData = await extractAndVerifyReceiptData(url, true);
                     batchResults.push({
                         imageUrl: url,
                         documentType: documentTypes[i] || 'receipt',
@@ -186,8 +187,8 @@ export async function POST(request: NextRequest) {
         let receiptData;
         try {
             if (uploadedUrls.length === 1) {
-                // Single image - use standard OCR
-                receiptData = await extractReceiptData(uploadedUrls[0]);
+                // Single image - use two-pass verification for better accuracy
+                receiptData = await extractAndVerifyReceiptData(uploadedUrls[0], true);
             } else {
                 // Multiple images - use multi-image OCR for combined context
                 receiptData = await extractReceiptDataFromMultipleImages(uploadedUrls);

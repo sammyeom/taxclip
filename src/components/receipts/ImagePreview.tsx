@@ -55,6 +55,13 @@ export interface FileWithPreview {
     category: string;
     items?: (string | OCRItem)[];
     paymentMethod?: string;
+    confidence?: number;           // Overall OCR confidence (0-100)
+    fieldConfidence?: {            // Per-field confidence scores
+      date: number;
+      vendor: number;
+      total: number;
+      items: number;
+    };
   };
   evidenceType: EvidenceType; // Tag for IRS audit: receipt, invoice, payment_proof, etc.
   extractedPdfText?: string;  // Text extracted from PDF files

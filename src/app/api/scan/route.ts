@@ -99,6 +99,23 @@ Extract the following:
 
 - itemCount: Total number of distinct line items on the receipt (integer)
 - rawText: ALL visible text from the document (for audit trail)
+- confidence: Overall OCR confidence score (0-100)
+- fieldConfidence: Object with per-field confidence scores:
+  * date: 0-100 (how clearly the date is visible)
+  * vendor: 0-100 (how clearly the vendor/merchant name is visible)
+  * total: 0-100 (how clearly the total amount is visible)
+  * items: 0-100 (how clearly line items are visible)
+
+VALIDATION RULES:
+1. If text is unclear or partially visible, return null for that field - do NOT guess
+2. Verify total = subtotal + tax + tip when all are present
+3. For amounts, extract exactly what you see - don't round or estimate
+
+CONFIDENCE SCORING GUIDE:
+- 90-100: Clearly visible, no ambiguity
+- 70-89: Mostly clear with minor uncertainty
+- 50-69: Partially visible or blurry
+- Below 50: Very unclear or guessing
 
 Return ONLY valid JSON. Use null for missing fields (not empty string). Items array should be [] only if truly no items are visible.`,
             },
@@ -147,6 +164,16 @@ Return ONLY valid JSON. Use null for missing fields (not empty string). Items ar
 
     // Tax and tip are returned as separate fields (not in items array)
 
+    // Extract field confidence scores
+    const fieldConfidence = extractedData.fieldConfidence && typeof extractedData.fieldConfidence === 'object'
+      ? {
+          date: typeof extractedData.fieldConfidence.date === 'number' ? extractedData.fieldConfidence.date : 50,
+          vendor: typeof extractedData.fieldConfidence.vendor === 'number' ? extractedData.fieldConfidence.vendor : 50,
+          total: typeof extractedData.fieldConfidence.total === 'number' ? extractedData.fieldConfidence.total : 50,
+          items: typeof extractedData.fieldConfidence.items === 'number' ? extractedData.fieldConfidence.items : 50,
+        }
+      : null;
+
     return NextResponse.json({
       merchant: extractedData.merchant || '',
       merchantType: extractedData.merchantType || 'other',
@@ -161,6 +188,8 @@ Return ONLY valid JSON. Use null for missing fields (not empty string). Items ar
       items: processedItems,
       itemCount: extractedData.itemCount || processedItems.length,
       rawText: extractedData.rawText || '',
+      confidence: typeof extractedData.confidence === 'number' ? extractedData.confidence : null,
+      fieldConfidence,
     });
   } catch (error) {
     console.error('Error scanning receipt:', error);

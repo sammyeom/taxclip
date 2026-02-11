@@ -29,6 +29,7 @@ import {
   Edit3,
   ArrowUpRight,
   ArrowDownRight,
+  DollarSign,
 } from 'lucide-react';
 import {
   ChartSkeleton,
@@ -431,6 +432,27 @@ export default function DashboardPage() {
     };
   }, [allReceipts]);
 
+  // Tax summary calculations (same as mobile)
+  const taxSummary = useMemo(() => {
+    const TAX_SAVINGS_RATE = 0.373; // 22% federal + 15.3% self-employment
+    const yearTotal = currentYearStats.total;
+
+    // Calculate meals amount from category totals
+    const mealsAmount = allReceipts
+      .filter((r) => new Date(r.date).getFullYear() === new Date().getFullYear() && r.category === 'meals')
+      .reduce((sum, r) => sum + getReceiptTotal(r), 0);
+
+    const otherAmount = yearTotal - mealsAmount;
+    const deductibleAmount = (mealsAmount * 0.5) + otherAmount; // Meals 50%, others 100%
+    const estimatedSavings = deductibleAmount * TAX_SAVINGS_RATE;
+
+    return {
+      totalExpenses: yearTotal,
+      deductibleAmount,
+      estimatedSavings,
+    };
+  }, [allReceipts, currentYearStats]);
+
   // Top category
   const topCategory = useMemo(() => {
     if (!stats?.categoryTotals) return null;
@@ -648,6 +670,37 @@ export default function DashboardPage() {
             subLabel="Most frequent"
           />
         </div>
+
+        {/* Tax Summary Card - 3 columns */}
+        <Card className="mb-6 sm:mb-8 bg-gradient-to-r from-emerald-50 to-cyan-50 border-emerald-200">
+          <CardHeader className="pb-2 sm:pb-4">
+            <CardTitle className="text-base sm:text-lg font-bold text-emerald-800 flex items-center gap-2">
+              <DollarSign className="w-5 h-5 text-emerald-600" />
+              {new Date().getFullYear()} Tax Summary
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-3 gap-3 sm:gap-6">
+              {/* Total Expenses */}
+              <div className="text-center">
+                <p className="text-xs sm:text-sm text-slate-600 mb-1">Total Expenses</p>
+                <p className="text-lg sm:text-2xl font-bold text-slate-900">{formatCurrency(taxSummary.totalExpenses)}</p>
+              </div>
+              {/* Tax Deductible */}
+              <div className="text-center border-l border-r border-emerald-200">
+                <p className="text-xs sm:text-sm text-slate-600 mb-1">Tax Deductible</p>
+                <p className="text-lg sm:text-2xl font-bold text-emerald-600">{formatCurrency(taxSummary.deductibleAmount)}</p>
+                <p className="text-[10px] sm:text-xs text-slate-500">Meals 50% + Others 100%</p>
+              </div>
+              {/* Est. Tax Savings */}
+              <div className="text-center">
+                <p className="text-xs sm:text-sm text-slate-600 mb-1">Est. Tax Savings</p>
+                <p className="text-lg sm:text-2xl font-bold text-cyan-600">{formatCurrency(taxSummary.estimatedSavings)}</p>
+                <p className="text-[10px] sm:text-xs text-slate-500">37.3% rate</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Upload CTA */}
         <Link href="/upload" className="block mb-8">

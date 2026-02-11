@@ -533,9 +533,9 @@ async function addReceiptBlock(
       }
       doc.text(itemName, rightX, detailY);
 
-      // Item price (use amount if available, otherwise calculate from unitPrice)
+      // Item price (price * quantity)
       doc.setTextColor(...COLORS.textMuted);
-      const itemAmount = item.amount ?? ((item.unitPrice || 0) * (item.quantity || 1));
+      const itemAmount = (item.price || 0) * (item.quantity || 1);
       const itemPrice = formatCurrency(itemAmount);
       doc.text(itemPrice, rightX + rightColumnWidth - 15, detailY, { align: 'right' });
       detailY += 5;

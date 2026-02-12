@@ -687,35 +687,43 @@ export default function DashboardPage() {
         </div>
 
         {/* Tax Summary Card - 3 columns */}
-        <Card className="mb-6 sm:mb-8 bg-gradient-to-r from-emerald-50 to-cyan-50 border-emerald-200">
-          <CardHeader className="pb-2 sm:pb-4">
-            <CardTitle className="text-base sm:text-lg font-bold text-emerald-800 flex items-center gap-2">
-              <DollarSign className="w-5 h-5 text-emerald-600" />
-              {new Date().getFullYear()} Tax Summary
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-3 gap-3 sm:gap-6">
-              {/* Total Expenses */}
-              <div className="text-center">
-                <p className="text-xs sm:text-sm text-slate-600 mb-1">Total Expenses</p>
-                <p className="text-lg sm:text-2xl font-bold text-slate-900">{formatCurrency(taxSummary.totalExpenses)}</p>
+        <div className="grid grid-cols-3 gap-2 sm:gap-4 mb-6 sm:mb-8">
+          {/* Total Expenses */}
+          <Card className="bg-gradient-to-t from-slate-500/5 to-card shadow-sm">
+            <CardContent className="p-4 sm:p-6">
+              <div className="flex items-center gap-2 text-muted-foreground mb-2">
+                <DollarSign className="w-5 h-5 sm:w-6 sm:h-6 text-slate-500" />
+                <span className="text-xs sm:text-sm font-medium">Total Expenses</span>
               </div>
-              {/* Tax Deductible */}
-              <div className="text-center border-l border-r border-emerald-200">
-                <p className="text-xs sm:text-sm text-slate-600 mb-1">Tax Deductible</p>
-                <p className="text-lg sm:text-2xl font-bold text-emerald-600">{formatCurrency(taxSummary.deductibleAmount)}</p>
-                <p className="text-[10px] sm:text-xs text-slate-500">Meals 50% + Others 100%</p>
+              <p className="text-lg sm:text-3xl font-bold text-slate-900 truncate">{formatCurrency(taxSummary.totalExpenses)}</p>
+              <p className="text-[10px] sm:text-xs text-muted-foreground mt-1">{new Date().getFullYear()} YTD</p>
+            </CardContent>
+          </Card>
+
+          {/* Tax Deductible */}
+          <Card className="bg-gradient-to-t from-emerald-500/5 to-card shadow-sm">
+            <CardContent className="p-4 sm:p-6">
+              <div className="flex items-center gap-2 text-muted-foreground mb-2">
+                <TrendingUp className="w-5 h-5 sm:w-6 sm:h-6 text-emerald-500" />
+                <span className="text-xs sm:text-sm font-medium">Tax Deductible</span>
               </div>
-              {/* Est. Tax Savings */}
-              <div className="text-center">
-                <p className="text-xs sm:text-sm text-slate-600 mb-1">Est. Tax Savings</p>
-                <p className="text-lg sm:text-2xl font-bold text-cyan-600">{formatCurrency(taxSummary.estimatedSavings)}</p>
-                <p className="text-[10px] sm:text-xs text-slate-500">37.3% rate</p>
+              <p className="text-lg sm:text-3xl font-bold text-emerald-600 truncate">{formatCurrency(taxSummary.deductibleAmount)}</p>
+              <p className="text-[10px] sm:text-xs text-muted-foreground mt-1">Meals 50% + Others 100%</p>
+            </CardContent>
+          </Card>
+
+          {/* Est. Tax Savings */}
+          <Card className="bg-gradient-to-t from-cyan-500/5 to-card shadow-sm">
+            <CardContent className="p-4 sm:p-6">
+              <div className="flex items-center gap-2 text-muted-foreground mb-2">
+                <DollarSign className="w-5 h-5 sm:w-6 sm:h-6 text-cyan-500" />
+                <span className="text-xs sm:text-sm font-medium">Est. Tax Savings</span>
               </div>
-            </div>
-          </CardContent>
-        </Card>
+              <p className="text-lg sm:text-3xl font-bold text-cyan-600 truncate">~{formatCurrency(taxSummary.estimatedSavings)}</p>
+              <p className="text-[10px] sm:text-xs text-muted-foreground mt-1">37.3% rate</p>
+            </CardContent>
+          </Card>
+        </div>
 
         {/* Upload CTA */}
         <Link href="/upload" className="block mb-8">

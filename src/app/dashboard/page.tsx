@@ -660,8 +660,8 @@ export default function DashboardPage() {
 
         {/* Tax Summary Card - First */}
         <Card className="mb-6 sm:mb-8 bg-gradient-to-t from-cyan-500/5 to-card shadow-sm">
-          <CardContent className="p-5 sm:p-8">
-            <div className="flex items-center gap-2 text-muted-foreground mb-4">
+          <CardContent className="pt-4 pb-5 px-5 sm:pt-5 sm:pb-8 sm:px-8">
+            <div className="flex items-center gap-2 text-muted-foreground mb-6">
               <DollarSign className="w-7 h-7 sm:w-8 sm:h-8 text-cyan-500" />
               <span className="text-xl sm:text-2xl font-bold text-foreground">Tax Summary</span>
               <span className="text-xs sm:text-sm font-medium text-cyan-600 bg-cyan-100 px-2.5 py-1 rounded-full">

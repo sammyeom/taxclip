@@ -170,7 +170,7 @@ function SettingsContent({ defaultTab }: { defaultTab: string }) {
   const { setTheme } = useTheme();
 
   // Subscription and usage hooks
-  const { subscription, isPro, isOnTrial, hasUsedTrial, createCheckout, openCustomerPortal } = useSubscription();
+  const { subscription, isPro, isOnTrial, isCancelled, willRenew, hasUsedTrial, getDaysRemaining, createCheckout, openCustomerPortal, refetch: refetchSubscription } = useSubscription();
   const { monthlyCount, monthlyLimit, remainingUploads } = useUsageLimit();
 
   const [settings, setSettings] = useState<AppSettings>(DEFAULT_SETTINGS);
@@ -198,6 +198,8 @@ function SettingsContent({ defaultTab }: { defaultTab: string }) {
   const [cancelLoading, setCancelLoading] = useState(false);
   const [cancelConfirmOpen, setCancelConfirmOpen] = useState(false);
   const [reactivateLoading, setReactivateLoading] = useState(false);
+  const [syncLoading, setSyncLoading] = useState(false);
+  const [syncSuccess, setSyncSuccess] = useState(false);
 
   // Confirmation dialogs
   const [deleteReceiptsDialog, setDeleteReceiptsDialog] = useState(false);
@@ -590,6 +592,22 @@ For tax filing assistance, please consult a qualified tax professional.
       setError('Failed to reactivate subscription. Please try again.');
     } finally {
       setReactivateLoading(false);
+    }
+  };
+
+  // Handle sync subscription from Supabase
+  const handleSyncSubscription = async () => {
+    setSyncLoading(true);
+    setSyncSuccess(false);
+    try {
+      await refetchSubscription();
+      setSyncSuccess(true);
+      setTimeout(() => setSyncSuccess(false), 3000);
+    } catch (err) {
+      console.error('Sync error:', err);
+      setError('Failed to sync subscription status.');
+    } finally {
+      setSyncLoading(false);
     }
   };
 
@@ -1034,6 +1052,33 @@ For tax filing assistance, please consult a qualified tax professional.
 
           {/* Billing Tab Content */}
           <TabsContent value="billing">
+            {/* Sync Info for Mobile Subscribers */}
+            {!isPro && (
+              <Alert className="mb-6 border-cyan-200 bg-cyan-50">
+                <RefreshCw className="h-4 w-4 text-cyan-600" />
+                <AlertTitle className="text-cyan-800">Subscribed on mobile?</AlertTitle>
+                <AlertDescription className="text-cyan-700">
+                  If you subscribed via the mobile app, open the app first to sync your subscription, then click the sync button below.
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleSyncSubscription}
+                    disabled={syncLoading}
+                    className="ml-3 border-cyan-300 text-cyan-700 hover:bg-cyan-100"
+                  >
+                    {syncLoading ? (
+                      <Loader2 className="w-4 h-4 mr-1 animate-spin" />
+                    ) : syncSuccess ? (
+                      <CheckCircle className="w-4 h-4 mr-1 text-green-600" />
+                    ) : (
+                      <RefreshCw className="w-4 h-4 mr-1" />
+                    )}
+                    {syncSuccess ? 'Synced!' : 'Sync Now'}
+                  </Button>
+                </AlertDescription>
+              </Alert>
+            )}
+
             {/* Current Plan Card */}
             <Card className="mb-6">
               <CardHeader className="pb-3 sm:pb-6">
@@ -1057,10 +1102,10 @@ For tax filing assistance, please consult a qualified tax professional.
                         </span>
                       )}
                     </h3>
-                    {isPro && subscription?.plan_type === 'annual' && (
+                    {isPro && (subscription?.plan_type === 'annual' || subscription?.plan_type === 'pro_annual') && (
                       <span className="text-sm text-amber-600 font-medium">Yearly subscription</span>
                     )}
-                    {isPro && subscription?.plan_type === 'pro' && (
+                    {isPro && (subscription?.plan_type === 'pro' || subscription?.plan_type === 'pro_monthly') && (
                       <span className="text-sm text-cyan-600 font-medium">Monthly subscription</span>
                     )}
                   </div>
@@ -1659,7 +1704,7 @@ For tax filing assistance, please consult a qualified tax professional.
                   </button>
 
                   {/* Switch to Yearly (only for monthly users) */}
-                  {subscription?.plan_type === 'pro' && (
+                  {(subscription?.plan_type === 'pro' || subscription?.plan_type === 'pro_monthly') && (
                     <button
                       onClick={() => {
                         setChangePlanDialogOpen(false);

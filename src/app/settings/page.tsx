@@ -192,6 +192,7 @@ function SettingsContent({ defaultTab }: { defaultTab: string }) {
 
   // Subscription Management state
   const [changePlanDialogOpen, setChangePlanDialogOpen] = useState(false);
+  const [selectPlanDialogOpen, setSelectPlanDialogOpen] = useState(false);
   const [beforeYouGoOpen, setBeforeYouGoOpen] = useState(false);
   const [cancelFlowOpen, setCancelFlowOpen] = useState(false);
   const [cancelReason, setCancelReason] = useState<CancelReason | null>(null);
@@ -1643,105 +1644,60 @@ For tax filing assistance, please consult a qualified tax professional.
 
           <div className="space-y-2 py-2">
             {/* Change Plan Option */}
-            {isMonthlyPlan && (
-              <button
-                onClick={async () => {
-                  // If LemonSqueezy subscription, use upgrade API with proration
-                  if (isLemonSqueezySubscription) {
-                    setUpgradeLoading(true);
-                    const result = await upgradeToAnnual();
-                    setUpgradeLoading(false);
-                    if (result.success) {
-                      setChangePlanDialogOpen(false);
-                      alert('Successfully upgraded to annual plan! Your remaining monthly credit has been applied.');
-                    } else {
-                      setError(result.error || 'Failed to upgrade');
-                    }
-                  } else {
-                    // For non-LemonSqueezy (mobile) subscribers, open checkout for annual
-                    setChangePlanDialogOpen(false);
-                    setSelectedPlan('yearly');
-                    setUpgradeDialogOpen(true);
-                  }
-                }}
-                disabled={upgradeLoading}
-                className="w-full flex items-center gap-3 p-3 hover:bg-muted/50 transition-colors text-left rounded-lg border disabled:opacity-50"
-              >
-                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-cyan-500 to-blue-500 flex items-center justify-center flex-shrink-0">
-                  {upgradeLoading ? (
-                    <Loader2 className="w-4 h-4 text-white animate-spin" />
-                  ) : (
-                    <Sparkles className="w-4 h-4 text-white" />
-                  )}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="font-medium text-sm text-foreground">
-                    {upgradeLoading ? 'Upgrading...' : 'Change Plan'}
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    Upgrade to Annual & Save 17%
-                  </p>
-                </div>
-                <ChevronRight className="w-4 h-4 text-muted-foreground flex-shrink-0" />
-              </button>
-            )}
-
-            {/* View Billing History */}
-            {subscription?.customer_portal_url && (
-              <button
-                onClick={() => {
-                  setChangePlanDialogOpen(false);
-                  openCustomerPortal();
-                }}
-                className="w-full flex items-center gap-3 p-3 hover:bg-muted/50 transition-colors text-left rounded-lg border"
-              >
-                <div className="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center flex-shrink-0">
-                  <FileText className="w-4 h-4 text-blue-600" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="font-medium text-sm text-foreground">View Billing History</p>
-                  <p className="text-xs text-muted-foreground">See past invoices and payments</p>
-                </div>
-                <ChevronRight className="w-4 h-4 text-muted-foreground flex-shrink-0" />
-              </button>
-            )}
-
-            {/* Manage Billing */}
-            {subscription?.customer_portal_url && (
-              <button
-                onClick={() => {
-                  setChangePlanDialogOpen(false);
-                  openCustomerPortal();
-                }}
-                className="w-full flex items-center gap-3 p-3 hover:bg-muted/50 transition-colors text-left rounded-lg border"
-              >
-                <div className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center flex-shrink-0">
-                  <CreditCard className="w-4 h-4 text-slate-600" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="font-medium text-sm text-foreground">Manage Billing</p>
-                  <p className="text-xs text-muted-foreground">Update payment method</p>
-                </div>
-                <ChevronRight className="w-4 h-4 text-muted-foreground flex-shrink-0" />
-              </button>
-            )}
-
-            {/* Cancel Subscription */}
             <button
               onClick={() => {
                 setChangePlanDialogOpen(false);
-                setBeforeYouGoOpen(true);
+                setSelectPlanDialogOpen(true);
               }}
-              className="w-full flex items-center gap-3 p-3 hover:bg-red-50 transition-colors text-left rounded-lg border border-red-200"
+              className="w-full flex items-center gap-3 p-3 hover:bg-muted/50 transition-colors text-left rounded-lg border"
             >
-              <div className="w-8 h-8 rounded-lg bg-red-100 flex items-center justify-center flex-shrink-0">
-                <X className="w-4 h-4 text-red-600" />
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-cyan-500 to-blue-500 flex items-center justify-center flex-shrink-0">
+                <Sparkles className="w-4 h-4 text-white" />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="font-medium text-sm text-red-600">Cancel Subscription</p>
-                <p className="text-xs text-muted-foreground">Switch to Free plan</p>
+                <p className="font-medium text-sm text-foreground">Change Plan</p>
+                <p className="text-xs text-muted-foreground">Switch between plans</p>
               </div>
-              <ChevronRight className="w-4 h-4 text-red-400 flex-shrink-0" />
+              <ChevronRight className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+            </button>
+
+            {/* View Billing History */}
+            <button
+              onClick={() => {
+                setChangePlanDialogOpen(false);
+                if (subscription?.customer_portal_url) {
+                  openCustomerPortal();
+                }
+              }}
+              className="w-full flex items-center gap-3 p-3 hover:bg-muted/50 transition-colors text-left rounded-lg border"
+            >
+              <div className="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center flex-shrink-0">
+                <FileText className="w-4 h-4 text-blue-600" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="font-medium text-sm text-foreground">View Billing History</p>
+                <p className="text-xs text-muted-foreground">See past invoices and payments</p>
+              </div>
+              <ChevronRight className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+            </button>
+
+            {/* Restore Purchases */}
+            <button
+              onClick={() => {
+                setChangePlanDialogOpen(false);
+                refetch();
+                alert('Subscription status synced successfully!');
+              }}
+              className="w-full flex items-center gap-3 p-3 hover:bg-muted/50 transition-colors text-left rounded-lg border"
+            >
+              <div className="w-8 h-8 rounded-lg bg-green-100 flex items-center justify-center flex-shrink-0">
+                <RefreshCw className="w-4 h-4 text-green-600" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="font-medium text-sm text-foreground">Restore Purchases</p>
+                <p className="text-xs text-muted-foreground">Sync your subscription status</p>
+              </div>
+              <ChevronRight className="w-4 h-4 text-muted-foreground flex-shrink-0" />
             </button>
           </div>
 
@@ -1753,51 +1709,176 @@ For tax filing assistance, please consult a qualified tax professional.
         </DialogContent>
       </Dialog>
 
-      {/* Before You Go Dialog */}
-      <Dialog open={beforeYouGoOpen} onOpenChange={setBeforeYouGoOpen}>
-        <DialogContent className="sm:max-w-sm max-h-[85vh] overflow-y-auto">
-          <DialogHeader className="pb-2 text-center">
-            <DialogTitle className="text-xl font-bold">Before you go...</DialogTitle>
+      {/* Select Plan Dialog */}
+      <Dialog open={selectPlanDialogOpen} onOpenChange={setSelectPlanDialogOpen}>
+        <DialogContent className="sm:max-w-md max-h-[85vh] overflow-y-auto">
+          <DialogHeader className="pb-4">
+            <DialogTitle className="flex items-center gap-2 text-lg">
+              <Crown className="w-5 h-5 text-amber-500" />
+              Change Plan
+            </DialogTitle>
             <DialogDescription className="text-sm">
-              You&apos;ll lose access to these Pro features:
+              Select a plan that works best for you
             </DialogDescription>
           </DialogHeader>
 
-          <div className="space-y-4 py-4">
-            {/* Features they'll lose */}
-            <div className="space-y-3 bg-muted/30 rounded-lg p-4">
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-lg bg-red-100 flex items-center justify-center flex-shrink-0">
-                  <X className="w-4 h-4 text-red-500" />
+          <div className="space-y-3 py-2">
+            {/* Monthly Plan */}
+            <button
+              onClick={async () => {
+                if (isMonthlyPlan) {
+                  setSelectPlanDialogOpen(false);
+                  alert('You are already on the Monthly plan.');
+                  return;
+                }
+                // For annual users wanting to switch to monthly, redirect to customer portal
+                setSelectPlanDialogOpen(false);
+                if (subscription?.customer_portal_url) {
+                  openCustomerPortal();
+                }
+              }}
+              className={`w-full p-4 rounded-xl border-2 text-left transition-all ${
+                isMonthlyPlan
+                  ? 'border-cyan-500 bg-cyan-50'
+                  : 'border-border hover:border-cyan-300 hover:bg-muted/30'
+              }`}
+            >
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2">
+                  <span className="font-semibold text-foreground">Monthly</span>
+                  {isMonthlyPlan && (
+                    <span className="text-[10px] bg-cyan-500 text-white px-2 py-0.5 rounded-full font-medium">
+                      Current
+                    </span>
+                  )}
                 </div>
-                <div>
-                  <p className="font-medium text-sm text-foreground">Unlimited uploads</p>
-                  <p className="text-xs text-muted-foreground">Limited to 10/month on Free</p>
+                <div className="text-right">
+                  <span className="text-xl font-bold text-foreground">$9.99</span>
+                  <span className="text-sm text-muted-foreground">/month</span>
                 </div>
               </div>
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-lg bg-red-100 flex items-center justify-center flex-shrink-0">
-                  <X className="w-4 h-4 text-red-500" />
+              <p className="text-xs text-muted-foreground">Billed monthly</p>
+            </button>
+
+            {/* Annual Plan */}
+            <button
+              onClick={async () => {
+                const isAnnual = subscription?.plan_type === 'annual' || subscription?.plan_type === 'pro_annual';
+                if (isAnnual) {
+                  setSelectPlanDialogOpen(false);
+                  alert('You are already on the Annual plan.');
+                  return;
+                }
+                // Upgrade to annual
+                if (isLemonSqueezySubscription) {
+                  setUpgradeLoading(true);
+                  const result = await upgradeToAnnual();
+                  setUpgradeLoading(false);
+                  if (result.success) {
+                    setSelectPlanDialogOpen(false);
+                    alert('Successfully upgraded to annual plan! Your remaining monthly credit has been applied.');
+                  } else {
+                    setError(result.error || 'Failed to upgrade');
+                  }
+                } else {
+                  setSelectPlanDialogOpen(false);
+                  setSelectedPlan('yearly');
+                  setUpgradeDialogOpen(true);
+                }
+              }}
+              disabled={upgradeLoading}
+              className={`w-full p-4 rounded-xl border-2 text-left transition-all relative ${
+                subscription?.plan_type === 'annual' || subscription?.plan_type === 'pro_annual'
+                  ? 'border-cyan-500 bg-cyan-50'
+                  : 'border-border hover:border-cyan-300 hover:bg-muted/30'
+              }`}
+            >
+              {/* Best Value Badge */}
+              <div className="absolute -top-3 left-4">
+                <span className="bg-gradient-to-r from-cyan-500 to-blue-500 text-white text-[10px] px-3 py-1 rounded-full font-semibold flex items-center gap-1">
+                  <Sparkles className="w-3 h-3" />
+                  Best Value · Save 17%
+                </span>
+              </div>
+              <div className="flex items-center justify-between mb-2 mt-2">
+                <div className="flex items-center gap-2">
+                  <span className="font-semibold text-foreground">Annual</span>
+                  {(subscription?.plan_type === 'annual' || subscription?.plan_type === 'pro_annual') && (
+                    <span className="text-[10px] bg-cyan-500 text-white px-2 py-0.5 rounded-full font-medium">
+                      Current
+                    </span>
+                  )}
                 </div>
-                <div>
-                  <p className="font-medium text-sm text-foreground">Priority AI processing</p>
-                  <p className="text-xs text-muted-foreground">Slower processing on Free</p>
+                <div className="text-right">
+                  <span className="text-xl font-bold text-foreground">$99</span>
+                  <span className="text-sm text-muted-foreground line-through ml-1">$119.88</span>
                 </div>
               </div>
+              <p className="text-xs text-muted-foreground">Billed annually · $8.25/month</p>
+            </button>
+
+            {/* Free Plan */}
+            <button
+              onClick={() => {
+                setSelectPlanDialogOpen(false);
+                setBeforeYouGoOpen(true);
+              }}
+              className="w-full p-4 rounded-xl border-2 border-border text-left transition-all hover:border-slate-300 hover:bg-muted/30"
+            >
+              <div className="flex items-center justify-between mb-2">
+                <span className="font-semibold text-foreground">Free Plan</span>
+                <span className="text-xl font-bold text-foreground">$0</span>
+              </div>
+              <p className="text-xs text-muted-foreground">10 receipts/month · Basic features</p>
+            </button>
+          </div>
+
+          <DialogFooter className="pt-4">
+            <Button variant="outline" onClick={() => setSelectPlanDialogOpen(false)} className="w-full">
+              Cancel
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Before You Go Dialog */}
+      <Dialog open={beforeYouGoOpen} onOpenChange={setBeforeYouGoOpen}>
+        <DialogContent className="sm:max-w-md max-h-[85vh] overflow-y-auto p-0">
+          {/* Header with emoji */}
+          <div className="text-center pt-8 pb-4 px-6">
+            <div className="text-5xl mb-4">💔</div>
+            <DialogTitle className="text-2xl font-bold text-foreground mb-2">Before you go...</DialogTitle>
+            <DialogDescription className="text-sm text-muted-foreground">
+              You&apos;ll lose access to these Pro features:
+            </DialogDescription>
+          </div>
+
+          <div className="px-6 pb-6 space-y-6">
+            {/* Features they'll lose - Red warning card */}
+            <div className="bg-red-50 border border-red-200 rounded-xl p-4 space-y-3">
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-lg bg-red-100 flex items-center justify-center flex-shrink-0">
+                <div className="w-7 h-7 rounded-full bg-white flex items-center justify-center flex-shrink-0 shadow-sm">
                   <X className="w-4 h-4 text-red-500" />
                 </div>
-                <div>
-                  <p className="font-medium text-sm text-foreground">Advanced tax reports</p>
-                  <p className="text-xs text-muted-foreground">Basic reports only on Free</p>
+                <p className="text-sm font-medium text-red-900">Unlimited uploads</p>
+              </div>
+              <div className="flex items-center gap-3">
+                <div className="w-7 h-7 rounded-full bg-white flex items-center justify-center flex-shrink-0 shadow-sm">
+                  <X className="w-4 h-4 text-red-500" />
                 </div>
+                <p className="text-sm font-medium text-red-900">Priority AI processing</p>
+              </div>
+              <div className="flex items-center gap-3">
+                <div className="w-7 h-7 rounded-full bg-white flex items-center justify-center flex-shrink-0 shadow-sm">
+                  <X className="w-4 h-4 text-red-500" />
+                </div>
+                <p className="text-sm font-medium text-red-900">Advanced tax reports</p>
               </div>
             </div>
 
             {/* Alternative options */}
-            <div className="space-y-2">
-              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide text-center">
+            <div className="space-y-3">
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider text-center">
                 Consider these alternatives
               </p>
 
@@ -1807,16 +1888,16 @@ For tax filing assistance, please consult a qualified tax professional.
                   setBeforeYouGoOpen(false);
                   alert('Subscription pausing will be available soon. For now, you can cancel and resubscribe when ready.');
                 }}
-                className="w-full flex items-center gap-3 p-3 hover:bg-muted/50 transition-colors text-left rounded-lg border"
+                className="w-full flex items-center gap-4 p-4 hover:bg-muted/50 transition-colors text-left rounded-xl border"
               >
-                <div className="w-8 h-8 rounded-lg bg-indigo-100 flex items-center justify-center flex-shrink-0">
-                  <PauseCircle className="w-4 h-4 text-indigo-600" />
+                <div className="w-10 h-10 rounded-xl bg-indigo-100 flex items-center justify-center flex-shrink-0">
+                  <PauseCircle className="w-5 h-5 text-indigo-600" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="font-medium text-sm text-foreground">Pause for 3 months</p>
-                  <p className="text-xs text-muted-foreground">Take a break, keep your data</p>
+                  <p className="font-semibold text-sm text-foreground">Pause for 3 months</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">Take a break, keep your data</p>
                 </div>
-                <ChevronRight className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+                <ChevronRight className="w-5 h-5 text-muted-foreground flex-shrink-0" />
               </button>
 
               {/* 50% Off Option */}
@@ -1825,41 +1906,41 @@ For tax filing assistance, please consult a qualified tax professional.
                   setBeforeYouGoOpen(false);
                   alert('Special discount offers will be available soon. Please contact support for assistance.');
                 }}
-                className="w-full flex items-center gap-3 p-3 hover:bg-muted/50 transition-colors text-left rounded-lg border"
+                className="w-full flex items-center gap-4 p-4 hover:bg-muted/50 transition-colors text-left rounded-xl border"
               >
-                <div className="w-8 h-8 rounded-lg bg-amber-100 flex items-center justify-center flex-shrink-0">
-                  <BadgePercent className="w-4 h-4 text-amber-600" />
+                <div className="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center flex-shrink-0">
+                  <BadgePercent className="w-5 h-5 text-amber-600" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-1.5 flex-wrap">
-                    <p className="font-medium text-sm text-foreground">50% off for 3 months</p>
-                    <span className="bg-amber-100 text-amber-700 text-[10px] px-1.5 py-0.5 rounded font-medium">Popular</span>
+                  <div className="flex items-center gap-2">
+                    <p className="font-semibold text-sm text-foreground">50% off for 3 months</p>
+                    <span className="bg-amber-100 text-amber-700 text-[10px] px-2 py-0.5 rounded-full font-semibold">Popular</span>
                   </div>
-                  <p className="text-xs text-muted-foreground">Stay at half the price</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">Stay at half the price</p>
                 </div>
-                <ChevronRight className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+                <ChevronRight className="w-5 h-5 text-muted-foreground flex-shrink-0" />
+              </button>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="space-y-3 pt-2">
+              <Button
+                onClick={() => setBeforeYouGoOpen(false)}
+                className="w-full bg-cyan-500 hover:bg-cyan-600 text-white h-12 text-base font-semibold"
+              >
+                Keep My Subscription
+              </Button>
+              <button
+                onClick={() => {
+                  setBeforeYouGoOpen(false);
+                  setCancelFlowOpen(true);
+                }}
+                className="w-full text-sm text-muted-foreground hover:text-foreground transition-colors py-2"
+              >
+                Continue to Cancel
               </button>
             </div>
           </div>
-
-          <DialogFooter className="flex-col gap-2 pt-2">
-            <Button
-              onClick={() => setBeforeYouGoOpen(false)}
-              className="w-full bg-cyan-500 hover:bg-cyan-600 text-white"
-              size="lg"
-            >
-              Keep My Subscription
-            </Button>
-            <button
-              onClick={() => {
-                setBeforeYouGoOpen(false);
-                setCancelFlowOpen(true);
-              }}
-              className="text-sm text-muted-foreground hover:text-foreground transition-colors underline underline-offset-2"
-            >
-              Continue to Cancel
-            </button>
-          </DialogFooter>
         </DialogContent>
       </Dialog>
 

@@ -36,11 +36,9 @@ import {
 } from 'lucide-react';
 import {
   ChartSkeleton,
-  InsightSkeleton,
   MonthlyData,
   MonthComparisonData,
   CategoryData,
-  InsightData,
 } from '@/components/dashboard';
 import dynamic from 'next/dynamic';
 
@@ -65,14 +63,6 @@ const DynamicCategoryPieChart = dynamic(
   () => import('@/components/dashboard/CategoryPieChart'),
   {
     loading: () => <ChartSkeleton height={300} />,
-    ssr: false,
-  }
-);
-
-const DynamicInsightSection = dynamic(
-  () => import('@/components/dashboard/InsightSection'),
-  {
-    loading: () => <InsightSkeleton />,
     ssr: false,
   }
 );
@@ -545,30 +535,6 @@ export default function DashboardPage() {
       }));
   }, [stats, allReceipts]);
 
-  // Insight data
-  const insightData = useMemo((): InsightData => {
-    const topCat = categoryData[0];
-
-    // Calculate deductible amount: Meals 50%, Others 100%
-    const mealsAmount = stats?.categoryTotals?.meals || 0;
-    const otherAmount = (stats?.totalAmount || 0) - mealsAmount;
-    const deductibleAmount = (mealsAmount * 0.5) + otherAmount;
-
-    return {
-      topCategory: topCat
-        ? {
-            name: topCat.name,
-            amount: topCat.value,
-            percentage: stats?.totalAmount ? (topCat.value / stats.totalAmount) * 100 : 0,
-          }
-        : null,
-      averageAmount: stats?.totalCount ? stats.totalAmount / stats.totalCount : 0,
-      estimatedTaxBenefit: deductibleAmount * 0.373, // Federal 22% + Self-Employment 15.3%
-      totalCount: stats?.totalCount || 0,
-      monthlyChange: monthComparison,
-    };
-  }, [categoryData, stats, monthComparison]);
-
   if (authLoading || loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-cyan-50 via-blue-50 to-sky-50">
@@ -900,11 +866,6 @@ export default function DashboardPage() {
               lastMonth={lastMonthStats.total}
               percentChange={monthComparison}
             />
-
-            {/* Insights - Reordered */}
-            <Suspense fallback={<InsightSkeleton />}>
-              <DynamicInsightSection data={insightData} />
-            </Suspense>
 
             {/* Tax Tips Section - Collapsible */}
             <Card className="bg-gradient-to-br from-amber-100/80 via-yellow-50 to-card border-amber-200 shadow-sm">

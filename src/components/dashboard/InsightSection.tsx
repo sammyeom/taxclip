@@ -3,10 +3,8 @@
 import {
   Tag,
   Receipt as ReceiptIcon,
-  Lightbulb,
   TrendingUp,
   TrendingDown,
-  Sparkles,
 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 
@@ -77,33 +75,6 @@ export default function InsightSection({ data }: InsightSectionProps) {
 
   return (
     <div className="space-y-3 sm:space-y-4">
-      {/* Tax Tips Card */}
-      <Card className="bg-gradient-to-br from-amber-100/80 via-yellow-50 to-card border-amber-200 shadow-sm">
-        <CardContent className="p-3 sm:p-4">
-          <div className="flex items-center gap-1.5 sm:gap-2 text-amber-700 mb-2 sm:mb-3">
-            <div className="p-1.5 bg-amber-200/60 rounded-lg">
-              <Lightbulb className="w-4 h-4 sm:w-5 sm:h-5 text-amber-600" />
-            </div>
-            <span className="text-xs sm:text-sm md:text-base font-semibold">Tax Tips</span>
-            <Sparkles className="w-3 h-3 sm:w-4 sm:h-4 text-amber-500" />
-          </div>
-          <ul className="space-y-1.5 sm:space-y-2 text-xs sm:text-sm text-amber-900/80">
-            <li className="flex items-start gap-1.5 sm:gap-2">
-              <span className="text-amber-500 font-bold flex-shrink-0">•</span>
-              <span>Keep receipts for expenses over $75</span>
-            </li>
-            <li className="flex items-start gap-1.5 sm:gap-2">
-              <span className="text-amber-500 font-bold flex-shrink-0">•</span>
-              <span>Business meals are 50% deductible</span>
-            </li>
-            <li className="flex items-start gap-1.5 sm:gap-2">
-              <span className="text-amber-500 font-bold flex-shrink-0">•</span>
-              <span>Categorize receipts regularly for accuracy</span>
-            </li>
-          </ul>
-        </CardContent>
-      </Card>
-
       {/* Insights Grid */}
       {insights.length > 0 && (
         <div className="grid grid-cols-2 gap-2 sm:gap-3">

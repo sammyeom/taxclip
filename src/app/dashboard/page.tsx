@@ -33,13 +33,6 @@ import {
   Lightbulb,
   ChevronDown,
   ChevronUp,
-  FileText,
-  UtensilsCrossed,
-  ClipboardList,
-  Briefcase,
-  PenLine,
-  Car,
-  Archive,
 } from 'lucide-react';
 import {
   ChartSkeleton,
@@ -84,17 +77,15 @@ const DynamicInsightSection = dynamic(
   }
 );
 
-// Tax Tips data (same as mobile)
+// Tax Tips data
 const TAX_TIPS = [
-  { icon: FileText, text: 'Keep receipts for expenses over $75' },
-  { icon: UtensilsCrossed, text: 'Business meals are 50% deductible' },
-  { icon: DollarSign, text: 'Save up to 37.3% on expenses (22% federal + 15.3% SE tax)' },
-  { icon: BarChart3, text: 'Categorize receipts regularly for accuracy' },
-  { icon: ClipboardList, text: 'Scan itemized receipts with all line items' },
-  { icon: Briefcase, text: 'Separate business and personal expenses' },
-  { icon: PenLine, text: 'Note the business purpose on each receipt' },
-  { icon: Car, text: 'Track mileage for vehicle deductions' },
-  { icon: Archive, text: 'Save receipts for 7 years (IRS requirement)' },
+  'Keep receipts for expenses over $75',
+  'Business meals are 50% deductible',
+  'Categorize receipts regularly for accuracy',
+  'Separate business and personal expenses',
+  'Note the business purpose on each receipt',
+  'Track mileage for vehicle deductions',
+  'Save receipts for 7 years (IRS requirement)',
 ];
 
 // Constants
@@ -370,7 +361,6 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [hoveredReceiptId, setHoveredReceiptId] = useState<string | null>(null);
   const [taxTipsExpanded, setTaxTipsExpanded] = useState(false);
-  const [showAllTips, setShowAllTips] = useState(false);
 
   // Tax Export Modal state
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
@@ -904,61 +894,38 @@ export default function DashboardPage() {
               <DynamicInsightSection data={insightData} />
             </Suspense>
 
-            {/* Tax Tips Section */}
-            <Card className="bg-amber-50 border-amber-200">
+            {/* Tax Tips Section - Collapsible */}
+            <Card className="bg-gradient-to-br from-amber-100/80 via-yellow-50 to-card border-amber-200 shadow-sm">
               <button
                 onClick={() => setTaxTipsExpanded(!taxTipsExpanded)}
-                className="w-full"
+                className="w-full text-left"
               >
-                <CardHeader className="pb-0 flex flex-row items-center justify-between">
-                  <CardTitle className="text-base font-semibold text-amber-800 flex items-center gap-2">
-                    <Lightbulb className="w-5 h-5 text-amber-600" />
-                    Tax Tips
-                  </CardTitle>
-                  {taxTipsExpanded ? (
-                    <ChevronUp className="w-5 h-5 text-amber-600" />
-                  ) : (
-                    <ChevronDown className="w-5 h-5 text-amber-600" />
-                  )}
-                </CardHeader>
+                <CardContent className="p-3 sm:p-4 pb-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-1.5 sm:gap-2 text-amber-700">
+                      <div className="p-1.5 bg-amber-200/60 rounded-lg">
+                        <Lightbulb className="w-4 h-4 sm:w-5 sm:h-5 text-amber-600" />
+                      </div>
+                      <span className="text-xs sm:text-sm md:text-base font-semibold">Tax Tips</span>
+                    </div>
+                    {taxTipsExpanded ? (
+                      <ChevronUp className="w-4 h-4 sm:w-5 sm:h-5 text-amber-600" />
+                    ) : (
+                      <ChevronDown className="w-4 h-4 sm:w-5 sm:h-5 text-amber-600" />
+                    )}
+                  </div>
+                </CardContent>
               </button>
               {taxTipsExpanded && (
-                <CardContent className="pt-4">
-                  <div className="space-y-3">
-                    {(showAllTips ? TAX_TIPS : TAX_TIPS.slice(0, 5)).map((tip, index) => {
-                      const IconComponent = tip.icon;
-                      return (
-                        <div key={index} className="flex items-start gap-3">
-                          <div className="w-7 h-7 rounded-md bg-amber-100 flex items-center justify-center flex-shrink-0">
-                            <IconComponent className="w-3.5 h-3.5 text-amber-700" />
-                          </div>
-                          <p className="text-sm text-gray-600 pt-1">{tip.text}</p>
-                        </div>
-                      );
-                    })}
-                  </div>
-                  {!showAllTips && TAX_TIPS.length > 5 && (
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setShowAllTips(true);
-                      }}
-                      className="mt-3 text-sm font-semibold text-amber-700 hover:text-amber-800"
-                    >
-                      Show all tips ({TAX_TIPS.length - 5} more)
-                    </button>
-                  )}
-                  {showAllTips && (
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setShowAllTips(false);
-                      }}
-                      className="mt-3 text-sm font-semibold text-amber-700 hover:text-amber-800"
-                    >
-                      Show less
-                    </button>
-                  )}
+                <CardContent className="pt-0 px-3 sm:px-4 pb-3 sm:pb-4">
+                  <ul className="space-y-1.5 sm:space-y-2 text-xs sm:text-sm text-amber-900/80">
+                    {TAX_TIPS.map((tip, index) => (
+                      <li key={index} className="flex items-start gap-1.5 sm:gap-2">
+                        <span className="text-amber-500 font-bold flex-shrink-0">•</span>
+                        <span>{tip}</span>
+                      </li>
+                    ))}
+                  </ul>
                 </CardContent>
               )}
             </Card>

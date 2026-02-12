@@ -53,7 +53,7 @@ const getReceiptTotal = (r: Receipt): number => {
 
 export default function ProfilePage() {
   const { user, loading: authLoading } = useAuth();
-  const { subscription, isPro, isOnTrial } = useSubscription();
+  const { subscription, isPro, isOnTrial, isCancelled, willRenew, getDaysRemaining } = useSubscription();
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
@@ -445,11 +445,16 @@ export default function ProfilePage() {
                         <>
                           <Crown className="w-3 h-3 sm:w-4 sm:h-4 text-amber-500" />
                           <span className="text-amber-600">
-                            Pro {subscription?.plan_type === 'annual' ? '(Yearly)' : '(Monthly)'}
+                            Pro {(subscription?.plan_type === 'annual' || subscription?.plan_type === 'pro_annual') ? '(Yearly)' : '(Monthly)'}
                           </span>
                           {isOnTrial && (
                             <span className="text-xs bg-green-100 text-green-700 px-1.5 py-0.5 rounded-full">
                               Trial
+                            </span>
+                          )}
+                          {isCancelled && (
+                            <span className="text-xs bg-red-100 text-red-700 px-1.5 py-0.5 rounded-full">
+                              Cancelled
                             </span>
                           )}
                         </>
@@ -460,6 +465,23 @@ export default function ProfilePage() {
                         </>
                       )}
                     </p>
+                    {/* Subscription dates */}
+                    {isPro && (
+                      <div className="mt-1 text-xs text-slate-500">
+                        {isCancelled ? (
+                          <p className="flex items-center justify-center sm:justify-start gap-1 text-amber-600">
+                            <Clock className="w-3 h-3" />
+                            Pro ends: {formatDate(subscription?.ends_at || subscription?.current_period_end)}
+                            {getDaysRemaining() !== null && ` (${getDaysRemaining()} days left)`}
+                          </p>
+                        ) : (
+                          <p className="flex items-center justify-center sm:justify-start gap-1">
+                            <Calendar className="w-3 h-3" />
+                            Next renewal: {formatDate(subscription?.renews_at || subscription?.current_period_end)}
+                          </p>
+                        )}
+                      </div>
+                    )}
                   </div>
                   <div className="grid grid-cols-2 gap-3 sm:gap-4 pt-2">
                     <div>

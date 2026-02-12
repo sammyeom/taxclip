@@ -1058,7 +1058,7 @@ For tax filing assistance, please consult a qualified tax professional.
                 <RefreshCw className="h-4 w-4 text-cyan-600" />
                 <AlertTitle className="text-cyan-800">Subscribed on mobile?</AlertTitle>
                 <AlertDescription className="text-cyan-700">
-                  If you subscribed via the mobile app, open the app first to sync your subscription, then click the sync button below.
+                  If you subscribed via the mobile app, open the app first to sync your subscription. Your status will automatically update here.
                   <Button
                     variant="outline"
                     size="sm"
@@ -1073,7 +1073,7 @@ For tax filing assistance, please consult a qualified tax professional.
                     ) : (
                       <RefreshCw className="w-4 h-4 mr-1" />
                     )}
-                    {syncSuccess ? 'Synced!' : 'Sync Now'}
+                    {syncSuccess ? 'Synced!' : 'Refresh'}
                   </Button>
                 </AlertDescription>
               </Alert>

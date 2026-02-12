@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useAuth } from './useAuth';
 import { supabase } from '@/lib/supabase';
 
@@ -112,6 +112,34 @@ export function useSubscription() {
   useEffect(() => {
     fetchSubscription();
   }, [fetchSubscription]);
+
+  // Auto-sync on page visibility change (when user returns to tab)
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible' && user) {
+        fetchSubscription();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [fetchSubscription, user]);
+
+  // Auto-sync on window focus (when user clicks back into browser)
+  useEffect(() => {
+    const handleFocus = () => {
+      if (user) {
+        fetchSubscription();
+      }
+    };
+
+    window.addEventListener('focus', handleFocus);
+    return () => {
+      window.removeEventListener('focus', handleFocus);
+    };
+  }, [fetchSubscription, user]);
 
   // Check subscription status
   // Include 'on_trial' as active since trial users should have pro features

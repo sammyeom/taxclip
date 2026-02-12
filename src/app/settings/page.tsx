@@ -1215,28 +1215,15 @@ For tax filing assistance, please consult a qualified tax professional.
                     {/* Subscription Management Buttons */}
                     <Separator />
                     <div className="space-y-3">
-                      {/* Manage Subscription - LemonSqueezy portal */}
+                      {/* Manage Subscription - Opens Change Plan dialog */}
                       <Button
-                        onClick={openCustomerPortal}
+                        onClick={() => setChangePlanDialogOpen(true)}
                         variant="outline"
                         className="w-full"
-                        disabled={!subscription?.customer_portal_url}
                       >
-                        <ExternalLink className="w-4 h-4 mr-2" />
+                        <SettingsIcon className="w-4 h-4 mr-2" />
                         Manage Subscription
                       </Button>
-
-                      {/* Change Plan button (only if not cancelled) */}
-                      {subscription?.will_renew !== false && subscription?.status !== 'cancelled' && (
-                        <Button
-                          onClick={() => setChangePlanDialogOpen(true)}
-                          variant="ghost"
-                          className="w-full text-muted-foreground hover:text-foreground"
-                        >
-                          <SettingsIcon className="w-4 h-4 mr-2" />
-                          Change Plan
-                        </Button>
-                      )}
                     </div>
                   </div>
                 ) : (
@@ -1635,25 +1622,25 @@ For tax filing assistance, please consult a qualified tax professional.
         </DialogContent>
       </Dialog>
 
-      {/* Change Plan Dialog */}
+      {/* Manage Subscription Dialog */}
       <Dialog open={changePlanDialogOpen} onOpenChange={setChangePlanDialogOpen}>
         <DialogContent className="sm:max-w-sm max-h-[85vh] overflow-y-auto">
           <DialogHeader className="pb-2">
             <DialogTitle className="flex items-center gap-2 text-base">
               <SettingsIcon className="w-4 h-4 text-cyan-600" />
-              Change Your Plan
+              Manage Subscription
             </DialogTitle>
             <DialogDescription className="text-xs">
-              Choose the option that works best for you
+              Manage your subscription and billing
             </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-3 py-2">
-            {/* Stay with Pro Section */}
+            {/* Change Plan Section */}
             <div className="space-y-1.5">
               <div className="flex items-center gap-1.5">
                 <Sparkles className="w-3 h-3 text-cyan-600" />
-                <span className="text-[10px] font-semibold text-cyan-600 uppercase tracking-wide">Stay with Pro</span>
+                <span className="text-[10px] font-semibold text-cyan-600 uppercase tracking-wide">Change Plan</span>
               </div>
               <div className="rounded-lg border divide-y overflow-hidden">
                 {/* Pause Option */}
@@ -1725,7 +1712,7 @@ For tax filing assistance, please consult a qualified tax professional.
             <div className="space-y-1.5">
               <div className="flex items-center gap-1.5">
                 <ArrowDownCircle className="w-3 h-3 text-muted-foreground" />
-                <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide">Or downgrade</span>
+                <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide">Downgrade</span>
               </div>
               <div className="rounded-lg border overflow-hidden">
                 <button
@@ -1746,6 +1733,34 @@ For tax filing assistance, please consult a qualified tax professional.
                 </button>
               </div>
             </div>
+
+            {/* Billing Section */}
+            {subscription?.customer_portal_url && (
+              <div className="space-y-1.5">
+                <div className="flex items-center gap-1.5">
+                  <CreditCard className="w-3 h-3 text-muted-foreground" />
+                  <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide">Billing</span>
+                </div>
+                <div className="rounded-lg border overflow-hidden">
+                  <button
+                    onClick={() => {
+                      setChangePlanDialogOpen(false);
+                      openCustomerPortal();
+                    }}
+                    className="w-full flex items-center gap-2 p-2.5 hover:bg-muted/50 transition-colors text-left"
+                  >
+                    <div className="w-7 h-7 rounded-md bg-blue-100 flex items-center justify-center flex-shrink-0">
+                      <ExternalLink className="w-3.5 h-3.5 text-blue-600" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium text-xs text-foreground">Manage Billing</p>
+                      <p className="text-[10px] text-muted-foreground">Update payment method, view invoices</p>
+                    </div>
+                    <ChevronRight className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" />
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
 
           <DialogFooter className="pt-2">

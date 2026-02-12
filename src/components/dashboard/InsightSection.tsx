@@ -3,7 +3,6 @@
 import {
   Tag,
   Receipt as ReceiptIcon,
-  DollarSign,
   Lightbulb,
   TrendingUp,
   TrendingDown,
@@ -39,20 +38,7 @@ const formatCurrency = (amount: number) => {
 export default function InsightSection({ data }: InsightSectionProps) {
   const insights = [];
 
-  // 1. Estimated Tax Benefit (First - Most Important)
-  if (data.estimatedTaxBenefit > 0) {
-    insights.push({
-      icon: DollarSign,
-      iconColor: 'text-cyan-500',
-      title: 'Estimated Tax Benefit',
-      description: 'Based on 37.3% combined rate',
-      value: `~${formatCurrency(data.estimatedTaxBenefit)}`,
-      gradient: 'from-cyan-500/10',
-      highlight: true,
-    });
-  }
-
-  // 2. Top Spending Category
+  // 1. Top Spending Category
   if (data.topCategory) {
     insights.push({
       icon: Tag,
@@ -61,11 +47,10 @@ export default function InsightSection({ data }: InsightSectionProps) {
       description: `${data.topCategory.name} accounts for ${data.topCategory.percentage.toFixed(1)}% of your spending`,
       value: formatCurrency(data.topCategory.amount),
       gradient: 'from-blue-500/5',
-      highlight: false,
     });
   }
 
-  // 3. Average Receipt
+  // 2. Average Receipt
   if (data.totalCount > 0) {
     insights.push({
       icon: ReceiptIcon,
@@ -74,11 +59,10 @@ export default function InsightSection({ data }: InsightSectionProps) {
       description: `Based on ${data.totalCount} receipts`,
       value: formatCurrency(data.averageAmount || 0),
       gradient: 'from-emerald-500/5',
-      highlight: false,
     });
   }
 
-  // 4. Monthly Trend
+  // 3. Monthly Trend
   if (data.monthlyChange !== null) {
     const isUp = data.monthlyChange >= 0;
     insights.push({
@@ -88,37 +72,12 @@ export default function InsightSection({ data }: InsightSectionProps) {
       description: `${isUp ? 'Up' : 'Down'} from last month`,
       value: `${isUp ? '+' : ''}${data.monthlyChange.toFixed(1)}%`,
       gradient: isUp ? 'from-orange-500/5' : 'from-teal-500/5',
-      highlight: false,
     });
   }
 
   return (
     <div className="space-y-3 sm:space-y-4">
-      {/* Tax Benefit Highlight Card (First position - standalone) */}
-      {insights.length > 0 && insights[0].highlight && (
-        <Card className="bg-gradient-to-br from-cyan-500/10 via-cyan-500/5 to-card border-cyan-200 shadow-sm">
-          <CardContent className="p-4 sm:p-5">
-            <div className="flex items-center gap-2 sm:gap-3 mb-2 sm:mb-3">
-              <div className="p-2 bg-cyan-100 rounded-lg">
-                <DollarSign className="w-5 h-5 sm:w-6 sm:h-6 text-cyan-600" />
-              </div>
-              <div>
-                <span className="text-sm sm:text-base font-semibold text-cyan-700">
-                  {insights[0].title}
-                </span>
-                <p className="text-[10px] sm:text-xs text-cyan-600/70">
-                  {insights[0].description}
-                </p>
-              </div>
-            </div>
-            <p className="text-2xl sm:text-3xl md:text-4xl font-bold text-cyan-600">
-              {insights[0].value}
-            </p>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Tax Tips Card - Right after Tax Benefit */}
+      {/* Tax Tips Card */}
       <Card className="bg-gradient-to-br from-amber-100/80 via-yellow-50 to-card border-amber-200 shadow-sm">
         <CardContent className="p-3 sm:p-4">
           <div className="flex items-center gap-1.5 sm:gap-2 text-amber-700 mb-2 sm:mb-3">
@@ -145,10 +104,10 @@ export default function InsightSection({ data }: InsightSectionProps) {
         </CardContent>
       </Card>
 
-      {/* Other Insights Grid (2-4) */}
-      {insights.length > 1 && (
+      {/* Insights Grid */}
+      {insights.length > 0 && (
         <div className="grid grid-cols-2 gap-2 sm:gap-3">
-          {insights.slice(1).map((insight, index) => {
+          {insights.map((insight, index) => {
             const Icon = insight.icon;
             return (
               <Card

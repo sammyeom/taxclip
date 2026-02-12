@@ -536,67 +536,6 @@ export default function ReportsPage() {
               </CardContent>
             </Card>
 
-            {/* Summary Cards */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4 mb-6 sm:mb-8">
-              {/* Total Expenses */}
-              <Card className="bg-gradient-to-t from-cyan-500/5 to-card shadow-sm">
-                <CardContent className="p-4 sm:p-6">
-                  <div className="flex items-center gap-2 text-muted-foreground mb-2">
-                    <DollarSign className="w-5 h-5 sm:w-6 sm:h-6 text-cyan-500" />
-                    <span className="text-sm sm:text-base font-medium">Expenses</span>
-                  </div>
-                  <p className="text-xl sm:text-4xl font-bold text-slate-900 truncate">{formatCurrency(stats.totalAmount)}</p>
-                </CardContent>
-              </Card>
-
-              {/* Total Receipts */}
-              <Card className="bg-gradient-to-t from-blue-500/5 to-card shadow-sm">
-                <CardContent className="p-4 sm:p-6">
-                  <div className="flex items-center gap-2 text-muted-foreground mb-2">
-                    <ReceiptIcon className="w-5 h-5 sm:w-6 sm:h-6 text-blue-500" />
-                    <span className="text-sm sm:text-base font-medium">Receipts</span>
-                  </div>
-                  <p className="text-2xl sm:text-4xl font-bold text-slate-900">{stats.totalCount}</p>
-                </CardContent>
-              </Card>
-
-              {/* Largest Expense */}
-              <Card className="bg-gradient-to-t from-green-500/5 to-card shadow-sm">
-                <CardContent className="p-4 sm:p-6">
-                  <div className="flex items-center gap-2 text-muted-foreground mb-2">
-                    <TrendingUp className="w-5 h-5 sm:w-6 sm:h-6 text-green-500" />
-                    <span className="text-sm sm:text-base font-medium">Largest</span>
-                  </div>
-                  <p className="text-lg sm:text-3xl font-bold text-slate-900 truncate">
-                    {summaryStats?.largestExpense
-                      ? formatCurrency(getReceiptTotal(summaryStats.largestExpense))
-                      : 'N/A'}
-                  </p>
-                  <p className="text-xs sm:text-sm text-muted-foreground truncate hidden sm:block">
-                    {summaryStats?.largestExpense?.merchant || 'N/A'}
-                  </p>
-                </CardContent>
-              </Card>
-
-              {/* Most Used Category */}
-              <Card className="bg-gradient-to-t from-purple-500/5 to-card shadow-sm">
-                <CardContent className="p-4 sm:p-6">
-                  <div className="flex items-center gap-2 text-muted-foreground mb-2">
-                    <Tag className="w-5 h-5 sm:w-6 sm:h-6 text-purple-500" />
-                    <span className="text-sm sm:text-base font-medium">Top Category</span>
-                  </div>
-                  <p className="text-base sm:text-2xl font-bold text-slate-900 truncate">
-                    {summaryStats?.mostUsedCategory.category !== 'none'
-                      ? CATEGORIES[summaryStats!.mostUsedCategory.category]
-                      : 'N/A'}
-                  </p>
-                  <p className="text-xs sm:text-sm text-muted-foreground hidden sm:block">
-                    {summaryStats?.mostUsedCategory.count || 0} receipts
-                  </p>
-                </CardContent>
-              </Card>
-            </div>
-
             {/* Schedule C Summary Table */}
             <div className="bg-white rounded-xl shadow-lg p-4 sm:p-6 mb-6 sm:mb-8">
               <h2 className="text-lg sm:text-2xl font-bold text-slate-900 mb-4 sm:mb-6 flex items-center gap-2">

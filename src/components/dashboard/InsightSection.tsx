@@ -1,11 +1,6 @@
 'use client';
 
-import {
-  Tag,
-  Receipt as ReceiptIcon,
-  TrendingUp,
-  TrendingDown,
-} from 'lucide-react';
+import { Tag } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 
 export interface InsightData {
@@ -45,31 +40,6 @@ export default function InsightSection({ data }: InsightSectionProps) {
       description: `${data.topCategory.name} accounts for ${data.topCategory.percentage.toFixed(1)}% of your spending`,
       value: formatCurrency(data.topCategory.amount),
       gradient: 'from-blue-500/5',
-    });
-  }
-
-  // 2. Average Receipt
-  if (data.totalCount > 0) {
-    insights.push({
-      icon: ReceiptIcon,
-      iconColor: 'text-emerald-500',
-      title: 'Average Receipt',
-      description: `Based on ${data.totalCount} receipts`,
-      value: formatCurrency(data.averageAmount || 0),
-      gradient: 'from-emerald-500/5',
-    });
-  }
-
-  // 3. Monthly Trend
-  if (data.monthlyChange !== null) {
-    const isUp = data.monthlyChange >= 0;
-    insights.push({
-      icon: isUp ? TrendingUp : TrendingDown,
-      iconColor: isUp ? 'text-orange-500' : 'text-teal-500',
-      title: 'Monthly Trend',
-      description: `${isUp ? 'Up' : 'Down'} from last month`,
-      value: `${isUp ? '+' : ''}${data.monthlyChange.toFixed(1)}%`,
-      gradient: isUp ? 'from-orange-500/5' : 'from-teal-500/5',
     });
   }
 

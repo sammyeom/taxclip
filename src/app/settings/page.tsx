@@ -5,7 +5,17 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import { useSubscription } from '@/hooks/useSubscription';
 import { useUsageLimit } from '@/hooks/useUsageLimit';
-import { getReceipts, deleteReceipt, getUserSettings, updateUserSettings, resetUserSettings } from '@/lib/supabase';
+import {
+  getReceipts,
+  deleteReceipt,
+  getUserSettings,
+  updateUserSettings,
+  resetUserSettings,
+  cancelSubscription,
+  reactivateSubscription,
+  getSubscription,
+} from '@/lib/supabase';
+import { CANCEL_REASONS, type CancelReason } from '@/types/subscription';
 import { getReceiptImages, Receipt } from '@/types/database';
 import Navigation from '@/components/Navigation';
 import JSZip from 'jszip';
@@ -35,6 +45,19 @@ import {
   Moon,
   Monitor,
   Palette,
+  ChevronRight,
+  PauseCircle,
+  BadgePercent,
+  CalendarCheck,
+  ArrowDownCircle,
+  DollarSign,
+  TrendingDown,
+  Wrench,
+  RefreshCw,
+  Bug,
+  Clock,
+  MessageCircle,
+  X,
 } from 'lucide-react';
 import {
   Select,
@@ -47,7 +70,10 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Separator } from '@/components/ui/separator';
+import { Textarea } from '@/components/ui/textarea';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import {
   AlertDialog,
@@ -163,6 +189,15 @@ function SettingsContent({ defaultTab }: { defaultTab: string }) {
   const [upgradeDialogOpen, setUpgradeDialogOpen] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<'monthly' | 'yearly'>('monthly');
   const [checkoutLoading, setCheckoutLoading] = useState(false);
+
+  // Subscription Management state
+  const [changePlanDialogOpen, setChangePlanDialogOpen] = useState(false);
+  const [cancelFlowOpen, setCancelFlowOpen] = useState(false);
+  const [cancelReason, setCancelReason] = useState<CancelReason | null>(null);
+  const [cancelFeedback, setCancelFeedback] = useState('');
+  const [cancelLoading, setCancelLoading] = useState(false);
+  const [cancelConfirmOpen, setCancelConfirmOpen] = useState(false);
+  const [reactivateLoading, setReactivateLoading] = useState(false);
 
   // Confirmation dialogs
   const [deleteReceiptsDialog, setDeleteReceiptsDialog] = useState(false);
@@ -517,8 +552,63 @@ For tax filing assistance, please consult a qualified tax professional.
     }
   };
 
+  // Handle cancel subscription
+  const handleCancelSubscription = async () => {
+    if (!cancelReason) {
+      setError('Please select a reason for cancelling');
+      return;
+    }
+
+    setCancelLoading(true);
+    try {
+      const { error: cancelError } = await cancelSubscription(cancelReason, cancelFeedback || undefined);
+      if (cancelError) throw cancelError;
+
+      // Refresh subscription data
+      window.location.reload();
+    } catch (err) {
+      console.error('Cancel error:', err);
+      setError('Failed to cancel subscription. Please try again.');
+    } finally {
+      setCancelLoading(false);
+      setCancelConfirmOpen(false);
+      setCancelFlowOpen(false);
+    }
+  };
+
+  // Handle reactivate subscription
+  const handleReactivateSubscription = async () => {
+    setReactivateLoading(true);
+    try {
+      const { error: reactivateError } = await reactivateSubscription();
+      if (reactivateError) throw reactivateError;
+
+      // Refresh subscription data
+      window.location.reload();
+    } catch (err) {
+      console.error('Reactivate error:', err);
+      setError('Failed to reactivate subscription. Please try again.');
+    } finally {
+      setReactivateLoading(false);
+    }
+  };
+
+  // Get cancel reason icon
+  const getCancelReasonIcon = (reason: CancelReason) => {
+    const iconMap: Record<CancelReason, React.ReactNode> = {
+      'too_expensive': <DollarSign className="w-5 h-5" />,
+      'not_using': <TrendingDown className="w-5 h-5" />,
+      'missing_features': <Wrench className="w-5 h-5" />,
+      'found_alternative': <RefreshCw className="w-5 h-5" />,
+      'technical_issues': <Bug className="w-5 h-5" />,
+      'need_break': <Clock className="w-5 h-5" />,
+      'other': <MessageCircle className="w-5 h-5" />,
+    };
+    return iconMap[reason];
+  };
+
   // Format date for display
-  const formatDate = (dateString: string | null) => {
+  const formatDate = (dateString: string | null | undefined) => {
     if (!dateString) return '-';
     return new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric',
@@ -1006,46 +1096,103 @@ For tax filing assistance, please consult a qualified tax professional.
                 {/* Pro Benefits */}
                 {isPro ? (
                   <div className="space-y-4">
-                    <div className="flex items-center gap-3 text-green-600">
-                      <Check className="w-5 h-5" />
-                      <span className="text-slate-700">Unlimited receipt uploads</span>
-                    </div>
-                    <div className="flex items-center gap-3 text-green-600">
-                      <Check className="w-5 h-5" />
-                      <span className="text-slate-700">Priority AI processing</span>
-                    </div>
-                    <div className="flex items-center gap-3 text-green-600">
-                      <Check className="w-5 h-5" />
-                      <span className="text-slate-700">Advanced tax reports</span>
+                    {/* Benefits List */}
+                    <div className="space-y-3">
+                      <div className="flex items-center gap-3">
+                        <div className="w-6 h-6 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
+                          <Check className="w-4 h-4 text-green-600" />
+                        </div>
+                        <span className="text-foreground">Unlimited receipt uploads</span>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <div className="w-6 h-6 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
+                          <Check className="w-4 h-4 text-green-600" />
+                        </div>
+                        <span className="text-foreground">Priority AI processing</span>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <div className="w-6 h-6 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
+                          <Check className="w-4 h-4 text-green-600" />
+                        </div>
+                        <span className="text-foreground">Advanced tax reports</span>
+                      </div>
                     </div>
 
-                    {/* Next billing date */}
+                    {/* Next billing date or cancellation notice */}
                     {(subscription?.renews_at || subscription?.ends_at || subscription?.trial_ends_at) && (
-                      <div className="border-t pt-4 mt-4">
-                        <div className="flex items-center gap-2 text-slate-600">
-                          <Calendar className="w-4 h-4" />
-                          <span className="text-sm">
-                            {subscription?.status === 'cancelled'
-                              ? `Access until: ${formatDate(subscription?.ends_at)}`
-                              : isOnTrial
-                                ? `Trial ends: ${formatDate(subscription?.trial_ends_at || subscription?.renews_at)}`
-                                : `Next billing: ${formatDate(subscription?.renews_at)}`
-                            }
-                          </span>
+                      <>
+                        <Separator />
+                        <div className="space-y-3">
+                          <div className="flex items-center gap-2 text-muted-foreground">
+                            <Calendar className="w-4 h-4" />
+                            <span className="text-sm">
+                              {subscription?.status === 'cancelled' || subscription?.will_renew === false
+                                ? `Pro ends: ${formatDate(subscription?.ends_at || subscription?.current_period_end)}`
+                                : isOnTrial
+                                  ? `Trial ends: ${formatDate(subscription?.trial_ends_at || subscription?.renews_at)}`
+                                  : `Next renewal: ${formatDate(subscription?.renews_at || subscription?.current_period_end)}`
+                              }
+                            </span>
+                          </div>
+                          {/* Cancelled subscription notice */}
+                          {(subscription?.status === 'cancelled' || subscription?.will_renew === false) && (
+                            <Alert className="border-amber-200 bg-amber-50">
+                              <AlertCircle className="h-4 w-4 text-amber-600" />
+                              <AlertDescription className="text-amber-700">
+                                Your subscription has been cancelled. You can reactivate anytime before your access ends.
+                              </AlertDescription>
+                            </Alert>
+                          )}
+                          {/* Reactivate option for cancelled subscriptions */}
+                          {(subscription?.status === 'cancelled' || subscription?.will_renew === false) && (
+                            <Button
+                              onClick={handleReactivateSubscription}
+                              disabled={reactivateLoading}
+                              className="w-full bg-green-600 hover:bg-green-700 text-white"
+                            >
+                              {reactivateLoading ? (
+                                <>
+                                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                  Reactivating...
+                                </>
+                              ) : (
+                                <>
+                                  <RefreshCw className="w-4 h-4 mr-2" />
+                                  Reactivate Subscription
+                                </>
+                              )}
+                            </Button>
+                          )}
                         </div>
-                      </div>
+                      </>
                     )}
 
-                    {/* Manage Subscription Button */}
-                    <Button
-                      onClick={openCustomerPortal}
-                      variant="outline"
-                      className="w-full mt-4"
-                      disabled={!subscription?.customer_portal_url}
-                    >
-                      <ExternalLink className="w-4 h-4 mr-2" />
-                      Manage Subscription
-                    </Button>
+                    {/* Subscription Management Buttons */}
+                    <Separator />
+                    <div className="space-y-3">
+                      {/* Manage Subscription - LemonSqueezy portal */}
+                      <Button
+                        onClick={openCustomerPortal}
+                        variant="outline"
+                        className="w-full"
+                        disabled={!subscription?.customer_portal_url}
+                      >
+                        <ExternalLink className="w-4 h-4 mr-2" />
+                        Manage Subscription
+                      </Button>
+
+                      {/* Change Plan button (only if not cancelled) */}
+                      {subscription?.will_renew !== false && subscription?.status !== 'cancelled' && (
+                        <Button
+                          onClick={() => setChangePlanDialogOpen(true)}
+                          variant="ghost"
+                          className="w-full text-muted-foreground hover:text-foreground"
+                        >
+                          <SettingsIcon className="w-4 h-4 mr-2" />
+                          Change Plan
+                        </Button>
+                      )}
+                    </div>
                   </div>
                 ) : (
                   <div className="space-y-3">
@@ -1447,6 +1594,285 @@ For tax filing assistance, please consult a qualified tax professional.
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Change Plan Dialog */}
+      <Dialog open={changePlanDialogOpen} onOpenChange={setChangePlanDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <SettingsIcon className="w-5 h-5 text-cyan-600" />
+              Change Your Plan
+            </DialogTitle>
+            <DialogDescription>
+              Choose the option that works best for you
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-6 py-4">
+            {/* Stay with Pro Section */}
+            <div className="space-y-3">
+              <div className="flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-cyan-600" />
+                <span className="text-sm font-semibold text-cyan-600 uppercase tracking-wide">Stay with Pro</span>
+              </div>
+              <Card>
+                <CardContent className="p-0 divide-y">
+                  {/* Pause Option */}
+                  <button
+                    onClick={() => {
+                      setChangePlanDialogOpen(false);
+                      alert('Subscription pausing will be available soon. For now, you can cancel and resubscribe when ready.');
+                    }}
+                    className="w-full flex items-center gap-3 p-4 hover:bg-muted/50 transition-colors text-left"
+                  >
+                    <div className="w-10 h-10 rounded-lg bg-indigo-100 flex items-center justify-center flex-shrink-0">
+                      <PauseCircle className="w-5 h-5 text-indigo-600" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-semibold text-foreground">Pause for 3 months</p>
+                      <p className="text-sm text-muted-foreground">Take a break, keep your data</p>
+                    </div>
+                    <ChevronRight className="w-5 h-5 text-muted-foreground flex-shrink-0" />
+                  </button>
+
+                  {/* Discount Option */}
+                  <button
+                    onClick={() => {
+                      setChangePlanDialogOpen(false);
+                      alert('Special discount offers will be available soon. Please contact support for assistance.');
+                    }}
+                    className="w-full flex items-center gap-3 p-4 hover:bg-muted/50 transition-colors text-left"
+                  >
+                    <div className="w-10 h-10 rounded-lg bg-amber-100 flex items-center justify-center flex-shrink-0">
+                      <BadgePercent className="w-5 h-5 text-amber-600" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <p className="font-semibold text-foreground">50% off for 3 months</p>
+                        <Badge variant="secondary" className="bg-amber-100 text-amber-700 hover:bg-amber-100">
+                          Popular
+                        </Badge>
+                      </div>
+                      <p className="text-sm text-muted-foreground">Stay at half the price</p>
+                    </div>
+                    <ChevronRight className="w-5 h-5 text-muted-foreground flex-shrink-0" />
+                  </button>
+
+                  {/* Switch to Yearly (only for monthly users) */}
+                  {subscription?.plan_type === 'pro' && (
+                    <button
+                      onClick={() => {
+                        setChangePlanDialogOpen(false);
+                        setSelectedPlan('yearly');
+                        setUpgradeDialogOpen(true);
+                      }}
+                      className="w-full flex items-center gap-3 p-4 hover:bg-muted/50 transition-colors text-left"
+                    >
+                      <div className="w-10 h-10 rounded-lg bg-green-100 flex items-center justify-center flex-shrink-0">
+                        <CalendarCheck className="w-5 h-5 text-green-600" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <p className="font-semibold text-foreground">Switch to yearly</p>
+                          <Badge variant="secondary" className="bg-green-100 text-green-700 hover:bg-green-100">
+                            Save 17%
+                          </Badge>
+                        </div>
+                        <p className="text-sm text-muted-foreground">$99/year ($8.25/month)</p>
+                      </div>
+                      <ChevronRight className="w-5 h-5 text-muted-foreground flex-shrink-0" />
+                    </button>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Downgrade Section */}
+            <div className="space-y-3">
+              <div className="flex items-center gap-2">
+                <ArrowDownCircle className="w-4 h-4 text-muted-foreground" />
+                <span className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Or downgrade</span>
+              </div>
+              <Card>
+                <CardContent className="p-0">
+                  <button
+                    onClick={() => {
+                      setChangePlanDialogOpen(false);
+                      setCancelFlowOpen(true);
+                    }}
+                    className="w-full flex items-center gap-3 p-4 hover:bg-muted/50 transition-colors text-left rounded-lg"
+                  >
+                    <div className="flex-1 min-w-0">
+                      <p className="font-semibold text-foreground">Switch to Free plan</p>
+                      <p className="text-sm text-muted-foreground">10 receipts/month, basic features</p>
+                    </div>
+                    <ChevronRight className="w-5 h-5 text-muted-foreground flex-shrink-0" />
+                  </button>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setChangePlanDialogOpen(false)}>
+              Cancel
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Cancel Flow Dialog */}
+      <Dialog open={cancelFlowOpen} onOpenChange={setCancelFlowOpen}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <X className="w-5 h-5 text-destructive" />
+              Cancel Subscription
+            </DialogTitle>
+            <DialogDescription>
+              We&apos;re sorry to see you go. Please tell us why you&apos;re cancelling.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-6 py-4">
+            {/* Info Banner */}
+            <Alert className="border-amber-200 bg-amber-50">
+              <AlertCircle className="h-4 w-4 text-amber-600" />
+              <AlertTitle className="text-amber-800">You&apos;ll keep Pro access</AlertTitle>
+              <AlertDescription className="text-amber-700">
+                Your Pro features remain active until {formatDate(subscription?.ends_at || subscription?.current_period_end || subscription?.renews_at)}.
+              </AlertDescription>
+            </Alert>
+
+            {/* Reason Selection */}
+            <div className="space-y-3">
+              <Label className="text-sm font-medium">Why are you cancelling?</Label>
+              <div className="space-y-2">
+                {CANCEL_REASONS.map((reason) => (
+                  <Card
+                    key={reason.value}
+                    className={`cursor-pointer transition-all ${
+                      cancelReason === reason.value
+                        ? 'border-cyan-500 bg-cyan-50/50 ring-1 ring-cyan-500'
+                        : 'hover:border-muted-foreground/30'
+                    }`}
+                    onClick={() => setCancelReason(reason.value)}
+                  >
+                    <CardContent className="p-3 flex items-center gap-3">
+                      <div
+                        className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0"
+                        style={{ backgroundColor: reason.iconBg }}
+                      >
+                        <span style={{ color: reason.iconColor }}>
+                          {getCancelReasonIcon(reason.value)}
+                        </span>
+                      </div>
+                      <span className="font-medium text-foreground flex-1">{reason.label}</span>
+                      {cancelReason === reason.value && (
+                        <Check className="w-5 h-5 text-cyan-600 flex-shrink-0" />
+                      )}
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </div>
+
+            {/* Feedback Textarea */}
+            {cancelReason && (
+              <div className="space-y-2">
+                <Label htmlFor="cancel-feedback" className="text-sm font-medium">
+                  Anything else you&apos;d like to share? (Optional)
+                </Label>
+                <Textarea
+                  id="cancel-feedback"
+                  value={cancelFeedback}
+                  onChange={(e) => setCancelFeedback(e.target.value)}
+                  placeholder="Your feedback helps us improve..."
+                  className="h-24 resize-none"
+                />
+              </div>
+            )}
+          </div>
+
+          <DialogFooter className="flex-col sm:flex-row gap-2">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setCancelFlowOpen(false);
+                setCancelReason(null);
+                setCancelFeedback('');
+              }}
+            >
+              Keep Subscription
+            </Button>
+            <Button
+              onClick={() => {
+                if (cancelReason) {
+                  setCancelConfirmOpen(true);
+                } else {
+                  setError('Please select a reason for cancelling');
+                }
+              }}
+              disabled={!cancelReason}
+              variant="destructive"
+            >
+              Continue to Cancel
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Cancel Confirm Dialog */}
+      <AlertDialog open={cancelConfirmOpen} onOpenChange={setCancelConfirmOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <div className="flex items-center gap-3 mb-2">
+              <div className="bg-destructive/10 rounded-full p-3">
+                <AlertCircle className="w-6 h-6 text-destructive" />
+              </div>
+              <AlertDialogTitle className="text-xl font-bold">Confirm Cancellation</AlertDialogTitle>
+            </div>
+            <AlertDialogDescription asChild>
+              <div className="space-y-4">
+                <p>Are you sure you want to cancel your Pro subscription?</p>
+                <Card className="bg-muted/50">
+                  <CardContent className="p-4 space-y-2 text-sm">
+                    <p className="flex items-start gap-2">
+                      <Check className="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0" />
+                      <span>Your Pro access continues until <strong>{formatDate(subscription?.ends_at || subscription?.current_period_end || subscription?.renews_at)}</strong></span>
+                    </p>
+                    <p className="flex items-start gap-2">
+                      <Check className="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0" />
+                      <span>After that, you&apos;ll switch to the Free plan (10 receipts/month)</span>
+                    </p>
+                    <p className="flex items-start gap-2">
+                      <Check className="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0" />
+                      <span>You can reactivate anytime before the end date</span>
+                    </p>
+                  </CardContent>
+                </Card>
+              </div>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={cancelLoading}>Keep Subscription</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleCancelSubscription}
+              disabled={cancelLoading}
+              className="bg-destructive hover:bg-destructive/90 text-destructive-foreground"
+            >
+              {cancelLoading ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Cancelling...
+                </>
+              ) : (
+                'Yes, Cancel Subscription'
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       {/* Confirmation Dialogs */}
       <AlertDialog open={deleteReceiptsDialog} onOpenChange={setDeleteReceiptsDialog}>

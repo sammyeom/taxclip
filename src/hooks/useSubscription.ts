@@ -14,7 +14,9 @@ export interface Subscription {
   lemon_squeezy_customer_id: string | null;
   lemon_squeezy_subscription_id: string | null;
   status: 'active' | 'on_trial' | 'cancelled' | 'expired' | 'paused' | 'past_due' | 'inactive';
-  plan_type: 'free' | 'pro' | 'annual';
+  plan_type: 'free' | 'pro' | 'annual' | 'pro_monthly' | 'pro_annual';
+  interval?: string | null;
+  plan_interval?: string | null;
   current_period_start: string | null;
   current_period_end: string | null;
   trial_ends_at: string | null;
@@ -22,6 +24,24 @@ export interface Subscription {
   ends_at: string | null;
   update_payment_method_url: string | null;
   customer_portal_url: string | null;
+  // 일시정지 관련
+  is_paused?: boolean;
+  pause_start_date?: string | null;
+  pause_end_date?: string | null;
+  pause_duration_days?: number | null;
+  // 할인 관련
+  discount_percentage?: number | null;
+  discount_start_date?: string | null;
+  discount_end_date?: string | null;
+  discount_reason?: string | null;
+  original_price?: number | null;
+  discounted_price?: number | null;
+  // 취소 관련
+  will_renew?: boolean;
+  cancelled_at?: string | null;
+  cancellation_reason?: string | null;
+  cancellation_feedback?: string | null;
+  // 타임스탬프
   created_at: string;
   updated_at: string;
 }
@@ -96,10 +116,26 @@ export function useSubscription() {
   // Check subscription status
   // Include 'on_trial' as active since trial users should have pro features
   const isActive = subscription?.status === 'active' || subscription?.status === 'on_trial';
-  const isPro = isActive && (subscription?.plan_type === 'pro' || subscription?.plan_type === 'annual');
+  const isPro = isActive && (
+    subscription?.plan_type === 'pro' ||
+    subscription?.plan_type === 'annual' ||
+    subscription?.plan_type === 'pro_monthly' ||
+    subscription?.plan_type === 'pro_annual'
+  );
 
   // Check if subscription is cancelled but still active until period end
-  const isCancelled = subscription?.status === 'cancelled' && subscription?.ends_at;
+  const isCancelled = subscription?.status === 'cancelled' || subscription?.will_renew === false;
+
+  // Check if subscription will renew
+  const willRenew = subscription?.will_renew !== false && subscription?.status !== 'cancelled';
+
+  // Check if subscription is paused
+  const isPaused = subscription?.is_paused === true || subscription?.status === 'paused';
+
+  // Check if discount is active
+  const hasActiveDiscount = subscription?.discount_percentage != null &&
+    subscription?.discount_end_date != null &&
+    new Date(subscription.discount_end_date) > new Date();
 
   // Get days remaining until subscription ends
   const getDaysRemaining = (): number | null => {
@@ -174,6 +210,9 @@ export function useSubscription() {
     isCancelled,
     isOnTrial,
     hasUsedTrial,
+    willRenew,
+    isPaused,
+    hasActiveDiscount,
     getDaysRemaining,
     createCheckout,
     openCustomerPortal,

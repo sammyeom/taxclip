@@ -42,6 +42,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, Label } from 'recharts';
 import {
   ChartConfig,
@@ -454,13 +455,10 @@ export default function ReportsPage() {
 
         {/* Error Alert */}
         {error && (
-          <div className="mb-6 bg-red-50 border border-red-200 rounded-lg p-4 flex items-start gap-3">
-            <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
-            <div className="flex-1">
-              <h3 className="font-semibold text-red-900 mb-1">Error</h3>
-              <p className="text-red-700 text-sm">{error}</p>
-            </div>
-          </div>
+          <Alert variant="destructive" className="mb-6">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
         )}
 
         {!hasData ? (
@@ -593,38 +591,36 @@ export default function ReportsPage() {
               </h2>
 
               <div className="overflow-x-auto -mx-4 sm:mx-0">
-                <table className="w-full min-w-[400px]">
-                  <thead>
-                    <tr className="border-b-2 border-slate-200">
-                      <th className="text-left py-2 sm:py-3 px-3 sm:px-4 text-xs sm:text-sm font-semibold text-slate-700">
+                <Table className="min-w-[400px]">
+                  <TableHeader>
+                    <TableRow className="border-b-2">
+                      <TableHead className="text-left text-xs sm:text-sm font-semibold">
                         Category
-                      </th>
-                      <th className="text-right py-2 sm:py-3 px-3 sm:px-4 text-xs sm:text-sm font-semibold text-slate-700">
+                      </TableHead>
+                      <TableHead className="text-right text-xs sm:text-sm font-semibold">
                         Amount
-                      </th>
-                      <th className="text-center py-2 sm:py-3 px-3 sm:px-4 text-xs sm:text-sm font-semibold text-slate-700">
+                      </TableHead>
+                      <TableHead className="text-center text-xs sm:text-sm font-semibold">
                         #
-                      </th>
-                      <th className="text-right py-2 sm:py-3 px-3 sm:px-4 text-xs sm:text-sm font-semibold text-slate-700">
+                      </TableHead>
+                      <TableHead className="text-right text-xs sm:text-sm font-semibold">
                         %
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
+                      </TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
                     {scheduleCData.map((item) => (
-                      <tr
+                      <TableRow
                         key={item.key}
-                        className={`border-b border-slate-100 ${
-                          item.amount === 0 ? 'opacity-40' : ''
-                        }`}
+                        className={item.amount === 0 ? 'opacity-40' : ''}
                       >
-                        <td className="py-2 sm:py-3 px-3 sm:px-4 text-xs sm:text-sm text-slate-900">
+                        <TableCell className="text-xs sm:text-sm">
                           <span className="truncate">{item.category}</span>
                           {item.key === 'meals' && item.amount > 0 && (
                             <span className="text-xs text-orange-600 ml-1 sm:ml-2 hidden sm:inline">(50%)</span>
                           )}
-                        </td>
-                        <td className="py-2 sm:py-3 px-3 sm:px-4 text-right text-xs sm:text-sm font-semibold text-slate-900">
+                        </TableCell>
+                        <TableCell className="text-right text-xs sm:text-sm font-semibold">
                           {item.key === 'meals' && item.amount > 0 ? (
                             <span className="flex flex-col sm:flex-row sm:items-center sm:justify-end">
                               <span>{formatCurrency(item.amount)}</span>
@@ -635,25 +631,25 @@ export default function ReportsPage() {
                           ) : (
                             formatCurrency(item.amount)
                           )}
-                        </td>
-                        <td className="py-2 sm:py-3 px-3 sm:px-4 text-center text-xs sm:text-sm text-slate-700">{item.count}</td>
-                        <td className="py-2 sm:py-3 px-3 sm:px-4 text-right text-xs sm:text-sm text-slate-700">
+                        </TableCell>
+                        <TableCell className="text-center text-xs sm:text-sm text-muted-foreground">{item.count}</TableCell>
+                        <TableCell className="text-right text-xs sm:text-sm text-muted-foreground">
                           {item.percentage.toFixed(0)}%
-                        </td>
-                      </tr>
+                        </TableCell>
+                      </TableRow>
                     ))}
-                    <tr className="border-t-2 border-slate-300 bg-slate-50">
-                      <td className="py-3 sm:py-4 px-3 sm:px-4 font-bold text-xs sm:text-sm text-slate-900">Total</td>
-                      <td className="py-3 sm:py-4 px-3 sm:px-4 text-right font-bold text-sm sm:text-lg text-slate-900">
+                    <TableRow className="border-t-2 bg-muted/50">
+                      <TableCell className="font-bold text-xs sm:text-sm">Total</TableCell>
+                      <TableCell className="text-right font-bold text-sm sm:text-lg">
                         {formatCurrency(stats.totalAmount)}
-                      </td>
-                      <td className="py-3 sm:py-4 px-3 sm:px-4 text-center font-bold text-xs sm:text-sm text-slate-900">
+                      </TableCell>
+                      <TableCell className="text-center font-bold text-xs sm:text-sm">
                         {stats.totalCount}
-                      </td>
-                      <td className="py-3 sm:py-4 px-3 sm:px-4 text-right font-bold text-xs sm:text-sm text-slate-900">100%</td>
-                    </tr>
-                  </tbody>
-                </table>
+                      </TableCell>
+                      <TableCell className="text-right font-bold text-xs sm:text-sm">100%</TableCell>
+                    </TableRow>
+                  </TableBody>
+                </Table>
               </div>
             </div>
 
@@ -822,48 +818,47 @@ export default function ReportsPage() {
               </div>
 
               {recentReceipts.length === 0 ? (
-                <p className="text-slate-500 text-center py-8 text-sm">No receipts found</p>
+                <p className="text-muted-foreground text-center py-8 text-sm">No receipts found</p>
               ) : (
                 <div className="overflow-x-auto -mx-4 sm:mx-0">
-                  <table className="w-full min-w-[400px]">
-                    <thead>
-                      <tr className="border-b border-slate-200">
-                        <th className="text-left py-2 sm:py-3 px-3 sm:px-4 text-xs sm:text-sm font-semibold text-slate-700">
+                  <Table className="min-w-[400px]">
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className="text-left text-xs sm:text-sm font-semibold">
                           Date
-                        </th>
-                        <th className="text-left py-2 sm:py-3 px-3 sm:px-4 text-xs sm:text-sm font-semibold text-slate-700">
+                        </TableHead>
+                        <TableHead className="text-left text-xs sm:text-sm font-semibold">
                           Vendor
-                        </th>
-                        <th className="text-right py-2 sm:py-3 px-3 sm:px-4 text-xs sm:text-sm font-semibold text-slate-700">
+                        </TableHead>
+                        <TableHead className="text-right text-xs sm:text-sm font-semibold">
                           Amount
-                        </th>
-                        <th className="text-left py-2 sm:py-3 px-3 sm:px-4 text-xs sm:text-sm font-semibold text-slate-700 hidden sm:table-cell">
+                        </TableHead>
+                        <TableHead className="text-left text-xs sm:text-sm font-semibold hidden sm:table-cell">
                           Category
-                        </th>
-                        <th className="text-center py-2 sm:py-3 px-3 sm:px-4 text-xs sm:text-sm font-semibold text-slate-700">
-
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody>
+                        </TableHead>
+                        <TableHead className="text-center text-xs sm:text-sm font-semibold">
+                        </TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
                       {recentReceipts.map((receipt) => (
-                        <tr key={receipt.id} className="border-b border-slate-100 hover:bg-slate-50">
-                          <td className="py-2 sm:py-3 px-3 sm:px-4 text-xs sm:text-sm text-slate-700">
+                        <TableRow key={receipt.id}>
+                          <TableCell className="text-xs sm:text-sm text-muted-foreground">
                             {formatDate(receipt.date, { shortMonth: true })}
-                          </td>
-                          <td className="py-2 sm:py-3 px-3 sm:px-4 text-xs sm:text-sm font-semibold text-slate-900 max-w-[100px] truncate">
+                          </TableCell>
+                          <TableCell className="text-xs sm:text-sm font-semibold max-w-[100px] truncate">
                             {receipt.merchant}
-                          </td>
-                          <td className="py-2 sm:py-3 px-3 sm:px-4 text-xs sm:text-sm text-right font-semibold text-green-600">
+                          </TableCell>
+                          <TableCell className="text-xs sm:text-sm text-right font-semibold text-green-600">
                             {formatCurrency(getReceiptTotal(receipt))}
-                          </td>
-                          <td className="py-2 sm:py-3 px-3 sm:px-4 text-xs sm:text-sm text-slate-700 hidden sm:table-cell">
+                          </TableCell>
+                          <TableCell className="text-xs sm:text-sm text-muted-foreground hidden sm:table-cell">
                             {CATEGORIES[receipt.category] || receipt.category}
                             {receipt.subcategory && (
-                              <span className="text-slate-500"> - {getSubcategoryLabel(receipt.category, receipt.subcategory)}</span>
+                              <span className="text-muted-foreground/70"> - {getSubcategoryLabel(receipt.category, receipt.subcategory)}</span>
                             )}
-                          </td>
-                          <td className="py-2 sm:py-3 px-3 sm:px-4 text-center">
+                          </TableCell>
+                          <TableCell className="text-center">
                             <Button
                               variant="ghost"
                               size="sm"
@@ -872,11 +867,11 @@ export default function ReportsPage() {
                             >
                               <Link href={`/receipts/${receipt.id}`}>View</Link>
                             </Button>
-                          </td>
-                        </tr>
+                          </TableCell>
+                        </TableRow>
                       ))}
-                    </tbody>
-                  </table>
+                    </TableBody>
+                  </Table>
                 </div>
               )}
             </div>

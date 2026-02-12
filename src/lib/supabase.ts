@@ -1,5 +1,15 @@
 import { createClient } from '@supabase/supabase-js';
 import { Receipt, InsertReceipt, UpdateReceipt, UserSettings, UpdateUserSettings, Expense, InsertExpense, UpdateExpense } from '@/types/database';
+import type {
+  Subscription,
+  UpdateSubscription,
+  SubscriptionEvent,
+  InsertSubscriptionEvent,
+  SubscriptionFeedback,
+  InsertSubscriptionFeedback,
+  CancelReason,
+  PauseDuration,
+} from '@/types/subscription';
 
 // 🔇 Console 401 에러 완전 숨기기
 if (typeof window !== 'undefined') {
@@ -733,5 +743,531 @@ export const resetUserSettings = async () => {
   } catch (err) {
     console.error('Error in resetUserSettings:', err);
     return { error: err instanceof Error ? err : new Error('Unknown error') };
+  }
+};
+
+// ==================== Subscription Functions ====================
+
+/**
+ * 구독 정보 조회
+ */
+export const getSubscription = async () => {
+  try {
+    const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+
+    if (sessionError || !session?.user) {
+      return { data: null, error: new Error('Not authenticated') };
+    }
+
+    const { data, error } = await supabase
+      .from('subscriptions')
+      .select('*')
+      .eq('user_id', session.user.id)
+      .single();
+
+    if (error && error.code !== 'PGRST116') {
+      console.error('Error fetching subscription:', error.message);
+      return { data: null, error };
+    }
+
+    return { data: data as Subscription | null, error: null };
+  } catch (err) {
+    console.error('Error in getSubscription:', err);
+    return { data: null, error: err instanceof Error ? err : new Error('Unknown error') };
+  }
+};
+
+/**
+ * 구독 일시정지
+ */
+export const pauseSubscription = async (durationDays: PauseDuration) => {
+  try {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session?.user) return { data: null, error: new Error('Not authenticated') };
+
+    const now = new Date();
+    const pauseEndDate = new Date(now.getTime() + durationDays * 24 * 60 * 60 * 1000);
+
+    // 현재 구독 정보 조회
+    const { data: currentSub } = await supabase
+      .from('subscriptions')
+      .select('plan_type, interval, plan_interval')
+      .eq('user_id', session.user.id)
+      .single();
+
+    const planType = currentSub?.interval === 'year' || currentSub?.plan_interval === 'year'
+      ? 'annual'
+      : 'monthly';
+
+    // 이벤트 기록
+    await supabase.from('subscription_events').insert({
+      user_id: session.user.id,
+      event_type: 'pause_requested',
+      previous_plan: planType,
+      new_plan: 'paused',
+      pause_duration_days: durationDays,
+      pause_end_date: pauseEndDate.toISOString(),
+    });
+
+    // 구독 상태 업데이트
+    const { data, error } = await supabase
+      .from('subscriptions')
+      .update({
+        status: 'paused',
+        is_paused: true,
+        pause_start_date: now.toISOString(),
+        pause_end_date: pauseEndDate.toISOString(),
+        pause_duration_days: durationDays,
+        updated_at: now.toISOString(),
+      })
+      .eq('user_id', session.user.id)
+      .select()
+      .single();
+
+    return { data: data as Subscription | null, error };
+  } catch (err) {
+    console.error('Error in pauseSubscription:', err);
+    return { data: null, error: err instanceof Error ? err : new Error('Unknown error') };
+  }
+};
+
+/**
+ * 구독 일시정지 해제
+ */
+export const resumeSubscription = async () => {
+  try {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session?.user) return { data: null, error: new Error('Not authenticated') };
+
+    const now = new Date();
+
+    // 이벤트 기록
+    await supabase.from('subscription_events').insert({
+      user_id: session.user.id,
+      event_type: 'pause_ended',
+    });
+
+    // 구독 상태 업데이트
+    const { data, error } = await supabase
+      .from('subscriptions')
+      .update({
+        status: 'active',
+        is_paused: false,
+        pause_start_date: null,
+        pause_end_date: null,
+        pause_duration_days: null,
+        updated_at: now.toISOString(),
+      })
+      .eq('user_id', session.user.id)
+      .select()
+      .single();
+
+    return { data: data as Subscription | null, error };
+  } catch (err) {
+    console.error('Error in resumeSubscription:', err);
+    return { data: null, error: err instanceof Error ? err : new Error('Unknown error') };
+  }
+};
+
+/**
+ * 할인 적용
+ */
+export const applyDiscount = async (
+  discountPercent: number,
+  durationMonths: number,
+  reason?: string
+) => {
+  try {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session?.user) return { data: null, error: new Error('Not authenticated') };
+
+    const now = new Date();
+    const discountEndDate = new Date(now.getTime() + durationMonths * 30 * 24 * 60 * 60 * 1000);
+
+    // 현재 구독 정보 조회
+    const { data: currentSub } = await supabase
+      .from('subscriptions')
+      .select('plan_type, interval, plan_interval')
+      .eq('user_id', session.user.id)
+      .single();
+
+    const planType = currentSub?.interval === 'year' || currentSub?.plan_interval === 'year'
+      ? 'annual'
+      : 'monthly';
+
+    // 원래 가격 계산
+    const originalPrice = planType === 'annual' ? 99 : 9.99;
+    const discountedPrice = originalPrice * (1 - discountPercent / 100);
+
+    // 이벤트 기록
+    await supabase.from('subscription_events').insert({
+      user_id: session.user.id,
+      event_type: 'discount_applied',
+      previous_plan: planType,
+      new_plan: planType,
+      discount_percent: discountPercent,
+      discount_duration_months: durationMonths,
+    });
+
+    // 구독 업데이트
+    const { data, error } = await supabase
+      .from('subscriptions')
+      .update({
+        discount_percentage: discountPercent,
+        discount_start_date: now.toISOString(),
+        discount_end_date: discountEndDate.toISOString(),
+        discount_reason: reason || 'retention_offer',
+        original_price: originalPrice,
+        discounted_price: discountedPrice,
+        updated_at: now.toISOString(),
+      })
+      .eq('user_id', session.user.id)
+      .select()
+      .single();
+
+    return { data: data as Subscription | null, error };
+  } catch (err) {
+    console.error('Error in applyDiscount:', err);
+    return { data: null, error: err instanceof Error ? err : new Error('Unknown error') };
+  }
+};
+
+/**
+ * 할인 제거
+ */
+export const removeDiscount = async () => {
+  try {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session?.user) return { data: null, error: new Error('Not authenticated') };
+
+    const now = new Date();
+
+    const { data, error } = await supabase
+      .from('subscriptions')
+      .update({
+        discount_percentage: null,
+        discount_start_date: null,
+        discount_end_date: null,
+        discount_reason: null,
+        original_price: null,
+        discounted_price: null,
+        updated_at: now.toISOString(),
+      })
+      .eq('user_id', session.user.id)
+      .select()
+      .single();
+
+    return { data: data as Subscription | null, error };
+  } catch (err) {
+    console.error('Error in removeDiscount:', err);
+    return { data: null, error: err instanceof Error ? err : new Error('Unknown error') };
+  }
+};
+
+/**
+ * 구독 취소 처리
+ */
+export const cancelSubscription = async (reason?: CancelReason, feedback?: string) => {
+  try {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session?.user) return { data: null, error: new Error('Not authenticated') };
+
+    const now = new Date();
+
+    // Get current subscription info
+    const { data: currentSub } = await supabase
+      .from('subscriptions')
+      .select('id, interval, plan_interval, current_period_end')
+      .eq('user_id', session.user.id)
+      .single();
+
+    const planType = currentSub?.interval === 'year' || currentSub?.plan_interval === 'year'
+      ? 'annual'
+      : 'monthly';
+
+    // Record cancellation event
+    await supabase.from('subscription_events').insert({
+      user_id: session.user.id,
+      event_type: 'cancel_requested',
+      previous_plan: planType,
+      new_plan: 'free',
+      cancel_reason: reason || null,
+      cancel_feedback: feedback || null,
+      effective_date: currentSub?.current_period_end || null,
+    });
+
+    // Record feedback separately
+    if (reason || feedback) {
+      await supabase.from('subscription_feedback').insert({
+        user_id: session.user.id,
+        subscription_id: currentSub?.id || null,
+        feedback_type: 'cancellation',
+        reason: reason || null,
+        feedback_text: feedback || null,
+      });
+    }
+
+    // Update subscription
+    const { data, error } = await supabase
+      .from('subscriptions')
+      .update({
+        will_renew: false,
+        cancelled_at: now.toISOString(),
+        cancellation_reason: reason || null,
+        cancellation_feedback: feedback || null,
+        updated_at: now.toISOString(),
+      })
+      .eq('user_id', session.user.id)
+      .select()
+      .single();
+
+    return { data: data as Subscription | null, error };
+  } catch (err) {
+    console.error('Error in cancelSubscription:', err);
+    return { data: null, error: err instanceof Error ? err : new Error('Unknown error') };
+  }
+};
+
+/**
+ * 구독 재활성화 (취소 철회)
+ */
+export const reactivateSubscription = async () => {
+  try {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session?.user) return { data: null, error: new Error('Not authenticated') };
+
+    const now = new Date();
+
+    // 이벤트 기록
+    await supabase.from('subscription_events').insert({
+      user_id: session.user.id,
+      event_type: 'reactivated',
+    });
+
+    // 구독 업데이트
+    const { data, error } = await supabase
+      .from('subscriptions')
+      .update({
+        will_renew: true,
+        cancelled_at: null,
+        cancellation_reason: null,
+        cancellation_feedback: null,
+        updated_at: now.toISOString(),
+      })
+      .eq('user_id', session.user.id)
+      .select()
+      .single();
+
+    return { data: data as Subscription | null, error };
+  } catch (err) {
+    console.error('Error in reactivateSubscription:', err);
+    return { data: null, error: err instanceof Error ? err : new Error('Unknown error') };
+  }
+};
+
+/**
+ * 구독 이벤트 기록
+ */
+export const recordSubscriptionEvent = async (event: InsertSubscriptionEvent) => {
+  const { data, error } = await supabase
+    .from('subscription_events')
+    .insert(event)
+    .select()
+    .single();
+
+  return { data: data as SubscriptionEvent | null, error };
+};
+
+/**
+ * 구독 이벤트 히스토리 조회
+ */
+export const getSubscriptionEvents = async () => {
+  try {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session?.user) return { data: null, error: new Error('Not authenticated') };
+
+    const { data, error } = await supabase
+      .from('subscription_events')
+      .select('*')
+      .eq('user_id', session.user.id)
+      .order('created_at', { ascending: false });
+
+    return { data: data as SubscriptionEvent[] | null, error };
+  } catch (err) {
+    console.error('Error in getSubscriptionEvents:', err);
+    return { data: null, error: err instanceof Error ? err : new Error('Unknown error') };
+  }
+};
+
+/**
+ * 피드백 제출
+ */
+export const submitFeedback = async (feedback: InsertSubscriptionFeedback) => {
+  const { data, error } = await supabase
+    .from('subscription_feedback')
+    .insert(feedback)
+    .select()
+    .single();
+
+  return { data: data as SubscriptionFeedback | null, error };
+};
+
+/**
+ * 사용자 피드백 조회
+ */
+export const getUserFeedback = async () => {
+  try {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session?.user) return { data: null, error: new Error('Not authenticated') };
+
+    const { data, error } = await supabase
+      .from('subscription_feedback')
+      .select('*')
+      .eq('user_id', session.user.id)
+      .order('created_at', { ascending: false });
+
+    return { data: data as SubscriptionFeedback[] | null, error };
+  } catch (err) {
+    console.error('Error in getUserFeedback:', err);
+    return { data: null, error: err instanceof Error ? err : new Error('Unknown error') };
+  }
+};
+
+/**
+ * 구독 정보 업데이트 (범용)
+ */
+export const updateSubscription = async (updates: UpdateSubscription) => {
+  try {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session?.user) return { data: null, error: new Error('Not authenticated') };
+
+    const now = new Date();
+
+    const { data, error } = await supabase
+      .from('subscriptions')
+      .update({
+        ...updates,
+        updated_at: now.toISOString(),
+      })
+      .eq('user_id', session.user.id)
+      .select()
+      .single();
+
+    return { data: data as Subscription | null, error };
+  } catch (err) {
+    console.error('Error in updateSubscription:', err);
+    return { data: null, error: err instanceof Error ? err : new Error('Unknown error') };
+  }
+};
+
+/**
+ * 무료 체험 시작
+ */
+export const startFreeTrial = async (planType: 'monthly' | 'annual') => {
+  try {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session?.user) return { data: null, error: new Error('Not authenticated') };
+
+    // Check if trial was already used
+    const { data: settings } = await supabase
+      .from('user_settings')
+      .select('has_used_trial')
+      .eq('user_id', session.user.id)
+      .single();
+
+    if (settings?.has_used_trial) {
+      return { data: null, error: new Error('Free trial already used') };
+    }
+
+    const now = new Date();
+    const trialEndsAt = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000); // 7 days
+
+    const subscriptionEndDate = planType === 'annual'
+      ? new Date(trialEndsAt.getTime() + 365 * 24 * 60 * 60 * 1000)
+      : new Date(trialEndsAt.getTime() + 30 * 24 * 60 * 60 * 1000);
+
+    const planName = planType === 'annual' ? 'pro_annual' : 'pro_monthly';
+    const intervalType = planType === 'annual' ? 'year' : 'month';
+
+    // Check if subscription exists
+    const { data: existing } = await supabase
+      .from('subscriptions')
+      .select('id')
+      .eq('user_id', session.user.id)
+      .single();
+
+    const subscriptionData = {
+      status: 'on_trial',
+      plan_type: planName,
+      interval: intervalType,
+      plan_interval: intervalType,
+      trial_ends_at: trialEndsAt.toISOString(),
+      current_period_start: now.toISOString(),
+      current_period_end: subscriptionEndDate.toISOString(),
+      will_renew: true,
+      updated_at: now.toISOString(),
+    };
+
+    let subscriptionError = null;
+
+    if (existing) {
+      const { error } = await supabase
+        .from('subscriptions')
+        .update(subscriptionData)
+        .eq('user_id', session.user.id);
+      subscriptionError = error;
+    } else {
+      const { error } = await supabase
+        .from('subscriptions')
+        .insert({
+          user_id: session.user.id,
+          ...subscriptionData,
+          created_at: now.toISOString(),
+        });
+      subscriptionError = error;
+    }
+
+    if (subscriptionError) {
+      return { data: null, error: subscriptionError };
+    }
+
+    // Mark trial as used
+    const { data, error } = await supabase
+      .from('user_settings')
+      .update({
+        has_used_trial: true,
+        subscription_status: 'on_trial',
+        subscription_plan: planName,
+        subscription_ends_at: subscriptionEndDate.toISOString(),
+        updated_at: now.toISOString(),
+      })
+      .eq('user_id', session.user.id)
+      .select()
+      .single();
+
+    return { data, error };
+  } catch (err) {
+    console.error('Error in startFreeTrial:', err);
+    return { data: null, error: err instanceof Error ? err : new Error('Unknown error') };
+  }
+};
+
+/**
+ * 트라이얼 사용 여부 확인
+ */
+export const hasUsedTrial = async (): Promise<boolean> => {
+  try {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session?.user) return false;
+
+    const { data } = await supabase
+      .from('user_settings')
+      .select('has_used_trial')
+      .eq('user_id', session.user.id)
+      .single();
+
+    return data?.has_used_trial === true;
+  } catch {
+    return false;
   }
 };

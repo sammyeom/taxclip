@@ -549,49 +549,53 @@ export default function ReportsPage() {
             </div>
 
             {/* Tax Summary Card */}
-            <div className="grid grid-cols-3 gap-2 sm:gap-4 mb-6 sm:mb-8">
-              {/* Total Expenses */}
-              <Card className="bg-gradient-to-t from-slate-500/5 to-card shadow-sm">
-                <CardContent className="p-4 sm:p-6">
-                  <div className="flex items-center gap-2 text-muted-foreground mb-2">
-                    <DollarSign className="w-5 h-5 sm:w-6 sm:h-6 text-slate-500" />
-                    <span className="text-xs sm:text-sm font-medium">Total Expenses</span>
+            <Card className="mb-6 sm:mb-8 bg-gradient-to-t from-cyan-500/5 to-card shadow-sm">
+              <CardContent className="p-4 sm:p-6">
+                <div className="flex items-center gap-2 text-muted-foreground mb-4">
+                  <DollarSign className="w-5 h-5 sm:w-6 sm:h-6 text-cyan-500" />
+                  <span className="text-sm sm:text-base font-semibold text-foreground">Tax Summary</span>
+                  <span className="text-xs font-medium text-cyan-600 bg-cyan-100 px-2 py-0.5 rounded-full ml-auto">
+                    {getDateRangeLabel()}
+                  </span>
+                </div>
+                <div className="grid grid-cols-3 gap-4 sm:gap-6">
+                  {/* Total Expenses */}
+                  <div>
+                    <div className="flex items-center gap-1.5 text-muted-foreground mb-1">
+                      <DollarSign className="w-4 h-4 text-slate-500" />
+                      <span className="text-xs sm:text-sm font-medium">Total Expenses</span>
+                    </div>
+                    <p className="text-lg sm:text-2xl font-bold text-slate-900 truncate">{formatCurrency(taxSummary.totalExpenses)}</p>
                   </div>
-                  <p className="text-lg sm:text-3xl font-bold text-slate-900 truncate">{formatCurrency(taxSummary.totalExpenses)}</p>
-                  <p className="text-[10px] sm:text-xs text-muted-foreground mt-1">{getDateRangeLabel()}</p>
-                </CardContent>
-              </Card>
 
-              {/* Tax Deductible */}
-              <Card className="bg-gradient-to-t from-emerald-500/5 to-card shadow-sm">
-                <CardContent className="p-4 sm:p-6">
-                  <div className="flex items-center gap-2 text-muted-foreground mb-2">
-                    <TrendingUp className="w-5 h-5 sm:w-6 sm:h-6 text-emerald-500" />
-                    <span className="text-xs sm:text-sm font-medium">Tax Deductible</span>
+                  {/* Tax Deductible */}
+                  <div className="border-l border-r border-border px-4">
+                    <div className="flex items-center gap-1.5 text-muted-foreground mb-1">
+                      <TrendingUp className="w-4 h-4 text-emerald-500" />
+                      <span className="text-xs sm:text-sm font-medium">Tax Deductible</span>
+                    </div>
+                    <p className="text-lg sm:text-2xl font-bold text-emerald-600 truncate">{formatCurrency(taxSummary.deductibleAmount)}</p>
+                    <p className="text-[10px] sm:text-xs text-muted-foreground">Meals 50% + Others 100%</p>
                   </div>
-                  <p className="text-lg sm:text-3xl font-bold text-emerald-600 truncate">{formatCurrency(taxSummary.deductibleAmount)}</p>
-                  <p className="text-[10px] sm:text-xs text-muted-foreground mt-1">Meals 50% + Others 100%</p>
-                </CardContent>
-              </Card>
 
-              {/* Est. Tax Savings */}
-              <Card className="bg-gradient-to-t from-cyan-500/5 to-card shadow-sm">
-                <CardContent className="p-4 sm:p-6">
-                  <div className="flex items-center gap-2 text-muted-foreground mb-2">
-                    <DollarSign className="w-5 h-5 sm:w-6 sm:h-6 text-cyan-500" />
-                    <span className="text-xs sm:text-sm font-medium">Est. Tax Savings</span>
-                    <button
-                      onClick={() => setShowTaxInfoModal(true)}
-                      className="text-slate-400 hover:text-cyan-600 transition-colors ml-auto"
-                    >
-                      <Info className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                    </button>
+                  {/* Est. Tax Savings */}
+                  <div>
+                    <div className="flex items-center gap-1.5 text-muted-foreground mb-1">
+                      <DollarSign className="w-4 h-4 text-cyan-500" />
+                      <span className="text-xs sm:text-sm font-medium">Est. Tax Savings</span>
+                      <button
+                        onClick={() => setShowTaxInfoModal(true)}
+                        className="text-slate-400 hover:text-cyan-600 transition-colors"
+                      >
+                        <Info className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                    <p className="text-lg sm:text-2xl font-bold text-cyan-600 truncate">~{formatCurrency(taxSummary.estimatedSavings)}</p>
+                    <p className="text-[10px] sm:text-xs text-muted-foreground">37.3% rate</p>
                   </div>
-                  <p className="text-lg sm:text-3xl font-bold text-cyan-600 truncate">~{formatCurrency(taxSummary.estimatedSavings)}</p>
-                  <p className="text-[10px] sm:text-xs text-muted-foreground mt-1">37.3% rate</p>
-                </CardContent>
-              </Card>
-            </div>
+                </div>
+              </CardContent>
+            </Card>
 
             {/* Schedule C Summary Table */}
             <div className="bg-white rounded-xl shadow-lg p-4 sm:p-6 mb-6 sm:mb-8">

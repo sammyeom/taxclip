@@ -689,40 +689,40 @@ export default function DashboardPage() {
         {/* Tax Summary Card */}
         <Card className="mb-6 sm:mb-8 bg-gradient-to-t from-cyan-500/5 to-card shadow-sm">
           <CardContent className="p-4 sm:p-6">
-            <div className="flex items-center gap-2 text-muted-foreground mb-4">
-              <DollarSign className="w-5 h-5 sm:w-6 sm:h-6 text-cyan-500" />
-              <span className="text-sm sm:text-base font-semibold text-foreground">Tax Summary</span>
-              <span className="text-xs font-medium text-cyan-600 bg-cyan-100 px-2 py-0.5 rounded-full ml-auto">
+            <div className="flex items-center justify-center gap-2 text-muted-foreground mb-5">
+              <DollarSign className="w-6 h-6 sm:w-7 sm:h-7 text-cyan-500" />
+              <span className="text-lg sm:text-xl font-bold text-foreground">Tax Summary</span>
+              <span className="text-xs font-medium text-cyan-600 bg-cyan-100 px-2 py-0.5 rounded-full">
                 {new Date().getFullYear()} YTD
               </span>
             </div>
             <div className="grid grid-cols-3 gap-4 sm:gap-6">
               {/* Total Expenses */}
-              <div>
-                <div className="flex items-center gap-1.5 text-muted-foreground mb-1">
+              <div className="text-center">
+                <div className="flex items-center justify-center gap-1.5 text-muted-foreground mb-1">
                   <DollarSign className="w-4 h-4 text-slate-500" />
                   <span className="text-xs sm:text-sm font-medium">Total Expenses</span>
                 </div>
-                <p className="text-lg sm:text-2xl font-bold text-slate-900 truncate">{formatCurrency(taxSummary.totalExpenses)}</p>
+                <p className="text-lg sm:text-2xl font-bold text-slate-900">{formatCurrency(taxSummary.totalExpenses)}</p>
               </div>
 
               {/* Tax Deductible */}
-              <div className="border-l border-r border-border px-4">
-                <div className="flex items-center gap-1.5 text-muted-foreground mb-1">
+              <div className="text-center border-l border-r border-border px-4">
+                <div className="flex items-center justify-center gap-1.5 text-muted-foreground mb-1">
                   <TrendingUp className="w-4 h-4 text-emerald-500" />
                   <span className="text-xs sm:text-sm font-medium">Tax Deductible</span>
                 </div>
-                <p className="text-lg sm:text-2xl font-bold text-emerald-600 truncate">{formatCurrency(taxSummary.deductibleAmount)}</p>
+                <p className="text-lg sm:text-2xl font-bold text-emerald-600">{formatCurrency(taxSummary.deductibleAmount)}</p>
                 <p className="text-[10px] sm:text-xs text-muted-foreground">Meals 50% + Others 100%</p>
               </div>
 
               {/* Est. Tax Savings */}
-              <div>
-                <div className="flex items-center gap-1.5 text-muted-foreground mb-1">
+              <div className="text-center">
+                <div className="flex items-center justify-center gap-1.5 text-muted-foreground mb-1">
                   <DollarSign className="w-4 h-4 text-cyan-500" />
                   <span className="text-xs sm:text-sm font-medium">Est. Tax Savings</span>
                 </div>
-                <p className="text-lg sm:text-2xl font-bold text-cyan-600 truncate">~{formatCurrency(taxSummary.estimatedSavings)}</p>
+                <p className="text-lg sm:text-2xl font-bold text-cyan-600">~{formatCurrency(taxSummary.estimatedSavings)}</p>
                 <p className="text-[10px] sm:text-xs text-muted-foreground">37.3% rate</p>
               </div>
             </div>

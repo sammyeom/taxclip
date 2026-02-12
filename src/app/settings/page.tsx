@@ -170,7 +170,7 @@ function SettingsContent({ defaultTab }: { defaultTab: string }) {
   const { setTheme } = useTheme();
 
   // Subscription and usage hooks
-  const { subscription, isPro, isOnTrial, isCancelled, willRenew, hasUsedTrial, getDaysRemaining, createCheckout, openCustomerPortal, refetch: refetchSubscription } = useSubscription();
+  const { subscription, isPro, isOnTrial, isCancelled, willRenew, hasUsedTrial, isMonthlyPlan, isLemonSqueezySubscription, getDaysRemaining, createCheckout, upgradeToAnnual, openCustomerPortal, refetch: refetchSubscription } = useSubscription();
   const { monthlyCount, monthlyLimit, remainingUploads } = useUsageLimit();
 
   const [settings, setSettings] = useState<AppSettings>(DEFAULT_SETTINGS);
@@ -200,6 +200,7 @@ function SettingsContent({ defaultTab }: { defaultTab: string }) {
   const [reactivateLoading, setReactivateLoading] = useState(false);
   const [syncLoading, setSyncLoading] = useState(false);
   const [syncSuccess, setSyncSuccess] = useState(false);
+  const [upgradeLoading, setUpgradeLoading] = useState(false);
 
   // Confirmation dialogs
   const [deleteReceiptsDialog, setDeleteReceiptsDialog] = useState(false);
@@ -1682,28 +1683,54 @@ For tax filing assistance, please consult a qualified tax professional.
                   <ChevronRight className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" />
                 </button>
 
-                {/* Switch to Yearly (only for monthly users) */}
-                {(subscription?.plan_type === 'pro' || subscription?.plan_type === 'pro_monthly') && (
+                {/* Switch to Yearly (only for monthly users with LemonSqueezy subscription) */}
+                {isMonthlyPlan && isLemonSqueezySubscription && (
                   <button
-                    onClick={() => {
-                      setChangePlanDialogOpen(false);
-                      setSelectedPlan('yearly');
-                      setUpgradeDialogOpen(true);
+                    onClick={async () => {
+                      setUpgradeLoading(true);
+                      const result = await upgradeToAnnual();
+                      setUpgradeLoading(false);
+                      if (result.success) {
+                        setChangePlanDialogOpen(false);
+                        // Show success message or toast
+                        alert('Successfully upgraded to annual plan! Your remaining monthly credit has been applied.');
+                      } else {
+                        setError(result.error || 'Failed to upgrade');
+                      }
                     }}
-                    className="w-full flex items-center gap-2 p-2.5 hover:bg-muted/50 transition-colors text-left"
+                    disabled={upgradeLoading}
+                    className="w-full flex items-center gap-2 p-2.5 hover:bg-muted/50 transition-colors text-left disabled:opacity-50"
                   >
                     <div className="w-7 h-7 rounded-md bg-green-100 flex items-center justify-center flex-shrink-0">
-                      <CalendarCheck className="w-3.5 h-3.5 text-green-600" />
+                      {upgradeLoading ? (
+                        <Loader2 className="w-3.5 h-3.5 text-green-600 animate-spin" />
+                      ) : (
+                        <CalendarCheck className="w-3.5 h-3.5 text-green-600" />
+                      )}
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-1 flex-wrap">
-                        <p className="font-medium text-xs text-foreground">Switch to yearly</p>
+                        <p className="font-medium text-xs text-foreground">
+                          {upgradeLoading ? 'Upgrading...' : 'Switch to yearly'}
+                        </p>
                         <span className="bg-green-100 text-green-700 text-[9px] px-1 py-0 rounded font-medium">Save 17%</span>
                       </div>
-                      <p className="text-[10px] text-muted-foreground">$99/year ($8.25/mo)</p>
+                      <p className="text-[10px] text-muted-foreground">$99/year ($8.25/mo) - Credit applied</p>
                     </div>
                     <ChevronRight className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" />
                   </button>
+                )}
+                {/* Switch to Yearly for mobile subscribers (no LemonSqueezy) - redirect to app */}
+                {isMonthlyPlan && !isLemonSqueezySubscription && (
+                  <div className="w-full flex items-center gap-2 p-2.5 bg-amber-50 text-left">
+                    <div className="w-7 h-7 rounded-md bg-amber-100 flex items-center justify-center flex-shrink-0">
+                      <CalendarCheck className="w-3.5 h-3.5 text-amber-600" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium text-xs text-amber-800">Mobile subscription</p>
+                      <p className="text-[10px] text-amber-600">Please upgrade through the TaxClip app</p>
+                    </div>
+                  </div>
                 )}
               </div>
             </div>

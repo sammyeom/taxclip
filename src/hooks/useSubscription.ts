@@ -229,6 +229,57 @@ export function useSubscription() {
   // Check if user is on trial
   const isOnTrial = subscription?.status === 'on_trial';
 
+  // Check if user is on monthly plan (can upgrade to annual)
+  const isMonthlyPlan = subscription?.plan_type === 'pro' || subscription?.plan_type === 'pro_monthly';
+
+  // Check if subscription is from LemonSqueezy (has lemon_squeezy_subscription_id)
+  const isLemonSqueezySubscription = !!subscription?.lemon_squeezy_subscription_id;
+
+  // Upgrade from monthly to annual with proration
+  // This uses LemonSqueezy's subscription update API
+  const upgradeToAnnual = async (): Promise<{ success: boolean; error?: string }> => {
+    if (!user) {
+      return { success: false, error: 'Not authenticated' };
+    }
+
+    if (!isMonthlyPlan) {
+      return { success: false, error: 'Not on monthly plan' };
+    }
+
+    if (!isLemonSqueezySubscription) {
+      return { success: false, error: 'Mobile subscription - please upgrade through the app' };
+    }
+
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.access_token) {
+        return { success: false, error: 'No session found' };
+      }
+
+      const response = await fetch('/api/subscription/upgrade', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`,
+        },
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        return { success: false, error: data.error || 'Failed to upgrade' };
+      }
+
+      // Refresh subscription data
+      await fetchSubscription();
+
+      return { success: true };
+    } catch (err) {
+      console.error('Upgrade error:', err);
+      return { success: false, error: 'Failed to upgrade subscription' };
+    }
+  };
+
   return {
     subscription,
     loading,
@@ -241,8 +292,11 @@ export function useSubscription() {
     willRenew,
     isPaused,
     hasActiveDiscount,
+    isMonthlyPlan,
+    isLemonSqueezySubscription,
     getDaysRemaining,
     createCheckout,
+    upgradeToAnnual,
     openCustomerPortal,
     openUpdatePayment,
     refetch: fetchSubscription,

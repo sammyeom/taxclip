@@ -661,7 +661,7 @@ export default function DashboardPage() {
         {/* Tax Summary Card - First */}
         <Card className="mb-6 sm:mb-8 bg-gradient-to-t from-cyan-500/5 to-card shadow-sm">
           <CardContent className="p-5 sm:p-8">
-            <div className="flex items-center gap-2 text-muted-foreground mb-6">
+            <div className="flex items-center gap-2 text-muted-foreground mb-4">
               <DollarSign className="w-7 h-7 sm:w-8 sm:h-8 text-cyan-500" />
               <span className="text-xl sm:text-2xl font-bold text-foreground">Tax Summary</span>
               <span className="text-xs sm:text-sm font-medium text-cyan-600 bg-cyan-100 px-2.5 py-1 rounded-full">
@@ -701,6 +701,27 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
 
+        {/* Upload CTA - Right after Tax Summary */}
+        <Link href="/upload" className="block mb-6 sm:mb-8">
+          <div className="bg-gradient-to-r from-cyan-500 to-sky-500 rounded-xl p-6 sm:p-8 text-white hover:from-cyan-600 hover:to-sky-600 transition-all cursor-pointer shadow-lg hover:shadow-xl">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+              <div className="flex items-center gap-4">
+                <div className="p-3 bg-white/20 rounded-xl">
+                  <Upload className="w-8 h-8" />
+                </div>
+                <div>
+                  <h3 className="text-xl sm:text-2xl font-bold">Upload New Receipt</h3>
+                  <p className="text-cyan-100 text-sm sm:text-base">Snap, scan, and organize in seconds with AI</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2 bg-white text-cyan-600 px-6 py-3 rounded-lg font-semibold hover:bg-cyan-50 transition-colors">
+                <Upload className="w-5 h-5" />
+                Upload Now
+              </div>
+            </div>
+          </div>
+        </Link>
+
         {/* Stats Cards - 2x2 on mobile, 4 cols on desktop */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4 lg:gap-6 mb-6 sm:mb-8">
           <StatCard
@@ -728,27 +749,6 @@ export default function DashboardPage() {
             subLabel="Most frequent"
           />
         </div>
-
-        {/* Upload CTA */}
-        <Link href="/upload" className="block mb-8">
-          <div className="bg-gradient-to-r from-cyan-500 to-sky-500 rounded-xl p-6 sm:p-8 text-white hover:from-cyan-600 hover:to-sky-600 transition-all cursor-pointer shadow-lg hover:shadow-xl">
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-              <div className="flex items-center gap-4">
-                <div className="p-3 bg-white/20 rounded-xl">
-                  <Upload className="w-8 h-8" />
-                </div>
-                <div>
-                  <h3 className="text-xl sm:text-2xl font-bold">Upload New Receipt</h3>
-                  <p className="text-cyan-100 text-sm sm:text-base">Snap, scan, and organize in seconds with AI</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-2 bg-white text-cyan-600 px-6 py-3 rounded-lg font-semibold hover:bg-cyan-50 transition-colors">
-                <Upload className="w-5 h-5" />
-                Upload Now
-              </div>
-            </div>
-          </div>
-        </Link>
 
         {/* Two-column layout: 60% Left / 40% Right */}
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 mb-8">

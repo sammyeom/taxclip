@@ -313,7 +313,7 @@ export default function ExportPanel({
                 pdfStatus === 'success'
                   ? 'bg-green-500 hover:bg-green-600'
                   : pdfStatus === 'idle'
-                  ? 'bg-cyan-600 hover:bg-cyan-700'
+                  ? 'bg-cyan-500 hover:bg-cyan-600'
                   : ''
               }`}
             >

@@ -705,17 +705,23 @@ export default function DashboardPage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-2 gap-3 sm:gap-6">
+            <div className="grid grid-cols-3 gap-3 sm:gap-6">
               {/* Total Expenses */}
               <div className="text-center">
                 <p className="text-xs sm:text-sm text-slate-600 mb-1">Total Expenses</p>
                 <p className="text-lg sm:text-2xl font-bold text-slate-900">{formatCurrency(taxSummary.totalExpenses)}</p>
               </div>
               {/* Tax Deductible */}
-              <div className="text-center border-l border-emerald-200">
+              <div className="text-center border-l border-r border-emerald-200">
                 <p className="text-xs sm:text-sm text-slate-600 mb-1">Tax Deductible</p>
                 <p className="text-lg sm:text-2xl font-bold text-emerald-600">{formatCurrency(taxSummary.deductibleAmount)}</p>
                 <p className="text-[10px] sm:text-xs text-slate-500">Meals 50% + Others 100%</p>
+              </div>
+              {/* Est. Tax Savings */}
+              <div className="text-center">
+                <p className="text-xs sm:text-sm text-slate-600 mb-1">Est. Tax Savings</p>
+                <p className="text-lg sm:text-2xl font-bold text-cyan-600">{formatCurrency(taxSummary.estimatedSavings)}</p>
+                <p className="text-[10px] sm:text-xs text-slate-500">37.3% rate</p>
               </div>
             </div>
           </CardContent>

@@ -1683,19 +1683,26 @@ For tax filing assistance, please consult a qualified tax professional.
                   <ChevronRight className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" />
                 </button>
 
-                {/* Switch to Yearly (only for monthly users with LemonSqueezy subscription) */}
-                {isMonthlyPlan && isLemonSqueezySubscription && (
+                {/* Switch to Yearly (only for monthly users) */}
+                {isMonthlyPlan && (
                   <button
                     onClick={async () => {
-                      setUpgradeLoading(true);
-                      const result = await upgradeToAnnual();
-                      setUpgradeLoading(false);
-                      if (result.success) {
-                        setChangePlanDialogOpen(false);
-                        // Show success message or toast
-                        alert('Successfully upgraded to annual plan! Your remaining monthly credit has been applied.');
+                      // If LemonSqueezy subscription, use upgrade API with proration
+                      if (isLemonSqueezySubscription) {
+                        setUpgradeLoading(true);
+                        const result = await upgradeToAnnual();
+                        setUpgradeLoading(false);
+                        if (result.success) {
+                          setChangePlanDialogOpen(false);
+                          alert('Successfully upgraded to annual plan! Your remaining monthly credit has been applied.');
+                        } else {
+                          setError(result.error || 'Failed to upgrade');
+                        }
                       } else {
-                        setError(result.error || 'Failed to upgrade');
+                        // For non-LemonSqueezy (mobile) subscribers, open checkout for annual
+                        setChangePlanDialogOpen(false);
+                        setSelectedPlan('yearly');
+                        setUpgradeDialogOpen(true);
                       }
                     }}
                     disabled={upgradeLoading}
@@ -1715,22 +1722,10 @@ For tax filing assistance, please consult a qualified tax professional.
                         </p>
                         <span className="bg-green-100 text-green-700 text-[9px] px-1 py-0 rounded font-medium">Save 17%</span>
                       </div>
-                      <p className="text-[10px] text-muted-foreground">$99/year ($8.25/mo) - Credit applied</p>
+                      <p className="text-[10px] text-muted-foreground">$99/year ($8.25/mo)</p>
                     </div>
                     <ChevronRight className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" />
                   </button>
-                )}
-                {/* Switch to Yearly for mobile subscribers (no LemonSqueezy) - redirect to app */}
-                {isMonthlyPlan && !isLemonSqueezySubscription && (
-                  <div className="w-full flex items-center gap-2 p-2.5 bg-amber-50 text-left">
-                    <div className="w-7 h-7 rounded-md bg-amber-100 flex items-center justify-center flex-shrink-0">
-                      <CalendarCheck className="w-3.5 h-3.5 text-amber-600" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="font-medium text-xs text-amber-800">Mobile subscription</p>
-                      <p className="text-[10px] text-amber-600">Please upgrade through the TaxClip app</p>
-                    </div>
-                  </div>
                 )}
               </div>
             </div>

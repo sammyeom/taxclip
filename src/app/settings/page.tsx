@@ -1435,43 +1435,43 @@ For tax filing assistance, please consult a qualified tax professional.
 
       {/* Upgrade Plan Dialog */}
       <Dialog open={upgradeDialogOpen} onOpenChange={setUpgradeDialogOpen}>
-        <DialogContent className="sm:max-w-lg">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Crown className="w-5 h-5 text-amber-500" />
+        <DialogContent className="sm:max-w-sm max-h-[85vh] overflow-y-auto">
+          <DialogHeader className="pb-2">
+            <DialogTitle className="flex items-center gap-2 text-base">
+              <Crown className="w-4 h-4 text-amber-500" />
               Upgrade to Pro
             </DialogTitle>
-            <DialogDescription>
+            <DialogDescription className="text-xs">
               Choose your billing cycle and unlock unlimited uploads.
             </DialogDescription>
           </DialogHeader>
 
           {/* 7-day trial badge - only show if user hasn't used trial */}
           {!hasUsedTrial ? (
-            <div className="bg-green-50 border border-green-200 rounded-lg p-3 text-center">
-              <p className="text-green-700 font-semibold text-sm">
+            <div className="bg-green-50 border border-green-200 rounded-lg p-2 text-center">
+              <p className="text-green-700 font-semibold text-xs">
                 Start with a 7-day free trial
               </p>
-              <p className="text-green-600 text-xs">
+              <p className="text-green-600 text-[10px]">
                 Cancel anytime during trial - no charges
               </p>
             </div>
           ) : (
-            <div className="bg-slate-50 border border-slate-200 rounded-lg p-3 text-center">
-              <p className="text-slate-700 font-semibold text-sm">
+            <div className="bg-slate-50 border border-slate-200 rounded-lg p-2 text-center">
+              <p className="text-slate-700 font-semibold text-xs">
                 You have already used your free trial
               </p>
-              <p className="text-slate-600 text-xs">
+              <p className="text-slate-600 text-[10px]">
                 Upgrade now to continue with Pro features
               </p>
             </div>
           )}
 
-          <div className="space-y-4 py-2">
+          <div className="space-y-3 py-2">
             {/* Monthly Option */}
             <button
               onClick={() => setSelectedPlan('monthly')}
-              className={`w-full p-4 rounded-xl border-2 text-left transition-all ${
+              className={`w-full p-3 rounded-lg border-2 text-left transition-all ${
                 selectedPlan === 'monthly'
                   ? 'border-cyan-600 bg-cyan-50/50'
                   : 'border-slate-200 hover:border-slate-300 bg-white'
@@ -1479,19 +1479,19 @@ For tax filing assistance, please consult a qualified tax professional.
             >
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="font-medium text-slate-900">Monthly</p>
-                  <p className="text-sm text-slate-500">Billed monthly</p>
+                  <p className="font-medium text-sm text-slate-900">Monthly</p>
+                  <p className="text-xs text-slate-500">Billed monthly</p>
                 </div>
                 <div className="text-right">
-                  <p className="text-xl font-bold text-slate-900">$9.99</p>
-                  <p className="text-xs text-slate-500">/month</p>
+                  <p className="text-lg font-bold text-slate-900">$9.99</p>
+                  <p className="text-[10px] text-slate-500">/month</p>
                 </div>
               </div>
               {/* 7-Day Free Trial Included */}
               {!hasUsedTrial && selectedPlan === 'monthly' && (
-                <div className="mt-3 pt-3 border-t border-cyan-200/50">
-                  <p className="text-sm text-cyan-600 font-semibold flex items-center gap-1.5">
-                    <Check className="w-4 h-4" />
+                <div className="mt-2 pt-2 border-t border-cyan-200/50">
+                  <p className="text-xs text-cyan-600 font-semibold flex items-center gap-1">
+                    <Check className="w-3 h-3" />
                     7-Day Free Trial Included
                   </p>
                 </div>
@@ -1502,7 +1502,7 @@ For tax filing assistance, please consult a qualified tax professional.
             <div className="relative">
               {/* Animated Gradient Border */}
               <motion.div
-                className="absolute -inset-[2px] rounded-xl opacity-75"
+                className="absolute -inset-[2px] rounded-lg opacity-75"
                 style={{
                   background: 'linear-gradient(90deg, #06b6d4, #3b82f6, #8b5cf6, #06b6d4)',
                   backgroundSize: '300% 100%',
@@ -1518,66 +1518,59 @@ For tax filing assistance, please consult a qualified tax professional.
               />
               <button
                 onClick={() => setSelectedPlan('yearly')}
-                className={`relative w-full p-5 rounded-xl text-left transition-all shadow-xl ${
+                className={`relative w-full p-3 rounded-lg text-left transition-all shadow-lg ${
                   selectedPlan === 'yearly'
                     ? 'bg-gradient-to-br from-cyan-50 via-blue-50 to-indigo-50 border-0'
                     : 'bg-white border-0 hover:bg-slate-50'
                 }`}
               >
                 {/* Best Value Badge */}
-                <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-                  <span className="inline-flex flex-col items-center bg-gradient-to-r from-amber-400 to-amber-500 text-white px-3 py-1.5 rounded-lg text-center font-semibold shadow-md whitespace-nowrap">
-                    <span className="flex items-center gap-1 text-xs">
-                      <Sparkles className="w-3 h-3" />
-                      Best Value
-                    </span>
-                    <span className="text-[10px] font-bold">Save 17%</span>
+                <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+                  <span className="inline-flex items-center gap-1 bg-gradient-to-r from-amber-400 to-amber-500 text-white px-2 py-0.5 rounded text-[10px] font-semibold shadow-md whitespace-nowrap">
+                    <Sparkles className="w-2.5 h-2.5" />
+                    Best Value · Save 17%
                   </span>
                 </div>
 
                 <div className="flex items-center justify-between mt-1">
                   <div>
-                    <p className="font-bold text-slate-900 flex items-center gap-2">
+                    <p className="font-bold text-sm text-slate-900 flex items-center gap-1.5">
                       Annual
-                      <span className="bg-green-100 text-green-700 px-2 py-0.5 rounded-full text-xs font-semibold">
+                      <span className="bg-green-100 text-green-700 px-1.5 py-0 rounded text-[10px] font-semibold">
                         Save 17%
                       </span>
                     </p>
-                    <p className="text-sm text-slate-500">Billed annually</p>
+                    <p className="text-xs text-slate-500">Billed annually</p>
                   </div>
                   <div className="text-right">
-                    <div className="flex items-baseline gap-2">
-                      <p className="text-2xl font-bold text-slate-900">$99</p>
-                      <p className="text-sm text-slate-400 line-through">$119.88</p>
-                      <p className="text-xs text-slate-500">/year</p>
+                    <div className="flex items-baseline gap-1">
+                      <p className="text-lg font-bold text-slate-900">$99</p>
+                      <p className="text-xs text-slate-400 line-through">$119.88</p>
                     </div>
-                    <p className="text-sm font-medium text-cyan-600">= $8.25/month</p>
+                    <p className="text-xs font-medium text-cyan-600">= $8.25/mo</p>
                   </div>
                 </div>
 
                 {/* 7-Day Free Trial Included */}
                 {!hasUsedTrial && (
-                  <div className="mt-3 pt-3 border-t border-slate-200/50">
-                    <p className="text-sm text-cyan-600 font-semibold flex items-center gap-1.5">
-                      <Check className="w-4 h-4" />
+                  <div className="mt-2 pt-2 border-t border-slate-200/50">
+                    <p className="text-xs text-cyan-600 font-semibold flex items-center gap-1">
+                      <Check className="w-3 h-3" />
                       7-Day Free Trial Included
                     </p>
+                    <p className="text-[10px] text-slate-400 mt-1">
+                      Cancel anytime during trial. We&apos;ll remind you before it ends.
+                    </p>
                   </div>
-                )}
-
-                {/* Safety text */}
-                {!hasUsedTrial && (
-                  <p className="text-[10px] text-slate-400 mt-2 text-center">
-                    Cancel anytime during trial. We&apos;ll remind you before it ends.
-                  </p>
                 )}
               </button>
             </div>
           </div>
 
-          <DialogFooter className="flex-col sm:flex-row gap-2">
+          <DialogFooter className="flex-col sm:flex-row gap-2 pt-2">
             <Button
               variant="ghost"
+              size="sm"
               onClick={() => setUpgradeDialogOpen(false)}
               disabled={checkoutLoading}
               className="text-slate-500 hover:text-slate-700"
@@ -1589,6 +1582,7 @@ For tax filing assistance, please consult a qualified tax professional.
               <Button
                 onClick={handleCheckout}
                 disabled={checkoutLoading}
+                size="sm"
                 className="relative overflow-hidden bg-gradient-to-r from-cyan-500 via-blue-500 to-cyan-500 hover:from-cyan-600 hover:via-blue-600 hover:to-cyan-600 text-white font-semibold shadow-lg"
                 style={{ backgroundSize: '200% 100%' }}
               >
@@ -1606,13 +1600,13 @@ For tax filing assistance, please consult a qualified tax professional.
                 />
                 {checkoutLoading ? (
                   <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
                     Processing...
                   </>
                 ) : (
                   <>
-                    <Zap className="w-4 h-4 mr-2" />
-                    {!hasUsedTrial ? 'Start 7-Day Free Trial' : 'Continue to Checkout'}
+                    <Zap className="w-3.5 h-3.5 mr-1.5" />
+                    {!hasUsedTrial ? 'Start Free Trial' : 'Checkout'}
                   </>
                 )}
               </Button>
@@ -1621,17 +1615,18 @@ For tax filing assistance, please consult a qualified tax professional.
                 onClick={handleCheckout}
                 disabled={checkoutLoading}
                 variant="outline"
+                size="sm"
                 className="border-2 border-cyan-600 text-cyan-600 hover:bg-cyan-50 font-semibold"
               >
                 {checkoutLoading ? (
                   <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
                     Processing...
                   </>
                 ) : (
                   <>
-                    <Zap className="w-4 h-4 mr-2" />
-                    {!hasUsedTrial ? 'Start 7-Day Free Trial' : 'Continue to Checkout'}
+                    <Zap className="w-3.5 h-3.5 mr-1.5" />
+                    {!hasUsedTrial ? 'Start Free Trial' : 'Checkout'}
                   </>
                 )}
               </Button>
@@ -1642,25 +1637,25 @@ For tax filing assistance, please consult a qualified tax professional.
 
       {/* Change Plan Dialog */}
       <Dialog open={changePlanDialogOpen} onOpenChange={setChangePlanDialogOpen}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <SettingsIcon className="w-5 h-5 text-cyan-600" />
+        <DialogContent className="sm:max-w-sm max-h-[85vh] overflow-y-auto">
+          <DialogHeader className="pb-2">
+            <DialogTitle className="flex items-center gap-2 text-base">
+              <SettingsIcon className="w-4 h-4 text-cyan-600" />
               Change Your Plan
             </DialogTitle>
-            <DialogDescription>
+            <DialogDescription className="text-xs">
               Choose the option that works best for you
             </DialogDescription>
           </DialogHeader>
 
-          <div className="space-y-6 py-4">
+          <div className="space-y-4 py-2">
             {/* Stay with Pro Section */}
-            <div className="space-y-3">
-              <div className="flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-cyan-600" />
-                <span className="text-sm font-semibold text-cyan-600 uppercase tracking-wide">Stay with Pro</span>
+            <div className="space-y-2">
+              <div className="flex items-center gap-1.5">
+                <Sparkles className="w-3 h-3 text-cyan-600" />
+                <span className="text-xs font-semibold text-cyan-600 uppercase tracking-wide">Stay with Pro</span>
               </div>
-              <Card>
+              <Card className="overflow-hidden">
                 <CardContent className="p-0 divide-y">
                   {/* Pause Option */}
                   <button
@@ -1668,16 +1663,16 @@ For tax filing assistance, please consult a qualified tax professional.
                       setChangePlanDialogOpen(false);
                       alert('Subscription pausing will be available soon. For now, you can cancel and resubscribe when ready.');
                     }}
-                    className="w-full flex items-center gap-3 p-4 hover:bg-muted/50 transition-colors text-left"
+                    className="w-full flex items-center gap-2.5 p-3 hover:bg-muted/50 transition-colors text-left"
                   >
-                    <div className="w-10 h-10 rounded-lg bg-indigo-100 flex items-center justify-center flex-shrink-0">
-                      <PauseCircle className="w-5 h-5 text-indigo-600" />
+                    <div className="w-8 h-8 rounded-md bg-indigo-100 flex items-center justify-center flex-shrink-0">
+                      <PauseCircle className="w-4 h-4 text-indigo-600" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="font-semibold text-foreground">Pause for 3 months</p>
-                      <p className="text-sm text-muted-foreground">Take a break, keep your data</p>
+                      <p className="font-medium text-sm text-foreground">Pause for 3 months</p>
+                      <p className="text-xs text-muted-foreground">Take a break, keep your data</p>
                     </div>
-                    <ChevronRight className="w-5 h-5 text-muted-foreground flex-shrink-0" />
+                    <ChevronRight className="w-4 h-4 text-muted-foreground flex-shrink-0" />
                   </button>
 
                   {/* Discount Option */}
@@ -1686,21 +1681,21 @@ For tax filing assistance, please consult a qualified tax professional.
                       setChangePlanDialogOpen(false);
                       alert('Special discount offers will be available soon. Please contact support for assistance.');
                     }}
-                    className="w-full flex items-center gap-3 p-4 hover:bg-muted/50 transition-colors text-left"
+                    className="w-full flex items-center gap-2.5 p-3 hover:bg-muted/50 transition-colors text-left"
                   >
-                    <div className="w-10 h-10 rounded-lg bg-amber-100 flex items-center justify-center flex-shrink-0">
-                      <BadgePercent className="w-5 h-5 text-amber-600" />
+                    <div className="w-8 h-8 rounded-md bg-amber-100 flex items-center justify-center flex-shrink-0">
+                      <BadgePercent className="w-4 h-4 text-amber-600" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <p className="font-semibold text-foreground">50% off for 3 months</p>
-                        <Badge variant="secondary" className="bg-amber-100 text-amber-700 hover:bg-amber-100">
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        <p className="font-medium text-sm text-foreground">50% off for 3 months</p>
+                        <Badge variant="secondary" className="bg-amber-100 text-amber-700 hover:bg-amber-100 text-[10px] px-1.5 py-0">
                           Popular
                         </Badge>
                       </div>
-                      <p className="text-sm text-muted-foreground">Stay at half the price</p>
+                      <p className="text-xs text-muted-foreground">Stay at half the price</p>
                     </div>
-                    <ChevronRight className="w-5 h-5 text-muted-foreground flex-shrink-0" />
+                    <ChevronRight className="w-4 h-4 text-muted-foreground flex-shrink-0" />
                   </button>
 
                   {/* Switch to Yearly (only for monthly users) */}
@@ -1711,21 +1706,21 @@ For tax filing assistance, please consult a qualified tax professional.
                         setSelectedPlan('yearly');
                         setUpgradeDialogOpen(true);
                       }}
-                      className="w-full flex items-center gap-3 p-4 hover:bg-muted/50 transition-colors text-left"
+                      className="w-full flex items-center gap-2.5 p-3 hover:bg-muted/50 transition-colors text-left"
                     >
-                      <div className="w-10 h-10 rounded-lg bg-green-100 flex items-center justify-center flex-shrink-0">
-                        <CalendarCheck className="w-5 h-5 text-green-600" />
+                      <div className="w-8 h-8 rounded-md bg-green-100 flex items-center justify-center flex-shrink-0">
+                        <CalendarCheck className="w-4 h-4 text-green-600" />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <p className="font-semibold text-foreground">Switch to yearly</p>
-                          <Badge variant="secondary" className="bg-green-100 text-green-700 hover:bg-green-100">
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <p className="font-medium text-sm text-foreground">Switch to yearly</p>
+                          <Badge variant="secondary" className="bg-green-100 text-green-700 hover:bg-green-100 text-[10px] px-1.5 py-0">
                             Save 17%
                           </Badge>
                         </div>
-                        <p className="text-sm text-muted-foreground">$99/year ($8.25/month)</p>
+                        <p className="text-xs text-muted-foreground">$99/year ($8.25/month)</p>
                       </div>
-                      <ChevronRight className="w-5 h-5 text-muted-foreground flex-shrink-0" />
+                      <ChevronRight className="w-4 h-4 text-muted-foreground flex-shrink-0" />
                     </button>
                   )}
                 </CardContent>
@@ -1733,33 +1728,33 @@ For tax filing assistance, please consult a qualified tax professional.
             </div>
 
             {/* Downgrade Section */}
-            <div className="space-y-3">
-              <div className="flex items-center gap-2">
-                <ArrowDownCircle className="w-4 h-4 text-muted-foreground" />
-                <span className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Or downgrade</span>
+            <div className="space-y-2">
+              <div className="flex items-center gap-1.5">
+                <ArrowDownCircle className="w-3 h-3 text-muted-foreground" />
+                <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Or downgrade</span>
               </div>
-              <Card>
+              <Card className="overflow-hidden">
                 <CardContent className="p-0">
                   <button
                     onClick={() => {
                       setChangePlanDialogOpen(false);
                       setCancelFlowOpen(true);
                     }}
-                    className="w-full flex items-center gap-3 p-4 hover:bg-muted/50 transition-colors text-left rounded-lg"
+                    className="w-full flex items-center gap-2.5 p-3 hover:bg-muted/50 transition-colors text-left"
                   >
                     <div className="flex-1 min-w-0">
-                      <p className="font-semibold text-foreground">Switch to Free plan</p>
-                      <p className="text-sm text-muted-foreground">10 receipts/month, basic features</p>
+                      <p className="font-medium text-sm text-foreground">Switch to Free plan</p>
+                      <p className="text-xs text-muted-foreground">10 receipts/month, basic features</p>
                     </div>
-                    <ChevronRight className="w-5 h-5 text-muted-foreground flex-shrink-0" />
+                    <ChevronRight className="w-4 h-4 text-muted-foreground flex-shrink-0" />
                   </button>
                 </CardContent>
               </Card>
             </div>
           </div>
 
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setChangePlanDialogOpen(false)}>
+          <DialogFooter className="pt-2">
+            <Button variant="outline" size="sm" onClick={() => setChangePlanDialogOpen(false)}>
               Cancel
             </Button>
           </DialogFooter>
@@ -1768,80 +1763,79 @@ For tax filing assistance, please consult a qualified tax professional.
 
       {/* Cancel Flow Dialog */}
       <Dialog open={cancelFlowOpen} onOpenChange={setCancelFlowOpen}>
-        <DialogContent className="sm:max-w-lg">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <X className="w-5 h-5 text-destructive" />
+        <DialogContent className="sm:max-w-sm max-h-[85vh] overflow-y-auto">
+          <DialogHeader className="pb-2">
+            <DialogTitle className="flex items-center gap-2 text-base">
+              <X className="w-4 h-4 text-destructive" />
               Cancel Subscription
             </DialogTitle>
-            <DialogDescription>
-              We&apos;re sorry to see you go. Please tell us why you&apos;re cancelling.
+            <DialogDescription className="text-xs">
+              We&apos;re sorry to see you go. Please tell us why.
             </DialogDescription>
           </DialogHeader>
 
-          <div className="space-y-6 py-4">
+          <div className="space-y-4 py-2">
             {/* Info Banner */}
-            <Alert className="border-amber-200 bg-amber-50">
-              <AlertCircle className="h-4 w-4 text-amber-600" />
-              <AlertTitle className="text-amber-800">You&apos;ll keep Pro access</AlertTitle>
-              <AlertDescription className="text-amber-700">
-                Your Pro features remain active until {formatDate(subscription?.ends_at || subscription?.current_period_end || subscription?.renews_at)}.
+            <Alert className="border-amber-200 bg-amber-50 py-2">
+              <AlertCircle className="h-3.5 w-3.5 text-amber-600" />
+              <AlertTitle className="text-amber-800 text-xs font-medium">You&apos;ll keep Pro access</AlertTitle>
+              <AlertDescription className="text-amber-700 text-xs">
+                Until {formatDate(subscription?.ends_at || subscription?.current_period_end || subscription?.renews_at)}.
               </AlertDescription>
             </Alert>
 
             {/* Reason Selection */}
-            <div className="space-y-3">
-              <Label className="text-sm font-medium">Why are you cancelling?</Label>
-              <div className="space-y-2">
+            <div className="space-y-2">
+              <Label className="text-xs font-medium">Why are you cancelling?</Label>
+              <div className="space-y-1.5">
                 {CANCEL_REASONS.map((reason) => (
-                  <Card
+                  <div
                     key={reason.value}
-                    className={`cursor-pointer transition-all ${
+                    className={`cursor-pointer transition-all rounded-lg border p-2 flex items-center gap-2 ${
                       cancelReason === reason.value
                         ? 'border-cyan-500 bg-cyan-50/50 ring-1 ring-cyan-500'
-                        : 'hover:border-muted-foreground/30'
+                        : 'border-border hover:border-muted-foreground/30'
                     }`}
                     onClick={() => setCancelReason(reason.value)}
                   >
-                    <CardContent className="p-3 flex items-center gap-3">
-                      <div
-                        className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0"
-                        style={{ backgroundColor: reason.iconBg }}
-                      >
-                        <span style={{ color: reason.iconColor }}>
-                          {getCancelReasonIcon(reason.value)}
-                        </span>
-                      </div>
-                      <span className="font-medium text-foreground flex-1">{reason.label}</span>
-                      {cancelReason === reason.value && (
-                        <Check className="w-5 h-5 text-cyan-600 flex-shrink-0" />
-                      )}
-                    </CardContent>
-                  </Card>
+                    <div
+                      className="w-7 h-7 rounded-md flex items-center justify-center flex-shrink-0"
+                      style={{ backgroundColor: reason.iconBg }}
+                    >
+                      <span style={{ color: reason.iconColor }} className="[&>svg]:w-3.5 [&>svg]:h-3.5">
+                        {getCancelReasonIcon(reason.value)}
+                      </span>
+                    </div>
+                    <span className="font-medium text-sm text-foreground flex-1">{reason.label}</span>
+                    {cancelReason === reason.value && (
+                      <Check className="w-4 h-4 text-cyan-600 flex-shrink-0" />
+                    )}
+                  </div>
                 ))}
               </div>
             </div>
 
             {/* Feedback Textarea */}
             {cancelReason && (
-              <div className="space-y-2">
-                <Label htmlFor="cancel-feedback" className="text-sm font-medium">
-                  Anything else you&apos;d like to share? (Optional)
+              <div className="space-y-1.5">
+                <Label htmlFor="cancel-feedback" className="text-xs font-medium">
+                  Anything else? (Optional)
                 </Label>
                 <Textarea
                   id="cancel-feedback"
                   value={cancelFeedback}
                   onChange={(e) => setCancelFeedback(e.target.value)}
                   placeholder="Your feedback helps us improve..."
-                  className="h-24 resize-none"
+                  className="h-16 resize-none text-sm"
                 />
               </div>
             )}
           </div>
 
-          <DialogFooter className="flex-col sm:flex-row gap-2">
+          <DialogFooter className="flex-col sm:flex-row gap-2 pt-2">
             <Button
               variant="outline"
+              size="sm"
               onClick={() => {
                 setCancelFlowOpen(false);
                 setCancelReason(null);
@@ -1860,6 +1854,7 @@ For tax filing assistance, please consult a qualified tax professional.
               }}
               disabled={!cancelReason}
               variant="destructive"
+              size="sm"
             >
               Continue to Cancel
             </Button>
@@ -1869,50 +1864,48 @@ For tax filing assistance, please consult a qualified tax professional.
 
       {/* Cancel Confirm Dialog */}
       <AlertDialog open={cancelConfirmOpen} onOpenChange={setCancelConfirmOpen}>
-        <AlertDialogContent>
+        <AlertDialogContent className="sm:max-w-sm">
           <AlertDialogHeader>
-            <div className="flex items-center gap-3 mb-2">
-              <div className="bg-destructive/10 rounded-full p-3">
-                <AlertCircle className="w-6 h-6 text-destructive" />
+            <div className="flex items-center gap-2 mb-1">
+              <div className="bg-destructive/10 rounded-full p-2">
+                <AlertCircle className="w-4 h-4 text-destructive" />
               </div>
-              <AlertDialogTitle className="text-xl font-bold">Confirm Cancellation</AlertDialogTitle>
+              <AlertDialogTitle className="text-base font-bold">Confirm Cancellation</AlertDialogTitle>
             </div>
             <AlertDialogDescription asChild>
-              <div className="space-y-4">
-                <p>Are you sure you want to cancel your Pro subscription?</p>
-                <Card className="bg-muted/50">
-                  <CardContent className="p-4 space-y-2 text-sm">
-                    <p className="flex items-start gap-2">
-                      <Check className="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0" />
-                      <span>Your Pro access continues until <strong>{formatDate(subscription?.ends_at || subscription?.current_period_end || subscription?.renews_at)}</strong></span>
-                    </p>
-                    <p className="flex items-start gap-2">
-                      <Check className="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0" />
-                      <span>After that, you&apos;ll switch to the Free plan (10 receipts/month)</span>
-                    </p>
-                    <p className="flex items-start gap-2">
-                      <Check className="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0" />
-                      <span>You can reactivate anytime before the end date</span>
-                    </p>
-                  </CardContent>
-                </Card>
+              <div className="space-y-3">
+                <p className="text-sm">Are you sure you want to cancel your Pro subscription?</p>
+                <div className="bg-muted/50 rounded-lg p-3 space-y-1.5 text-xs">
+                  <p className="flex items-start gap-2">
+                    <Check className="w-3.5 h-3.5 text-green-600 mt-0.5 flex-shrink-0" />
+                    <span>Pro access until <strong>{formatDate(subscription?.ends_at || subscription?.current_period_end || subscription?.renews_at)}</strong></span>
+                  </p>
+                  <p className="flex items-start gap-2">
+                    <Check className="w-3.5 h-3.5 text-green-600 mt-0.5 flex-shrink-0" />
+                    <span>Then Free plan (10 receipts/month)</span>
+                  </p>
+                  <p className="flex items-start gap-2">
+                    <Check className="w-3.5 h-3.5 text-green-600 mt-0.5 flex-shrink-0" />
+                    <span>Reactivate anytime before end date</span>
+                  </p>
+                </div>
               </div>
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={cancelLoading}>Keep Subscription</AlertDialogCancel>
+          <AlertDialogFooter className="gap-2">
+            <AlertDialogCancel disabled={cancelLoading} className="text-sm">Keep Subscription</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleCancelSubscription}
               disabled={cancelLoading}
-              className="bg-destructive hover:bg-destructive/90 text-destructive-foreground"
+              className="bg-destructive hover:bg-destructive/90 text-destructive-foreground text-sm"
             >
               {cancelLoading ? (
                 <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
                   Cancelling...
                 </>
               ) : (
-                'Yes, Cancel Subscription'
+                'Yes, Cancel'
               )}
             </AlertDialogAction>
           </AlertDialogFooter>

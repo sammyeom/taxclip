@@ -487,6 +487,55 @@ export default function ReportsPage() {
           </div>
         ) : (
           <>
+            {/* Tax Summary Card - First */}
+            <Card className="mb-6 sm:mb-8 bg-gradient-to-t from-cyan-500/5 to-card shadow-sm">
+              <CardContent className="p-5 sm:p-8">
+                <div className="flex items-center gap-2 text-muted-foreground mb-6">
+                  <DollarSign className="w-7 h-7 sm:w-8 sm:h-8 text-cyan-500" />
+                  <span className="text-xl sm:text-2xl font-bold text-foreground">Tax Summary</span>
+                  <span className="text-xs sm:text-sm font-medium text-cyan-600 bg-cyan-100 px-2.5 py-1 rounded-full">
+                    {getDateRangeLabel()}
+                  </span>
+                </div>
+                <div className="grid grid-cols-3 gap-4 sm:gap-8">
+                  {/* Total Expenses */}
+                  <div className="text-center">
+                    <div className="flex items-center justify-center gap-1.5 text-muted-foreground mb-2">
+                      <DollarSign className="w-5 h-5 text-slate-500" />
+                      <span className="text-sm sm:text-base font-medium">Total Expenses</span>
+                    </div>
+                    <p className="text-2xl sm:text-4xl font-bold text-slate-900">{formatCurrency(taxSummary.totalExpenses)}</p>
+                  </div>
+
+                  {/* Tax Deductible */}
+                  <div className="text-center border-l border-r border-border px-4">
+                    <div className="flex items-center justify-center gap-1.5 text-muted-foreground mb-2">
+                      <TrendingUp className="w-5 h-5 text-emerald-500" />
+                      <span className="text-sm sm:text-base font-medium">Tax Deductible</span>
+                    </div>
+                    <p className="text-2xl sm:text-4xl font-bold text-emerald-600">{formatCurrency(taxSummary.deductibleAmount)}</p>
+                    <p className="text-xs sm:text-sm text-muted-foreground mt-1">Meals 50% + Others 100%</p>
+                  </div>
+
+                  {/* Est. Tax Savings */}
+                  <div className="text-center">
+                    <div className="flex items-center justify-center gap-1.5 text-muted-foreground mb-2">
+                      <DollarSign className="w-5 h-5 text-cyan-500" />
+                      <span className="text-sm sm:text-base font-medium">Est. Tax Savings</span>
+                      <button
+                        onClick={() => setShowTaxInfoModal(true)}
+                        className="text-slate-400 hover:text-cyan-600 transition-colors"
+                      >
+                        <Info className="w-4 h-4" />
+                      </button>
+                    </div>
+                    <p className="text-2xl sm:text-4xl font-bold text-cyan-600">~{formatCurrency(taxSummary.estimatedSavings)}</p>
+                    <p className="text-xs sm:text-sm text-muted-foreground mt-1">37.3% rate</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
             {/* Summary Cards */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4 mb-6 sm:mb-8">
               {/* Total Expenses */}
@@ -547,55 +596,6 @@ export default function ReportsPage() {
                 </CardContent>
               </Card>
             </div>
-
-            {/* Tax Summary Card */}
-            <Card className="mb-6 sm:mb-8 bg-gradient-to-t from-cyan-500/5 to-card shadow-sm">
-              <CardContent className="p-4 sm:p-6">
-                <div className="flex items-center gap-2 text-muted-foreground mb-5">
-                  <DollarSign className="w-6 h-6 sm:w-7 sm:h-7 text-cyan-500" />
-                  <span className="text-lg sm:text-xl font-bold text-foreground">Tax Summary</span>
-                  <span className="text-xs font-medium text-cyan-600 bg-cyan-100 px-2 py-0.5 rounded-full">
-                    {getDateRangeLabel()}
-                  </span>
-                </div>
-                <div className="grid grid-cols-3 gap-4 sm:gap-6">
-                  {/* Total Expenses */}
-                  <div className="text-center">
-                    <div className="flex items-center justify-center gap-1.5 text-muted-foreground mb-1">
-                      <DollarSign className="w-4 h-4 text-slate-500" />
-                      <span className="text-xs sm:text-sm font-medium">Total Expenses</span>
-                    </div>
-                    <p className="text-lg sm:text-2xl font-bold text-slate-900">{formatCurrency(taxSummary.totalExpenses)}</p>
-                  </div>
-
-                  {/* Tax Deductible */}
-                  <div className="text-center border-l border-r border-border px-4">
-                    <div className="flex items-center justify-center gap-1.5 text-muted-foreground mb-1">
-                      <TrendingUp className="w-4 h-4 text-emerald-500" />
-                      <span className="text-xs sm:text-sm font-medium">Tax Deductible</span>
-                    </div>
-                    <p className="text-lg sm:text-2xl font-bold text-emerald-600">{formatCurrency(taxSummary.deductibleAmount)}</p>
-                    <p className="text-[10px] sm:text-xs text-muted-foreground">Meals 50% + Others 100%</p>
-                  </div>
-
-                  {/* Est. Tax Savings */}
-                  <div className="text-center">
-                    <div className="flex items-center justify-center gap-1.5 text-muted-foreground mb-1">
-                      <DollarSign className="w-4 h-4 text-cyan-500" />
-                      <span className="text-xs sm:text-sm font-medium">Est. Tax Savings</span>
-                      <button
-                        onClick={() => setShowTaxInfoModal(true)}
-                        className="text-slate-400 hover:text-cyan-600 transition-colors"
-                      >
-                        <Info className="w-3.5 h-3.5" />
-                      </button>
-                    </div>
-                    <p className="text-lg sm:text-2xl font-bold text-cyan-600">~{formatCurrency(taxSummary.estimatedSavings)}</p>
-                    <p className="text-[10px] sm:text-xs text-muted-foreground">37.3% rate</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
 
             {/* Schedule C Summary Table */}
             <div className="bg-white rounded-xl shadow-lg p-4 sm:p-6 mb-6 sm:mb-8">

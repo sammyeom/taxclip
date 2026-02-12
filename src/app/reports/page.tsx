@@ -551,7 +551,7 @@ export default function ReportsPage() {
             {/* Tax Summary Card */}
             <Card className="mb-6 sm:mb-8 bg-gradient-to-t from-cyan-500/5 to-card shadow-sm">
               <CardContent className="p-4 sm:p-6">
-                <div className="flex items-center justify-center gap-2 text-muted-foreground mb-5">
+                <div className="flex items-center gap-2 text-muted-foreground mb-5">
                   <DollarSign className="w-6 h-6 sm:w-7 sm:h-7 text-cyan-500" />
                   <span className="text-lg sm:text-xl font-bold text-foreground">Tax Summary</span>
                   <span className="text-xs font-medium text-cyan-600 bg-cyan-100 px-2 py-0.5 rounded-full">

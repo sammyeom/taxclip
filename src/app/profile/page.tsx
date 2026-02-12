@@ -471,13 +471,13 @@ export default function ProfilePage() {
                         {isCancelled ? (
                           <p className="flex items-center justify-center sm:justify-start gap-1 text-amber-600">
                             <Clock className="w-3 h-3" />
-                            Pro ends: {formatDate(subscription?.ends_at || subscription?.current_period_end)}
+                            Pro ends: {formatDate(subscription?.ends_at || subscription?.current_period_end || null)}
                             {getDaysRemaining() !== null && ` (${getDaysRemaining()} days left)`}
                           </p>
                         ) : (
                           <p className="flex items-center justify-center sm:justify-start gap-1">
                             <Calendar className="w-3 h-3" />
-                            Next renewal: {formatDate(subscription?.renews_at || subscription?.current_period_end)}
+                            Next renewal: {formatDate(subscription?.renews_at || subscription?.current_period_end || null)}
                           </p>
                         )}
                       </div>

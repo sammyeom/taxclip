@@ -58,6 +58,7 @@ import {
   Clock,
   MessageCircle,
   X,
+  ArrowLeft,
 } from 'lucide-react';
 import {
   Select,
@@ -193,6 +194,7 @@ function SettingsContent({ defaultTab }: { defaultTab: string }) {
   // Subscription Management state
   const [changePlanDialogOpen, setChangePlanDialogOpen] = useState(false);
   const [selectPlanDialogOpen, setSelectPlanDialogOpen] = useState(false);
+  const [billingHistoryOpen, setBillingHistoryOpen] = useState(false);
   const [beforeYouGoOpen, setBeforeYouGoOpen] = useState(false);
   const [cancelFlowOpen, setCancelFlowOpen] = useState(false);
   const [cancelReason, setCancelReason] = useState<CancelReason | null>(null);
@@ -1642,63 +1644,69 @@ For tax filing assistance, please consult a qualified tax professional.
             </DialogDescription>
           </DialogHeader>
 
-          <div className="space-y-2 py-2">
-            {/* Change Plan Option */}
-            <button
-              onClick={() => {
-                setChangePlanDialogOpen(false);
-                setSelectPlanDialogOpen(true);
-              }}
-              className="w-full flex items-center gap-3 p-3 hover:bg-muted/50 transition-colors text-left rounded-lg border"
-            >
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-cyan-500 to-blue-500 flex items-center justify-center flex-shrink-0">
-                <Sparkles className="w-4 h-4 text-white" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="font-medium text-sm text-foreground">Change Plan</p>
-                <p className="text-xs text-muted-foreground">Switch between plans</p>
-              </div>
-              <ChevronRight className="w-4 h-4 text-muted-foreground flex-shrink-0" />
-            </button>
+          <div className="space-y-4 py-2">
+            {/* Change Plan Section */}
+            <div className="space-y-2">
+              <p className="text-xs font-medium text-muted-foreground px-1">Change Plan</p>
+              <button
+                onClick={() => {
+                  setChangePlanDialogOpen(false);
+                  setSelectPlanDialogOpen(true);
+                }}
+                className="w-full flex items-center gap-3 p-3 hover:bg-muted/50 transition-colors text-left rounded-lg border"
+              >
+                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-cyan-500 to-blue-500 flex items-center justify-center flex-shrink-0">
+                  <Sparkles className="w-4 h-4 text-white" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="font-medium text-sm text-foreground">Switch Plan</p>
+                  <p className="text-xs text-muted-foreground">Monthly, Annual, or Free</p>
+                </div>
+                <ChevronRight className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+              </button>
+            </div>
 
-            {/* View Billing History */}
-            <button
-              onClick={() => {
-                setChangePlanDialogOpen(false);
-                if (subscription?.customer_portal_url) {
-                  openCustomerPortal();
-                }
-              }}
-              className="w-full flex items-center gap-3 p-3 hover:bg-muted/50 transition-colors text-left rounded-lg border"
-            >
-              <div className="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center flex-shrink-0">
-                <FileText className="w-4 h-4 text-blue-600" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="font-medium text-sm text-foreground">View Billing History</p>
-                <p className="text-xs text-muted-foreground">See past invoices and payments</p>
-              </div>
-              <ChevronRight className="w-4 h-4 text-muted-foreground flex-shrink-0" />
-            </button>
+            {/* View Billing History Section */}
+            <div className="space-y-2">
+              <p className="text-xs font-medium text-muted-foreground px-1">View Billing History</p>
+              <button
+                onClick={() => {
+                  setChangePlanDialogOpen(false);
+                  setBillingHistoryOpen(true);
+                }}
+                className="w-full flex items-center gap-3 p-3 hover:bg-muted/50 transition-colors text-left rounded-lg border"
+              >
+                <div className="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center flex-shrink-0">
+                  <FileText className="w-4 h-4 text-blue-600" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="font-medium text-sm text-foreground">Subscription Details</p>
+                  <p className="text-xs text-muted-foreground">View current plan and billing info</p>
+                </div>
+                <ChevronRight className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+              </button>
+            </div>
 
-            {/* Restore Purchases */}
-            <button
-              onClick={() => {
-                setChangePlanDialogOpen(false);
-                refetchSubscription();
-                alert('Subscription status synced successfully!');
-              }}
-              className="w-full flex items-center gap-3 p-3 hover:bg-muted/50 transition-colors text-left rounded-lg border"
-            >
-              <div className="w-8 h-8 rounded-lg bg-green-100 flex items-center justify-center flex-shrink-0">
-                <RefreshCw className="w-4 h-4 text-green-600" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="font-medium text-sm text-foreground">Restore Purchases</p>
-                <p className="text-xs text-muted-foreground">Sync your subscription status</p>
-              </div>
-              <ChevronRight className="w-4 h-4 text-muted-foreground flex-shrink-0" />
-            </button>
+            {/* Other Options */}
+            <div className="space-y-2">
+              <p className="text-xs font-medium text-muted-foreground px-1">Other</p>
+              <button
+                onClick={() => {
+                  refetchSubscription();
+                  alert('Subscription status synced successfully!');
+                }}
+                className="w-full flex items-center gap-3 p-3 hover:bg-muted/50 transition-colors text-left rounded-lg border"
+              >
+                <div className="w-8 h-8 rounded-lg bg-green-100 flex items-center justify-center flex-shrink-0">
+                  <RefreshCw className="w-4 h-4 text-green-600" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="font-medium text-sm text-foreground">Restore Purchases</p>
+                  <p className="text-xs text-muted-foreground">Sync your subscription status</p>
+                </div>
+                <ChevronRight className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+              </button>
+            </div>
           </div>
 
           <DialogFooter className="pt-2">
@@ -1711,13 +1719,24 @@ For tax filing assistance, please consult a qualified tax professional.
 
       {/* Select Plan Dialog */}
       <Dialog open={selectPlanDialogOpen} onOpenChange={setSelectPlanDialogOpen}>
-        <DialogContent className="sm:max-w-md max-h-[85vh] overflow-y-auto">
-          <DialogHeader className="pb-4">
-            <DialogTitle className="flex items-center gap-2 text-lg">
-              <Crown className="w-5 h-5 text-amber-500" />
-              Change Plan
-            </DialogTitle>
-            <DialogDescription className="text-sm">
+        <DialogContent className="sm:max-w-sm max-h-[85vh] overflow-y-auto">
+          <DialogHeader className="pb-2">
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => {
+                  setSelectPlanDialogOpen(false);
+                  setChangePlanDialogOpen(true);
+                }}
+                className="p-1 hover:bg-muted rounded-md transition-colors"
+              >
+                <ArrowLeft className="w-4 h-4 text-muted-foreground" />
+              </button>
+              <DialogTitle className="flex items-center gap-2 text-base">
+                <Crown className="w-4 h-4 text-amber-500" />
+                Change Plan
+              </DialogTitle>
+            </div>
+            <DialogDescription className="text-xs pl-7">
               Select a plan that works best for you
             </DialogDescription>
           </DialogHeader>
@@ -1833,9 +1852,142 @@ For tax filing assistance, please consult a qualified tax professional.
             </button>
           </div>
 
-          <DialogFooter className="pt-4">
-            <Button variant="outline" onClick={() => setSelectPlanDialogOpen(false)} className="w-full">
-              Cancel
+          <DialogFooter className="pt-2">
+            <Button variant="outline" size="sm" onClick={() => {
+              setSelectPlanDialogOpen(false);
+              setChangePlanDialogOpen(true);
+            }} className="w-full">
+              Back
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Billing History Dialog */}
+      <Dialog open={billingHistoryOpen} onOpenChange={setBillingHistoryOpen}>
+        <DialogContent className="sm:max-w-sm max-h-[85vh] overflow-y-auto">
+          <DialogHeader className="pb-2">
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => {
+                  setBillingHistoryOpen(false);
+                  setChangePlanDialogOpen(true);
+                }}
+                className="p-1 hover:bg-muted rounded-md transition-colors"
+              >
+                <ArrowLeft className="w-4 h-4 text-muted-foreground" />
+              </button>
+              <DialogTitle className="flex items-center gap-2 text-base">
+                <FileText className="w-4 h-4 text-blue-600" />
+                Billing History
+              </DialogTitle>
+            </div>
+            <DialogDescription className="text-xs pl-7">
+              Your subscription details
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 py-2">
+            {/* Current Plan */}
+            <div className="bg-muted/30 rounded-lg p-3 space-y-2">
+              <p className="text-xs font-medium text-muted-foreground">Current Plan</p>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Crown className="w-4 h-4 text-amber-500" />
+                  <span className="font-medium text-sm">
+                    {subscription?.plan_type === 'annual' || subscription?.plan_type === 'pro_annual'
+                      ? 'Pro Annual'
+                      : subscription?.plan_type === 'pro' || subscription?.plan_type === 'pro_monthly'
+                        ? 'Pro Monthly'
+                        : subscription?.plan_type === 'free'
+                          ? 'Free'
+                          : 'Pro'}
+                  </span>
+                </div>
+                <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
+                  subscription?.status === 'active' ? 'bg-green-100 text-green-700' :
+                  subscription?.status === 'on_trial' ? 'bg-blue-100 text-blue-700' :
+                  subscription?.status === 'cancelled' ? 'bg-red-100 text-red-700' :
+                  'bg-gray-100 text-gray-700'
+                }`}>
+                  {subscription?.status === 'active' ? 'Active' :
+                   subscription?.status === 'on_trial' ? 'Trial' :
+                   subscription?.status === 'cancelled' ? 'Cancelled' :
+                   subscription?.status || 'Unknown'}
+                </span>
+              </div>
+            </div>
+
+            {/* Billing Info */}
+            <div className="space-y-3">
+              {subscription?.current_period_start && (
+                <div className="flex items-center justify-between py-2 border-b">
+                  <span className="text-xs text-muted-foreground">Billing Period Start</span>
+                  <span className="text-sm font-medium">
+                    {new Date(subscription.current_period_start).toLocaleDateString()}
+                  </span>
+                </div>
+              )}
+              {(subscription?.current_period_end || subscription?.renews_at) && (
+                <div className="flex items-center justify-between py-2 border-b">
+                  <span className="text-xs text-muted-foreground">
+                    {subscription?.will_renew === false ? 'Access Until' : 'Next Billing Date'}
+                  </span>
+                  <span className="text-sm font-medium">
+                    {new Date(subscription?.ends_at || subscription?.current_period_end || subscription?.renews_at || '').toLocaleDateString()}
+                  </span>
+                </div>
+              )}
+              {subscription?.trial_ends_at && subscription?.status === 'on_trial' && (
+                <div className="flex items-center justify-between py-2 border-b">
+                  <span className="text-xs text-muted-foreground">Trial Ends</span>
+                  <span className="text-sm font-medium">
+                    {new Date(subscription.trial_ends_at).toLocaleDateString()}
+                  </span>
+                </div>
+              )}
+              {subscription?.lemon_squeezy_subscription_id && (
+                <div className="flex items-center justify-between py-2 border-b">
+                  <span className="text-xs text-muted-foreground">Subscription ID</span>
+                  <span className="text-xs font-mono text-muted-foreground">
+                    {subscription.lemon_squeezy_subscription_id}
+                  </span>
+                </div>
+              )}
+              {subscription?.created_at && (
+                <div className="flex items-center justify-between py-2">
+                  <span className="text-xs text-muted-foreground">Member Since</span>
+                  <span className="text-sm font-medium">
+                    {new Date(subscription.created_at).toLocaleDateString()}
+                  </span>
+                </div>
+              )}
+            </div>
+
+            {/* External Portal Link */}
+            {subscription?.customer_portal_url && (
+              <button
+                onClick={() => openCustomerPortal()}
+                className="w-full flex items-center gap-3 p-3 hover:bg-muted/50 transition-colors text-left rounded-lg border"
+              >
+                <div className="w-8 h-8 rounded-lg bg-purple-100 flex items-center justify-center flex-shrink-0">
+                  <ExternalLink className="w-4 h-4 text-purple-600" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="font-medium text-sm text-foreground">Manage on LemonSqueezy</p>
+                  <p className="text-xs text-muted-foreground">View invoices & update payment</p>
+                </div>
+                <ChevronRight className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+              </button>
+            )}
+          </div>
+
+          <DialogFooter className="pt-2">
+            <Button variant="outline" size="sm" onClick={() => {
+              setBillingHistoryOpen(false);
+              setChangePlanDialogOpen(true);
+            }} className="w-full">
+              Back
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -1844,8 +1996,19 @@ For tax filing assistance, please consult a qualified tax professional.
       {/* Before You Go Dialog */}
       <Dialog open={beforeYouGoOpen} onOpenChange={setBeforeYouGoOpen}>
         <DialogContent className="sm:max-w-sm max-h-[85vh] overflow-y-auto">
-          <DialogHeader className="pb-2 text-center">
-            <div className="text-4xl mb-2">💔</div>
+          <DialogHeader className="pb-2">
+            <div className="flex items-center gap-2 mb-2">
+              <button
+                onClick={() => {
+                  setBeforeYouGoOpen(false);
+                  setSelectPlanDialogOpen(true);
+                }}
+                className="p-1 hover:bg-muted rounded-md transition-colors"
+              >
+                <ArrowLeft className="w-4 h-4 text-muted-foreground" />
+              </button>
+              <span className="text-4xl">💔</span>
+            </div>
             <DialogTitle className="text-lg font-bold text-foreground">Before you go...</DialogTitle>
             <DialogDescription className="text-xs">
               You&apos;ll lose access to these Pro features:
@@ -1947,11 +2110,22 @@ For tax filing assistance, please consult a qualified tax professional.
       <Dialog open={cancelFlowOpen} onOpenChange={setCancelFlowOpen}>
         <DialogContent className="sm:max-w-sm max-h-[85vh] overflow-y-auto">
           <DialogHeader className="pb-2">
-            <DialogTitle className="flex items-center gap-2 text-base">
-              <X className="w-4 h-4 text-destructive" />
-              Cancel Subscription
-            </DialogTitle>
-            <DialogDescription className="text-xs">
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => {
+                  setCancelFlowOpen(false);
+                  setBeforeYouGoOpen(true);
+                }}
+                className="p-1 hover:bg-muted rounded-md transition-colors"
+              >
+                <ArrowLeft className="w-4 h-4 text-muted-foreground" />
+              </button>
+              <DialogTitle className="flex items-center gap-2 text-base">
+                <X className="w-4 h-4 text-destructive" />
+                Cancel Subscription
+              </DialogTitle>
+            </div>
+            <DialogDescription className="text-xs pl-7">
               We&apos;re sorry to see you go. Please tell us why.
             </DialogDescription>
           </DialogHeader>

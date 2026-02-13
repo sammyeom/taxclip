@@ -1685,7 +1685,7 @@ For tax filing assistance, please consult a qualified tax professional.
             <button
               onClick={() => {
                 setChangePlanDialogOpen(false);
-                refetch();
+                refetchSubscription();
                 alert('Subscription status synced successfully!');
               }}
               className="w-full flex items-center gap-3 p-3 hover:bg-muted/50 transition-colors text-left rounded-lg border"
@@ -1843,42 +1843,41 @@ For tax filing assistance, please consult a qualified tax professional.
 
       {/* Before You Go Dialog */}
       <Dialog open={beforeYouGoOpen} onOpenChange={setBeforeYouGoOpen}>
-        <DialogContent className="sm:max-w-md max-h-[85vh] overflow-y-auto p-0">
-          {/* Header with emoji */}
-          <div className="text-center pt-8 pb-4 px-6">
-            <div className="text-5xl mb-4">💔</div>
-            <DialogTitle className="text-2xl font-bold text-foreground mb-2">Before you go...</DialogTitle>
-            <DialogDescription className="text-sm text-muted-foreground">
+        <DialogContent className="sm:max-w-sm max-h-[85vh] overflow-y-auto">
+          <DialogHeader className="pb-2 text-center">
+            <div className="text-4xl mb-2">💔</div>
+            <DialogTitle className="text-lg font-bold text-foreground">Before you go...</DialogTitle>
+            <DialogDescription className="text-xs">
               You&apos;ll lose access to these Pro features:
             </DialogDescription>
-          </div>
+          </DialogHeader>
 
-          <div className="px-6 pb-6 space-y-6">
+          <div className="space-y-4 py-2">
             {/* Features they'll lose - Red warning card */}
-            <div className="bg-red-50 border border-red-200 rounded-xl p-4 space-y-3">
-              <div className="flex items-center gap-3">
-                <div className="w-7 h-7 rounded-full bg-white flex items-center justify-center flex-shrink-0 shadow-sm">
-                  <X className="w-4 h-4 text-red-500" />
+            <div className="bg-red-50 border border-red-200 rounded-lg p-3 space-y-2">
+              <div className="flex items-center gap-2.5">
+                <div className="w-6 h-6 rounded-full bg-white flex items-center justify-center flex-shrink-0 shadow-sm">
+                  <X className="w-3.5 h-3.5 text-red-500" />
                 </div>
                 <p className="text-sm font-medium text-red-900">Unlimited uploads</p>
               </div>
-              <div className="flex items-center gap-3">
-                <div className="w-7 h-7 rounded-full bg-white flex items-center justify-center flex-shrink-0 shadow-sm">
-                  <X className="w-4 h-4 text-red-500" />
+              <div className="flex items-center gap-2.5">
+                <div className="w-6 h-6 rounded-full bg-white flex items-center justify-center flex-shrink-0 shadow-sm">
+                  <X className="w-3.5 h-3.5 text-red-500" />
                 </div>
                 <p className="text-sm font-medium text-red-900">Priority AI processing</p>
               </div>
-              <div className="flex items-center gap-3">
-                <div className="w-7 h-7 rounded-full bg-white flex items-center justify-center flex-shrink-0 shadow-sm">
-                  <X className="w-4 h-4 text-red-500" />
+              <div className="flex items-center gap-2.5">
+                <div className="w-6 h-6 rounded-full bg-white flex items-center justify-center flex-shrink-0 shadow-sm">
+                  <X className="w-3.5 h-3.5 text-red-500" />
                 </div>
                 <p className="text-sm font-medium text-red-900">Advanced tax reports</p>
               </div>
             </div>
 
             {/* Alternative options */}
-            <div className="space-y-3">
-              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider text-center">
+            <div className="space-y-2">
+              <p className="text-xs font-medium text-muted-foreground text-center">
                 Consider these alternatives
               </p>
 
@@ -1888,16 +1887,16 @@ For tax filing assistance, please consult a qualified tax professional.
                   setBeforeYouGoOpen(false);
                   alert('Subscription pausing will be available soon. For now, you can cancel and resubscribe when ready.');
                 }}
-                className="w-full flex items-center gap-4 p-4 hover:bg-muted/50 transition-colors text-left rounded-xl border"
+                className="w-full flex items-center gap-3 p-3 hover:bg-muted/50 transition-colors text-left rounded-lg border"
               >
-                <div className="w-10 h-10 rounded-xl bg-indigo-100 flex items-center justify-center flex-shrink-0">
-                  <PauseCircle className="w-5 h-5 text-indigo-600" />
+                <div className="w-8 h-8 rounded-lg bg-indigo-100 flex items-center justify-center flex-shrink-0">
+                  <PauseCircle className="w-4 h-4 text-indigo-600" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="font-semibold text-sm text-foreground">Pause for 3 months</p>
-                  <p className="text-xs text-muted-foreground mt-0.5">Take a break, keep your data</p>
+                  <p className="font-medium text-sm text-foreground">Pause for 3 months</p>
+                  <p className="text-xs text-muted-foreground">Take a break, keep your data</p>
                 </div>
-                <ChevronRight className="w-5 h-5 text-muted-foreground flex-shrink-0" />
+                <ChevronRight className="w-4 h-4 text-muted-foreground flex-shrink-0" />
               </button>
 
               {/* 50% Off Option */}
@@ -1906,41 +1905,41 @@ For tax filing assistance, please consult a qualified tax professional.
                   setBeforeYouGoOpen(false);
                   alert('Special discount offers will be available soon. Please contact support for assistance.');
                 }}
-                className="w-full flex items-center gap-4 p-4 hover:bg-muted/50 transition-colors text-left rounded-xl border"
+                className="w-full flex items-center gap-3 p-3 hover:bg-muted/50 transition-colors text-left rounded-lg border"
               >
-                <div className="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center flex-shrink-0">
-                  <BadgePercent className="w-5 h-5 text-amber-600" />
+                <div className="w-8 h-8 rounded-lg bg-amber-100 flex items-center justify-center flex-shrink-0">
+                  <BadgePercent className="w-4 h-4 text-amber-600" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
-                    <p className="font-semibold text-sm text-foreground">50% off for 3 months</p>
-                    <span className="bg-amber-100 text-amber-700 text-[10px] px-2 py-0.5 rounded-full font-semibold">Popular</span>
+                    <p className="font-medium text-sm text-foreground">50% off for 3 months</p>
+                    <span className="bg-amber-100 text-amber-700 text-[10px] px-1.5 py-0.5 rounded-full font-medium">Popular</span>
                   </div>
-                  <p className="text-xs text-muted-foreground mt-0.5">Stay at half the price</p>
+                  <p className="text-xs text-muted-foreground">Stay at half the price</p>
                 </div>
-                <ChevronRight className="w-5 h-5 text-muted-foreground flex-shrink-0" />
-              </button>
-            </div>
-
-            {/* Action Buttons */}
-            <div className="space-y-3 pt-2">
-              <Button
-                onClick={() => setBeforeYouGoOpen(false)}
-                className="w-full bg-cyan-500 hover:bg-cyan-600 text-white h-12 text-base font-semibold"
-              >
-                Keep My Subscription
-              </Button>
-              <button
-                onClick={() => {
-                  setBeforeYouGoOpen(false);
-                  setCancelFlowOpen(true);
-                }}
-                className="w-full text-sm text-muted-foreground hover:text-foreground transition-colors py-2"
-              >
-                Continue to Cancel
+                <ChevronRight className="w-4 h-4 text-muted-foreground flex-shrink-0" />
               </button>
             </div>
           </div>
+
+          <DialogFooter className="flex-col gap-2 pt-2">
+            <Button
+              onClick={() => setBeforeYouGoOpen(false)}
+              className="w-full bg-cyan-500 hover:bg-cyan-600 text-white"
+              size="sm"
+            >
+              Keep My Subscription
+            </Button>
+            <button
+              onClick={() => {
+                setBeforeYouGoOpen(false);
+                setCancelFlowOpen(true);
+              }}
+              className="w-full text-xs text-muted-foreground hover:text-foreground transition-colors py-1.5"
+            >
+              Continue to Cancel
+            </button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
 

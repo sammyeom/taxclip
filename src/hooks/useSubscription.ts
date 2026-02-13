@@ -46,6 +46,19 @@ export interface Subscription {
   updated_at: string;
 }
 
+export interface SubscriptionHistoryItem {
+  id: string;
+  user_id: string;
+  event_type: string;
+  description: string;
+  from_plan: string | null;
+  to_plan: string | null;
+  amount: number | null;
+  currency: string;
+  metadata: Record<string, any> | null;
+  created_at: string;
+}
+
 export function useSubscription() {
   const { user } = useAuth();
   const [subscription, setSubscription] = useState<Subscription | null>(null);
@@ -411,6 +424,38 @@ export function useSubscription() {
     }
   };
 
+  // Fetch subscription history
+  const fetchSubscriptionHistory = async (limit = 20): Promise<{ success: boolean; history?: SubscriptionHistoryItem[]; error?: string }> => {
+    if (!user) {
+      return { success: false, error: 'Not authenticated' };
+    }
+
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.access_token) {
+        return { success: false, error: 'No session found' };
+      }
+
+      const response = await fetch(`/api/subscription/history?limit=${limit}`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${session.access_token}`,
+        },
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        return { success: false, error: data.error || 'Failed to fetch history' };
+      }
+
+      return { success: true, history: data.history };
+    } catch (err) {
+      console.error('History fetch error:', err);
+      return { success: false, error: 'Failed to fetch history' };
+    }
+  };
+
   return {
     subscription,
     loading,
@@ -431,6 +476,7 @@ export function useSubscription() {
     pauseSubscription,
     resumeSubscription,
     applyRetentionDiscount,
+    fetchSubscriptionHistory,
     openCustomerPortal,
     openUpdatePayment,
     refetch: fetchSubscription,

@@ -3,7 +3,7 @@
 import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
-import { useSubscription } from '@/hooks/useSubscription';
+import { useSubscription, SubscriptionHistoryItem } from '@/hooks/useSubscription';
 import { useUsageLimit } from '@/hooks/useUsageLimit';
 import {
   getReceipts,
@@ -52,6 +52,7 @@ import {
   ArrowDownCircle,
   DollarSign,
   TrendingDown,
+  TrendingUp,
   Wrench,
   RefreshCw,
   Bug,
@@ -171,7 +172,7 @@ function SettingsContent({ defaultTab }: { defaultTab: string }) {
   const { setTheme } = useTheme();
 
   // Subscription and usage hooks
-  const { subscription, isPro, isOnTrial, isCancelled, willRenew, hasUsedTrial, isMonthlyPlan, isLemonSqueezySubscription, isPaused, hasActiveDiscount, getDaysRemaining, createCheckout, upgradeToAnnual, pauseSubscription, resumeSubscription, applyRetentionDiscount, openCustomerPortal, refetch: refetchSubscription } = useSubscription();
+  const { subscription, isPro, isOnTrial, isCancelled, willRenew, hasUsedTrial, isMonthlyPlan, isLemonSqueezySubscription, isPaused, hasActiveDiscount, getDaysRemaining, createCheckout, upgradeToAnnual, pauseSubscription, resumeSubscription, applyRetentionDiscount, fetchSubscriptionHistory, openCustomerPortal, refetch: refetchSubscription } = useSubscription();
   const { monthlyCount, monthlyLimit, remainingUploads } = useUsageLimit();
 
   const [settings, setSettings] = useState<AppSettings>(DEFAULT_SETTINGS);
@@ -207,6 +208,8 @@ function SettingsContent({ defaultTab }: { defaultTab: string }) {
   const [upgradeLoading, setUpgradeLoading] = useState(false);
   const [pauseLoading, setPauseLoading] = useState(false);
   const [discountLoading, setDiscountLoading] = useState(false);
+  const [subscriptionHistory, setSubscriptionHistory] = useState<SubscriptionHistoryItem[]>([]);
+  const [historyLoading, setHistoryLoading] = useState(false);
 
   // Confirmation dialogs
   const [deleteReceiptsDialog, setDeleteReceiptsDialog] = useState(false);
@@ -229,6 +232,19 @@ function SettingsContent({ defaultTab }: { defaultTab: string }) {
       loadSettings();
     }
   }, [user]);
+
+  // Fetch subscription history when billing dialog opens
+  useEffect(() => {
+    if (billingHistoryOpen && user) {
+      setHistoryLoading(true);
+      fetchSubscriptionHistory(10).then((result) => {
+        if (result.success && result.history) {
+          setSubscriptionHistory(result.history);
+        }
+        setHistoryLoading(false);
+      });
+    }
+  }, [billingHistoryOpen, user, fetchSubscriptionHistory]);
 
   const loadSettings = async () => {
     setLoading(true);
@@ -1993,6 +2009,51 @@ For tax filing assistance, please consult a qualified tax professional.
                     {new Date(subscription.created_at).toLocaleDateString()}
                   </span>
                 </div>
+              )}
+            </div>
+
+            {/* Subscription History */}
+            <div className="space-y-2">
+              <p className="text-xs font-medium text-muted-foreground">Recent Activity</p>
+              {historyLoading ? (
+                <div className="flex items-center justify-center py-4">
+                  <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
+                </div>
+              ) : subscriptionHistory.length > 0 ? (
+                <div className="space-y-2">
+                  {subscriptionHistory.map((event) => (
+                    <div key={event.id} className="flex items-start gap-3 py-2 border-b last:border-0">
+                      <div className={`w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 ${
+                        event.event_type === 'upgraded' ? 'bg-green-100' :
+                        event.event_type === 'paused' ? 'bg-indigo-100' :
+                        event.event_type === 'resumed' ? 'bg-blue-100' :
+                        event.event_type === 'discount_applied' ? 'bg-amber-100' :
+                        event.event_type === 'discount_ended' ? 'bg-slate-100' :
+                        event.event_type === 'cancelled' ? 'bg-red-100' :
+                        'bg-gray-100'
+                      }`}>
+                        {event.event_type === 'upgraded' && <TrendingUp className="w-3 h-3 text-green-600" />}
+                        {event.event_type === 'paused' && <PauseCircle className="w-3 h-3 text-indigo-600" />}
+                        {event.event_type === 'resumed' && <CheckCircle className="w-3 h-3 text-blue-600" />}
+                        {event.event_type === 'discount_applied' && <BadgePercent className="w-3 h-3 text-amber-600" />}
+                        {event.event_type === 'discount_ended' && <DollarSign className="w-3 h-3 text-slate-600" />}
+                        {event.event_type === 'cancelled' && <X className="w-3 h-3 text-red-600" />}
+                        {!['upgraded', 'paused', 'resumed', 'discount_applied', 'discount_ended', 'cancelled'].includes(event.event_type) && (
+                          <Clock className="w-3 h-3 text-gray-600" />
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs font-medium text-foreground">{event.description}</p>
+                        <p className="text-[10px] text-muted-foreground">
+                          {new Date(event.created_at).toLocaleDateString()} · {new Date(event.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                          {event.amount && ` · $${event.amount.toFixed(2)}`}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-xs text-muted-foreground text-center py-2">No activity yet</p>
               )}
             </div>
 

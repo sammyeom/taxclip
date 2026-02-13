@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { logSubscriptionEvent } from '@/lib/subscriptionHistory';
 
 const LEMON_SQUEEZY_API_KEY = process.env.LEMON_SQUEEZY_API_KEY;
 
@@ -132,6 +133,22 @@ export async function POST(request: NextRequest) {
       })
       .eq('user_id', user.id);
 
+    // Log to subscription history
+    await logSubscriptionEvent({
+      userId: user.id,
+      eventType: 'discount_applied',
+      description: `50% discount applied. Paying $${discountedPrice.toFixed(2)}/month until ${discountEndDate.toLocaleDateString()}.`,
+      fromPlan: subscription.plan_type,
+      toPlan: `${subscription.plan_type}_discounted`,
+      amount: discountedPrice,
+      metadata: {
+        discount_percentage: 50,
+        original_price: originalPrice,
+        discounted_price: discountedPrice,
+        discount_end: discountEndDate.toISOString(),
+      },
+    });
+
     return NextResponse.json({
       success: true,
       message: '50% discount applied for 3 months!',
@@ -228,6 +245,16 @@ export async function DELETE(request: NextRequest) {
         updated_at: new Date().toISOString(),
       })
       .eq('user_id', user.id);
+
+    // Log to subscription history
+    await logSubscriptionEvent({
+      userId: user.id,
+      eventType: 'discount_ended',
+      description: 'Discount period ended. Billing resumed at $9.99/month.',
+      fromPlan: `${subscription.plan_type}_discounted`,
+      toPlan: subscription.plan_type,
+      amount: 9.99,
+    });
 
     return NextResponse.json({
       success: true,

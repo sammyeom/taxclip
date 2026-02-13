@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { logSubscriptionEvent } from '@/lib/subscriptionHistory';
 
 const LEMON_SQUEEZY_API_KEY = process.env.LEMON_SQUEEZY_API_KEY;
 
@@ -120,6 +121,20 @@ export async function POST(request: NextRequest) {
       })
       .eq('user_id', user.id);
 
+    // Log to subscription history
+    await logSubscriptionEvent({
+      userId: user.id,
+      eventType: 'paused',
+      description: `Subscription paused for 3 months. Resumes on ${resumeDate.toLocaleDateString()}.`,
+      fromPlan: subscription.plan_type,
+      toPlan: 'paused',
+      metadata: {
+        pause_start: new Date().toISOString(),
+        pause_end: resumeDate.toISOString(),
+        duration_days: 90,
+      },
+    });
+
     return NextResponse.json({
       success: true,
       message: 'Subscription paused for 3 months',
@@ -229,6 +244,16 @@ export async function DELETE(request: NextRequest) {
         updated_at: new Date().toISOString(),
       })
       .eq('user_id', user.id);
+
+    // Log to subscription history
+    await logSubscriptionEvent({
+      userId: user.id,
+      eventType: 'resumed',
+      description: 'Subscription resumed. Billing will continue at $9.99/month.',
+      fromPlan: 'paused',
+      toPlan: subscription.plan_type,
+      amount: 9.99,
+    });
 
     return NextResponse.json({
       success: true,

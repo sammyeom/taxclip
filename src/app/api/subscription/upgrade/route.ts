@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { logSubscriptionEvent } from '@/lib/subscriptionHistory';
 
 const LEMON_SQUEEZY_API_KEY = process.env.LEMON_SQUEEZY_API_KEY;
 const PRODUCT_YEARLY = process.env.NEXT_PUBLIC_LEMON_SQUEEZY_PRODUCT_YEARLY;
@@ -143,6 +144,20 @@ export async function POST(request: NextRequest) {
         subscription_plan: 'pro_annual',
         updated_at: new Date().toISOString(),
       }, { onConflict: 'user_id' });
+
+    // Log to subscription history
+    await logSubscriptionEvent({
+      userId: user.id,
+      eventType: 'upgraded',
+      description: 'Upgraded from Monthly to Annual plan. Remaining credit applied.',
+      fromPlan: subscription.plan_type,
+      toPlan: 'annual',
+      amount: 99,
+      metadata: {
+        previous_plan: subscription.plan_type,
+        new_period_end: attrs.current_period_end,
+      },
+    });
 
     return NextResponse.json({
       success: true,

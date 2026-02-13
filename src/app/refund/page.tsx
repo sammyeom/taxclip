@@ -117,7 +117,7 @@ export default function RefundPolicyPage() {
                   <div>
                     <h3 className="font-semibold text-slate-900 mb-2">Subscription Downgrades</h3>
                     <ul className="list-disc list-inside text-slate-600 space-y-1 ml-4">
-                      <li><span className="font-medium text-slate-900">Annual to Monthly:</span> No refund or credit. Your Annual plan continues until the end of your paid period, then Monthly billing ($9.99/mo) starts automatically</li>
+                      <li><span className="font-medium text-slate-900">Annual to Monthly:</span> No refund. Your Annual plan continues until the end of your paid period, then Monthly billing ($9.99/mo) starts automatically</li>
                       <li><span className="font-medium text-slate-900">Annual to Free:</span> No refunds will be issued, but you will retain Pro features until your annual subscription expires</li>
                       <li><span className="font-medium text-slate-900">Monthly to Free:</span> No refunds for the current billing cycle, but you will retain Pro features until the end of the period</li>
                     </ul>
@@ -150,7 +150,7 @@ export default function RefundPolicyPage() {
                   </li>
                   <li className="flex items-start gap-2 text-slate-600">
                     <XCircle className="w-5 h-5 text-red-500 mt-0.5 flex-shrink-0" />
-                    <span>No refund or credit for unused time</span>
+                    <span>No refund for unused time</span>
                   </li>
                 </ul>
 
@@ -301,7 +301,7 @@ export default function RefundPolicyPage() {
                       </tr>
                       <tr>
                         <td className="p-3 text-sm text-slate-600">Annual → Monthly downgrade</td>
-                        <td className="p-3 text-sm text-red-600 font-medium">No refund/credit</td>
+                        <td className="p-3 text-sm text-red-600 font-medium">No refund</td>
                         <td className="p-3 text-sm text-slate-600">Annual continues → then Monthly starts</td>
                       </tr>
                       <tr>

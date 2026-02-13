@@ -1790,7 +1790,7 @@ For tax filing assistance, please consult a qualified tax professional.
                     if (result.success) {
                       setSelectPlanDialogOpen(false);
                       const endDate = result.annualEndsAt ? new Date(result.annualEndsAt).toLocaleDateString() : 'your period ends';
-                      alert(`Downgrade scheduled! Your Annual plan continues until ${endDate}. Monthly billing ($9.99/mo) will start after that. No refund or credit will be issued.`);
+                      alert(`Downgrade scheduled! Your Annual plan continues until ${endDate}. Monthly billing ($9.99/mo) will start after that. No refund will be issued.`);
                     } else {
                       setError(result.error || 'Failed to schedule downgrade');
                     }
@@ -1833,7 +1833,7 @@ For tax filing assistance, please consult a qualified tax professional.
               {isAnnualPlan && !hasScheduledDowngrade && (
                 <p className="text-[10px] text-amber-600 mt-1.5 flex items-center gap-1">
                   <AlertCircle className="w-3 h-3" />
-                  No refund/credit. Annual continues until period ends, then Monthly starts.
+                  No refund. Annual continues until period ends, then Monthly starts.
                 </p>
               )}
               {hasScheduledDowngrade && subscription?.scheduled_downgrade_date && (

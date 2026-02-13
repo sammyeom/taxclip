@@ -2040,7 +2040,8 @@ For tax filing assistance, please consult a qualified tax professional.
               </div>
             </div>
 
-            {/* Alternative options */}
+            {/* Alternative options - Only for Pro Monthly subscribers */}
+            {isMonthlyPlan && (
             <div className="space-y-2">
               <p className="text-xs font-medium text-muted-foreground text-center">
                 Consider these alternatives
@@ -2058,7 +2059,7 @@ For tax filing assistance, please consult a qualified tax professional.
                   setPauseLoading(false);
                   if (result.success) {
                     setBeforeYouGoOpen(false);
-                    alert(`Subscription paused! It will automatically resume on ${new Date(result.resumeDate!).toLocaleDateString()}.`);
+                    alert(`Subscription paused! It will automatically resume on ${new Date(result.resumeDate!).toLocaleDateString()} and you'll be charged $9.99/month.`);
                   } else {
                     alert(result.error || 'Failed to pause subscription');
                   }
@@ -2077,7 +2078,9 @@ For tax filing assistance, please consult a qualified tax professional.
                   <p className="font-medium text-sm text-foreground">
                     {isPaused ? 'Already Paused' : 'Pause for 3 months'}
                   </p>
-                  <p className="text-xs text-muted-foreground">Take a break, keep your data</p>
+                  <p className="text-xs text-muted-foreground">
+                    {isPaused ? 'Your subscription is paused' : '$0 for 3 months, then $9.99/mo'}
+                  </p>
                 </div>
                 <ChevronRight className="w-4 h-4 text-muted-foreground flex-shrink-0" />
               </button>
@@ -2094,7 +2097,7 @@ For tax filing assistance, please consult a qualified tax professional.
                   setDiscountLoading(false);
                   if (result.success) {
                     setBeforeYouGoOpen(false);
-                    alert(`50% discount applied! Your discount is valid until ${new Date(result.discount!.endDate).toLocaleDateString()}.`);
+                    alert(`50% discount applied! You'll pay $4.99/month for 3 months, then $9.99/month after that.`);
                   } else {
                     alert(result.error || 'Failed to apply discount');
                   }
@@ -2118,11 +2121,14 @@ For tax filing assistance, please consult a qualified tax professional.
                       <span className="bg-amber-100 text-amber-700 text-[10px] px-1.5 py-0.5 rounded-full font-medium">Popular</span>
                     )}
                   </div>
-                  <p className="text-xs text-muted-foreground">Stay at half the price</p>
+                  <p className="text-xs text-muted-foreground">
+                    {hasActiveDiscount ? `Paying $4.99/mo until discount ends` : '$4.99/mo for 3 months, then $9.99/mo'}
+                  </p>
                 </div>
                 <ChevronRight className="w-4 h-4 text-muted-foreground flex-shrink-0" />
               </button>
             </div>
+            )}
           </div>
 
           <DialogFooter className="flex-col gap-2 pt-2">

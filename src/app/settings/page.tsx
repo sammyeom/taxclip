@@ -1907,18 +1907,48 @@ For tax filing assistance, please consult a qualified tax professional.
                   </span>
                 </div>
                 <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
+                  isPaused ? 'bg-indigo-100 text-indigo-700' :
                   subscription?.status === 'active' ? 'bg-green-100 text-green-700' :
                   subscription?.status === 'on_trial' ? 'bg-blue-100 text-blue-700' :
                   subscription?.status === 'cancelled' ? 'bg-red-100 text-red-700' :
                   'bg-gray-100 text-gray-700'
                 }`}>
-                  {subscription?.status === 'active' ? 'Active' :
+                  {isPaused ? 'Paused' :
+                   subscription?.status === 'active' ? 'Active' :
                    subscription?.status === 'on_trial' ? 'Trial' :
                    subscription?.status === 'cancelled' ? 'Cancelled' :
                    subscription?.status || 'Unknown'}
                 </span>
               </div>
             </div>
+
+            {/* Pause Status */}
+            {isPaused && subscription?.pause_end_date && (
+              <div className="bg-indigo-50 border border-indigo-200 rounded-lg p-3 space-y-1">
+                <div className="flex items-center gap-2">
+                  <PauseCircle className="w-4 h-4 text-indigo-600" />
+                  <span className="font-medium text-sm text-indigo-900">Subscription Paused</span>
+                </div>
+                <p className="text-xs text-indigo-700">
+                  Your subscription is paused until {new Date(subscription.pause_end_date).toLocaleDateString()}.
+                  After that, you&apos;ll be charged $9.99/month.
+                </p>
+              </div>
+            )}
+
+            {/* Discount Status */}
+            {hasActiveDiscount && subscription?.discount_end_date && (
+              <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 space-y-1">
+                <div className="flex items-center gap-2">
+                  <BadgePercent className="w-4 h-4 text-amber-600" />
+                  <span className="font-medium text-sm text-amber-900">50% Discount Active</span>
+                </div>
+                <p className="text-xs text-amber-700">
+                  You&apos;re paying $4.99/month until {new Date(subscription.discount_end_date).toLocaleDateString()}.
+                  After that, you&apos;ll be charged $9.99/month.
+                </p>
+              </div>
+            )}
 
             {/* Billing Info */}
             <div className="space-y-3">

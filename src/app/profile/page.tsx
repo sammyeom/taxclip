@@ -27,6 +27,8 @@ import {
   Lock,
   Crown,
   Sparkles,
+  PauseCircle,
+  BadgePercent,
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -53,7 +55,7 @@ const getReceiptTotal = (r: Receipt): number => {
 
 export default function ProfilePage() {
   const { user, loading: authLoading } = useAuth();
-  const { subscription, isPro, isOnTrial, isCancelled, willRenew, getDaysRemaining } = useSubscription();
+  const { subscription, isPro, isOnTrial, isCancelled, isPaused, hasActiveDiscount, getDaysRemaining } = useSubscription();
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
@@ -440,7 +442,7 @@ export default function ProfilePage() {
                   </div>
                   <div>
                     <p className="text-xs sm:text-sm text-slate-500">Subscription</p>
-                    <p className="font-semibold text-sm sm:text-base flex items-center justify-center sm:justify-start gap-2">
+                    <p className="font-semibold text-sm sm:text-base flex items-center justify-center sm:justify-start gap-2 flex-wrap">
                       {isPro ? (
                         <>
                           <Crown className="w-3 h-3 sm:w-4 sm:h-4 text-amber-500" />
@@ -457,6 +459,18 @@ export default function ProfilePage() {
                               Cancelled
                             </span>
                           )}
+                          {isPaused && (
+                            <span className="text-xs bg-indigo-100 text-indigo-700 px-1.5 py-0.5 rounded-full flex items-center gap-1">
+                              <PauseCircle className="w-3 h-3" />
+                              Paused
+                            </span>
+                          )}
+                          {hasActiveDiscount && (
+                            <span className="text-xs bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded-full flex items-center gap-1">
+                              <BadgePercent className="w-3 h-3" />
+                              50% Off
+                            </span>
+                          )}
                         </>
                       ) : (
                         <>
@@ -465,20 +479,34 @@ export default function ProfilePage() {
                         </>
                       )}
                     </p>
-                    {/* Subscription dates */}
+                    {/* Subscription status details */}
                     {isPro && (
-                      <div className="mt-1 text-xs text-slate-500">
-                        {isCancelled ? (
+                      <div className="mt-1 text-xs text-slate-500 space-y-1">
+                        {isPaused && subscription?.pause_end_date && (
+                          <p className="flex items-center justify-center sm:justify-start gap-1 text-indigo-600">
+                            <PauseCircle className="w-3 h-3" />
+                            Resumes: {formatDate(subscription.pause_end_date)} · then $9.99/mo
+                          </p>
+                        )}
+                        {hasActiveDiscount && subscription?.discount_end_date && (
                           <p className="flex items-center justify-center sm:justify-start gap-1 text-amber-600">
-                            <Clock className="w-3 h-3" />
-                            Pro ends: {formatDate(subscription?.ends_at || subscription?.current_period_end || null)}
-                            {getDaysRemaining() !== null && ` (${getDaysRemaining()} days left)`}
+                            <BadgePercent className="w-3 h-3" />
+                            $4.99/mo until {formatDate(subscription.discount_end_date)} · then $9.99/mo
                           </p>
-                        ) : (
-                          <p className="flex items-center justify-center sm:justify-start gap-1">
-                            <Calendar className="w-3 h-3" />
-                            Next renewal: {formatDate(subscription?.renews_at || subscription?.current_period_end || null)}
-                          </p>
+                        )}
+                        {!isPaused && !hasActiveDiscount && (
+                          isCancelled ? (
+                            <p className="flex items-center justify-center sm:justify-start gap-1 text-amber-600">
+                              <Clock className="w-3 h-3" />
+                              Pro ends: {formatDate(subscription?.ends_at || subscription?.current_period_end || null)}
+                              {getDaysRemaining() !== null && ` (${getDaysRemaining()} days left)`}
+                            </p>
+                          ) : (
+                            <p className="flex items-center justify-center sm:justify-start gap-1">
+                              <Calendar className="w-3 h-3" />
+                              Next renewal: {formatDate(subscription?.renews_at || subscription?.current_period_end || null)}
+                            </p>
+                          )
                         )}
                       </div>
                     )}

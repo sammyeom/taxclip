@@ -9,6 +9,8 @@ export type SubscriptionEventType =
   | 'subscribed'
   | 'upgraded'
   | 'downgraded'
+  | 'downgrade_scheduled'
+  | 'downgrade_cancelled'
   | 'paused'
   | 'resumed'
   | 'discount_applied'

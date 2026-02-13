@@ -35,7 +35,7 @@ export default function RefundPolicyPage() {
               <h1 className="text-3xl sm:text-4xl font-bold text-slate-900 mb-2">
                 Refund Policy
               </h1>
-              <p className="text-slate-500">Last updated: February 10, 2026</p>
+              <p className="text-slate-500">Last updated: February 13, 2026</p>
             </div>
 
             {/* Intro */}
@@ -117,7 +117,7 @@ export default function RefundPolicyPage() {
                   <div>
                     <h3 className="font-semibold text-slate-900 mb-2">Subscription Downgrades</h3>
                     <ul className="list-disc list-inside text-slate-600 space-y-1 ml-4">
-                      <li><span className="font-medium text-slate-900">Annual to Monthly:</span> The unused portion of your annual subscription will be converted to account credits that automatically apply to future monthly payments. You will retain Pro access during this entire period (no cash refunds)</li>
+                      <li><span className="font-medium text-slate-900">Annual to Monthly:</span> No refund or credit. Your Annual plan continues until the end of your paid period, then Monthly billing ($9.99/mo) starts automatically</li>
                       <li><span className="font-medium text-slate-900">Annual to Free:</span> No refunds will be issued, but you will retain Pro features until your annual subscription expires</li>
                       <li><span className="font-medium text-slate-900">Monthly to Free:</span> No refunds for the current billing cycle, but you will retain Pro features until the end of the period</li>
                     </ul>
@@ -125,9 +125,70 @@ export default function RefundPolicyPage() {
                 </div>
               </section>
 
-              {/* Section 4: Non-Refundable Circumstances */}
+              {/* Section 4: Annual to Monthly Downgrade */}
               <section>
-                <h2 className="text-xl font-bold text-slate-900 mb-4">4. Non-Refundable Circumstances</h2>
+                <h2 className="text-xl font-bold text-slate-900 mb-4">4. Annual to Monthly Downgrade</h2>
+                <Alert className="bg-amber-50 border-amber-200 mb-6">
+                  <AlertDescription className="text-amber-800">
+                    <p className="font-semibold mb-2">Important: Annual subscriptions are non-refundable.</p>
+                  </AlertDescription>
+                </Alert>
+
+                <p className="text-slate-600 mb-3">When you change from Annual to Monthly:</p>
+                <ul className="space-y-2 mb-6">
+                  <li className="flex items-start gap-2 text-slate-600">
+                    <CheckCircle className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
+                    <span>Your Annual plan continues until the end of your paid period</span>
+                  </li>
+                  <li className="flex items-start gap-2 text-slate-600">
+                    <CheckCircle className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
+                    <span>You keep all Pro features until then</span>
+                  </li>
+                  <li className="flex items-start gap-2 text-slate-600">
+                    <CheckCircle className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
+                    <span>Monthly billing starts automatically after your Annual period ends</span>
+                  </li>
+                  <li className="flex items-start gap-2 text-slate-600">
+                    <XCircle className="w-5 h-5 text-red-500 mt-0.5 flex-shrink-0" />
+                    <span>No refund or credit for unused time</span>
+                  </li>
+                </ul>
+
+                <div className="bg-slate-50 border border-slate-200 rounded-lg p-5 mb-6">
+                  <h4 className="font-semibold text-slate-900 mb-3">Example:</h4>
+                  <div className="text-sm text-slate-600 space-y-1">
+                    <p>• Subscribed: Feb 10, 2026 (Annual $99)</p>
+                    <p>• Changed to Monthly: May 15, 2026</p>
+                    <p>• Annual continues until: <span className="font-medium text-slate-900">Feb 10, 2027</span></p>
+                    <p>• Monthly billing starts: <span className="font-medium text-slate-900">Feb 10, 2027 ($9.99/month)</span></p>
+                  </div>
+                </div>
+
+                <div className="bg-cyan-50 border border-cyan-200 rounded-lg p-4 mb-6">
+                  <h4 className="font-semibold text-cyan-800 mb-2">Why no refunds or credits?</h4>
+                  <p className="text-cyan-700 text-sm">
+                    Annual plans offer a 17% discount ($99 vs $119.88/year) in exchange for a 1-year commitment. This allows us to provide the best value to our users.
+                  </p>
+                </div>
+
+                <div className="border border-slate-200 rounded-lg p-4">
+                  <h4 className="font-semibold text-slate-900 mb-3">Alternatives:</h4>
+                  <ul className="space-y-2 text-sm text-slate-600">
+                    <li className="flex items-center gap-2">
+                      <span className="text-lg">🆓</span>
+                      <span><span className="font-medium text-slate-900">Switch to Free Plan</span> - 10 receipts/month, immediate</span>
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <span className="text-lg">⏸️</span>
+                      <span><span className="font-medium text-slate-900">Pause subscription</span> - Up to 3 months, no billing</span>
+                    </li>
+                  </ul>
+                </div>
+              </section>
+
+              {/* Section 5: Non-Refundable Circumstances */}
+              <section>
+                <h2 className="text-xl font-bold text-slate-900 mb-4">5. Non-Refundable Circumstances</h2>
                 <p className="text-slate-600 mb-3">Refunds will generally not be provided in the following cases:</p>
                 <Alert className="bg-red-50 border-red-200">
                   <XCircle className="h-5 w-5 text-red-600" />
@@ -137,16 +198,16 @@ export default function RefundPolicyPage() {
                       <li>Partial months of service (no pro-rated refunds for mid-month cancellations)</li>
                       <li>If you simply no longer need the service but forgot to cancel before the renewal date</li>
                       <li>Accounts that have been suspended or terminated due to a violation of our Terms of Service</li>
-                      <li>Refunds for annual subscriptions downgraded to monthly (credits will be issued instead)</li>
+                      <li>Annual to Monthly downgrades (no refund or credit, Annual continues until period ends)</li>
                       <li>Second or subsequent free trial requests (one trial per account)</li>
                     </ul>
                   </AlertDescription>
                 </Alert>
               </section>
 
-              {/* Section 5: How to Request a Refund */}
+              {/* Section 6: How to Request a Refund */}
               <section>
-                <h2 className="text-xl font-bold text-slate-900 mb-4">5. How to Request a Refund</h2>
+                <h2 className="text-xl font-bold text-slate-900 mb-4">6. How to Request a Refund</h2>
                 <p className="text-slate-600 mb-3">
                   To request a refund, please email us at <a href="mailto:support@taxclip.co" className="text-cyan-600 font-medium hover:underline">support@taxclip.co</a> with the following information:
                 </p>
@@ -161,9 +222,9 @@ export default function RefundPolicyPage() {
                 </p>
               </section>
 
-              {/* Section 6: Processing Refunds */}
+              {/* Section 7: Processing Refunds */}
               <section>
-                <h2 className="text-xl font-bold text-slate-900 mb-4">6. Processing Refunds</h2>
+                <h2 className="text-xl font-bold text-slate-900 mb-4">7. Processing Refunds</h2>
                 <p className="text-slate-600 mb-4">
                   Once approved, refunds will be processed back to the original payment method used at the time of purchase:
                 </p>
@@ -197,48 +258,27 @@ export default function RefundPolicyPage() {
                 </p>
               </section>
 
-              {/* Section 7: Account Credits */}
+              {/* Section 8: Account Credits */}
               <section>
-                <h2 className="text-xl font-bold text-slate-900 mb-4">7. Account Credits</h2>
-                <h3 className="font-semibold text-slate-900 mb-3">What are Account Credits?</h3>
-                <ul className="list-disc list-inside text-slate-600 space-y-2 ml-4 mb-6">
-                  <li>When you downgrade from an annual plan to a monthly plan, the unused portion of your annual subscription is converted to credits</li>
-                  <li>Credits automatically apply to your future monthly subscription payments</li>
-                  <li>Credits do not expire as long as your account remains active</li>
+                <h2 className="text-xl font-bold text-slate-900 mb-4">8. Account Credits</h2>
+                <Alert className="bg-slate-100 border-slate-300 mb-4">
+                  <AlertDescription className="text-slate-700">
+                    <p className="font-medium">Note: Account credits are <span className="font-bold">not provided</span> for Annual to Monthly downgrades.</p>
+                    <p className="mt-1 text-sm">When you switch from Annual to Monthly, your Annual plan continues until expiration, then Monthly billing begins. No credits are issued.</p>
+                  </AlertDescription>
+                </Alert>
+
+                <h3 className="font-semibold text-slate-900 mb-3">When Credits May Apply:</h3>
+                <ul className="list-disc list-inside text-slate-600 space-y-2 ml-4 mb-4">
+                  <li>Promotional credits from referral programs</li>
+                  <li>Customer service adjustments for technical issues</li>
                   <li>Credits cannot be transferred or redeemed for cash</li>
                 </ul>
-
-                <div className="bg-slate-50 border border-slate-200 rounded-lg p-5">
-                  <h4 className="font-semibold text-slate-900 mb-3">Example Calculation:</h4>
-                  <div className="text-sm text-slate-600 space-y-1 mb-4">
-                    <p>Annual Plan: $99/year</p>
-                    <p>Subscribed: January 1, 2026</p>
-                    <p>Downgrade Request: March 1, 2026 (2 months used)</p>
-                  </div>
-                  <div className="bg-white border border-slate-200 rounded-lg p-3 font-mono text-sm mb-4">
-                    <p className="text-slate-600">Used: $99 ÷ 12 × 2 = $16.50</p>
-                    <p className="text-slate-600">Remaining: $99 - $16.50 = $82.50</p>
-                    <p className="text-slate-900 font-semibold">Credit: $82.50</p>
-                  </div>
-                  <div className="text-sm text-slate-600 space-y-1 mb-4">
-                    <p>Monthly Plan: $9.99/month</p>
-                    <p>Free Months: $82.50 ÷ $9.99 = 8 months</p>
-                    <p>Remaining Credit: $2.58</p>
-                  </div>
-                  <div className="bg-green-50 border border-green-200 rounded-lg p-3">
-                    <p className="font-semibold text-green-800 mb-1">Result:</p>
-                    <ul className="text-sm text-green-700 space-y-1">
-                      <li>• You'll get 8 free months of Pro</li>
-                      <li>• Next charge: November 1, 2026 ($9.99)</li>
-                      <li>• $2.58 credit applied to November payment</li>
-                    </ul>
-                  </div>
-                </div>
               </section>
 
-              {/* Section 8: Refund Timeline Summary */}
+              {/* Section 9: Refund Timeline Summary */}
               <section>
-                <h2 className="text-xl font-bold text-slate-900 mb-4">8. Refund Timeline Summary</h2>
+                <h2 className="text-xl font-bold text-slate-900 mb-4">9. Refund Timeline Summary</h2>
                 <div className="overflow-x-auto">
                   <table className="w-full border border-slate-200 rounded-lg overflow-hidden">
                     <thead className="bg-slate-100">
@@ -261,8 +301,8 @@ export default function RefundPolicyPage() {
                       </tr>
                       <tr>
                         <td className="p-3 text-sm text-slate-600">Annual → Monthly downgrade</td>
-                        <td className="p-3 text-sm text-slate-600">No refund (credits issued)</td>
-                        <td className="p-3 text-sm text-slate-600">Until credits exhausted</td>
+                        <td className="p-3 text-sm text-red-600 font-medium">No refund/credit</td>
+                        <td className="p-3 text-sm text-slate-600">Annual continues → then Monthly starts</td>
                       </tr>
                       <tr>
                         <td className="p-3 text-sm text-slate-600">Annual → Free downgrade</td>
@@ -284,9 +324,9 @@ export default function RefundPolicyPage() {
                 </div>
               </section>
 
-              {/* Section 9: Questions or Concerns */}
+              {/* Section 10: Questions or Concerns */}
               <section>
-                <h2 className="text-xl font-bold text-slate-900 mb-4">9. Questions or Concerns?</h2>
+                <h2 className="text-xl font-bold text-slate-900 mb-4">10. Questions or Concerns?</h2>
                 <p className="text-slate-600 mb-4">
                   If you have any questions about our refund policy, please contact us at:
                 </p>

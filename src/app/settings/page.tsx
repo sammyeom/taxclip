@@ -172,7 +172,7 @@ function SettingsContent({ defaultTab }: { defaultTab: string }) {
   const { setTheme } = useTheme();
 
   // Subscription and usage hooks
-  const { subscription, isPro, isOnTrial, isCancelled, willRenew, hasUsedTrial, isMonthlyPlan, isLemonSqueezySubscription, isPaused, hasActiveDiscount, getDaysRemaining, createCheckout, upgradeToAnnual, pauseSubscription, resumeSubscription, applyRetentionDiscount, fetchSubscriptionHistory, openCustomerPortal, refetch: refetchSubscription } = useSubscription();
+  const { subscription, isPro, isOnTrial, isCancelled, willRenew, hasUsedTrial, isMonthlyPlan, isAnnualPlan, hasScheduledDowngrade, isLemonSqueezySubscription, isPaused, hasActiveDiscount, getDaysRemaining, createCheckout, upgradeToAnnual, scheduleDowngradeToMonthly, cancelScheduledDowngrade, pauseSubscription, resumeSubscription, applyRetentionDiscount, fetchSubscriptionHistory, openCustomerPortal, refetch: refetchSubscription } = useSubscription();
   const { monthlyCount, monthlyLimit, remainingUploads } = useUsageLimit();
 
   const [settings, setSettings] = useState<AppSettings>(DEFAULT_SETTINGS);
@@ -208,6 +208,7 @@ function SettingsContent({ defaultTab }: { defaultTab: string }) {
   const [upgradeLoading, setUpgradeLoading] = useState(false);
   const [pauseLoading, setPauseLoading] = useState(false);
   const [discountLoading, setDiscountLoading] = useState(false);
+  const [downgradeLoading, setDowngradeLoading] = useState(false);
   const [subscriptionHistory, setSubscriptionHistory] = useState<SubscriptionHistoryItem[]>([]);
   const [historyLoading, setHistoryLoading] = useState(false);
 
@@ -1768,16 +1769,45 @@ For tax filing assistance, please consult a qualified tax professional.
                   alert('You are already on the Monthly plan.');
                   return;
                 }
-                // For annual users wanting to switch to monthly, redirect to customer portal
-                setSelectPlanDialogOpen(false);
-                if (subscription?.customer_portal_url) {
-                  openCustomerPortal();
+                // For annual users wanting to switch to monthly
+                if (isAnnualPlan && isLemonSqueezySubscription) {
+                  if (hasScheduledDowngrade) {
+                    // Cancel the scheduled downgrade
+                    setDowngradeLoading(true);
+                    const result = await cancelScheduledDowngrade();
+                    setDowngradeLoading(false);
+                    if (result.success) {
+                      setSelectPlanDialogOpen(false);
+                      alert('Scheduled downgrade cancelled. You will remain on the Annual plan.');
+                    } else {
+                      setError(result.error || 'Failed to cancel scheduled downgrade');
+                    }
+                  } else {
+                    // Schedule the downgrade
+                    setDowngradeLoading(true);
+                    const result = await scheduleDowngradeToMonthly();
+                    setDowngradeLoading(false);
+                    if (result.success) {
+                      setSelectPlanDialogOpen(false);
+                      const endDate = result.annualEndsAt ? new Date(result.annualEndsAt).toLocaleDateString() : 'your period ends';
+                      alert(`Downgrade scheduled! Your Annual plan continues until ${endDate}. Monthly billing ($9.99/mo) will start after that. No refund or credit will be issued.`);
+                    } else {
+                      setError(result.error || 'Failed to schedule downgrade');
+                    }
+                  }
+                  return;
                 }
+                // Mobile users - redirect to app store
+                setSelectPlanDialogOpen(false);
+                alert('Please manage your subscription through the App Store or Google Play.');
               }}
+              disabled={downgradeLoading}
               className={`w-full p-4 rounded-xl border-2 text-left transition-all ${
                 isMonthlyPlan
                   ? 'border-cyan-500 bg-cyan-50'
-                  : 'border-border hover:border-cyan-300 hover:bg-muted/30'
+                  : hasScheduledDowngrade
+                    ? 'border-amber-500 bg-amber-50'
+                    : 'border-border hover:border-cyan-300 hover:bg-muted/30'
               }`}
             >
               <div className="flex items-center justify-between mb-2">
@@ -1788,6 +1818,11 @@ For tax filing assistance, please consult a qualified tax professional.
                       Current
                     </span>
                   )}
+                  {hasScheduledDowngrade && (
+                    <span className="text-[10px] bg-amber-500 text-white px-2 py-0.5 rounded-full font-medium">
+                      Scheduled
+                    </span>
+                  )}
                 </div>
                 <div className="text-right">
                   <span className="text-xl font-bold text-foreground">$9.99</span>
@@ -1795,6 +1830,17 @@ For tax filing assistance, please consult a qualified tax professional.
                 </div>
               </div>
               <p className="text-xs text-muted-foreground">Billed monthly</p>
+              {isAnnualPlan && !hasScheduledDowngrade && (
+                <p className="text-[10px] text-amber-600 mt-1.5 flex items-center gap-1">
+                  <AlertCircle className="w-3 h-3" />
+                  No refund/credit. Annual continues until period ends, then Monthly starts.
+                </p>
+              )}
+              {hasScheduledDowngrade && subscription?.scheduled_downgrade_date && (
+                <p className="text-[10px] text-amber-600 mt-1.5">
+                  Monthly billing starts {new Date(subscription.scheduled_downgrade_date).toLocaleDateString()}. Click to cancel.
+                </p>
+              )}
             </button>
 
             {/* Annual Plan */}
@@ -1852,6 +1898,10 @@ For tax filing assistance, please consult a qualified tax professional.
                 </div>
               </div>
               <p className="text-xs text-muted-foreground">Billed annually · $8.25/month</p>
+              <p className="text-[10px] text-amber-600 mt-1.5 flex items-center gap-1">
+                <AlertCircle className="w-3 h-3" />
+                Non-refundable. Cancel anytime, keep access until period ends.
+              </p>
             </button>
 
             {/* Free Plan */}

@@ -41,6 +41,9 @@ export interface Subscription {
   cancelled_at?: string | null;
   cancellation_reason?: string | null;
   cancellation_feedback?: string | null;
+  // 다운그레이드 예약 관련
+  scheduled_downgrade_to?: string | null;
+  scheduled_downgrade_date?: string | null;
   // 타임스탬프
   created_at: string;
   updated_at: string;
@@ -245,6 +248,12 @@ export function useSubscription() {
   // Check if user is on monthly plan (can upgrade to annual)
   const isMonthlyPlan = subscription?.plan_type === 'pro' || subscription?.plan_type === 'pro_monthly';
 
+  // Check if user is on annual plan
+  const isAnnualPlan = subscription?.plan_type === 'annual' || subscription?.plan_type === 'pro_annual';
+
+  // Check if downgrade to monthly is scheduled
+  const hasScheduledDowngrade = subscription?.scheduled_downgrade_to === 'monthly';
+
   // Check if subscription is from LemonSqueezy (has lemon_squeezy_subscription_id)
   const isLemonSqueezySubscription = !!subscription?.lemon_squeezy_subscription_id;
 
@@ -290,6 +299,96 @@ export function useSubscription() {
     } catch (err) {
       console.error('Upgrade error:', err);
       return { success: false, error: 'Failed to upgrade subscription' };
+    }
+  };
+
+  // Schedule downgrade from annual to monthly
+  // Annual continues until period end, then monthly billing starts
+  // No refund or credit for unused time
+  const scheduleDowngradeToMonthly = async (): Promise<{ success: boolean; error?: string; annualEndsAt?: string }> => {
+    if (!user) {
+      return { success: false, error: 'Not authenticated' };
+    }
+
+    if (!isAnnualPlan) {
+      return { success: false, error: 'Not on annual plan' };
+    }
+
+    if (!isLemonSqueezySubscription) {
+      return { success: false, error: 'Mobile subscription - please manage through the App Store or Google Play' };
+    }
+
+    if (hasScheduledDowngrade) {
+      return { success: false, error: 'Downgrade already scheduled' };
+    }
+
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.access_token) {
+        return { success: false, error: 'No session found' };
+      }
+
+      const response = await fetch('/api/subscription/downgrade', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`,
+        },
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        return { success: false, error: data.error || 'Failed to schedule downgrade' };
+      }
+
+      // Refresh subscription data
+      await fetchSubscription();
+
+      return { success: true, annualEndsAt: data.downgrade?.annualEndsAt };
+    } catch (err) {
+      console.error('Downgrade scheduling error:', err);
+      return { success: false, error: 'Failed to schedule downgrade' };
+    }
+  };
+
+  // Cancel scheduled downgrade (stay on annual)
+  const cancelScheduledDowngrade = async (): Promise<{ success: boolean; error?: string }> => {
+    if (!user) {
+      return { success: false, error: 'Not authenticated' };
+    }
+
+    if (!hasScheduledDowngrade) {
+      return { success: false, error: 'No scheduled downgrade to cancel' };
+    }
+
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.access_token) {
+        return { success: false, error: 'No session found' };
+      }
+
+      const response = await fetch('/api/subscription/downgrade', {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`,
+        },
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        return { success: false, error: data.error || 'Failed to cancel downgrade' };
+      }
+
+      // Refresh subscription data
+      await fetchSubscription();
+
+      return { success: true };
+    } catch (err) {
+      console.error('Cancel downgrade error:', err);
+      return { success: false, error: 'Failed to cancel downgrade' };
     }
   };
 
@@ -469,10 +568,14 @@ export function useSubscription() {
     isPaused,
     hasActiveDiscount,
     isMonthlyPlan,
+    isAnnualPlan,
+    hasScheduledDowngrade,
     isLemonSqueezySubscription,
     getDaysRemaining,
     createCheckout,
     upgradeToAnnual,
+    scheduleDowngradeToMonthly,
+    cancelScheduledDowngrade,
     pauseSubscription,
     resumeSubscription,
     applyRetentionDiscount,

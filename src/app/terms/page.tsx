@@ -35,7 +35,7 @@ export default function TermsPage() {
             <h1 className="text-3xl sm:text-4xl font-bold text-slate-900 mb-2">
               TaxClip Terms of Service
             </h1>
-            <p className="text-slate-500">Last updated: January 13, 2026</p>
+            <p className="text-slate-500">Last updated: February 13, 2026</p>
           </div>
 
           {/* Intro */}
@@ -116,10 +116,44 @@ export default function TermsPage() {
 
             {/* Section 5 */}
             <section>
-              <h2 className="text-xl font-bold text-slate-900 mb-4">5. Payment and Subscription</h2>
-              <ul className="list-disc list-inside text-slate-600 space-y-2 ml-4">
+              <h2 className="text-xl font-bold text-slate-900 mb-4">5. Subscription and Billing</h2>
+
+              <h3 className="text-lg font-semibold text-slate-800 mb-3">5.1 Plans and Billing</h3>
+              <ul className="list-disc list-inside text-slate-600 space-y-2 ml-4 mb-6">
                 <li>Paid plans are billed on a recurring basis (monthly or annually) until cancelled.</li>
-                <li>Fees are non-refundable except where required by law.</li>
+                <li>Annual subscriptions are billed upfront for a 12-month period.</li>
+              </ul>
+
+              <h3 className="text-lg font-semibold text-slate-800 mb-3">5.2 Annual Subscription Refund Policy</h3>
+              <Alert className="bg-amber-50 border-amber-200 mb-4">
+                <AlertDescription>
+                  <p className="text-amber-800 font-medium">Annual subscriptions are non-refundable.</p>
+                  <p className="text-amber-700 mt-2">If you cancel your subscription, you will retain access to Pro features until the end of your current billing period.</p>
+                </AlertDescription>
+              </Alert>
+
+              <h3 className="text-lg font-semibold text-slate-800 mb-3">5.3 Cancellation</h3>
+              <p className="text-slate-600 mb-3">You may cancel your subscription at any time through:</p>
+              <ul className="list-disc list-inside text-slate-600 space-y-2 ml-4 mb-4">
+                <li><span className="font-medium text-slate-700">iOS:</span> Settings → Apple ID → Subscriptions</li>
+                <li><span className="font-medium text-slate-700">Android:</span> Google Play → Subscriptions</li>
+                <li><span className="font-medium text-slate-700">Web:</span> Account Settings → Manage Subscription</li>
+              </ul>
+              <p className="text-slate-600 mb-3">Upon cancellation:</p>
+              <ul className="list-disc list-inside text-slate-600 space-y-2 ml-4 mb-6">
+                <li>No further charges will be made</li>
+                <li>Pro access continues until the end of your paid period</li>
+                <li>Your data remains accessible</li>
+                <li>You may resubscribe at any time</li>
+              </ul>
+
+              <h3 className="text-lg font-semibold text-slate-800 mb-3">5.4 Billing Cycle Changes</h3>
+              <p className="text-slate-600 mb-3">If you change from Annual to Monthly:</p>
+              <ul className="list-disc list-inside text-slate-600 space-y-2 ml-4">
+                <li>The change takes effect at the end of your current Annual period</li>
+                <li>No refund or credit is provided for the remaining time</li>
+                <li>You continue to enjoy Annual benefits until your period ends</li>
+                <li>Monthly billing ($9.99/month) starts automatically after your Annual period expires</li>
               </ul>
             </section>
 

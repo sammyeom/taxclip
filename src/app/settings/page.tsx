@@ -171,7 +171,7 @@ function SettingsContent({ defaultTab }: { defaultTab: string }) {
   const { setTheme } = useTheme();
 
   // Subscription and usage hooks
-  const { subscription, isPro, isOnTrial, isCancelled, willRenew, hasUsedTrial, isMonthlyPlan, isLemonSqueezySubscription, getDaysRemaining, createCheckout, upgradeToAnnual, openCustomerPortal, refetch: refetchSubscription } = useSubscription();
+  const { subscription, isPro, isOnTrial, isCancelled, willRenew, hasUsedTrial, isMonthlyPlan, isLemonSqueezySubscription, isPaused, hasActiveDiscount, getDaysRemaining, createCheckout, upgradeToAnnual, pauseSubscription, resumeSubscription, applyRetentionDiscount, openCustomerPortal, refetch: refetchSubscription } = useSubscription();
   const { monthlyCount, monthlyLimit, remainingUploads } = useUsageLimit();
 
   const [settings, setSettings] = useState<AppSettings>(DEFAULT_SETTINGS);
@@ -205,6 +205,8 @@ function SettingsContent({ defaultTab }: { defaultTab: string }) {
   const [syncLoading, setSyncLoading] = useState(false);
   const [syncSuccess, setSyncSuccess] = useState(false);
   const [upgradeLoading, setUpgradeLoading] = useState(false);
+  const [pauseLoading, setPauseLoading] = useState(false);
+  const [discountLoading, setDiscountLoading] = useState(false);
 
   // Confirmation dialogs
   const [deleteReceiptsDialog, setDeleteReceiptsDialog] = useState(false);
@@ -2046,17 +2048,35 @@ For tax filing assistance, please consult a qualified tax professional.
 
               {/* Pause Option */}
               <button
-                onClick={() => {
-                  setBeforeYouGoOpen(false);
-                  alert('Subscription pausing will be available soon. For now, you can cancel and resubscribe when ready.');
+                onClick={async () => {
+                  if (isPaused) {
+                    alert('Your subscription is already paused.');
+                    return;
+                  }
+                  setPauseLoading(true);
+                  const result = await pauseSubscription();
+                  setPauseLoading(false);
+                  if (result.success) {
+                    setBeforeYouGoOpen(false);
+                    alert(`Subscription paused! It will automatically resume on ${new Date(result.resumeDate!).toLocaleDateString()}.`);
+                  } else {
+                    alert(result.error || 'Failed to pause subscription');
+                  }
                 }}
-                className="w-full flex items-center gap-3 p-3 hover:bg-muted/50 transition-colors text-left rounded-lg border"
+                disabled={pauseLoading || isPaused}
+                className="w-full flex items-center gap-3 p-3 hover:bg-muted/50 transition-colors text-left rounded-lg border disabled:opacity-50"
               >
                 <div className="w-8 h-8 rounded-lg bg-indigo-100 flex items-center justify-center flex-shrink-0">
-                  <PauseCircle className="w-4 h-4 text-indigo-600" />
+                  {pauseLoading ? (
+                    <Loader2 className="w-4 h-4 text-indigo-600 animate-spin" />
+                  ) : (
+                    <PauseCircle className="w-4 h-4 text-indigo-600" />
+                  )}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="font-medium text-sm text-foreground">Pause for 3 months</p>
+                  <p className="font-medium text-sm text-foreground">
+                    {isPaused ? 'Already Paused' : 'Pause for 3 months'}
+                  </p>
                   <p className="text-xs text-muted-foreground">Take a break, keep your data</p>
                 </div>
                 <ChevronRight className="w-4 h-4 text-muted-foreground flex-shrink-0" />
@@ -2064,19 +2084,39 @@ For tax filing assistance, please consult a qualified tax professional.
 
               {/* 50% Off Option */}
               <button
-                onClick={() => {
-                  setBeforeYouGoOpen(false);
-                  alert('Special discount offers will be available soon. Please contact support for assistance.');
+                onClick={async () => {
+                  if (hasActiveDiscount) {
+                    alert('You already have an active discount.');
+                    return;
+                  }
+                  setDiscountLoading(true);
+                  const result = await applyRetentionDiscount();
+                  setDiscountLoading(false);
+                  if (result.success) {
+                    setBeforeYouGoOpen(false);
+                    alert(`50% discount applied! Your discount is valid until ${new Date(result.discount!.endDate).toLocaleDateString()}.`);
+                  } else {
+                    alert(result.error || 'Failed to apply discount');
+                  }
                 }}
-                className="w-full flex items-center gap-3 p-3 hover:bg-muted/50 transition-colors text-left rounded-lg border"
+                disabled={discountLoading || hasActiveDiscount}
+                className="w-full flex items-center gap-3 p-3 hover:bg-muted/50 transition-colors text-left rounded-lg border disabled:opacity-50"
               >
                 <div className="w-8 h-8 rounded-lg bg-amber-100 flex items-center justify-center flex-shrink-0">
-                  <BadgePercent className="w-4 h-4 text-amber-600" />
+                  {discountLoading ? (
+                    <Loader2 className="w-4 h-4 text-amber-600 animate-spin" />
+                  ) : (
+                    <BadgePercent className="w-4 h-4 text-amber-600" />
+                  )}
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
-                    <p className="font-medium text-sm text-foreground">50% off for 3 months</p>
-                    <span className="bg-amber-100 text-amber-700 text-[10px] px-1.5 py-0.5 rounded-full font-medium">Popular</span>
+                    <p className="font-medium text-sm text-foreground">
+                      {hasActiveDiscount ? 'Discount Active' : '50% off for 3 months'}
+                    </p>
+                    {!hasActiveDiscount && (
+                      <span className="bg-amber-100 text-amber-700 text-[10px] px-1.5 py-0.5 rounded-full font-medium">Popular</span>
+                    )}
                   </div>
                   <p className="text-xs text-muted-foreground">Stay at half the price</p>
                 </div>

@@ -280,6 +280,137 @@ export function useSubscription() {
     }
   };
 
+  // Pause subscription for 3 months
+  const pauseSubscription = async (): Promise<{ success: boolean; error?: string; resumeDate?: string }> => {
+    if (!user) {
+      return { success: false, error: 'Not authenticated' };
+    }
+
+    if (!isLemonSqueezySubscription) {
+      return { success: false, error: 'Mobile subscription - please manage through the app' };
+    }
+
+    if (isPaused) {
+      return { success: false, error: 'Subscription is already paused' };
+    }
+
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.access_token) {
+        return { success: false, error: 'No session found' };
+      }
+
+      const response = await fetch('/api/subscription/pause', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`,
+        },
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        return { success: false, error: data.error || 'Failed to pause subscription' };
+      }
+
+      // Refresh subscription data
+      await fetchSubscription();
+
+      return { success: true, resumeDate: data.resumeDate };
+    } catch (err) {
+      console.error('Pause error:', err);
+      return { success: false, error: 'Failed to pause subscription' };
+    }
+  };
+
+  // Resume a paused subscription
+  const resumeSubscription = async (): Promise<{ success: boolean; error?: string }> => {
+    if (!user) {
+      return { success: false, error: 'Not authenticated' };
+    }
+
+    if (!isPaused) {
+      return { success: false, error: 'Subscription is not paused' };
+    }
+
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.access_token) {
+        return { success: false, error: 'No session found' };
+      }
+
+      const response = await fetch('/api/subscription/pause', {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`,
+        },
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        return { success: false, error: data.error || 'Failed to resume subscription' };
+      }
+
+      await fetchSubscription();
+      return { success: true };
+    } catch (err) {
+      console.error('Resume error:', err);
+      return { success: false, error: 'Failed to resume subscription' };
+    }
+  };
+
+  // Apply 50% discount for 3 months
+  const applyRetentionDiscount = async (): Promise<{ success: boolean; error?: string; discount?: { percentage: number; endDate: string } }> => {
+    if (!user) {
+      return { success: false, error: 'Not authenticated' };
+    }
+
+    if (!isLemonSqueezySubscription) {
+      return { success: false, error: 'Mobile subscription - please contact support' };
+    }
+
+    if (hasActiveDiscount) {
+      return { success: false, error: 'You already have an active discount' };
+    }
+
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.access_token) {
+        return { success: false, error: 'No session found' };
+      }
+
+      const response = await fetch('/api/subscription/discount', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`,
+        },
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        return { success: false, error: data.error || 'Failed to apply discount' };
+      }
+
+      await fetchSubscription();
+
+      return {
+        success: true,
+        discount: {
+          percentage: data.discount.percentage,
+          endDate: data.discount.endDate,
+        },
+      };
+    } catch (err) {
+      console.error('Discount error:', err);
+      return { success: false, error: 'Failed to apply discount' };
+    }
+  };
+
   return {
     subscription,
     loading,
@@ -297,6 +428,9 @@ export function useSubscription() {
     getDaysRemaining,
     createCheckout,
     upgradeToAnnual,
+    pauseSubscription,
+    resumeSubscription,
+    applyRetentionDiscount,
     openCustomerPortal,
     openUpdatePayment,
     refetch: fetchSubscription,

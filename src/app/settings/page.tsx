@@ -1706,26 +1706,6 @@ For tax filing assistance, please consult a qualified tax professional.
               </button>
             </div>
 
-            {/* Other Options */}
-            <div className="space-y-2">
-              <p className="text-xs font-medium text-muted-foreground px-1">Other</p>
-              <button
-                onClick={() => {
-                  refetchSubscription();
-                  alert('Subscription status synced successfully!');
-                }}
-                className="w-full flex items-center gap-3 p-3 hover:bg-muted/50 transition-colors text-left rounded-lg border"
-              >
-                <div className="w-8 h-8 rounded-lg bg-green-100 flex items-center justify-center flex-shrink-0">
-                  <RefreshCw className="w-4 h-4 text-green-600" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="font-medium text-sm text-foreground">Restore Purchases</p>
-                  <p className="text-xs text-muted-foreground">Sync your subscription status</p>
-                </div>
-                <ChevronRight className="w-4 h-4 text-muted-foreground flex-shrink-0" />
-              </button>
-            </div>
           </div>
 
           <DialogFooter className="pt-2">
